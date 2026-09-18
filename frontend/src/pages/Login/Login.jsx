@@ -24,7 +24,9 @@ export default function Login() {
     <div>
       <div className={styles.header}>
         <div className={styles.brandRow}>
-          <Logo size={36} withText subtitle="Clinic OS" />
+          <Link to="/" style={{ textDecoration: 'none' }} title="DentUz - Bosh sahifa">
+            <Logo size={36} withText subtitle="Clinic OS" />
+          </Link>
         </div>
 
         <h1 className={styles.title}>{t('auth.loginTitle')}</h1>

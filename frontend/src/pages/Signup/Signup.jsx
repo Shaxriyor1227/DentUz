@@ -39,7 +39,9 @@ export default function Signup() {
     <div>
       <div className={styles.header}>
         <div className={styles.brandRow}>
-          <Logo size={36} withText subtitle="Clinic OS" />
+          <Link to="/" style={{ textDecoration: 'none' }} title="DentUz - Bosh sahifa">
+            <Logo size={36} withText subtitle="Clinic OS" />
+          </Link>
         </div>
 
         <div className={styles.titleRow}>

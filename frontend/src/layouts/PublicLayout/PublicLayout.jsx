@@ -93,7 +93,19 @@ export default function PublicLayout() {
       {/* ── Sticky Header ── */}
       <header className={styles.stickyHeader}>
         <div className={styles.headerInner}>
-          <Link to="/" className={styles.brandLogoLink} aria-label="DentUz - Bosh sahifaga qaytish">
+          <Link
+            to="/"
+            className={styles.brandLogoLink}
+            aria-label="DentUz - Bosh sahifaga qaytish"
+            onClick={(e) => {
+              if (window.location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (window.location.hash) {
+                  window.history.pushState(null, '', '/');
+                }
+              }
+            }}
+          >
             <Logo size={34} withText />
           </Link>
 
@@ -178,7 +190,14 @@ export default function PublicLayout() {
 
             {/* Column 1: Brand & Social */}
             <div className={styles.brandCol}>
-              <Link to="/" className={styles.brandLink} aria-label="DentUz bosh sahifasi">
+              <Link
+                to="/"
+                className={styles.brandLink}
+                aria-label="DentUz bosh sahifasi"
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
                 <Logo size={36} withText />
               </Link>
 

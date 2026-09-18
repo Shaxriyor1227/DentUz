@@ -35,9 +35,9 @@ export default function Sidebar() {
         {/* Brand Header */}
         <div className={styles.brandHeaderWrapper}>
           <Link
-            to="/dashboard"
+            to="/"
             className={styles.brandHeader}
-            title={collapsed ? 'DentUz Dental OS' : undefined}
+            title={collapsed ? 'DentUz - Bosh sahifa' : undefined}
           >
             <Logo
               size={collapsed ? 32 : 36}
