@@ -623,7 +623,11 @@
           "Practitioner commission and monthly performance reports"
         ]
       }
-    ]
+    ],
+    "digitalHeartTitle": "The Digital Heart of Dentists",
+    "digitalHeartSubtitle": "Simplify all your management processes and increase patient satisfaction.",
+    "termsAgreement": "By logging into the system, you agree to our Terms of Use and Privacy Policy.",
+    "secureLogin": "Secure Login"
   },
   "homepage": {
     "nav": {

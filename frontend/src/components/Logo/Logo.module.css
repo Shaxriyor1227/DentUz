@@ -1,7 +1,7 @@
 .logoContainer {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   user-select: none;
   text-decoration: none;
   vertical-align: middle;
@@ -20,11 +20,40 @@
   display: block;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
+/* Official Colors: Navy (#0F172A / #141B2F) & Electric Cyan (#00B4D8) */
+.pathNavy {
+  fill: #0F172A;
+  transition: fill 0.2s ease;
+}
+
+.pathCyan {
+  fill: #00B4D8;
+  transition: fill 0.2s ease;
+}
+
+/* Dark Mode Adaptivity: Navy stroke becomes clean White */
+[data-theme='dark'] .pathNavy {
+  fill: #FFFFFF;
+}
+
+/* Variant Overrides */
+.white .pathNavy,
+.white .pathCyan {
+  fill: #FFFFFF;
+}
+
+.black .pathNavy,
+.black .pathCyan {
+  fill: #000000;
+}
+
+/* Hover Animation */
 .animated:hover .logoMarkWrapper {
-  transform: scale(1.06) rotate(-2deg);
-  filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5));
+  transform: scale(1.08) translateY(-1px);
+  filter: drop-shadow(0 4px 14px rgba(0, 180, 216, 0.35));
 }
 
 .textLockup {
@@ -34,30 +63,43 @@
 }
 
 .brandTitle {
-  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif);
-  font-size: 19px;
+  font-family: var(--font-body, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 21px;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--color-text-primary, #0F172A);
+  letter-spacing: -0.035em;
+  color: #0F172A;
+  transition: color 0.2s ease;
 }
 
 [data-theme='dark'] .brandTitle {
-  color: #F8FAFC;
+  color: #FFFFFF;
 }
 
 .brandAccent {
-  background: linear-gradient(135deg, #2DD4BF 0%, #06B6D4 50%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 900;
+  color: #0F172A;
+  font-weight: 800;
+  transition: color 0.2s ease;
+}
+
+[data-theme='dark'] .brandAccent {
+  color: #FFFFFF;
+}
+
+.white .brandTitle,
+.white .brandAccent {
+  color: #FFFFFF !important;
+}
+
+.black .brandTitle,
+.black .brandAccent {
+  color: #000000 !important;
 }
 
 .brandSubtitle {
   font-family: var(--font-mono, "JetBrains Mono", monospace);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted, #94A3B8);
   margin-top: 1px;

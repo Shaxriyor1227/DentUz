@@ -623,7 +623,11 @@
           "Shifokorlar KPI ulushi va oylik daromad hisoboti"
         ]
       }
-    ]
+    ],
+    "digitalHeartTitle": "Stomatologiyaning Raqamli Yuragi",
+    "digitalHeartSubtitle": "Barcha boshqaruv jarayonlarini soddalashtiring va bemorlar qoniqishini oshiring.",
+    "termsAgreement": "Tizimga kirish orqali siz Foydalanish shartlari va Maxfiylik siyosatiga rozilik bildirasiz.",
+    "secureLogin": "Xavfsiz Kirish"
   },
   "homepage": {
     "nav": {
