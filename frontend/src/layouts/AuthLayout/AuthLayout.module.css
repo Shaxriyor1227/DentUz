@@ -1,0 +1,334 @@
+.container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+@media (min-width: 1024px) {
+  .container {
+    flex-direction: row;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+.leftColumn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 24px;
+  background-color: var(--color-surface);
+  position: relative;
+  z-index: 10;
+  border-right: 1px solid var(--color-border);
+}
+
+@media (min-width: 1024px) {
+  .leftColumn {
+    width: 48%;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 36px 64px 28px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.leftColumn::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leftColumn::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.leftColumn::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.leftColumn::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyan);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+
+.topBackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+  text-decoration: none;
+}
+
+.topBackLink:hover {
+  color: var(--color-cyan);
+}
+
+.themeToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.themeToggleBtn:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  background-color: var(--color-surface-container);
+}
+
+.centerForm {
+  margin: auto 0;
+  padding: 16px 0;
+  width: 100%;
+  max-width: 420px;
+  align-self: center;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bottomTrust {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-top: 24px;
+  padding-bottom: 8px;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trustDot {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border);
+}
+
+/* Right Column (Showcase Carousel - Pinned / Fixed in place) */
+.rightColumn {
+  width: 100%;
+  background-color: #070B14;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-2xl);
+  overflow: hidden;
+  min-height: 520px;
+}
+
+@media (min-width: 1024px) {
+  .rightColumn {
+    width: 52%;
+    height: 100vh;
+    max-height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    padding: 48px 48px;
+    flex-shrink: 0;
+  }
+}
+
+.glowTopRight {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(6, 182, 212, 0) 70%);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+.glowBottomLeft {
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 70%);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+.showcaseWrapper {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 10;
+}
+
+.topTrustPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #22D3EE;
+  margin-bottom: 24px;
+}
+
+.trustPillDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 10px #10B981;
+}
+
+.showcaseCard {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  padding: 36px 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  position: relative;
+}
+
+.slideHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.slideIconBadge {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background-color: rgba(6, 182, 212, 0.16);
+  color: #22D3EE;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.slideModuleLabel {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #22D3EE;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.slideTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: #F8FAFC;
+  letter-spacing: -0.015em;
+}
+
+.slideDesc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #94A3B8;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.slideFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: #E2E8F0;
+}
+
+.featureRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkDot {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background-color: rgba(34, 211, 238, 0.18);
+  color: #22D3EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.carouselDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.dot {
+  height: 6px;
+  width: 8px;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.dotActive {
+  background-color: var(--color-cyan);
+  width: 28px;
+}

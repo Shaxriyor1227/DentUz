@@ -1,0 +1,27 @@
+.appContainer {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  display: flex;
+}
+
+.appContainer.sidebarCollapsed {
+  --sidebar-width: 72px;
+}
+
+.contentWrapper {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--topbar-height);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mainContent {
+  flex: 1;
+  padding: var(--space-xl);
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}

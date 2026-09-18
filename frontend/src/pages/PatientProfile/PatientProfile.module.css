@@ -1,0 +1,1002 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+}
+
+.breadcrumbRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.lastVisitBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.dateChip {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-container-high);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* Patient Summary Card */
+.summaryCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .summaryCard {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.patientIdentity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.onlineIndicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cyan);
+  border: 2px solid #FFFFFF;
+}
+
+.identityMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.patientFullName {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.idBadge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+}
+
+.regularBadge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-cyan-soft);
+  color: var(--color-cyan-hover);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.contactItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contactItemMono {
+  font-family: var(--font-mono);
+}
+
+.separatorDot {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: #CBD5E1;
+}
+
+.allergyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.summaryActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  align-self: flex-start;
+}
+
+@media (min-width: 768px) {
+  .summaryActions {
+    align-self: center;
+  }
+}
+
+.btnSecondary {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btnSecondary:hover {
+  background-color: var(--color-surface-container-high);
+}
+
+.btnPrimary {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-navy);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.btnPrimary:hover {
+  background-color: #1E293B;
+}
+
+/* Medical Tabs */
+.tabsNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-surface-container-low);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  align-self: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tabBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabBtn:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-container);
+}
+
+.tabBtnActive {
+  background-color: var(--color-surface);
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid var(--color-border);
+}
+
+.tabCountBadge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-high);
+  color: var(--color-text-primary);
+}
+
+/* Workspace Grid (8 cols / 4 cols) */
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .workspaceGrid {
+    grid-template-columns: 8fr 4fr;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Quick Treatment Stats */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.quickStatCard {
+  background-color: var(--color-surface);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statTitle {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.statVal {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-top: 4px;
+}
+
+.statValDanger {
+  color: var(--color-danger);
+}
+
+.statIconBox {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right Details Panel */
+.detailsPanel {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.detailsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.toothBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detailsTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.toothBadge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-cyan-soft);
+  color: var(--color-cyan-hover);
+}
+
+.toothFullName {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.panelField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.selectInput {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.selectInput option {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.selectInput:focus {
+  border-color: var(--color-cyan);
+}
+
+.diagBox {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.textareaInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  resize: vertical;
+  outline: none;
+  min-height: 70px;
+}
+
+.textareaInput:focus {
+  border-color: var(--color-cyan);
+}
+
+.historySection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.historyItem {
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: 11px;
+}
+
+.historyDate {
+  color: var(--color-cyan-hover);
+  font-weight: 600;
+}
+
+.historyDoctor {
+  color: var(--color-text-secondary);
+}
+
+.historyNote {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+
+.panelActions {
+  display: flex;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
+.saveBtn {
+  flex: 1;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.25);
+  transition: all var(--transition-fast);
+}
+
+.saveBtn:hover {
+  background-color: var(--color-cyan-hover);
+}
+
+.cancelBtn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Diagnostic Attachment Card */
+.attachmentCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attachmentLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.attachmentIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+}
+
+.attachmentTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.attachmentSub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+/* ========================================================
+   RICH MEDICAL TABS: General, History, X-ray, Billing
+   ======================================================== */
+.tabContentContainer {
+  width: 100%;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 1. GENERAL TAB STYLES */
+.generalGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .generalGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.medicalCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.cardHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.cardHeaderIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.cardSub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.alertPillWarning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  font-weight: 600;
+  font-size: 13px;
+  width: fit-content;
+}
+
+.badgeGood {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-mint-soft);
+  color: var(--color-mint-text);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* 2. HISTORY TIMELINE */
+.historyTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.historyTimelineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg) var(--space-xl);
+  border: 1px solid var(--color-border);
+}
+
+.timelineCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.timelineCard:hover {
+  border-color: var(--color-cyan);
+}
+
+.timelineTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timelineDateRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.timelineDateBadge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  background-color: var(--color-surface-container-low);
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+}
+
+.timelineToothBadge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-container);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.timelineProcTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.timelineDesc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.timelineBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 12px;
+}
+
+.timelineDoctor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+}
+
+.timelinePrice {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+/* 3. X-RAY GALLERY */
+.xrayGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 640px) {
+  .xrayGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .xrayGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.xrayCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.xrayCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-cyan);
+}
+
+.xrayThumb {
+  height: 160px;
+  background-color: #050B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.xrayImgMock {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.xrayZoomIcon {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.xrayCard:hover .xrayZoomIcon {
+  opacity: 1;
+}
+
+.xrayInfo {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.xrayTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.xrayMeta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* Lightbox Modal */
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(5, 11, 20, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.lightboxCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 840px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+
+.lightboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lightboxCanvas {
+  background-color: #030712;
+  height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.lightboxToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  justify-content: space-between;
+}
+
+/* 4. BILLING & INVOICES */
+.billingSummaryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+@media (min-width: 640px) {
+  .billingSummaryGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.billingStatBox {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+}
+
+.billingStatLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.billingStatVal {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-top: 4px;
+}
+
+.billingTableCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.receiptModalCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-xl);
+}
+

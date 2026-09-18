@@ -1,0 +1,343 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background-color: var(--color-primary-container);
+  color: var(--color-text-on-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 50;
+  user-select: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform var(--transition-base);
+  overflow-x: hidden;
+}
+
+.topSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandHeaderWrapper {
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: var(--color-primary-container);
+  gap: 8px;
+}
+
+.brandHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  min-width: 0;
+}
+
+.brandLogo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.brandTitles {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.brandNameCyan {
+  color: var(--color-cyan);
+}
+
+.brandTag {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: #BEC6E0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.collapseToggleBtn {
+  background: transparent;
+  border: none;
+  color: #7C839B;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.collapseToggleBtn span {
+  font-size: 20px;
+}
+
+.collapseToggleBtn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+
+.sectionLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7C839B;
+  padding: var(--space-md) var(--space-lg) var(--space-xs);
+  white-space: nowrap;
+}
+
+.sectionDivider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.06);
+  margin: 12px 14px;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 var(--space-sm);
+  list-style: none;
+}
+
+.navListItem {
+  position: relative;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  color: #BEC6E0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  white-space: nowrap;
+  position: relative;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #FFFFFF;
+}
+
+.navItemActive {
+  background-color: rgba(86, 94, 116, 0.25);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-left-color: var(--color-cyan);
+}
+
+.navIcon {
+  font-size: 20px;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.navLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Floating tooltip when sidebar is collapsed */
+.floatingTooltip {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #0F172A;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.navItem:hover .floatingTooltip,
+.bottomLink:hover .floatingTooltip,
+.logoutBtn:hover .floatingTooltip,
+.bottomToggleBtn:hover .floatingTooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(2px);
+}
+
+.bottomSection {
+  padding: var(--space-md) var(--space-sm) var(--space-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.bottomLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  color: #94A3B8;
+  font-family: var(--font-body);
+  font-size: 12px;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+}
+
+.bottomLink:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  color: #F87171;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+}
+
+.bottomToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  color: #94A3B8;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+  margin-top: 4px;
+}
+
+.bottomToggleBtn:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #FFFFFF;
+}
+
+.toggleText {
+  flex: 1;
+  text-align: left;
+}
+
+.kbdShortcut {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #94A3B8;
+}
+
+/* Collapsed state styles (72px) */
+.sidebarCollapsed {
+  width: var(--sidebar-width);
+}
+
+.sidebarCollapsed .brandHeaderWrapper {
+  padding: 0;
+  justify-content: center;
+}
+
+.sidebarCollapsed .collapseToggleBtn {
+  display: none;
+}
+
+.sidebarCollapsed .navList {
+  padding: 0 10px;
+}
+
+.sidebarCollapsed .navItem {
+  justify-content: center;
+  padding: 12px 0;
+  border-left: 3px solid transparent;
+  border-radius: 10px;
+}
+
+.sidebarCollapsed .navItemActive {
+  background-color: rgba(6, 182, 212, 0.18);
+  color: var(--color-cyan);
+  border-left-color: var(--color-cyan);
+}
+
+.sidebarCollapsed .bottomSection {
+  padding: var(--space-md) 10px var(--space-lg);
+}
+
+.sidebarCollapsed .bottomLink,
+.sidebarCollapsed .logoutBtn,
+.sidebarCollapsed .bottomToggleBtn {
+  justify-content: center;
+  padding: 10px 0;
+  border-radius: 10px;
+}

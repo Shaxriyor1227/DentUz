@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /#features
+Allow: /#pricing
+Allow: /#testimonials
+Allow: /#contact
+
+# Disallow authenticated app routes from indexing
+Disallow: /dashboard
+Disallow: /patients
+Disallow: /calendar
+Disallow: /treatment-plan
+Disallow: /finance
+Disallow: /settings
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://dentuz.uz/sitemap.xml

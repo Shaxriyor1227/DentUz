@@ -1,0 +1,510 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+}
+
+.greetingSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+@media (min-width: 640px) {
+  .greetingSection {
+    flex-direction: row;
+    align-items: baseline;
+  }
+}
+
+.greetingTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .greetingTitle {
+    font-size: 32px;
+  }
+}
+
+.greetingSubtext {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.cabinetBadge {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 640px) {
+  .cabinetBadge {
+    display: inline-flex;
+  }
+}
+
+.cabinetDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-mint);
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+/* Appointments Card */
+.appointmentsCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.headerTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerTitle {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.headerDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cyan);
+}
+
+.patientCountBadge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.appointmentList {
+  display: flex;
+  flex-direction: column;
+}
+
+.appointmentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 10px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.appointmentItem:last-child {
+  border-bottom: none;
+}
+
+.appointmentItem:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.appointmentItemActive {
+  background-color: rgba(6, 182, 212, 0.08);
+  border-left: 3px solid var(--color-cyan);
+  padding-left: 14px;
+}
+
+.itemLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.itemTime {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  width: 52px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.itemTimeActive {
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+}
+
+.patientInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.patientName {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.procedureName {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* Stacked Stat Cards */
+.statsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* =======================================================
+   ENHANCED CLINICAL DASHBOARD: CHAIRS, CHART, QUICK ACTIONS
+   ======================================================= */
+
+/* Quick Actions Bar */
+.quickActionsRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+@media (min-width: 768px) {
+  .quickActionsRow {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.quickActionBtn {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  text-align: left;
+}
+
+.quickActionBtn:hover {
+  border-color: var(--color-cyan);
+  background-color: var(--color-surface-container-low);
+  transform: translateY(-1px);
+}
+
+.quickActionIconBox {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quickActionTextGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.quickActionTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.quickActionSub {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* Dental Chairs Live Status */
+.chairsSection {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg) var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.chairsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .chairsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .chairsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.chairCard {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--space-md);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.chairCard:hover {
+  border-color: var(--color-cyan);
+}
+
+.chairTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chairNum {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.chairStatusText {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.chairPulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.pulseActive {
+  background-color: var(--color-mint);
+  box-shadow: 0 0 0 3px var(--color-mint-soft);
+}
+
+.pulseIdle {
+  background-color: var(--color-info);
+}
+
+.pulseCleaning {
+  background-color: var(--color-warning);
+}
+
+.chairDoctor {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.chairProcedure {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+}
+
+.chairTimeRemaining {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  width: fit-content;
+}
+
+/* Weekly Revenue & Inflow Dynamic Chart */
+.chartCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.chartBarsContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 150px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.chartBarCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chartBarTrack {
+  width: 100%;
+  max-width: 32px;
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-sm);
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.chartBarFill {
+  width: 100%;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: linear-gradient(180deg, var(--color-cyan) 0%, var(--color-cyan-hover) 100%);
+  transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chartBarFillToday {
+  background: linear-gradient(180deg, #38BDF8 0%, var(--color-cyan) 100%);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+.chartDayLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.chartValTooltip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Urgent Notification Banner */
+.alertsStrip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+@media (min-width: 640px) {
+  .alertsStrip {
+    flex-direction: row;
+  }
+}
+
+.alertItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+}
+
+.alertIconCyan {
+  color: var(--color-cyan-hover);
+}
+
+.alertIconAmber {
+  color: var(--color-warning);
+}
+

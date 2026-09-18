@@ -1,0 +1,1475 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+@media (min-width: 1280px) {
+  .topBar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.titleArea {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.badge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+}
+
+.dateRangeNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.navArrowBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.navArrowBtn:hover {
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+}
+
+.dateRangeText {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.todayBtn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.todayBtn:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-border);
+}
+
+.viewModeGroup {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-surface-container);
+  padding: 3px;
+  border-radius: var(--radius-md);
+  gap: 2px;
+}
+
+.viewModeBtn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.viewModeBtnActive {
+  background-color: var(--color-surface);
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+  box-shadow: var(--shadow-xs);
+}
+
+/* Right Filter / Action Controls */
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Scalable Top Bar Doctor Filter Dropdown (Just like Image 4) */
+.topDoctorFilter {
+  position: relative;
+}
+
+.topDoctorTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+}
+
+.topDoctorTrigger:hover,
+.topDoctorTriggerActive {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+.topDoctorAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.topDoctorName {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.topDoctorRole {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.topDoctorPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 280px;
+  max-width: 90vw;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: 120;
+  overflow: hidden;
+  animation: popoverFadeIn 0.18s ease-out;
+}
+
+.topDoctorSearchBox {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topDoctorSearchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.topDoctorList {
+  max-height: 230px;
+  overflow-y: auto;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.topDoctorItem {
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.topDoctorItem:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.topDoctorItemActive {
+  background-color: rgba(6, 182, 212, 0.12);
+}
+
+.newApptBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-cyan), var(--color-cyan-hover));
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.newApptBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+}
+
+/* Feedback banner */
+.optimisticBanner {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background-color: #ECFEFF;
+  border: 1px solid #A5F3FC;
+  color: #0E7490;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: bannerSlideDown 0.2s ease-out;
+}
+
+@keyframes bannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main Card Container */
+.calendarCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* =========================================================
+   WEEK VIEW MATRIX
+   ========================================================= */
+.calendarGrid {
+  min-width: 860px;
+  display: flex;
+  flex-direction: column;
+}
+
+.headerRow {
+  display: grid;
+  grid-template-columns: 72px repeat(7, 1fr);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timeHeaderCorner {
+  padding: 12px;
+  text-align: right;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.dayHeaderCell {
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.dayHeaderCell:hover {
+  background-color: var(--color-surface-container);
+}
+
+.dayHeaderCellToday {
+  background-color: rgba(6, 182, 212, 0.08);
+}
+
+.dayName {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.dayNameToday {
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+}
+
+.dayNumber {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-top: 2px;
+}
+
+.dayNumberToday {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.timeSlotRow {
+  display: grid;
+  grid-template-columns: 72px repeat(7, 1fr);
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: 82px;
+}
+
+.timeLabelCell {
+  padding: 8px 12px;
+  text-align: right;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+.slotCell {
+  border-left: 1px solid var(--color-border-subtle);
+  padding: 4px;
+  position: relative;
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.slotCell:hover {
+  background-color: rgba(6, 182, 212, 0.03);
+}
+
+.slotCellDragOver {
+  background-color: rgba(6, 182, 212, 0.14) !important;
+  border: 1.5px dashed var(--color-cyan) !important;
+}
+
+.slotAddHint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.slotCell:hover .slotAddHint {
+  opacity: 1;
+}
+
+.slotAddBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-cyan);
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Draggable Appointment Card */
+.appointmentCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.appointmentCard:active {
+  cursor: grabbing;
+}
+
+.appointmentCard:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+.apptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.apptTime {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.apptPatient {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.apptProcedure {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.apptDoctorTag {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-secondary);
+  width: fit-content;
+  margin-top: 2px;
+}
+
+/* =========================================================
+   DAY VIEW (KUNLIK JADVAL) - PREMIUM CLINIC CRM
+   ========================================================= */
+.dayViewWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 7-Day Fast Switcher Strip */
+.dayTabsStrip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.dayTabItem {
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-right: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+  position: relative;
+}
+
+.dayTabItem:last-child {
+  border-right: none;
+}
+
+.dayTabItem:hover {
+  background-color: var(--color-surface-container);
+}
+
+.dayTabItemActive {
+  background-color: var(--color-surface);
+  box-shadow: inset 0 -3px 0 0 var(--color-cyan);
+}
+
+.dayTabItemToday::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cyan);
+}
+
+.dayTabName {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dayTabItemActive .dayTabName {
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+}
+
+.dayTabNum {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.dayTabItemActive .dayTabNum {
+  color: var(--color-cyan-hover);
+}
+
+.dayTabCountBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background-color: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  margin-top: 2px;
+}
+
+/* Day Summary Stats Bar */
+.dayStatsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dayDateInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dayDateTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.dayPillsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.daySummaryPill {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Hourly Timeline */
+.dayTimeline {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px;
+  position: relative;
+}
+
+.daySlotRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: 85px;
+  position: relative;
+}
+
+.daySlotRow:last-child {
+  border-bottom: none;
+}
+
+.dayHourColumn {
+  width: 70px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-top: 4px;
+}
+
+.dayHourLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.daySlotAppts {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.dayApptCardDetailed {
+  flex: 1;
+  min-width: 320px;
+  max-width: 580px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.dayApptCardDetailed:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-cyan);
+}
+
+.dayApptHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dayApptTimeBadge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-surface-container-low);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.dayApptPatientRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dayApptPatientName {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dayApptPatientId {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-container);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.dayApptProcedureBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background-color: rgba(6, 182, 212, 0.06);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  width: fit-content;
+}
+
+.dayApptFooterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 2px;
+}
+
+.dayApptDoctorInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayApptDoctorAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.dayApptDoctorName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.dayApptActionLink {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dayApptActionLink:hover {
+  text-decoration: underline;
+}
+
+.dayApptStatusPill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.daySlotEmptyAction {
+  flex: 1;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+}
+
+.daySlotEmptyAction:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan-hover);
+  background-color: rgba(6, 182, 212, 0.04);
+}
+
+/* =========================================================
+   MONTH VIEW (OYLIK JADVAL)
+   ========================================================= */
+.monthViewWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.monthHeaderRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.monthHeaderCell {
+  padding: 12px 8px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.monthHeaderCell:last-child {
+  border-right: none;
+}
+
+.monthMatrixGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.monthDayCell {
+  min-height: 115px;
+  border-right: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-surface);
+}
+
+.monthDayCell:nth-child(7n) {
+  border-right: none;
+}
+
+.monthDayCell:hover {
+  background-color: rgba(6, 182, 212, 0.03);
+}
+
+.monthDayCellOther {
+  background-color: var(--color-surface-container-lowest);
+  opacity: 0.45;
+}
+
+.monthDayCellToday {
+  background-color: rgba(6, 182, 212, 0.06);
+}
+
+.monthDayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.monthDayNum {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.monthDayNumToday {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.monthCountBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+}
+
+.monthApptList {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.monthApptItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--color-surface-container-low);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.monthMoreBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  padding: 1px 4px;
+}
+
+/* =========================================================
+   OVERHAULED MODAL: "Yangi qabul belgilash" (UX-PRO-MAX)
+   ========================================================= */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalWindow {
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border-radius: 18px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalHeaderBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modalHeaderTitleArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalIconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background-color: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalMainTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modalSubTitle {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.modalCloseBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-container-low);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.modalCloseBtn:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-text-primary);
+}
+
+.modalForm {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fieldInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fieldIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-outline);
+  pointer-events: none;
+}
+
+.formTextInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.formTextInput:focus {
+  border-color: var(--color-cyan);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+.chipsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.quickChipBtn {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.quickChipBtn:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.quickChipBtnActive {
+  background-color: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  border-color: var(--color-cyan);
+  font-weight: 600;
+}
+
+/* Category Tabs & Procedure Selection */
+.categoryTabsStrip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 0 2px 0;
+  scrollbar-width: none;
+}
+
+.categoryTabsStrip::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryTabBtn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.categoryTabBtn:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.categoryTabBtnActive {
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  border-color: var(--color-cyan);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(6, 182, 212, 0.25);
+}
+
+.categoryProceduresList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 10px;
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.procedurePillBtn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.procedurePillBtn:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan-hover);
+}
+
+.procedurePillBtnActive {
+  background-color: rgba(6, 182, 212, 0.12);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan-hover);
+  font-weight: 600;
+}
+
+/* Scalable Doctor Selector Dropdown */
+.doctorDropdownWrap {
+  position: relative;
+  width: 100%;
+}
+
+.doctorTrigger {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.doctorTrigger:hover,
+.doctorTriggerActive {
+  border-color: var(--color-cyan);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+.doctorSelectedInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.docAvatarSmall {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.docSelectedName {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.docSelectedRole {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doctorMenuPopover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popoverFadeIn 0.18s ease-out;
+}
+
+.doctorSearchBox {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doctorSearchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.doctorMenuList {
+  max-height: 190px;
+  overflow-y: auto;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doctorMenuItem {
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.doctorMenuItem:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.doctorMenuItemActive {
+  background-color: rgba(6, 182, 212, 0.12);
+}
+
+/* Two-column form rows */
+.formGridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.formSelect {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.formSelect:focus {
+  border-color: var(--color-cyan);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+.modalFooterBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 4px;
+}
+
+.btnCancel {
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnCancel:hover {
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+}
+
+.btnSubmit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 22px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-cyan), var(--color-cyan-hover));
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.btnSubmit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}

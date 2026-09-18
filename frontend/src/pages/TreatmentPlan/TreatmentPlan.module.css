@@ -1,0 +1,814 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 1080px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.breadcrumbRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.headerCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .headerCard {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 680px;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planTag {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+}
+
+.protocolType {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.planTitle {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.h1ProgressBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background-color: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
+}
+
+.h1BadgeDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-cyan);
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.8);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.metaSeparator {
+  color: var(--color-border-hover);
+}
+
+.headerProgressRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-subtle);
+  width: 100%;
+}
+
+.headerProgressCounts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.headerProgressBarBg {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  overflow: hidden;
+}
+
+.headerProgressBarFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-cyan), var(--color-mint));
+  transition: width 0.4s ease;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.printBtn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.printBtn:hover {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-cyan-hover);
+}
+
+.addProcBtn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.addProcBtn:hover {
+  background-color: var(--color-cyan-hover);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+}
+
+/* Procedures Ledger Table */
+.ledgerCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-md) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.ledgerHeader {
+  display: grid;
+  grid-template-columns: 48px 5fr 2fr 2fr 2.5fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.stepRow {
+  display: grid;
+  grid-template-columns: 48px 5fr 2fr 2fr 2.5fr;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+.stepRow:last-child {
+  border-bottom: none;
+}
+
+.stepRow:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.stepNum {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.stepDetails {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepTitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.stepDesc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.toothTag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+  width: fit-content;
+}
+
+.stepDate {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.stepPriceCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  text-align: right;
+}
+
+.priceAmount {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Status Dropdown Menu */
+.statusDropdownContainer {
+  position: relative;
+  display: inline-flex;
+}
+
+.statusSelectTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  padding: 1px 4px 1px 1px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.statusSelectTrigger:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-border);
+}
+
+.triggerChevron {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.statusPopover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 170px;
+  padding: 5px;
+  border-radius: 12px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: popoverFade 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes popoverFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+:root .statusPopover,
+[data-theme='light'] .statusPopover {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+[data-theme='dark'] .statusPopover {
+  background: rgba(18, 24, 38, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65);
+}
+
+.popoverOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease;
+}
+
+.popoverOption:hover {
+  background-color: var(--color-surface-container);
+}
+
+.popoverOptionActive {
+  background-color: rgba(6, 182, 212, 0.12);
+}
+
+.optionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.optionLabel {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.optionCheck {
+  font-size: 16px;
+  color: var(--color-cyan-hover);
+  margin-left: auto;
+}
+
+/* Total summary card */
+.totalSummaryCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.summaryTotalRow {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.remainingAmount {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+}
+
+/* ════════════════════════════════════════════════════════════
+   PROFESSIONAL CLINICAL PDF MODAL & PRINT ENGINE
+   ════════════════════════════════════════════════════════════ */
+.pdfModalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 15, 25, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  overflow-y: auto;
+}
+
+.pdfModalContainer {
+  width: 100%;
+  max-width: 860px;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.pdfModalToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background-color: var(--color-surface-container);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pdfToolbarTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdfToolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdfActionBtn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pdfPrintBtn {
+  background-color: var(--color-cyan);
+  color: #FFFFFF;
+  border: none;
+}
+
+.pdfPrintBtn:hover {
+  background-color: var(--color-cyan-hover);
+}
+
+.pdfJsonBtn {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.pdfJsonBtn:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.pdfCloseBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pdfModalBody {
+  overflow-y: auto;
+  padding: 24px;
+  background-color: var(--color-surface-dim);
+}
+
+/* The Clinical A4 Document Paper */
+.pdfSheet {
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pdfClinicHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #0F172A;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.pdfClinicBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdfLogoMark {
+  width: 38px;
+  height: 38px;
+  background-color: #0891B2;
+  color: #FFFFFF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdfClinicName {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.2;
+}
+
+.pdfClinicLicense {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #64748B;
+}
+
+.pdfDocMeta {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #475569;
+}
+
+.pdfDocTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+
+.pdfDossierGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+}
+
+.pdfDossierCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.pdfDossierRow {
+  display: flex;
+  gap: 8px;
+}
+
+.pdfDossierLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #64748B;
+  min-width: 80px;
+}
+
+.pdfDossierVal {
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.pdfTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+
+.pdfTable th {
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #334155;
+  text-align: left;
+}
+
+.pdfTable td {
+  border: 1px solid #E2E8F0;
+  padding: 10px;
+  vertical-align: middle;
+  color: #0F172A;
+}
+
+.pdfFinancialSummary {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.pdfSummaryBox {
+  width: 320px;
+  background-color: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.pdfSummaryLine {
+  display: flex;
+  justify-content: space-between;
+  color: #475569;
+}
+
+.pdfSummaryLineTotal {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #CBD5E1;
+  font-weight: 700;
+  font-size: 14px;
+  color: #0F172A;
+}
+
+.pdfNotice {
+  font-size: 10px;
+  color: #64748B;
+  border-left: 2px solid #0891B2;
+  padding-left: 10px;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.pdfSignatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding-top: 16px;
+}
+
+.pdfSignCol {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.pdfSignTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.pdfSignLine {
+  border-bottom: 1px solid #94A3B8;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748B;
+  padding-bottom: 4px;
+}
+
+/* Print Overrides */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #clinical-print-sheet, #clinical-print-sheet * {
+    visibility: visible;
+  }
+  #clinical-print-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+}

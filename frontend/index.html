@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('dentuz_theme');
+          var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {}
+      })();
+    </script>
+
+    <!-- Primary Meta Tags -->
+    <title>DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi</title>
+    <meta name="title" content="DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi" />
+    <meta name="description" content="DentUz — O'zbekistondagi stomatologiya klinikal boshqaruv tizimi. Bemorlar kartochkasi, digital odontogramma, moliyaviy hisobotlar va randevu boshqaruvi bir platformada." />
+    <meta name="keywords" content="stomatologiya tizimi, dental klinika boshqaruvi, odontogramma, bemor kartochkasi, O'zbekiston, DentUz, stomatolog dastur" />
+    <meta name="author" content="DentUz Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="canonical" href="https://dentuz.uz/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dentuz.uz/" />
+    <meta property="og:title" content="DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi" />
+    <meta property="og:description" content="O'zbekistondagi stomatologiya klinikal boshqaruv tizimi. Bemorlar kartochkasi, digital odontogramma, moliyaviy hisobotlar bir platformada." />
+    <meta property="og:image" content="https://dentuz.uz/og-image.png" />
+    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:site_name" content="DentUz" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://dentuz.uz/" />
+    <meta name="twitter:title" content="DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi" />
+    <meta name="twitter:description" content="O'zbekistondagi stomatologiya klinikal boshqaruv tizimi. Bemorlar kartochkasi, digital odontogramma, moliyaviy hisobotlar bir platformada." />
+    <meta name="twitter:image" content="https://dentuz.uz/og-image.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- 
+      Font Loading Strategy: Preload critical font CSS to avoid render-blocking.
+      Using font-display=swap to prevent invisible text during font load.
+      Preconnect for faster DNS + TCP resolution.
+    -->
+    <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      Material Symbols is loaded ONLY when the app shell (Sidebar/TopBar) is
+      requested — i.e., after the user navigates to /dashboard, /patients etc.
+      Public marketing pages use inline SVG icons instead (zero font cost).
+      This eliminates 321KB on the homepage critical path.
+    -->
+
+    <!-- Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "DentUz",
+      "description": "O'zbekistondagi zamonaviy stomatologiya klinikasi boshqaruv tizimi",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "280000",
+        "priceCurrency": "UZS"
+      },
+      "url": "https://dentuz.uz",
+      "publisher": {
+        "@type": "Organization",
+        "name": "DentUz",
+        "url": "https://dentuz.uz"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
