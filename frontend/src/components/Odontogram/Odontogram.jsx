@@ -1,4 +1,5 @@
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './Odontogram.module.css';
 
 // FDI Layout coordinate definitions
@@ -183,6 +184,7 @@ export default function Odontogram({
   onSelectTooth,
   onUpdateStatus
 }) {
+  const { t, i18n } = useTranslation();
   const handleSelect = useCallback(
     (toothId) => {
       if (onSelectTooth) {
@@ -197,17 +199,17 @@ export default function Odontogram({
       {/* Top Header Row with Title and Mode Switch */}
       <div className={styles.headerRow}>
         <div>
-          <h2 className={styles.title}>FDI Tizimi bo'yicha tishlar xaritasi</h2>
+          <h2 className={styles.title}>{t('odontogram.title')}</h2>
           <p className={styles.subtitle}>
-            Xalqaro standart FDI Two-Digit tizimi: doimiy tishlar holati (11–48)
+            {t('odontogram.subtitle')}
           </p>
         </div>
         <div className={styles.viewModeSwitch}>
           <button className={`${styles.modeBtn} ${styles.modeBtnActive}`} type="button">
-            Doimiy (Kattalar)
+            {i18n.language === 'en' ? 'Permanent (Adult)' : 'Doimiy (Kattalar)'}
           </button>
           <button className={styles.modeBtn} type="button">
-            Sut tishlari
+            {i18n.language === 'en' ? 'Primary (Deciduous)' : 'Sut tishlari'}
           </button>
         </div>
       </div>
@@ -217,12 +219,12 @@ export default function Odontogram({
         {/* Upper Arch (Maxilla) Header Row */}
         <div className={styles.archHeader}>
           <div className={styles.archHeaderGroup}>
-            <span className={styles.archTitle}>Yuqori Jag' (Maxilla)</span>
-            <span className={styles.quadrantBadge}>Q1 (O'ng)</span>
+            <span className={styles.archTitle}>{t('odontogram.upperJaw')}</span>
+            <span className={styles.quadrantBadge}>{t('odontogram.quadrant1')}</span>
           </div>
           <div className={styles.archHeaderGroup}>
-            <span className={styles.quadrantBadge}>Q2 (Chap)</span>
-            <span className={styles.fdiTag}>FDI Standart</span>
+            <span className={styles.quadrantBadge}>{t('odontogram.quadrant2')}</span>
+            <span className={styles.fdiTag}>{t('odontogram.fdiStandard')}</span>
           </div>
         </div>
 
@@ -278,7 +280,7 @@ export default function Odontogram({
               fontWeight="600"
               fill="#475569"
             >
-              Sagittal & Okklyuzion Meridian Chizig'i (R • L)
+              {t('odontogram.midline')}
             </text>
             <circle cx="410" cy="108" r="4.5" fill="#06B6D4" />
             <text
@@ -290,7 +292,7 @@ export default function Odontogram({
               fontWeight="600"
               fill="#94A3B8"
             >
-              Okklyuziya tekisligi
+              {t('odontogram.occlusalPlane')}
             </text>
 
             {/* Upper Row Teeth (18..11, 21..28) */}
@@ -322,12 +324,12 @@ export default function Odontogram({
         {/* Lower Arch (Mandibula) Footer Row */}
         <div className={styles.archHeader}>
           <div className={styles.archHeaderGroup}>
-            <span className={styles.archTitle}>Pastki Jag' (Mandibula)</span>
-            <span className={styles.quadrantBadge}>Q4 (O'ng)</span>
+            <span className={styles.archTitle}>{t('odontogram.lowerJaw')}</span>
+            <span className={styles.quadrantBadge}>{t('odontogram.quadrant4')}</span>
           </div>
           <div className={styles.archHeaderGroup}>
-            <span className={styles.quadrantBadge}>Q3 (Chap)</span>
-            <span className={styles.fdiTag}>FDI Standart</span>
+            <span className={styles.quadrantBadge}>{t('odontogram.quadrant3')}</span>
+            <span className={styles.fdiTag}>{t('odontogram.fdiStandard')}</span>
           </div>
         </div>
 
@@ -338,28 +340,28 @@ export default function Odontogram({
               className={styles.legendIndicator}
               style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #94A3B8' }}
             />
-            <span>Sog'lom</span>
+            <span>{t('odontogram.conditions.healthy')}</span>
           </div>
           <div className={styles.legendItem}>
             <span
               className={styles.legendIndicator}
               style={{ backgroundColor: '#FEE2E2', border: '1.5px solid #EF4444' }}
             />
-            <span>Kariyes</span>
+            <span>{t('odontogram.conditions.caries')}</span>
           </div>
           <div className={styles.legendItem}>
             <span
               className={styles.legendIndicator}
               style={{ backgroundColor: '#D1FAE5', border: '1.5px solid #10B981' }}
             />
-            <span>Davolangan / Plomba</span>
+            <span>{t('odontogram.conditions.treated')}</span>
           </div>
           <div className={styles.legendItem}>
             <span
               className={styles.legendIndicator}
               style={{ backgroundColor: '#E0F2FE', border: '1.5px solid #0284C7' }}
             />
-            <span>Toj / Qoplama</span>
+            <span>{t('odontogram.conditions.crown')}</span>
           </div>
           <div className={styles.legendItem}>
             <span
@@ -367,7 +369,7 @@ export default function Odontogram({
               style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)', border: '2px solid #06B6D4' }}
             />
             <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              Tanlangan tish
+              {t('odontogram.selectedTooth')}
             </span>
           </div>
         </div>

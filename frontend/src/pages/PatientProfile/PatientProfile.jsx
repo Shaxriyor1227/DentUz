@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { patientsApi } from '../../api/patientsApi';
 import { odontogramApi } from '../../api/odontogramApi';
 import Odontogram from '../../components/Odontogram/Odontogram';
@@ -121,6 +122,7 @@ const INITIAL_INVOICES = [
 ];
 
 export default function PatientProfile() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [chartData, setChartData] = useState({});
@@ -292,10 +294,10 @@ export default function PatientProfile() {
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             arrow_back
           </span>
-          <span>Bemorlar ro'yxatiga qaytish</span>
+          <span>{t('patientProfile.backToList')}</span>
         </Link>
         <div className={styles.lastVisitBadge}>
-          <span>Oxirgi tashrif:</span>
+          <span>{t('patientProfile.lastVisitLabel')}</span>
           <span className={styles.dateChip}>{patient?.lastVisit || '18-Sentabr, 2026'}</span>
         </div>
       </div>
@@ -312,7 +314,7 @@ export default function PatientProfile() {
             <div className={styles.nameRow}>
               <h1 className={styles.patientFullName}>{patient?.name || 'Anvar Qosimov'}</h1>
               <span className={styles.idBadge}>#{patient?.id || 'P-1042'}</span>
-              <span className={styles.regularBadge}>Doimiy bemor</span>
+              <span className={styles.regularBadge}>{t('patientProfile.regularPatient')}</span>
             </div>
 
             <div className={styles.contactRow}>
@@ -327,14 +329,14 @@ export default function PatientProfile() {
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-text-secondary)' }}>
                   cake
                 </span>
-                {patient?.birthdate || '14.08.1989'} ({patient?.age || 34} yosh)
+                {patient?.birthdate || '14.08.1989'} ({patient?.age || 34} {t('patientProfile.yearsOld')})
               </span>
               <span className={styles.separatorDot} />
               <span className={styles.allergyBadge}>
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                   warning
                 </span>
-                Allergiya: {patient?.allergies || 'Penitsillin'}
+                {t('patientProfile.allergyPrefix')} {patient?.allergies || 'Penitsillin'}
               </span>
             </div>
           </div>
@@ -345,18 +347,18 @@ export default function PatientProfile() {
             type="button"
             className={styles.btnSecondary}
             onClick={() => setActiveTab('general')}
-            title="Bemor anketasini ko'rish"
+            title={t('patientProfile.clinicalRecord')}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               badge
             </span>
-            <span>Klinik Anketa</span>
+            <span>{t('patientProfile.clinicalRecord')}</span>
           </button>
           <Link to="/calendar" className={styles.btnPrimary}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               calendar_add_on
             </span>
-            <span>Yangi qabul</span>
+            <span>{t('patientProfile.newAppointment')}</span>
           </Link>
         </div>
       </div>
@@ -371,7 +373,7 @@ export default function PatientProfile() {
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             clinical_notes
           </span>
-          <span>Umumiy ma'lumot & Anamnez</span>
+          <span>{t('patientProfile.tabs.overview')}</span>
         </button>
 
         <button
@@ -380,7 +382,7 @@ export default function PatientProfile() {
           onClick={() => setActiveTab('odontogram')}
         >
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: 'var(--color-cyan)' }} />
-          <span>Odontogramma</span>
+          <span>{t('patientProfile.tabs.odontogram')}</span>
         </button>
 
         <button
@@ -388,7 +390,7 @@ export default function PatientProfile() {
           className={`${styles.tabBtn} ${activeTab === 'history' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('history')}
         >
-          <span>Davolash tarixi</span>
+          <span>{t('patientProfile.tabs.history')}</span>
           <span className={styles.tabCountBadge}>{treatments.length}</span>
         </button>
 
@@ -397,7 +399,7 @@ export default function PatientProfile() {
           className={`${styles.tabBtn} ${activeTab === 'xray' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('xray')}
         >
-          <span>Rentgen & X-ray</span>
+          <span>{t('patientProfile.tabs.xray')}</span>
           <span className={styles.tabCountBadge}>{XRAY_GALLERY.length}</span>
         </button>
 
@@ -406,10 +408,10 @@ export default function PatientProfile() {
           className={`${styles.tabBtn} ${activeTab === 'billing' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('billing')}
         >
-          <span>To'lovlar & Hisob</span>
+          <span>{t('patientProfile.tabs.billing')}</span>
           {remainingDebt > 0 && (
             <span style={{ fontSize: '10px', background: 'var(--color-danger)', color: '#fff', padding: '1px 6px', borderRadius: 9999 }}>
-              Qarz
+              {t('patientProfile.debtBadge')}
             </span>
           )}
         </button>
@@ -432,8 +434,8 @@ export default function PatientProfile() {
             <div className={styles.statsRow}>
               <div className={styles.quickStatCard}>
                 <div>
-                  <span className={styles.statTitle}>Davolangan tishlar</span>
-                  <div className={styles.statVal}>3 ta</div>
+                  <span className={styles.statTitle}>{t('patientProfile.quickStats.treatedTeeth')}</span>
+                  <div className={styles.statVal}>3 {t('common.qty')}</div>
                 </div>
                 <div className={styles.statIconBox}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-mint)', fontSize: '20px' }}>
@@ -444,8 +446,8 @@ export default function PatientProfile() {
 
               <div className={styles.quickStatCard}>
                 <div>
-                  <span className={styles.statTitle}>Muolaja kutilmoqda</span>
-                  <div className={`${styles.statVal} ${styles.statValDanger}`}>2 ta</div>
+                  <span className={styles.statTitle}>{t('patientProfile.quickStats.treatmentPending')}</span>
+                  <div className={`${styles.statVal} ${styles.statValDanger}`}>2 {t('common.qty')}</div>
                 </div>
                 <div className={styles.statIconBox} style={{ backgroundColor: 'var(--color-danger-bg)' }}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-danger)', fontSize: '20px' }}>
@@ -456,7 +458,7 @@ export default function PatientProfile() {
 
               <div className={styles.quickStatCard}>
                 <div>
-                  <span className={styles.statTitle}>Sog'lom tishlar ulushi</span>
+                  <span className={styles.statTitle}>{t('patientProfile.quickStats.healthyShare')}</span>
                   <div className={styles.statVal}>84.3%</div>
                 </div>
                 <div className={styles.statIconBox}>
@@ -474,8 +476,8 @@ export default function PatientProfile() {
               <div className={styles.detailsHeader}>
                 <div>
                   <div className={styles.toothBadgeRow}>
-                    <span className={styles.detailsTitle}>Tish tafsilotlari</span>
-                    <span className={styles.toothBadge}>Tish #{selectedToothId}</span>
+                    <span className={styles.detailsTitle}>{t('patientProfile.detailsPanel.title')}</span>
+                    <span className={styles.toothBadge}>{t('patientProfile.detailsPanel.toothPrefix')}{selectedToothId}</span>
                   </div>
                   <div className={styles.toothFullName}>{currentTooth.name}</div>
                 </div>
@@ -483,7 +485,7 @@ export default function PatientProfile() {
                 <button
                   type="button"
                   style={{ padding: '6px', borderRadius: '6px', color: 'var(--color-text-secondary)', background: 'var(--color-surface-container-low)' }}
-                  title="Qayta yuklash"
+                  title={t('common.details')}
                   onClick={() => handleSelectTooth(selectedToothId)}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -494,43 +496,43 @@ export default function PatientProfile() {
 
               {/* Status Select */}
               <div className={styles.panelField}>
-                <label className={styles.fieldLabel}>Hozirgi Holat (Status)</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.currentStatus')}</label>
                 <select
                   className={styles.selectInput}
                   value={toothStatus}
                   onChange={(e) => setToothStatus(e.target.value)}
                 >
-                  <option value="caries">● Karies (Chuqur karies)</option>
-                  <option value="healthy">● Sog'lom (Normada)</option>
-                  <option value="treated">● Davolangan / Plomba</option>
-                  <option value="crown">● Toj / Qoplama (Crown)</option>
-                  <option value="missing">● Yo'qolgan (Ekstraktsiya)</option>
+                  <option value="caries">● {t('odontogram.conditions.caries')}</option>
+                  <option value="healthy">● {t('odontogram.conditions.healthy')}</option>
+                  <option value="treated">● {t('odontogram.conditions.treated')}</option>
+                  <option value="crown">● {t('odontogram.conditions.crown')}</option>
+                  <option value="missing">● {t('odontogram.conditions.missing')}</option>
                 </select>
               </div>
 
               {/* Clinical Diagnosis Box */}
               <div className={styles.panelField}>
-                <label className={styles.fieldLabel}>Klinik Tashxis</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.clinicalDiagnosis')}</label>
                 <div className={styles.diagBox}>
-                  {doctorDiag || 'Emal va dentin qatlami zararlangan. Termik sezuvchanlik mavjud.'}
+                  {doctorDiag || (i18n.language === 'en' ? 'Enamel and dentin layer compromised. Thermal sensitivity present.' : 'Emal va dentin qatlami zararlangan. Termik sezuvchanlik mavjud.')}
                 </div>
               </div>
 
               {/* Treatment Plan Textarea */}
               <div className={styles.panelField}>
-                <label className={styles.fieldLabel}>Muolaja Rejasi va Shifokor Izohi</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.treatmentPlanNote')}</label>
                 <textarea
                   className={styles.textareaInput}
                   rows={3}
                   value={doctorPlan}
                   onChange={(e) => setDoctorPlan(e.target.value)}
-                  placeholder="Muolaja protokolini kiriting..."
+                  placeholder={t('patientProfile.detailsPanel.planPlaceholder')}
                 />
               </div>
 
               {/* Tooth Specific History */}
               <div className={styles.historySection}>
-                <span className={styles.fieldLabel}>Tish bo'yicha amaliyotlar tarixi</span>
+                <span className={styles.fieldLabel}>{t('patientProfile.detailsPanel.toothHistory')}</span>
                 {currentTooth.history && currentTooth.history.length > 0 ? (
                   currentTooth.history.map((h, i) => (
                     <div key={i} className={styles.historyItem}>
@@ -543,7 +545,7 @@ export default function PatientProfile() {
                   ))
                 ) : (
                   <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', padding: '8px 0' }}>
-                    Ushbu tish bo'yicha tarix yozuvlari mavjud emas
+                    {t('patientProfile.detailsPanel.noToothHistory')}
                   </div>
                 )}
               </div>
@@ -551,7 +553,7 @@ export default function PatientProfile() {
               {/* Feedback */}
               {saveSuccess && (
                 <div style={{ padding: '8px 12px', background: 'var(--color-mint-soft)', color: 'var(--color-mint-text)', borderRadius: '8px', fontSize: '12px', fontWeight: 600 }}>
-                  ✓ Tish #{selectedToothId} klinik o'zgarishlari muvaffaqiyatli saqlandi!
+                  ✓ {t('patientProfile.detailsPanel.saveSuccessMsg')}
                 </div>
               )}
 
@@ -564,7 +566,7 @@ export default function PatientProfile() {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     check
                   </span>
-                  <span>O'zgarishlarni saqlash</span>
+                  <span>{t('patientProfile.detailsPanel.saveChanges')}</span>
                 </button>
 
                 <button
@@ -572,7 +574,7 @@ export default function PatientProfile() {
                   className={styles.cancelBtn}
                   onClick={() => handleSelectTooth(selectedToothId)}
                 >
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
               </div>
             </div>
@@ -586,8 +588,8 @@ export default function PatientProfile() {
                   </span>
                 </div>
                 <div>
-                  <div className={styles.attachmentTitle}>Tomografiya (CBCT 3D)</div>
-                  <div className={styles.attachmentSub}>Fayl: cbct_jaw_scan_1042.dicom</div>
+                  <div className={styles.attachmentTitle}>{t('patientProfile.detailsPanel.tomographyAttachment')}</div>
+                  <div className={styles.attachmentSub}>{t('patientProfile.detailsPanel.fileLabel')} cbct_jaw_scan_1042.dicom</div>
                 </div>
               </div>
 
@@ -599,7 +601,7 @@ export default function PatientProfile() {
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                   visibility
                 </span>
-                <span>Ko'rish</span>
+                <span>{t('patientProfile.detailsPanel.viewAttachment')}</span>
               </button>
             </div>
           </div>
@@ -619,44 +621,44 @@ export default function PatientProfile() {
                   <span className="material-symbols-outlined">badge</span>
                 </div>
                 <div>
-                  <h3 className={styles.cardTitle}>Shaxsiy va Identifikatsiya Ma'lumotlari</h3>
-                  <p className={styles.cardSub}>Klinik hisobga olish va rasmiy anketasi</p>
+                  <h3 className={styles.cardTitle}>{t('patientProfile.generalAnamnesis.personalInfoTitle')}</h3>
+                  <p className={styles.cardSub}>{t('patientProfile.generalAnamnesis.personalInfoSub')}</p>
                 </div>
               </div>
 
               <div className={styles.infoGrid}>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>To'liq Ism</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.fullName')}</span>
                   <span className={styles.infoValue}>{patient?.name || 'Anvar Qosimov'}</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Bemor ID Raqami</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.patientId')}</span>
                   <span className={styles.infoValue} style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-cyan-hover)' }}>
                     #{patient?.id || 'P-1042'}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Tug'ilgan Sana & Yosh</span>
-                  <span className={styles.infoValue}>14.08.1989 (34 yosh)</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.birthAndAge')}</span>
+                  <span className={styles.infoValue}>14.08.1989 (34 {t('patientProfile.yearsOld')})</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Jinsi</span>
-                  <span className={styles.infoValue}>Erkak</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.gender')}</span>
+                  <span className={styles.infoValue}>{t('patientProfile.generalAnamnesis.male')}</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>JSHSHIR (PINFL)</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.pinfl')}</span>
                   <span className={styles.infoValue} style={{ fontFamily: 'var(--font-mono)' }}>31408891230045</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Pasport Seriyasi</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.passport')}</span>
                   <span className={styles.infoValue} style={{ fontFamily: 'var(--font-mono)' }}>AA 5812903</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Yashash Manzili</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.address')}</span>
                   <span className={styles.infoValue}>Toshkent sh., Mirobod t., Nukus ko'chasi 24-uy</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Kasbi / Faoliyati</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.occupation')}</span>
                   <span className={styles.infoValue}>Dasturiy injiniring bo'yicha mutaxassis</span>
                 </div>
               </div>
@@ -665,10 +667,10 @@ export default function PatientProfile() {
               <div style={{ marginTop: '8px', padding: '12px', borderRadius: '8px', background: 'var(--color-surface-container-low)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
-                    Shoshilinch Bog'lanish Shaxsi
+                    {t('patientProfile.generalAnamnesis.emergencyContact')}
                   </div>
                   <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-                    Saidova Nargiza (Turmush o'rtog'i)
+                    Saidova Nargiza ({i18n.language === 'en' ? 'Spouse' : 'Turmush o\'rtog\'i'})
                   </div>
                 </div>
                 <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-cyan-hover)' }}>
@@ -684,59 +686,59 @@ export default function PatientProfile() {
                   <span className="material-symbols-outlined">health_and_safety</span>
                 </div>
                 <div>
-                  <h3 className={styles.cardTitle}>Tibbiy va Somatik Anamnez</h3>
-                  <p className={styles.cardSub}>Surunkali kasalliklar, allergiyalar va xavflar</p>
+                  <h3 className={styles.cardTitle}>{t('patientProfile.generalAnamnesis.medicalHistoryTitle')}</h3>
+                  <p className={styles.cardSub}>{t('patientProfile.generalAnamnesis.medicalHistorySub')}</p>
                 </div>
               </div>
 
               <div className={styles.infoGrid}>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Dori vositalariga allergiya</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.drugAllergy')}</span>
                   <div className={styles.alertPillWarning}>
                     <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>warning</span>
-                    <span>Penitsillin guruhi antibiotiklari</span>
+                    <span>{patient?.allergies || 'Penitsillin'}</span>
                   </div>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Qon Guruhi & Rh</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.bloodGroupRh')}</span>
                   <span className={styles.infoValue} style={{ fontFamily: 'var(--font-mono)' }}>
-                    A (II) Rh+ (Musbat)
+                    A (II) Rh+
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Yurak-qon tomir tizimi</span>
-                  <span className={styles.infoValue}>Gipertoniya 1-daraja (Barqaror, EKG normada)</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.cardiovascular')}</span>
+                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Hypertension Stage 1 (Stable, ECG normal)' : 'Gipertoniya 1-daraja (Barqaror, EKG normada)'}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Qandli Diabet</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.diabetes')}</span>
                   <span className={styles.infoValue} style={{ color: 'var(--color-mint-text)' }}>
-                    Yo'q (Oxirgi tahlil: 5.2 mmol/l)
+                    {i18n.language === 'en' ? 'None (Last lab: 5.2 mmol/l)' : 'Yo\'q (Oxirgi tahlil: 5.2 mmol/l)'}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Infeksion Xavflar (HBsAg, HCV, OIV)</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.infectiousRisks')}</span>
                   <span className={styles.infoValue} style={{ color: 'var(--color-mint-text)' }}>
-                    Inkor etiladi (Manfiy)
+                    {i18n.language === 'en' ? 'Negative / Cleared' : 'Inkor etiladi (Manfiy)'}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>O'tkazilgan operatsiyalar</span>
-                  <span className={styles.infoValue}>2018-yil appendektomiya</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.surgicalHistory')}</span>
+                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Appendectomy (2018)' : '2018-yil appendektomiya'}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Zararli Odatlar</span>
-                  <span className={styles.infoValue}>Chekmaydi, kofe ko'p ichadi</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.habits')}</span>
+                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Non-smoker' : 'Chekmaydi'}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Og'riqqa sezuvchanlik</span>
-                  <span className={styles.infoValue}>Past sezuvchanlik, anesteziyaga chidamli</span>
+                  <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.painTolerance')}</span>
+                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'High tolerance, responsive to standard anesthesia' : 'Past sezuvchanlik, anesteziyaga chidamli'}</span>
                 </div>
               </div>
 
@@ -744,13 +746,13 @@ export default function PatientProfile() {
               <div style={{ marginTop: '8px', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
-                    Stomatologik Gigiyena Indeksi (OHI-S)
+                    {t('patientProfile.generalAnamnesis.dentalHygieneIndex')}
                   </div>
                   <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-                    8.5 / 10 — Qoniqarli, muntazam nazorat tavsiya etiladi
+                    8.5 / 10
                   </div>
                 </div>
-                <span className={styles.badgeGood}>Yaxshi</span>
+                <span className={styles.badgeGood}>{t('patientProfile.generalAnamnesis.good')}</span>
               </div>
             </div>
           </div>
@@ -765,8 +767,8 @@ export default function PatientProfile() {
           <div className={styles.historyTimeline}>
             <div className={styles.historyTimelineHeader}>
               <div>
-                <h3 className={styles.cardTitle}>Xronologik Davolash Tarixi</h3>
-                <p className={styles.cardSub}>Barcha bajarilgan muolajalar, ishlatilgan materiallar va shifokorlar</p>
+                <h3 className={styles.cardTitle}>{t('patientProfile.historyTab.title')}</h3>
+                <p className={styles.cardSub}>{t('patientProfile.historyTab.sub')}</p>
               </div>
 
               <button
@@ -777,7 +779,7 @@ export default function PatientProfile() {
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                   add
                 </span>
-                <span>Yangi muolaja kiritish</span>
+                <span>{t('patientProfile.historyTab.addNewTreatment')}</span>
               </button>
             </div>
 
@@ -789,7 +791,7 @@ export default function PatientProfile() {
                     <span className={styles.timelineToothBadge}>{tr.tooth}</span>
                     <h4 className={styles.timelineProcTitle}>{tr.title}</h4>
                   </div>
-                  <StatusPill status={tr.status} label="Yakunlandi" />
+                  <StatusPill status={tr.status} label={t('patientProfile.historyTab.completedBadge')} />
                 </div>
 
                 <p className={styles.timelineDesc}>{tr.note}</p>
@@ -801,7 +803,7 @@ export default function PatientProfile() {
                     </span>
                     <span>{tr.doctor}</span>
                     <span style={{ margin: '0 4px', opacity: 0.4 }}>•</span>
-                    <span style={{ color: 'var(--color-text-muted)' }}>Material: {tr.materials}</span>
+                    <span style={{ color: 'var(--color-text-muted)' }}>{t('patientProfile.historyTab.materialLabel')} {tr.materials}</span>
                   </div>
 
                   <div className={styles.timelinePrice}>
@@ -821,19 +823,19 @@ export default function PatientProfile() {
         <div className={styles.tabContentContainer}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <h3 className={styles.cardTitle}>Rentgen va 3D Tomografiya Arxivlari</h3>
-              <p className={styles.cardSub}>Panoramik OPG, viziografik periapikal va CBCT skanerlar</p>
+              <h3 className={styles.cardTitle}>{t('patientProfile.xrayTab.title')}</h3>
+              <p className={styles.cardSub}>{t('patientProfile.xrayTab.sub')}</p>
             </div>
 
             <button
               type="button"
               className={styles.btnSecondary}
-              onClick={() => alert("Rentgen apparati (DICOM server) bilan to'g'ridan-to'g'ri integratsiya faol.")}
+              onClick={() => alert(i18n.language === 'en' ? "Direct PACS / DICOM integration is active." : "Rentgen apparati (DICOM server) bilan to'g'ridan-to'g'ri integratsiya faol.")}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 cloud_upload
               </span>
-              <span>Yangi rentgen yuklash</span>
+              <span>{t('patientProfile.xrayTab.uploadBtn')}</span>
             </button>
           </div>
 
@@ -877,13 +879,13 @@ export default function PatientProfile() {
           {/* Summary stats */}
           <div className={styles.billingSummaryGrid}>
             <div className={styles.billingStatBox}>
-              <div className={styles.billingStatLabel}>Jami hisoblangan</div>
+              <div className={styles.billingStatLabel}>{t('patientProfile.billingTab.totalBilled')}</div>
               <div className={styles.billingStatVal}>{formatUZS(totalBilled)}</div>
             </div>
 
             <div className={styles.billingStatBox}>
               <div className={styles.billingStatLabel} style={{ color: 'var(--color-mint-text)' }}>
-                To'langan summa
+                {t('patientProfile.billingTab.totalPaid')}
               </div>
               <div className={styles.billingStatVal} style={{ color: 'var(--color-mint-text)' }}>
                 {formatUZS(totalPaid)}
@@ -892,7 +894,7 @@ export default function PatientProfile() {
 
             <div className={styles.billingStatBox}>
               <div className={styles.billingStatLabel} style={{ color: remainingDebt > 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
-                Qoldiq qarzdorlik
+                {t('patientProfile.billingTab.remainingDebt')}
               </div>
               <div className={styles.billingStatVal} style={{ color: remainingDebt > 0 ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
                 {formatUZS(remainingDebt)}
@@ -904,8 +906,8 @@ export default function PatientProfile() {
           <div className={styles.billingTableCard}>
             <div className={styles.tableHeader}>
               <div>
-                <h3 className={styles.cardTitle}>Invoyslar va To'lov Kvitansiyalari</h3>
-                <p className={styles.cardSub}>Muolajalar uchun shakllantirilgan rasmiy cheklar</p>
+                <h3 className={styles.cardTitle}>{t('patientProfile.billingTab.invoiceReceiptsTitle')}</h3>
+                <p className={styles.cardSub}>{t('patientProfile.billingTab.invoiceReceiptsSub')}</p>
               </div>
 
               {remainingDebt > 0 && (
@@ -917,7 +919,7 @@ export default function PatientProfile() {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     payments
                   </span>
-                  <span>To'lov qabul qilish</span>
+                  <span>{t('patientProfile.billingTab.acceptPayment')}</span>
                 </button>
               )}
             </div>
@@ -926,13 +928,13 @@ export default function PatientProfile() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-surface-container-low)', borderBottom: '1px solid var(--color-border)' }}>
-                    <th style={{ padding: '12px 16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>CHEK #</th>
-                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>SANA</th>
-                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>MUOLAJA NOMI</th>
-                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>TO'LOV USULI</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>SUMMA</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>HOLAT</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>AMAL</th>
+                    <th style={{ padding: '12px 16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colReceiptNo')}</th>
+                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colDate')}</th>
+                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colService')}</th>
+                    <th style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colMethod')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colAmount')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colStatus')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>{t('patientProfile.billingTab.colAction')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -956,7 +958,7 @@ export default function PatientProfile() {
                         {formatUZS(inv.amount)}
                       </td>
                       <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                        <StatusPill status={inv.status === 'paid' ? 'completed' : 'pending'} label={inv.status === 'paid' ? "To'langan" : "Kutilmoqda"} />
+                        <StatusPill status={inv.status === 'paid' ? 'completed' : 'pending'} label={inv.status === 'paid' ? t('patientProfile.billingTab.statusPaid') : t('patientProfile.billingTab.statusPending')} />
                       </td>
                       <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                         <button
@@ -967,7 +969,7 @@ export default function PatientProfile() {
                           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                             print
                           </span>
-                          <span>Chek</span>
+                          <span>{t('patientProfile.billingTab.printBtn')}</span>
                         </button>
                       </td>
                     </tr>
@@ -982,12 +984,15 @@ export default function PatientProfile() {
       {/* ========================================================
           MODAL: ADD NEW TREATMENT
           ======================================================== */}
+      {/* ========================================================
+          MODAL: ADD NEW TREATMENT
+          ======================================================== */}
       {showAddTreatmentModal && (
         <div className={styles.lightboxOverlay} onClick={() => setShowAddTreatmentModal(false)}>
           <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                Yangi Muolajani Qayd Qilish
+                {t('patientProfile.addTreatmentModal.title')}
               </h3>
               <button type="button" onClick={() => setShowAddTreatmentModal(false)} style={{ color: 'var(--color-text-secondary)' }}>
                 <span className="material-symbols-outlined">close</span>
@@ -996,31 +1001,31 @@ export default function PatientProfile() {
 
             <form onSubmit={handleAddTreatment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label className={styles.fieldLabel}>Tish raqami</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.addTreatmentModal.toothNumber')}</label>
                 <input
                   type="text"
                   className={styles.selectInput}
                   value={newTreatment.tooth}
                   onChange={(e) => setNewTreatment({ ...newTreatment, tooth: e.target.value })}
-                  placeholder="masalan, #16 yoki Umumiy"
+                  placeholder={t('patientProfile.addTreatmentModal.toothPlaceholder')}
                   required
                 />
               </div>
 
               <div>
-                <label className={styles.fieldLabel}>Muolaja nomi</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.addTreatmentModal.procName')}</label>
                 <input
                   type="text"
                   className={styles.selectInput}
                   value={newTreatment.title}
                   onChange={(e) => setNewTreatment({ ...newTreatment, title: e.target.value })}
-                  placeholder="masalan, Tish kanalini plombalash (Guttapercha)"
+                  placeholder={i18n.language === 'en' ? "e.g., Root canal obturation (Gutta-percha)" : "masalan, Tish kanalini plombalash (Guttapercha)"}
                   required
                 />
               </div>
 
               <div>
-                <label className={styles.fieldLabel}>Ishlatilgan materiallar</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.addTreatmentModal.materialsUsed')}</label>
                 <input
                   type="text"
                   className={styles.selectInput}
@@ -1032,7 +1037,7 @@ export default function PatientProfile() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label className={styles.fieldLabel}>Muolaja narxi (UZS)</label>
+                  <label className={styles.fieldLabel}>{t('patientProfile.addTreatmentModal.priceUzs')}</label>
                   <input
                     type="number"
                     className={styles.selectInput}
@@ -1043,7 +1048,7 @@ export default function PatientProfile() {
                   />
                 </div>
                 <div>
-                  <label className={styles.fieldLabel}>Davolovchi shifokor</label>
+                  <label className={styles.fieldLabel}>{t('patientProfile.addTreatmentModal.attendingDoctor')}</label>
                   <select
                     className={styles.selectInput}
                     value={newTreatment.doctor}
@@ -1058,10 +1063,10 @@ export default function PatientProfile() {
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button type="submit" className={styles.btnPrimary} style={{ flex: 1, justifyContent: 'center' }}>
-                  Saqlash va qo'shish
+                  {t('patientProfile.addTreatmentModal.saveAndAdd')}
                 </button>
                 <button type="button" className={styles.btnSecondary} onClick={() => setShowAddTreatmentModal(false)}>
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>
@@ -1077,7 +1082,7 @@ export default function PatientProfile() {
           <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                Bemor To'lovini Qabul Qilish
+                {t('patientProfile.paymentModal.title')}
               </h3>
               <button type="button" onClick={() => setShowPaymentModal(false)} style={{ color: 'var(--color-text-secondary)' }}>
                 <span className="material-symbols-outlined">close</span>
@@ -1086,14 +1091,14 @@ export default function PatientProfile() {
 
             <form onSubmit={handleAddPayment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ padding: '12px', background: 'var(--color-surface-container-low)', borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Bemor qarzdorligi:</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('patientProfile.paymentModal.outstandingDebt')}</div>
                 <div style={{ fontSize: '20px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--color-danger)' }}>
                   {formatUZS(remainingDebt)}
                 </div>
               </div>
 
               <div>
-                <label className={styles.fieldLabel}>To'lanayotgan summa (UZS)</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.paymentModal.payingAmount')}</label>
                 <input
                   type="number"
                   className={styles.selectInput}
@@ -1104,7 +1109,7 @@ export default function PatientProfile() {
               </div>
 
               <div>
-                <label className={styles.fieldLabel}>To'lov usuli</label>
+                <label className={styles.fieldLabel}>{t('patientProfile.paymentModal.paymentMethod')}</label>
                 <select
                   className={styles.selectInput}
                   value={paymentMethod}
@@ -1112,7 +1117,7 @@ export default function PatientProfile() {
                 >
                   <option value="Payme">Payme</option>
                   <option value="Click">Click</option>
-                  <option value="Naqd">Naqd pul</option>
+                  <option value="Naqd">Naqd pul / Cash</option>
                   <option value="Uzcard/Humo">Terminal (Uzcard / Humo)</option>
                   <option value="Hisob-raqam">Bank o'tkazmasi</option>
                 </select>
@@ -1120,10 +1125,10 @@ export default function PatientProfile() {
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button type="submit" className={styles.btnPrimary} style={{ flex: 1, justifyContent: 'center' }}>
-                  To'lovni tasdiqlash
+                  {t('patientProfile.paymentModal.confirmPayment')}
                 </button>
                 <button type="button" className={styles.btnSecondary} onClick={() => setShowPaymentModal(false)}>
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>
@@ -1178,7 +1183,7 @@ export default function PatientProfile() {
                   onClick={() => setXrayZoom((z) => Math.min(2.5, z + 0.25))}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>zoom_in</span>
-                  <span>Kattalashtirish</span>
+                  <span>{t('patientProfile.xrayTab.zoomIn')}</span>
                 </button>
 
                 <button
@@ -1187,7 +1192,7 @@ export default function PatientProfile() {
                   onClick={() => setXrayZoom((z) => Math.max(0.75, z - 0.25))}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>zoom_out</span>
-                  <span>Kichiklashtirish</span>
+                  <span>{t('patientProfile.xrayTab.zoomOut')}</span>
                 </button>
 
                 <button
@@ -1196,12 +1201,12 @@ export default function PatientProfile() {
                   onClick={() => setXrayInvert(!xrayInvert)}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>contrast</span>
-                  <span>{xrayInvert ? "Oddiy rejim" : "Negativ/Rentgen kontrasti"}</span>
+                  <span>{xrayInvert ? t('patientProfile.xrayTab.normalMode') : t('patientProfile.xrayTab.invertMode')}</span>
                 </button>
               </div>
 
               <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                Kattalash: {Math.round(xrayZoom * 100)}%
+                {t('patientProfile.xrayTab.zoomScale')} {Math.round(xrayZoom * 100)}%
               </div>
             </div>
           </div>
@@ -1216,35 +1221,35 @@ export default function PatientProfile() {
           <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()}>
             <div style={{ textAlign: 'center', paddingBottom: '16px', borderBottom: '1px dashed var(--color-border)' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
-                Toshkent Dental Clinic
+                {t('patientProfile.receiptModal.clinicName')}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
-                Litsenziya #MED-UZ-2021-9988 • Tel: +998 71 200 44 22
+                {t('patientProfile.receiptModal.clinicLicense')}
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--color-cyan-hover)', marginTop: '8px' }}>
-                KVITANSIYA / CHEK {activeReceipt.id}
+                {t('patientProfile.receiptModal.receiptTitle')} {activeReceipt.id}
               </div>
             </div>
 
             <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Bemor:</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.patientLabel')}</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{patient?.name} (#{patient?.id})</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Sana & Vaqt:</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.dateTimeLabel')}</span>
                 <span style={{ fontFamily: 'var(--font-mono)' }}>{activeReceipt.date}, 11:45</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Xizmat turi:</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.serviceLabel')}</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{activeReceipt.procedure}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>To'lov usuli:</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.paymentMethodLabel')}</span>
                 <span style={{ fontWeight: 600 }}>{activeReceipt.method}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--color-border)', fontSize: '16px' }}>
-                <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Jami to'landi:</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>{t('patientProfile.receiptModal.totalPaidLabel')}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-cyan-hover)' }}>
                   {formatUZS(activeReceipt.amount)}
                 </span>
@@ -1263,7 +1268,7 @@ export default function PatientProfile() {
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                   print
                 </span>
-                <span>Chop etish (Print)</span>
+                <span>{t('patientProfile.receiptModal.printBtn')}</span>
               </button>
 
               <button
@@ -1271,7 +1276,7 @@ export default function PatientProfile() {
                 className={styles.btnSecondary}
                 onClick={() => setActiveReceipt(null)}
               >
-                Yopish
+                {t('patientProfile.receiptModal.closeBtn')}
               </button>
             </div>
           </div>

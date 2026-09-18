@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { teamApi } from '../../api/teamApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import styles from './Settings.module.css';
 
 export default function Settings() {
+  const { t, i18n } = useTranslation();
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('team');
@@ -92,7 +94,7 @@ export default function Settings() {
   const handleSaveSecurity = (e) => {
     e.preventDefault();
     if (passwords.newPass && passwords.newPass !== passwords.confirm) {
-      alert("Yangi parollar bir-biriga mos kelmadi!");
+      alert(i18n.language === 'en' ? 'New passwords do not match!' : "Yangi parollar bir-biriga mos kelmadi!");
       return;
     }
     setSaveSecuritySuccess(true);
@@ -106,26 +108,26 @@ export default function Settings() {
       <div className={styles.headerRow}>
         <div>
           <div className={styles.headerMeta}>
-            <span className={styles.sectionBadge}>Tizim sozlamalari</span>
+            <span className={styles.sectionBadge}>{t('settings.sectionBadge')}</span>
             <span style={{ color: 'var(--color-border)' }}>•</span>
             <span style={{ color: 'var(--color-text-secondary)' }}>
-              {activeTab === 'team' && 'Xodimlar boshqaruvi'}
-              {activeTab === 'clinic' && 'Klinika rekvizitlari'}
-              {activeTab === 'billing' && 'Obuna va balans'}
-              {activeTab === 'security' && 'Xavfsizlik va 2FA'}
+              {activeTab === 'team' && t('settings.meta.team')}
+              {activeTab === 'clinic' && t('settings.meta.clinic')}
+              {activeTab === 'billing' && t('settings.meta.billing')}
+              {activeTab === 'security' && t('settings.meta.security')}
             </span>
           </div>
           <h1 className={styles.title}>
-            {activeTab === 'team' && 'Jamoa a\'zolari'}
-            {activeTab === 'clinic' && 'Klinika ma\'lumotlari'}
-            {activeTab === 'billing' && 'Billing va tariflar'}
-            {activeTab === 'security' && 'Xavfsizlik sozlamalari'}
+            {activeTab === 'team' && t('settings.titles.team')}
+            {activeTab === 'clinic' && t('settings.titles.clinic')}
+            {activeTab === 'billing' && t('settings.titles.billing')}
+            {activeTab === 'security' && t('settings.titles.security')}
           </h1>
           <p className={styles.subtitle}>
-            {activeTab === 'team' && 'Klinikada faoliyat yurituvchi shifokorlar, ma\'murlar va xodimlar ro\'yxati hamda kirish huquqlari.'}
-            {activeTab === 'clinic' && 'Klinika litsenziyasi, manzili, aloqa telefonlari va stomatologik kreslolar soni.'}
-            {activeTab === 'billing' && 'DentUz dasturiy ta\'minoti obunasi, SMS eslatmalar paketi va to\'lov usullari.'}
-            {activeTab === 'security' && 'Tizim parolini yangilash, ikki bosqichli autentifikatsiya (2FA) va faol seanslar.'}
+            {activeTab === 'team' && t('settings.subtitles.team')}
+            {activeTab === 'clinic' && t('settings.subtitles.clinic')}
+            {activeTab === 'billing' && t('settings.subtitles.billing')}
+            {activeTab === 'security' && t('settings.subtitles.security')}
           </p>
         </div>
 
@@ -138,7 +140,7 @@ export default function Settings() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
             </span>
-            <span>Xodim qo'shish</span>
+            <span>{t('settings.team.addMember')}</span>
           </button>
         )}
       </div>
@@ -152,7 +154,7 @@ export default function Settings() {
             role="button"
             tabIndex={0}
           >
-            <span>Jamoa</span>
+            <span>{t('settings.tabs.team')}</span>
             <span className={styles.badgeSmall}>{team.length}</span>
           </div>
 
@@ -162,7 +164,7 @@ export default function Settings() {
             role="button"
             tabIndex={0}
           >
-            Klinika ma'lumotlari
+            {t('settings.tabs.clinic')}
           </div>
 
           <div
@@ -171,7 +173,7 @@ export default function Settings() {
             role="button"
             tabIndex={0}
           >
-            Billing va tariflar
+            {t('settings.tabs.billing')}
           </div>
 
           <div
@@ -180,13 +182,13 @@ export default function Settings() {
             role="button"
             tabIndex={0}
           >
-            Xavfsizlik
+            {t('settings.tabs.security')}
           </div>
         </div>
 
         <div className={styles.syncMeta}>
-          <span>Sinxronlangan:</span>
-          <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>Bugun, 14:32</span>
+          <span>{t('settings.meta.synced')}</span>
+          <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{t('settings.meta.syncedVal')}</span>
         </div>
       </div>
 
@@ -202,7 +204,7 @@ export default function Settings() {
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Ism, ixtisoslik yoki email bo'yicha saralash..."
+                placeholder={t('settings.team.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -211,14 +213,14 @@ export default function Settings() {
             <div className={styles.metaChips}>
               <div className={styles.metaChip}>
                 <span style={{ width: 6, height: 6, borderRadius: 9999, background: 'var(--color-mint)' }} />
-                <span>Faol xodimlar:</span>
+                <span>{t('settings.team.activeStaff')}</span>
                 <span className={styles.metaNum}>
                   {team.filter((m) => m.status === 'online').length}
                 </span>
               </div>
 
               <div className={styles.metaChip}>
-                <span>Litsenziya o'rni:</span>
+                <span>{t('settings.team.licenseSeats')}</span>
                 <span className={`${styles.metaNum} ${styles.metaNumCyan}`}>
                   {team.length} / 10
                 </span>
@@ -234,7 +236,7 @@ export default function Settings() {
               </div>
             ) : filteredTeam.length === 0 ? (
               <div style={{ padding: '48px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                Xodim topilmadi
+                {t('settings.team.noStaffFound')}
               </div>
             ) : (
               filteredTeam.map((member) => {
@@ -250,7 +252,7 @@ export default function Settings() {
                             className={`${styles.statusPip} ${
                               isOnline ? styles.pipOnline : styles.pipOffline
                             }`}
-                            title={isOnline ? 'Onlayn' : 'Oflayn'}
+                            title={isOnline ? t('settings.team.online') : t('settings.team.offline')}
                           />
                         </div>
                         <span className={styles.memberTitle}>{member.title}</span>
@@ -266,7 +268,7 @@ export default function Settings() {
                       </div>
 
                       <div className={styles.branchCol}>
-                        <span className={styles.branchLabel}>Filial</span>
+                        <span className={styles.branchLabel}>{t('settings.team.branch')}</span>
                         <span className={styles.branchVal}>{member.branch}</span>
                       </div>
                     </div>
@@ -275,14 +277,14 @@ export default function Settings() {
                       <button
                         type="button"
                         className={styles.permBtn}
-                        onClick={() => alert(`${member.name} huquqlarini tahrirlash oynasi`)}
+                        onClick={() => alert(`${member.name} permissions`)}
                       >
-                        Ruxsatlar
+                        {t('settings.team.permissions')}
                       </button>
                       <button
                         type="button"
                         style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}
-                        title="Ko'proq"
+                        title="More"
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                           more_vert
@@ -305,15 +307,15 @@ export default function Settings() {
           <div className={styles.settingsCard}>
             <div className={styles.settingsCardHeader}>
               <div>
-                <h3 className={styles.settingsCardTitle}>Klinika Asosiy Rekvizitlari</h3>
-                <p className={styles.settingsCardSub}>Bemorlarga beriladigan kvitansiyalar va hisobotlarda ko'rsatiladigan rasmiy ma'lumotlar</p>
+                <h3 className={styles.settingsCardTitle}>{t('settings.clinic.title')}</h3>
+                <p className={styles.settingsCardSub}>{t('settings.clinic.subtitle')}</p>
               </div>
             </div>
 
             <form onSubmit={handleSaveClinic} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Klinika Rasmiy Nomi</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.name')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
@@ -324,7 +326,7 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Tibbiy Litsenziya Raqami</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.license')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
@@ -335,7 +337,7 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Bosh Shifokor / Rahbar</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.director')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
@@ -345,7 +347,7 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Asosiy Telefon Raqami</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.phone')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
@@ -355,7 +357,7 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Elektron Pochta</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.email')}</label>
                   <input
                     type="email"
                     className={styles.inputField}
@@ -365,7 +367,7 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Ish Tartibi va Vaqtlari</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.workingHours')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
@@ -376,7 +378,7 @@ export default function Settings() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>To'liq Manzil</label>
+                <label className={styles.formLabel}>{t('settings.clinic.address')}</label>
                 <input
                   type="text"
                   className={styles.inputField}
@@ -387,7 +389,7 @@ export default function Settings() {
 
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Stomatologik Kreslolar Soni</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.chairsCount')}</label>
                   <input
                     type="number"
                     className={styles.inputField}
@@ -397,11 +399,11 @@ export default function Settings() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>CBCT 3D Tomografiya Uskunasi</label>
+                  <label className={styles.formLabel}>{t('settings.clinic.tomography')}</label>
                   <input
                     type="text"
                     className={styles.inputField}
-                    defaultValue="Vatech PaX-i3D (DICOM Server ulanishi faol)"
+                    defaultValue={t('settings.clinic.tomographyVal')}
                     readOnly
                   />
                 </div>
@@ -409,7 +411,7 @@ export default function Settings() {
 
               {saveClinicSuccess && (
                 <div style={{ padding: '10px 14px', background: 'var(--color-mint-soft)', color: 'var(--color-mint-text)', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
-                  ✓ Klinika ma'lumotlari muvaffaqiyatli saqlandi!
+                  ✓ {t('settings.clinic.saveSuccess')}
                 </div>
               )}
 
@@ -418,7 +420,7 @@ export default function Settings() {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     check
                   </span>
-                  <span>O'zgarishlarni Saqlash</span>
+                  <span>{t('settings.clinic.saveBtn')}</span>
                 </button>
               </div>
             </form>
@@ -435,75 +437,74 @@ export default function Settings() {
           <div className={styles.planBanner}>
             <div>
               <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-cyan-hover)', fontWeight: 700 }}>
-                Faol Tarif Rejasi
+                {t('settings.billing.planBadge')}
               </div>
-              <div className={styles.planName}>DentUz Enterprise Pro</div>
+              <div className={styles.planName}>{t('settings.billing.planName')}</div>
               <div className={styles.planFeatures}>
-                <span>✓ 10 tagacha shifokor va ma'murlar hisobi</span>
-                <span>✓ Cheksiz bemorlar kartasi va Odontogramma</span>
-                <span>✓ 3D CBCT DICOM rentgen arxivi integratsiyasi</span>
-                <span>✓ SMS avtomatik eslatmalar moduli</span>
+                {t('settings.billing.features', { returnObjects: true })?.map((feat, idx) => (
+                  <span key={idx}>✓ {feat}</span>
+                ))}
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Amal qilish muddati:</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('settings.billing.validUntil')}</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                01-Dekabr, 2025-yil
+                {i18n.language === 'en' ? '01-December, 2025' : '01-Dekabr, 2025-yil'}
               </div>
               <div style={{ marginTop: '6px' }}>
                 <span style={{ padding: '3px 8px', borderRadius: '4px', background: 'var(--color-mint-soft)', color: 'var(--color-mint-text)', fontSize: '11px', fontWeight: 700 }}>
-                  Faol obuna
+                  {t('settings.billing.activeSubscription')}
                 </span>
               </div>
             </div>
           </div>
 
           <div className={styles.settingsCard}>
-            <h3 className={styles.settingsCardTitle}>Klinika Kvotalari va Balans</h3>
+            <h3 className={styles.settingsCardTitle}>{t('settings.billing.quotasTitle')}</h3>
 
             <div className={styles.formGrid}>
               <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--color-surface-container-low)', border: '1px solid var(--color-border)' }}>
                 <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
-                  SMS Xabarnomalar Qoldig'i
+                  {t('settings.billing.smsBalance')}
                 </div>
                 <div style={{ fontSize: '24px', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-cyan-hover)', marginTop: '4px' }}>
-                  1 420 ta SMS
+                  {t('settings.billing.smsCount')}
                 </div>
                 <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-                  Bemorlarga qabul vaqtini eslatish va tabriklar jo'natish uchun.
+                  {t('settings.billing.smsDesc')}
                 </p>
                 <button
                   type="button"
                   style={{ marginTop: '12px', padding: '6px 12px', borderRadius: '6px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', cursor: 'pointer' }}
-                  onClick={() => alert("SMS to'ldirish oynasi: 1000 ta SMS — 150 000 UZS")}
+                  onClick={() => alert(i18n.language === 'en' ? 'SMS Top-up: 1,000 SMS — 150,000 UZS' : "SMS to'ldirish oynasi: 1000 ta SMS — 150 000 UZS")}
                 >
-                  + Paket sotib olish
+                  {t('settings.billing.buyPackage')}
                 </button>
               </div>
 
               <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--color-surface-container-low)', border: '1px solid var(--color-border)' }}>
                 <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
-                  Bulutli Xotira (X-ray & CBCT)
+                  {t('settings.billing.cloudStorage')}
                 </div>
                 <div style={{ fontSize: '24px', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '4px' }}>
                   42.8 GB / 200 GB
                 </div>
                 <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-                  Yuqori aniqlikdagi 3D tomografiya va rentgen rasmlari saqlanmoqda.
+                  {t('settings.billing.cloudDesc')}
                 </p>
               </div>
             </div>
 
             <div style={{ paddingTop: '12px', borderTop: '1px solid var(--color-border-subtle)' }}>
               <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
-                Biriktirilgan Korporativ Karta:
+                {t('settings.billing.linkedCard')}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontFamily: 'var(--font-mono)', padding: '6px 12px', background: 'var(--color-surface-container-low)', borderRadius: '6px', fontWeight: 600 }}>
                   Uzcard •••• 4821
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Muddati: 08/27</span>
+                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('settings.billing.cardExpiry')}</span>
               </div>
             </div>
           </div>
@@ -517,12 +518,12 @@ export default function Settings() {
         <div className={styles.settingsTabContent}>
           {/* Password update card */}
           <div className={styles.settingsCard}>
-            <h3 className={styles.settingsCardTitle}>Parolni Yangilash</h3>
-            <p className={styles.settingsCardSub}>Xavfsizlik uchun parolni kamida 8 ta belgidan iborat qiling</p>
+            <h3 className={styles.settingsCardTitle}>{t('settings.security.title')}</h3>
+            <p className={styles.settingsCardSub}>{t('settings.security.subtitle')}</p>
 
             <form onSubmit={handleSaveSecurity} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '440px' }}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Joriy Parol</label>
+                <label className={styles.formLabel}>{t('settings.security.current')}</label>
                 <input
                   type="password"
                   className={styles.inputField}
@@ -534,49 +535,49 @@ export default function Settings() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Yangi Parol</label>
+                <label className={styles.formLabel}>{t('settings.security.new')}</label>
                 <input
                   type="password"
                   className={styles.inputField}
                   value={passwords.newPass}
                   onChange={(e) => setPasswords({ ...passwords, newPass: e.target.value })}
-                  placeholder="Kamida 8 belgi"
+                  placeholder={t('settings.security.minChars')}
                   required
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Yangi Parolni Tasdiqlang</label>
+                <label className={styles.formLabel}>{t('settings.security.confirm')}</label>
                 <input
                   type="password"
                   className={styles.inputField}
                   value={passwords.confirm}
                   onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                  placeholder="Qayta kiriting"
+                  placeholder={t('settings.security.retype')}
                   required
                 />
               </div>
 
               {saveSecuritySuccess && (
                 <div style={{ padding: '8px 12px', background: 'var(--color-mint-soft)', color: 'var(--color-mint-text)', borderRadius: '6px', fontSize: '12px', fontWeight: 600 }}>
-                  ✓ Parol muvaffaqiyatli yangilandi!
+                  ✓ {t('settings.security.saveSuccess')}
                 </div>
               )}
 
               <button type="submit" className={styles.saveSettingsBtn}>
-                Parolni Saqlash
+                {t('settings.security.saveBtn')}
               </button>
             </form>
           </div>
 
           {/* 2FA Card */}
           <div className={styles.settingsCard}>
-            <h3 className={styles.settingsCardTitle}>Ikki Bosqichli Himoya (2FA)</h3>
+            <h3 className={styles.settingsCardTitle}>{t('settings.security.twoFactorTitle')}</h3>
 
             <div className={styles.toggleRow}>
               <div className={styles.toggleText}>
-                <span className={styles.toggleTitle}>SMS orqali tasdiqlash kodi</span>
-                <span className={styles.toggleDesc}>Yangi qurilmadan kirganda telefoningizga 6 xonali kod jo'natiladi.</span>
+                <span className={styles.toggleTitle}>{t('settings.security.twoFactorToggle')}</span>
+                <span className={styles.toggleDesc}>{t('settings.security.twoFactorDesc')}</span>
               </div>
 
               <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px' }}>
@@ -615,7 +616,7 @@ export default function Settings() {
 
           {/* Active Sessions */}
           <div className={styles.settingsCard}>
-            <h3 className={styles.settingsCardTitle}>Faol Kirish Seanslari</h3>
+            <h3 className={styles.settingsCardTitle}>{t('settings.security.sessionsTitle')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div className={styles.sessionRow}>
                 <div>
@@ -625,7 +626,7 @@ export default function Settings() {
                   </div>
                 </div>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-mint-text)', background: 'var(--color-mint-soft)', padding: '2px 8px', borderRadius: '4px' }}>
-                  Hozir faol
+                  {t('settings.security.activeNow')}
                 </span>
               </div>
 
@@ -633,15 +634,15 @@ export default function Settings() {
                 <div>
                   <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>DentUz Mobile App • iPhone 15 Pro</div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                    IP: 195.158.12.44 • Kecha, 19:40 da
+                    IP: 195.158.12.44 • {i18n.language === 'en' ? 'Yesterday, 19:40' : 'Kecha, 19:40 da'}
                   </div>
                 </div>
                 <button
                   type="button"
                   style={{ fontSize: '11px', color: 'var(--color-danger)', fontWeight: 600 }}
-                  onClick={() => alert("Sessiya to'xtatildi")}
+                  onClick={() => alert(i18n.language === 'en' ? 'Session terminated' : "Sessiya to'xtatildi")}
                 >
-                  Yakunlash
+                  {t('settings.security.terminate')}
                 </button>
               </div>
             </div>
@@ -677,17 +678,17 @@ export default function Settings() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700, marginBottom: '18px', color: 'var(--color-text-primary)' }}>
-              Yangi xodim qo'shish
+              {t('settings.team.modalTitle')}
             </h2>
             <form onSubmit={handleAddMember} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Ism va Familiya
+                  {t('settings.team.fullName')}
                 </label>
                 <input
                   required
                   type="text"
-                  placeholder="masalan, Dr. Aziz Tursunov"
+                  placeholder={t('settings.team.fullNamePlaceholder')}
                   value={newMember.name}
                   onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -696,12 +697,12 @@ export default function Settings() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Ixtisoslik / Lavozim
+                  {t('settings.team.specialty')}
                 </label>
                 <input
                   required
                   type="text"
-                  placeholder="masalan, Ortoped-Stomatolog"
+                  placeholder={t('settings.team.specialtyPlaceholder')}
                   value={newMember.title}
                   onChange={(e) => setNewMember({ ...newMember, title: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -711,23 +712,23 @@ export default function Settings() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                    Tizimdagi roli
+                    {t('settings.team.role')}
                   </label>
                   <select
                     value={newMember.role}
                     onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
                     style={{ width: '100%', height: '38px', padding: '0 8px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
                   >
-                    <option value="Shifokor">Shifokor</option>
-                    <option value="Hamshira">Hamshira</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Assistent">Assistent</option>
+                    <option value="Shifokor">{t('settings.team.roles.doctor')}</option>
+                    <option value="Hamshira">{t('settings.team.roles.nurse')}</option>
+                    <option value="Administrator">{t('settings.team.roles.admin')}</option>
+                    <option value="Assistent">{t('settings.team.roles.assistant')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                    Telefon
+                    {t('settings.team.phone')}
                   </label>
                   <input
                     type="text"
@@ -740,11 +741,11 @@ export default function Settings() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Elektron pochta
+                  {t('settings.team.email')}
                 </label>
                 <input
                   type="email"
-                  placeholder="xodim@dentuz.uz"
+                  placeholder="staff@dentuz.uz"
                   value={newMember.email}
                   onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -756,14 +757,14 @@ export default function Settings() {
                   type="submit"
                   style={{ flex: 1, height: '40px', background: 'var(--color-cyan)', color: '#FFFFFF', borderRadius: '8px', fontWeight: 600 }}
                 >
-                  Qo'shish
+                  {t('settings.team.addMember')}
                 </button>
                 <button
                   type="button"
                   style={{ height: '40px', padding: '0 16px', background: 'var(--color-surface-container)', color: 'var(--color-text-secondary)', borderRadius: '8px' }}
                   onClick={() => setShowModal(false)}
                 >
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>

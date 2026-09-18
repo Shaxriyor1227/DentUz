@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { appointmentsApi } from '../../api/appointmentsApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
@@ -129,6 +130,7 @@ function formatUzbekPhone(value) {
 }
 
 export default function Calendar() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -271,8 +273,8 @@ export default function Calendar() {
       const isSelected = dateString === formatYYYYMMDD(currentDate);
       return {
         key: dn.key,
-        name: dn.short,
-        fullName: dn.full,
+        name: t(`calendar.daysShort.${dn.key}`),
+        fullName: t(`calendar.days.${dn.key}`),
         num: d.getDate(),
         date: dateString,
         dateObj: d,
@@ -280,7 +282,7 @@ export default function Calendar() {
         isSelected
       };
     });
-  }, [currentDate, todayStr]);
+  }, [currentDate, todayStr, t]);
 
   // Compute calendar grid for Month View
   const monthGridDays = useMemo(() => {
@@ -374,27 +376,36 @@ export default function Calendar() {
 
   // Header Title & Badge
   const headerDateText = useMemo(() => {
+    const isEn = i18n.language === 'en';
+    const EN_MONTHS = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const EN_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const months = isEn ? EN_MONTHS : MONTH_NAMES;
+    const days = isEn ? EN_DAYS : DAY_NAMES.map((d) => d.full);
+
     if (viewMode === 'day') {
-      const dayName = DAY_NAMES[(currentDate.getDay() + 6) % 7].full;
-      return `${currentDate.getDate()}-${MONTH_NAMES[currentDate.getMonth()]}, ${currentDate.getFullYear()} (${dayName})`;
+      const dayName = days[(currentDate.getDay() + 6) % 7];
+      return `${currentDate.getDate()}-${months[currentDate.getMonth()]}, ${currentDate.getFullYear()} (${dayName})`;
     } else if (viewMode === 'week') {
       const first = weekDays[0];
       const last = weekDays[6];
       if (first.dateObj.getMonth() === last.dateObj.getMonth()) {
-        return `${first.num} – ${last.num} ${MONTH_NAMES[first.dateObj.getMonth()]}, ${first.dateObj.getFullYear()}`;
+        return `${first.num} – ${last.num} ${months[first.dateObj.getMonth()]}, ${first.dateObj.getFullYear()}`;
       } else {
-        return `${first.num} ${MONTH_NAMES[first.dateObj.getMonth()]} – ${last.num} ${MONTH_NAMES[last.dateObj.getMonth()]}, ${last.dateObj.getFullYear()}`;
+        return `${first.num} ${months[first.dateObj.getMonth()]} – ${last.num} ${months[last.dateObj.getMonth()]}, ${last.dateObj.getFullYear()}`;
       }
     } else {
-      return `${MONTH_NAMES[currentDate.getMonth()]}, ${currentDate.getFullYear()}`;
+      return `${months[currentDate.getMonth()]}, ${currentDate.getFullYear()}`;
     }
-  }, [viewMode, currentDate, weekDays]);
+  }, [viewMode, currentDate, weekDays, i18n.language]);
 
   const headerBadgeText = useMemo(() => {
-    if (viewMode === 'day') return 'Kunlik jadval';
-    if (viewMode === 'week') return 'Haftalik reja';
-    return 'Oylik reja';
-  }, [viewMode]);
+    if (viewMode === 'day') return i18n.language === 'en' ? 'Daily Schedule' : 'Kunlik jadval';
+    if (viewMode === 'week') return i18n.language === 'en' ? 'Weekly View' : 'Haftalik reja';
+    return i18n.language === 'en' ? 'Monthly View' : 'Oylik reja';
+  }, [viewMode, i18n.language]);
 
   // Open modal pre-filled with day/time slot
   const handleOpenSlot = (dayKey, dateStr, slotTime) => {
@@ -550,7 +561,7 @@ export default function Calendar() {
       <div className={styles.topBar}>
         <div className={styles.leftControls}>
           <div className={styles.titleArea}>
-            <h1 className={styles.title}>Taqvim</h1>
+            <h1 className={styles.title}>{t('calendar.title')}</h1>
             <span className={styles.badge}>{headerBadgeText}</span>
           </div>
 
@@ -559,8 +570,8 @@ export default function Calendar() {
               type="button"
               className={styles.navArrowBtn}
               onClick={handlePrev}
-              title="Oldingi"
-              aria-label="Oldingi davr"
+              title={i18n.language === 'en' ? 'Previous' : 'Oldingi'}
+              aria-label="Previous period"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chevron_left
@@ -571,8 +582,8 @@ export default function Calendar() {
               type="button"
               className={styles.navArrowBtn}
               onClick={handleNext}
-              title="Keyingi"
-              aria-label="Keyingi davr"
+              title={i18n.language === 'en' ? 'Next' : 'Keyingi'}
+              aria-label="Next period"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chevron_right
@@ -582,9 +593,9 @@ export default function Calendar() {
               type="button"
               className={styles.todayBtn}
               onClick={handleToday}
-              title="Bugungi kunga qaytish"
+              title={t('calendar.todayBtn')}
             >
-              Bugun
+              {t('calendar.todayBtn')}
             </button>
           </div>
 
@@ -595,21 +606,21 @@ export default function Calendar() {
               className={`${styles.viewModeBtn} ${viewMode === 'day' ? styles.viewModeBtnActive : ''}`}
               onClick={() => setViewMode('day')}
             >
-              Kun
+              {t('calendar.viewDay')}
             </button>
             <button
               type="button"
               className={`${styles.viewModeBtn} ${viewMode === 'week' ? styles.viewModeBtnActive : ''}`}
               onClick={() => setViewMode('week')}
             >
-              Hafta
+              {t('calendar.viewWeek')}
             </button>
             <button
               type="button"
               className={`${styles.viewModeBtn} ${viewMode === 'month' ? styles.viewModeBtnActive : ''}`}
               onClick={() => setViewMode('month')}
             >
-              Oy
+              {t('calendar.viewMonth')}
             </button>
           </div>
         </div>
@@ -621,12 +632,12 @@ export default function Calendar() {
               type="button"
               className={`${styles.topDoctorTrigger} ${topDoctorFilterOpen ? styles.topDoctorTriggerActive : ''}`}
               onClick={() => setTopDoctorFilterOpen((prev) => !prev)}
-              title="Shifokor bo'yicha saralash"
+              title={t('calendar.allDoctors')}
             >
               {selectedDoctor === 'all' ? (
                 <>
                   <span style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: 'var(--color-cyan)', flexShrink: 0 }} />
-                  <span className={styles.topDoctorName}>Barcha shifokorlar</span>
+                  <span className={styles.topDoctorName}>{t('calendar.allDoctors')}</span>
                 </>
               ) : (
                 (() => {
@@ -654,7 +665,7 @@ export default function Calendar() {
                   </span>
                   <input
                     type="text"
-                    placeholder="Shifokor qidirish..."
+                    placeholder={t('calendar.searchDoctor')}
                     value={topDoctorSearch}
                     onChange={(e) => setTopDoctorSearch(e.target.value)}
                     className={styles.topDoctorSearchInput}
@@ -684,10 +695,10 @@ export default function Calendar() {
                       <span style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: 'var(--color-cyan)', flexShrink: 0 }} />
                       <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
                         <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                          Barcha shifokorlar
+                          {t('calendar.allDoctors')}
                         </span>
                         <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                          Klinika bo'yicha jami ({CLINIC_DOCTORS.length} shifokor)
+                          {t('calendar.clinicTotal', { count: CLINIC_DOCTORS.length })}
                         </span>
                       </div>
                     </div>
@@ -750,7 +761,7 @@ export default function Calendar() {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               add
             </span>
-            <span>Yangi qabul</span>
+            <span>{t('calendar.newAppointment')}</span>
           </button>
         </div>
       </div>
@@ -758,7 +769,7 @@ export default function Calendar() {
       {/* Floating Side Toast Notification */}
       <Toast
         open={Boolean(optimisticNotice)}
-        title="Jadval yangilandi"
+        title={t('calendar.scheduleUpdated')}
         message={optimisticNotice}
         duration={3500}
         onClose={() => setOptimisticNotice(null)}
@@ -777,7 +788,7 @@ export default function Calendar() {
               <div className={styles.calendarGrid}>
                 {/* Header: 7 Days */}
                 <div className={styles.headerRow}>
-                  <div className={styles.timeHeaderCorner}>Vaqt</div>
+                  <div className={styles.timeHeaderCorner}>{t('calendar.timeSlot')}</div>
                   {weekDays.map((day) => (
                     <div
                       key={day.key}
@@ -786,7 +797,7 @@ export default function Calendar() {
                         setCurrentDate(day.dateObj);
                         setViewMode('day');
                       }}
-                      title={`${day.fullName} kunlik jadvalini ko'rish`}
+                      title={i18n.language === 'en' ? `View ${day.fullName} schedule` : `${day.fullName} kunlik jadvalini ko'rish`}
                     >
                       <span className={`${styles.dayName} ${day.isToday ? styles.dayNameToday : ''}`}>
                         {day.name}
@@ -930,7 +941,7 @@ export default function Calendar() {
                       }}
                     >
                       <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: '#10B981' }} />
-                      <strong>{dayStats.completed}</strong> yakunlangan
+                      <strong>{dayStats.completed}</strong> {t('treatmentPlan.statusLabels.completed').toLowerCase()}
                     </span>
                     <span
                       className={styles.daySummaryPill}
@@ -941,11 +952,11 @@ export default function Calendar() {
                       }}
                     >
                       <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: 'var(--color-cyan)' }} />
-                      <strong>{dayStats.inProgress}</strong> jarayonda
+                      <strong>{dayStats.inProgress}</strong> {t('calendar.inProgress')}
                     </span>
                     <span className={styles.daySummaryPill}>
                       <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: '#94A3B8' }} />
-                      <strong>{dayStats.pending}</strong> kutilmoqda
+                      <strong>{dayStats.pending}</strong> {t('calendar.pending')}
                     </span>
                   </div>
                 </div>
@@ -971,7 +982,7 @@ export default function Calendar() {
                               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan)' }}>
                                 add_circle
                               </span>
-                              <span>Soat {slotTime} bo'sh • Yangi qabul belgilash uchun bosing</span>
+                              <span>{t('calendar.emptySlot', { time: slotTime })}</span>
                             </button>
                           ) : (
                             slotAppts.map((apt) => (
@@ -986,7 +997,7 @@ export default function Calendar() {
                                     <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-cyan)' }}>
                                       schedule
                                     </span>
-                                    {apt.time} ({apt.duration || 45} daq)
+                                    {apt.time} ({apt.duration || 45} {i18n.language === 'en' ? 'min' : 'daq'})
                                   </span>
 
                                   <span
@@ -1014,10 +1025,10 @@ export default function Calendar() {
                                     }}
                                   >
                                     {apt.status === 'completed'
-                                      ? 'Yakunlangan'
+                                      ? t('treatmentPlan.statusLabels.completed')
                                       : apt.status === 'in_progress'
-                                      ? 'Jarayonda'
-                                      : 'Kutilmoqda'}
+                                      ? t('treatmentPlan.statusLabels.in_progress')
+                                      : t('common.pending')}
                                   </span>
                                 </div>
 
@@ -1051,7 +1062,7 @@ export default function Calendar() {
                                   </div>
 
                                   <span className={styles.dayApptActionLink}>
-                                    <span>Bemor kartasi</span>
+                                    <span>{t('calendar.patientCard')}</span>
                                     <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                                       arrow_forward
                                     </span>
@@ -1075,7 +1086,7 @@ export default function Calendar() {
                 <div className={styles.monthHeaderRow}>
                   {DAY_NAMES.map((d) => (
                     <div key={d.key} className={styles.monthHeaderCell}>
-                      {d.full}
+                      {t(`calendar.days.${d.key}`)}
                     </div>
                   ))}
                 </div>
@@ -1106,7 +1117,7 @@ export default function Calendar() {
                           </span>
                           {dayAppts.length > 0 && (
                             <span className={styles.monthCountBadge}>
-                              {dayAppts.length} qabul
+                              {t('calendar.appointmentsCount', { count: dayAppts.length })}
                             </span>
                           )}
                         </div>
@@ -1131,7 +1142,7 @@ export default function Calendar() {
                           ))}
                           {dayAppts.length > 3 && (
                             <div className={styles.monthMoreBadge}>
-                              +{dayAppts.length - 3} ta yana
+                              {t('calendar.moreAppointments', { count: dayAppts.length - 3 })}
                             </div>
                           )}
                         </div>
@@ -1158,9 +1169,9 @@ export default function Calendar() {
                   </span>
                 </div>
                 <div>
-                  <h2 className={styles.modalMainTitle}>Yangi qabul belgilash</h2>
+                  <h2 className={styles.modalMainTitle}>{t('calendar.modal.title')}</h2>
                   <p className={styles.modalSubTitle}>
-                    Bemor ismi, telefon raqami va muolajani tanlang
+                    {t('calendar.modal.subtitle')}
                   </p>
                 </div>
               </div>
@@ -1169,7 +1180,7 @@ export default function Calendar() {
                 type="button"
                 className={styles.modalCloseBtn}
                 onClick={() => setShowModal(false)}
-                title="Yopish (Esc)"
+                title={i18n.language === 'en' ? 'Close (Esc)' : 'Yopish (Esc)'}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                   close
@@ -1181,13 +1192,13 @@ export default function Calendar() {
             <form onSubmit={handleCreateAppointment} className={styles.modalForm}>
               {/* 1. Patient Name Input */}
               <div className={styles.formFieldGroup}>
-                <label className={styles.fieldLabel}>Bemor F.I.SH. *</label>
+                <label className={styles.fieldLabel}>{t('calendar.modal.patient')}</label>
                 <div className={styles.fieldInputWrapper}>
                   <span className={`material-symbols-outlined ${styles.fieldIcon}`}>person</span>
                   <input
                     required
                     type="text"
-                    placeholder="Full name"
+                    placeholder={t('calendar.modal.patientPlaceholder')}
                     value={newApt.patientName}
                     onChange={(e) => setNewApt({ ...newApt, patientName: e.target.value })}
                     className={styles.formTextInput}
@@ -1198,7 +1209,7 @@ export default function Calendar() {
 
               {/* 2. Patient Phone with Uzbek automatic mask (+998 XX XXX XX XX) */}
               <div className={styles.formFieldGroup}>
-                <label className={styles.fieldLabel}>Telefon raqami</label>
+                <label className={styles.fieldLabel}>{t('calendar.modal.phone')}</label>
                 <div className={styles.fieldInputWrapper}>
                   <span className={`material-symbols-outlined ${styles.fieldIcon}`}>call</span>
                   <input
@@ -1225,13 +1236,13 @@ export default function Calendar() {
 
               {/* 3. Treatment with Categories & Procedures Selection */}
               <div className={styles.formFieldGroup}>
-                <label className={styles.fieldLabel}>Muolaja turi *</label>
+                <label className={styles.fieldLabel}>{t('calendar.modal.procedure')}</label>
                 <div className={styles.fieldInputWrapper}>
                   <span className={`material-symbols-outlined ${styles.fieldIcon}`}>dentistry</span>
                   <input
                     required
                     type="text"
-                    placeholder="Muolaja nomini kiriting yoki pastdagi kategoriyalardan tanlang"
+                    placeholder={t('calendar.modal.procedurePlaceholder')}
                     value={newApt.procedure}
                     onChange={(e) => setNewApt({ ...newApt, procedure: e.target.value })}
                     className={styles.formTextInput}
@@ -1269,7 +1280,7 @@ export default function Calendar() {
 
               {/* 4. Scalable Doctor Selector (Scales effortlessly to 30+ doctors) */}
               <div className={styles.formFieldGroup}>
-                <label className={styles.fieldLabel}>Shifokor *</label>
+                <label className={styles.fieldLabel}>{t('calendar.modal.doctor')}</label>
                 <div className={styles.doctorDropdownWrap} ref={doctorSelectRef}>
                   <div
                     className={`${styles.doctorTrigger} ${doctorDropdownOpen ? styles.doctorTriggerActive : ''}`}
@@ -1299,7 +1310,7 @@ export default function Calendar() {
                           </span>
                           <input
                             type="text"
-                            placeholder="Shifokor ismi yoki mutaxassisligi..."
+                            placeholder={t('calendar.modal.doctorSearch')}
                             value={doctorSearch}
                             onChange={(e) => setDoctorSearch(e.target.value)}
                             className={styles.doctorSearchInput}
@@ -1351,7 +1362,7 @@ export default function Calendar() {
               {/* 5. Date and Time (Side-by-side, defaults to today/active date) */}
               <div className={styles.formGridTwo}>
                 <div className={styles.formFieldGroup}>
-                  <label className={styles.fieldLabel}>Sana *</label>
+                  <label className={styles.fieldLabel}>{t('calendar.modal.date')}</label>
                   <input
                     required
                     type="date"
@@ -1368,7 +1379,7 @@ export default function Calendar() {
                 </div>
 
                 <div className={styles.formFieldGroup}>
-                  <label className={styles.fieldLabel}>Vaqt *</label>
+                  <label className={styles.fieldLabel}>{t('calendar.modal.time')}</label>
                   <select
                     value={newApt.time}
                     onChange={(e) => setNewApt({ ...newApt, time: e.target.value })}
@@ -1390,13 +1401,13 @@ export default function Calendar() {
                   onClick={() => setShowModal(false)}
                   className={styles.btnCancel}
                 >
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className={styles.btnSubmit}>
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     check
                   </span>
-                  <span>Qabulni kiritish</span>
+                  <span>{t('calendar.modal.save')}</span>
                 </button>
               </div>
             </form>

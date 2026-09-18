@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './Signup.module.css';
 
 export default function Signup() {
+  const { t } = useTranslation();
   const [clinicName, setClinicName] = useState('');
   const [doctorName, setDoctorName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,31 +51,31 @@ export default function Signup() {
         </div>
 
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>Klinika hisobini yaratish</h1>
+          <h1 className={styles.title}>{t('auth.signupTitle')}</h1>
           <button
             type="button"
             className={styles.demoFillBtn}
             onClick={handleFillDemo}
-            title="Sinov uchun namuna ma'lumotlarni avtomatik to'ldirish"
+            title={t('auth.demoFillTooltip')}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>bolt</span>
-            <span>Demo to'ldirish</span>
+            <span>{t('auth.demoFill')}</span>
           </button>
         </div>
-        <p className={styles.subtitle}>14 kunlik bepul sinov muddatini boshlang</p>
+        <p className={styles.subtitle}>{t('auth.signupSubtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="clinic_name">
-            Klinika nomi *
+            {t('auth.clinicName')}
           </label>
           <input
             id="clinic_name"
             type="text"
             required
             className={styles.input}
-            placeholder="Masalan: Toshkent Dental Clinic"
+            placeholder={t('auth.clinicPlaceholder')}
             value={clinicName}
             onChange={(e) => setClinicName(e.target.value)}
           />
@@ -81,14 +83,14 @@ export default function Signup() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="doctor_name">
-            Mas'ul shifokor ismi *
+            {t('auth.doctorName')}
           </label>
           <input
             id="doctor_name"
             type="text"
             required
             className={styles.input}
-            placeholder="Masalan: Dr. Jasur Azimov"
+            placeholder={t('auth.doctorPlaceholder')}
             value={doctorName}
             onChange={(e) => setDoctorName(e.target.value)}
           />
@@ -96,14 +98,14 @@ export default function Signup() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="email">
-            Elektron pochta *
+            {t('auth.email')}
           </label>
           <input
             id="email"
             type="email"
             required
             className={styles.input}
-            placeholder="doktor@klinika.uz"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -111,7 +113,7 @@ export default function Signup() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="phone">
-            Telefon raqami *
+            {t('auth.phone')}
           </label>
           <input
             id="phone"
@@ -126,7 +128,7 @@ export default function Signup() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="password">
-            Parol *
+            {t('auth.password')} *
           </label>
           <div className={styles.passwordWrapper}>
             <input
@@ -134,7 +136,7 @@ export default function Signup() {
               type={showPassword ? 'text' : 'password'}
               required
               className={styles.input}
-              placeholder="Kamida 8 ta belgi"
+              placeholder={t('auth.passwordMinPlaceholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -142,7 +144,7 @@ export default function Signup() {
               type="button"
               className={styles.togglePassBtn}
               onClick={() => setShowPassword(!showPassword)}
-              title={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               aria-label="Toggle password visibility"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -153,21 +155,21 @@ export default function Signup() {
         </div>
 
         <button type="submit" className={styles.submitBtn}>
-          <span>Hisob yaratish</span>
+          <span>{t('auth.signupBtn')}</span>
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             arrow_forward
           </span>
         </button>
 
         <p className={styles.trialNote}>
-          🔒 Karta talab qilinmaydi • 14 kun bepul sinov • O'RQ-547 himoyasi
+          {t('auth.trialNote')}
         </p>
       </form>
 
       <p className={styles.loginPrompt}>
-        Allaqachon hisobingiz bormi?
+        {t('auth.hasAccount')}{' '}
         <Link to="/login" className={styles.loginLink}>
-          Tizimga kirish
+          {t('auth.loginBtn')}
         </Link>
       </p>
     </div>

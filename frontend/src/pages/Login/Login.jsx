@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './Login.module.css';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('j.azimov@dentuz.uz');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,14 +40,14 @@ export default function Login() {
           </div>
         </div>
 
-        <h1 className={styles.title}>Xush kelibsiz</h1>
-        <p className={styles.subtitle}>Klinika boshqaruv hisobingizga kiring</p>
+        <h1 className={styles.title}>{t('auth.loginTitle')}</h1>
+        <p className={styles.subtitle}>{t('auth.loginSubtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="email">
-            Elektron pochta yoki ID
+            {t('auth.emailOrId')}
           </label>
           <input
             id="email"
@@ -60,7 +62,7 @@ export default function Login() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="password">
-            Parol
+            {t('auth.password')}
           </label>
           <div className={styles.passwordWrapper}>
             <input
@@ -76,7 +78,7 @@ export default function Login() {
               type="button"
               className={styles.togglePassBtn}
               onClick={() => setShowPassword(!showPassword)}
-              title={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 {showPassword ? 'visibility_off' : 'visibility'}
@@ -93,16 +95,16 @@ export default function Login() {
               onChange={(e) => setRememberMe(e.target.checked)}
               style={{ accentColor: 'var(--color-cyan)' }}
             />
-            <span>Eslab qolish</span>
+            <span>{t('auth.rememberMe')}</span>
           </label>
 
           <a href="#forgot" className={styles.forgotLink} onClick={(e) => e.preventDefault()}>
-            Parolni unutdingizmi?
+            {t('auth.forgotPassword')}
           </a>
         </div>
 
         <button type="submit" className={styles.submitBtn}>
-          <span>Tizimga kirish</span>
+          <span>{t('auth.loginBtn')}</span>
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             arrow_forward
           </span>
@@ -110,9 +112,9 @@ export default function Login() {
       </form>
 
       <p className={styles.signupPrompt}>
-        Hisobingiz yo'qmi?
+        {t('auth.noAccount')}{' '}
         <Link to="/signup" className={styles.signupLink}>
-          Ro'yxatdan o'ting
+          {t('auth.registerNow')}
         </Link>
       </p>
     </div>

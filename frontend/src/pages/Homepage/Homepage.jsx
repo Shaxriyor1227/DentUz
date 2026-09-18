@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import styles from './Homepage.module.css';
 import Icon from '../../components/Icon/Icon';
 
@@ -30,7 +31,25 @@ const TOOTH_DESCRIPTIONS = {
   '48': "Tish #48 • Aql tishi: Rentgen nazoratida, to'g'ri o'sgan"
 };
 
+const TOOTH_DESCRIPTIONS_EN = {
+  '11': "Tooth #11 • Maxillary right central incisor: Intact enamel, caries-free, healthy",
+  '12': "Tooth #12 • Maxillary right lateral incisor: Natural presentation, healthy",
+  '13': "Tooth #13 • Maxillary right canine: Sound anatomical crown",
+  '14': "Tooth #14 • Maxillary right first premolar: Implant candidate & restoration",
+  '16': "Tooth #16 • Maxillary right first molar: Caries therapy and zirconia crown",
+  '21': "Tooth #21 • Maxillary left central incisor: PFM crown intact",
+  '22': "Tooth #22 • Maxillary left lateral incisor: Sound periodontal support",
+  '24': "Tooth #24 • Maxillary left premolar: Pit & fissure sealant recommended",
+  '26': "Tooth #26 • Maxillary left molar: Occlusal sealing successful",
+  '31': "Tooth #31 • Mandibular left central incisor: Ultrasonic calculus scaling completed",
+  '36': "Tooth #36 • Mandibular left first molar: Aesthetic composite restoration",
+  '41': "Tooth #41 • Mandibular right central incisor: Healthy and stable",
+  '46': "Tooth #46 • Mandibular right first molar: Composite restoration intact",
+  '48': "Tooth #48 • Third molar (Wisdom): Radiographically monitored, erupted"
+};
+
 export default function Homepage() {
+  const { t, i18n } = useTranslation();
   const [selectedTooth, setSelectedTooth] = useState('11');
   const [isAnnual, setIsAnnual] = useState(true);
   const [openFaq, setOpenFaq] = useState(null);
@@ -52,26 +71,28 @@ export default function Homepage() {
     setOpenFaq(openFaq === idx ? null : idx);
   };
 
+  const isEn = i18n.language === 'en';
+  const dict = isEn ? TOOTH_DESCRIPTIONS_EN : TOOTH_DESCRIPTIONS;
   const currentDesc =
-    TOOTH_DESCRIPTIONS[selectedTooth] || `Tish #${selectedTooth} • Sog'lom holatda`;
+    dict[selectedTooth] || (isEn ? `Tooth #${selectedTooth} • Healthy condition` : `Tish #${selectedTooth} • Sog'lom holatda`);
 
   return (
     <main id="main-content">
       {/* 2. HERO SECTION */}
-      <section className={styles.heroSection} aria-label="Asosiy sahifa - Klinikangiz uchun mukammal tizim">
+      <section className={styles.heroSection} aria-label={t('homepage.hero.headline')}>
         <h1 className={styles.heroHeadline}>
-          Klinikangiz uchun yagona, mukammal tizim.
+          {t('homepage.hero.headline')}
         </h1>
         <p className={styles.heroSubhead}>
-          Qog'oz jurnallar va chalkash jadvallardan xalos bo'ling. Raqamli stomatologiyaning yangi standarti.
+          {t('homepage.hero.subhead')}
         </p>
 
         <div className={styles.heroActions}>
           <Link to="/signup" className={styles.primaryCta}>
-            14 kunlik bepul sinov
+            {t('homepage.hero.startFree')}
           </Link>
           <a href="#features" className={styles.secondaryCta}>
-            <span>Namoyishni ko'rish</span>
+            <span>{t('homepage.hero.watchDemo')}</span>
             <span style={{ transition: 'transform 0.2s ease' }}>→</span>
           </a>
         </div>
@@ -81,17 +102,17 @@ export default function Homepage() {
           <div className={styles.heroCanvasCard}>
             <div className={styles.canvasTop}>
               <div>
-                <p className={styles.canvasTag}>FDI Odontogramma</p>
-                <p className={styles.canvasTitle}>Raqamli tish xaritasi</p>
+                <p className={styles.canvasTag}>{t('homepage.hero.canvasTag')}</p>
+                <p className={styles.canvasTitle}>{t('homepage.hero.canvasTitle')}</p>
               </div>
               <div className={styles.canvasLegend}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: 8, height: 8, borderRadius: 9999, background: '#CBD5E1' }} />
-                  Sog'lom
+                  {t('homepage.hero.healthy')}
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: 8, height: 8, borderRadius: 9999, background: 'var(--color-cyan)' }} />
-                  Tanlangan
+                  {t('homepage.hero.selected')}
                 </span>
               </div>
             </div>
@@ -101,7 +122,7 @@ export default function Homepage() {
               {/* Upper Jaw */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>Yuqori jag'</span>
+                  <span>{t('homepage.hero.upperJaw')}</span>
                   <span>18 — 28</span>
                 </div>
                 <div className={styles.teethGrid}>
@@ -116,7 +137,7 @@ export default function Homepage() {
                         role="button"
                         tabIndex={0}
                         aria-pressed={isSelected}
-                        aria-label={`Tish ${tooth}${isSelected ? ' - tanlangan' : isTreated ? ' - davolangan' : ' - sog\'lom'}`}
+                        aria-label={`Tooth ${tooth}`}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTooth(tooth); } }}
                       >
                         <div
@@ -159,7 +180,7 @@ export default function Homepage() {
               {/* Lower Jaw */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>Pastki jag'</span>
+                  <span>{t('homepage.hero.lowerJaw')}</span>
                   <span>48 — 38</span>
                 </div>
                 <div className={styles.teethGrid}>
@@ -174,7 +195,7 @@ export default function Homepage() {
                         role="button"
                         tabIndex={0}
                         aria-pressed={isSelected}
-                        aria-label={`Tish ${tooth}${isSelected ? ' - tanlangan' : isTreated ? ' - davolangan' : ' - sog\'lom'}`}
+                        aria-label={`Tooth ${tooth}`}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTooth(tooth); } }}
                       >
                         <div
@@ -238,34 +259,34 @@ export default function Homepage() {
       <section className={styles.storySection} id="features">
         <div className={styles.storyGrid}>
           <div>
-            <p className={styles.storyNumber}>01 / Rejalashtirish</p>
-            <h2 className={styles.storyHeading}>Vaqtni daqiqasigacha hisoblang.</h2>
+            <p className={styles.storyNumber}>{t('homepage.stories.story1.tag')}</p>
+            <h2 className={styles.storyHeading}>{t('homepage.stories.story1.title')}</h2>
             <p className={styles.storyBody}>
-              Shifokorlar bandligi va kreslolar grafigini bir harakat bilan boshqaring — barcha qabullar bir qarashda.
+              {t('homepage.stories.story1.body')}
             </p>
           </div>
 
           <div className={styles.storyCardVisual}>
             <div className={styles.scheduleHeader}>
-              <span className={styles.scheduleHeaderTitle}>Bugun, 24-May</span>
-              <span className={styles.scheduleHeaderMeta}>3 ta faol kreslo</span>
+              <span className={styles.scheduleHeaderTitle}>{t('homepage.stories.story1.scheduleTitle')}</span>
+              <span className={styles.scheduleHeaderMeta}>{t('homepage.stories.story1.activeChairs')}</span>
             </div>
             <div className={styles.scheduleList}>
               <div className={styles.scheduleItem}>
                 <span className={styles.scheduleTime}>09:00</span>
                 <div className={styles.scheduleInfo}>
-                  <div className={styles.scheduleDoctor}>Dr. Azimov • Karies davolash</div>
-                  <div className={styles.schedulePatient}>Bemor: Anvar Qosimov</div>
+                  <div className={styles.scheduleDoctor}>{isEn ? 'Dr. Azimov • Caries therapy' : 'Dr. Azimov • Karies davolash'}</div>
+                  <div className={styles.schedulePatient}>{isEn ? 'Patient: Anvar Qosimov' : 'Bemor: Anvar Qosimov'}</div>
                 </div>
-                <span className={styles.scheduleBadgeDone}>Yakunlandi</span>
+                <span className={styles.scheduleBadgeDone}>{t('common.completed')}</span>
               </div>
               <div className={`${styles.scheduleItem} ${styles.scheduleItemActive}`}>
                 <span className={`${styles.scheduleTime} ${styles.scheduleTimeActive}`}>14:00</span>
                 <div className={styles.scheduleInfo}>
-                  <div className={styles.scheduleDoctor}>Dr. Saidova • Air-Flow tozalash</div>
-                  <div className={styles.schedulePatient}>Bemor: Nilufar Rahimova</div>
+                  <div className={styles.scheduleDoctor}>{isEn ? 'Dr. Saidova • Air-Flow scaling' : 'Dr. Saidova • Air-Flow tozalash'}</div>
+                  <div className={styles.schedulePatient}>{isEn ? 'Patient: Nilufar Rahimova' : 'Bemor: Nilufar Rahimova'}</div>
                 </div>
-                <span className={styles.scheduleBadgeProgress}>Jarayonda</span>
+                <span className={styles.scheduleBadgeProgress}>{t('common.inProgress')}</span>
               </div>
             </div>
           </div>
@@ -283,23 +304,23 @@ export default function Homepage() {
                 </div>
                 <div>
                   <div className={styles.patientName}>Anvar Qosimov</div>
-                  <div className={styles.patientMeta}>ID: #P-1042 • 34 yosh</div>
+                  <div className={styles.patientMeta}>ID: #P-1042 • {isEn ? '34 yrs' : '34 yosh'}</div>
                 </div>
               </div>
               <div className={styles.allergyAlert}>
                 <Icon name="warning" size={16} />
-                <span>Allergiya: Penitsillin</span>
+                <span>{t('homepage.stories.story2.allergy')}</span>
               </div>
               <div className={styles.patientTreatmentNote}>
-                Oxirgi muolaja: Tish #16 endodontiya va ildiz kanallari tozalash.
+                {t('homepage.stories.story2.treatmentNote')}
               </div>
             </div>
 
             <div>
-              <p className={styles.storyNumber}>02 / Bemorlar tarixi</p>
-              <h2 className={styles.storyHeading}>Har bir bemor bitta varaqda.</h2>
+              <p className={styles.storyNumber}>{t('homepage.stories.story2.tag')}</p>
+              <h2 className={styles.storyHeading}>{t('homepage.stories.story2.title')}</h2>
               <p className={styles.storyBody}>
-                Rentgen tasvirlari, davolash rejasi, to'lovlar va tishlar xaritasi yagona profil ostida jamlangan.
+                {t('homepage.stories.story2.body')}
               </p>
             </div>
           </div>
@@ -310,16 +331,16 @@ export default function Homepage() {
       <section className={styles.storySection}>
         <div className={styles.storyGrid}>
           <div>
-            <p className={styles.storyNumber}>03 / Moliyaviy intizom</p>
-            <h2 className={styles.storyHeading}>Har bir tiyin hisobda.</h2>
+            <p className={styles.storyNumber}>{t('homepage.stories.story3.tag')}</p>
+            <h2 className={styles.storyHeading}>{t('homepage.stories.story3.title')}</h2>
             <p className={styles.storyBody}>
-              Payme, Click, Uzcard va naqd to'lovlar avtomatik yuritiladi. Shifokorlar oylik ulushi soniyalar ichida hisoblanadi.
+              {t('homepage.stories.story3.body')}
             </p>
           </div>
 
           <div className={styles.storyCardVisual}>
             <div className={styles.financeLabel}>
-              Oylik tushum ko'rsatkichi
+              {t('homepage.stories.story3.revenueLabel')}
             </div>
             <div className={styles.financeAmount}>
               148 500 000 <span className={styles.financeAmountUnit}>UZS</span>
@@ -332,7 +353,7 @@ export default function Homepage() {
             <div className={styles.financeBreakdown}>
               <span>Payme/Click: 65%</span>
               <span>Uzcard/Humo: 20%</span>
-              <span>Naqd: 15%</span>
+              <span>{isEn ? 'Cash: 15%' : 'Naqd: 15%'}</span>
             </div>
           </div>
         </div>
@@ -342,47 +363,47 @@ export default function Homepage() {
       <section className={styles.statsSection} id="stats">
         <div className={styles.statsGrid}>
           <div>
-            <div className={`${styles.statNum} ${styles.statCyan}`}>120+</div>
-            <div className={styles.statLabel}>O'zbekistondagi yetakchi klinikalar</div>
+            <div className={`${styles.statNum} ${styles.statCyan}`}>{t('homepage.stats.clinics')}</div>
+            <div className={styles.statLabel}>{t('homepage.stats.clinicsLabel')}</div>
           </div>
           <div>
-            <div className={styles.statNum}>45 000+</div>
-            <div className={styles.statLabel}>Raqamlashtirilgan bemor kartalari</div>
+            <div className={styles.statNum}>{t('homepage.stats.cards')}</div>
+            <div className={styles.statLabel}>{t('homepage.stats.cardsLabel')}</div>
           </div>
           <div>
-            <div className={`${styles.statNum} ${styles.statCyan}`}>99.9%</div>
-            <div className={styles.statLabel}>Ishonchli va xavfsiz tizim</div>
+            <div className={`${styles.statNum} ${styles.statCyan}`}>{t('homepage.stats.uptime')}</div>
+            <div className={styles.statLabel}>{t('homepage.stats.uptimeLabel')}</div>
           </div>
         </div>
       </section>
 
       {/* 5. PRICING SECTION (GateDent-inspired & Simplified) */}
       <section className={styles.pricingSection} id="pricing">
-        <p className={styles.storyNumber}>Tariflar</p>
-        <h2 className={styles.storyHeading}>Stomatologiya dasturi tariflari</h2>
+        <p className={styles.storyNumber}>{t('homepage.pricing.tag')}</p>
+        <h2 className={styles.storyHeading}>{t('homepage.pricing.heading')}</h2>
         <p className={styles.heroSubhead} style={{ fontSize: '16px', marginTop: '10px' }}>
-          Har qanday byudjet va talabga mos keluvchi sodda yechimlar.
+          {t('homepage.pricing.subheading')}
         </p>
 
         {/* Monthly / Annual Billing Toggle */}
         <div className={styles.billingSwitcherWrapper}>
           <span className={`${styles.switcherLabel} ${!isAnnual ? styles.switcherLabelActive : ''}`}>
-            Oylik
+            {t('homepage.pricing.monthly')}
           </span>
           <button
             type="button"
             className={`${styles.switcherToggle} ${isAnnual ? styles.switcherToggleActive : ''}`}
             onClick={() => setIsAnnual(!isAnnual)}
-            title="Yillik yoki oylik to'lovni tanlash"
+            title={isEn ? "Toggle annual or monthly billing" : "Yillik yoki oylik to'lovni tanlash"}
             aria-label="Toggle annual or monthly billing"
           >
             <span className={styles.switcherThumb} />
           </button>
           <span className={`${styles.switcherLabel} ${isAnnual ? styles.switcherLabelActive : ''}`}>
-            Yillik
+            {t('homepage.pricing.annual')}
           </span>
           <span className={styles.annualDiscountBadge}>
-            2 OY BEPUL 🎁 (20% tejash)
+            {t('homepage.pricing.annualBadge')}
           </span>
         </div>
 
@@ -393,37 +414,39 @@ export default function Homepage() {
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>Standard</h3>
-                <p className={styles.planSubhead}>Yakka tartibdagi amaliyot va kichik kabinetlar uchun.</p>
+                <p className={styles.planSubhead}>
+                  {isEn ? "Ideal for solo practitioners and boutique operatories." : "Yakka tartibdagi amaliyot va kichik kabinetlar uchun."}
+                </p>
               </div>
               <div className={styles.planPrice}>
-                {isAnnual ? '280 000' : '350 000'} <span className={styles.planPeriod}>UZS / oy</span>
+                {isAnnual ? '280 000' : '350 000'} <span className={styles.planPeriod}>{t('homepage.pricing.perMonth')}</span>
               </div>
 
               <ul className={styles.featureList}>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>1 ta Shifokor</span>
+                  <span>{isEn ? '1 Practitioner' : '1 ta Shifokor'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>2 ta Modul (Karta + Taqvim)</span>
+                  <span>{isEn ? '2 Core Modules (EMR + Calendar)' : '2 ta Modul (Karta + Taqvim)'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>Raqamli tish xaritasi</span>
+                  <span>{isEn ? 'Digital Dental Chart' : 'Raqamli tish xaritasi'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="cancel" size={18} className={styles.featureIconCross} />
-                  <span className={styles.featureDisabledText}>SMS avto-eslatmalar</span>
+                  <span className={styles.featureDisabledText}>{isEn ? 'Automated SMS Reminders' : 'SMS avto-eslatmalar'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="cancel" size={18} className={styles.featureIconCross} />
-                  <span className={styles.featureDisabledText}>Bemor hujjatlari & Rentgen</span>
+                  <span className={styles.featureDisabledText}>{isEn ? 'Patient Dossier & Radiographs' : 'Bemor hujjatlari & Rentgen'}</span>
                 </li>
               </ul>
             </div>
             <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
-              Boshlash
+              {t('homepage.pricing.startBtn')}
             </Link>
           </div>
 
@@ -432,77 +455,81 @@ export default function Homepage() {
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>Premium</h3>
-                <p className={styles.planSubhead}>Kengaytirilgan imkoniyatlar va o'rta klinikalar uchun.</p>
+                <p className={styles.planSubhead}>
+                  {isEn ? "Expanded capabilities for growing practices." : "Kengaytirilgan imkoniyatlar va o'rta klinikalar uchun."}
+                </p>
               </div>
               <div className={styles.planPrice}>
-                {isAnnual ? '600 000' : '750 000'} <span className={styles.planPeriod}>UZS / oy</span>
+                {isAnnual ? '600 000' : '750 000'} <span className={styles.planPeriod}>{t('homepage.pricing.perMonth')}</span>
               </div>
 
               <ul className={styles.featureList}>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>1 - 3 ta Shifokor</span>
+                  <span>{isEn ? '1 - 3 Practitioners' : '1 - 3 ta Shifokor'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>9 ta Modul to'liq faol</span>
+                  <span>{isEn ? 'All 9 Modules Fully Active' : '9 ta Modul to\'liq faol'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>150 ta SMS / oy</span>
+                  <span>{isEn ? '150 SMS / mo' : '150 ta SMS / oy'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>150 ta Bemor hujjati / oy</span>
+                  <span>{isEn ? '150 Patient Files / mo' : '150 ta Bemor hujjati / oy'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>KPI va moliyaviy hisobot</span>
+                  <span>{isEn ? 'Practice Analytics & Financials' : 'KPI va moliyaviy hisobot'}</span>
                 </li>
               </ul>
             </div>
             <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
-              Boshlash
+              {t('homepage.pricing.startBtn')}
             </Link>
           </div>
 
           {/* Plan 3: VIP (Featured) */}
           <div className={`${styles.priceCard} ${styles.priceCardFeatured}`}>
-            <span className={styles.popularBadge}>👑 Eng ommabop</span>
+            <span className={styles.popularBadge}>{t('homepage.pricing.popularBadge')}</span>
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>VIP</h3>
-                <p className={styles.planSubhead}>Barcha modullar, yuqori limitlar va 24/7 jonli yordam.</p>
+                <p className={styles.planSubhead}>
+                  {isEn ? "All modules, high volume limits, and 24/7 dedicated support." : "Barcha modullar, yuqori limitlar va 24/7 jonli yordam."}
+                </p>
               </div>
               <div className={`${styles.planPrice} ${styles.planPriceCyan}`}>
-                {isAnnual ? '1 120 000' : '1 400 000'} <span className={styles.planPeriod}>UZS / oy</span>
+                {isAnnual ? '1 120 000' : '1 400 000'} <span className={styles.planPeriod}>{t('homepage.pricing.perMonth')}</span>
               </div>
 
               <ul className={styles.featureList}>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>1 Shifokor + 1 Assistent</span>
+                  <span>{isEn ? '1 Doctor + 1 Assistant' : '1 Shifokor + 1 Assistent'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>Barcha modullar to'liq faol</span>
+                  <span>{isEn ? 'All Modules Fully Active' : 'Barcha modullar to\'liq faol'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span className={styles.featureHighlightedChip}>350 ta SMS / oy</span>
+                  <span className={styles.featureHighlightedChip}>{isEn ? '350 SMS / mo' : '350 ta SMS / oy'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>600 ta Bemor hujjati / oy</span>
+                  <span>{isEn ? '600 Patient Files / mo' : '600 ta Bemor hujjati / oy'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>24/7 Jonli qo'llab-quvvatlash</span>
+                  <span>{isEn ? '24/7 Dedicated Live Support' : '24/7 Jonli qo\'llab-quvvatlash'}</span>
                 </li>
               </ul>
             </div>
             <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnPrimary}`}>
-              VIP Rejani Tanlash
+              {t('homepage.pricing.selectVip')}
             </Link>
           </div>
 
@@ -512,37 +539,39 @@ export default function Homepage() {
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>Enterprise</h3>
-                <p className={styles.planSubhead}>Katta klinika va filiallar tarmog'i uchun maxsus reja.</p>
+                <p className={styles.planSubhead}>
+                  {isEn ? "Tailored for multi-chair clinics and hospital networks." : "Katta klinika va filiallar tarmog'i uchun maxsus reja."}
+                </p>
               </div>
               <div className={styles.planPrice} style={{ fontSize: '24px' }}>
-                Kelishuv asosida
+                {t('homepage.pricing.customPrice')}
               </div>
 
               <ul className={styles.featureList}>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>Shifokorlar soni — kelishuv asosida</span>
+                  <span>{isEn ? 'Practitioner seats — tailored' : 'Shifokorlar soni — kelishuv asosida'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>SMS limiti — kelishuv asosida</span>
+                  <span>{isEn ? 'SMS volume — custom quota' : 'SMS limiti — kelishuv asosida'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>Bemor hujjati & Rentgen — cheksiz</span>
+                  <span>{isEn ? 'Patient files & X-rays — unlimited' : 'Bemor hujjati & Rentgen — cheksiz'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>1C, Payme, Click integratsiyasi</span>
+                  <span>{isEn ? '1C, Payme, Click & custom API' : '1C, Payme, Click integratsiyasi'}</span>
                 </li>
                 <li className={styles.featureItem}>
                   <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                  <span>Shaxsiy menejer va SLA kafolati</span>
+                  <span>{isEn ? 'Dedicated account rep & SLA' : 'Shaxsiy menejer va SLA kafolati'}</span>
                 </li>
               </ul>
             </div>
             <a href="#contact" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
-              Biz bilan bog'lanish
+              {t('homepage.pricing.contactUs')}
             </a>
           </div>
         </div>
@@ -554,8 +583,8 @@ export default function Homepage() {
               <Icon name="health_and_safety" size={20} />
             </div>
             <div>
-              <div className={styles.trustItemTitle}>SSV 043/h Shakli</div>
-              <div className={styles.trustItemSub}>O'zR Sog'liqni saqlash vazirligi standarti</div>
+              <div className={styles.trustItemTitle}>{t('homepage.pricing.trustSignals.ssvTitle')}</div>
+              <div className={styles.trustItemSub}>{t('homepage.pricing.trustSignals.ssvSub')}</div>
             </div>
           </div>
 
@@ -564,8 +593,8 @@ export default function Homepage() {
               <Icon name="verified_user" size={20} />
             </div>
             <div>
-              <div className={styles.trustItemTitle}>O'RQ-547 Qonuni</div>
-              <div className={styles.trustItemSub}>Shaxsiy ma'lumotlar to'liq himoyalangan</div>
+              <div className={styles.trustItemTitle}>{t('homepage.pricing.trustSignals.lawTitle')}</div>
+              <div className={styles.trustItemSub}>{t('homepage.pricing.trustSignals.lawSub')}</div>
             </div>
           </div>
 
@@ -574,8 +603,8 @@ export default function Homepage() {
               <Icon name="lock" size={20} />
             </div>
             <div>
-              <div className={styles.trustItemTitle}>256-bit SSL Shifrlash</div>
-              <div className={styles.trustItemSub}>Bank darajasidagi xavfsizlik va zaxira</div>
+              <div className={styles.trustItemTitle}>{t('homepage.pricing.trustSignals.sslTitle')}</div>
+              <div className={styles.trustItemSub}>{t('homepage.pricing.trustSignals.sslSub')}</div>
             </div>
           </div>
 
@@ -584,25 +613,25 @@ export default function Homepage() {
               <Icon name="credit_card_off" size={20} />
             </div>
             <div>
-              <div className={styles.trustItemTitle}>14 Kun Bepul Sinash</div>
-              <div className={styles.trustItemSub}>Bank kartasi talab qilinmaydi</div>
+              <div className={styles.trustItemTitle}>{t('homepage.pricing.trustSignals.trialTitle')}</div>
+              <div className={styles.trustItemSub}>{t('homepage.pricing.trustSignals.trialSub')}</div>
             </div>
           </div>
         </div>
 
         {/* Compare Plans Table (GateDent-style) */}
         <div className={styles.compareSection} id="compare">
-          <p className={styles.storyNumber}>Taqqoslash</p>
-          <h2 className={styles.storyHeading}>Rejalarni Batafsil Taqqoslash</h2>
+          <p className={styles.storyNumber}>{t('homepage.compare.tag')}</p>
+          <h2 className={styles.storyHeading}>{t('homepage.compare.heading')}</h2>
           <p className={styles.heroSubhead} style={{ fontSize: '15px', marginTop: '8px' }}>
-            Har bir tarif taqdim etadigan modullar va limitlarni batafsil ko'rib chiqing.
+            {t('homepage.compare.subheading')}
           </p>
 
           <div className={styles.compareTableWrapper}>
             <table className={styles.compareTable}>
               <thead>
                 <tr>
-                  <th className={styles.compareThFeature}>Imkoniyat / Modul</th>
+                  <th className={styles.compareThFeature}>{t('homepage.compare.featureCol')}</th>
                   <th className={styles.compareThTier}>Standard</th>
                   <th className={styles.compareThTier}>Premium</th>
                   <th className={`${styles.compareThTier} ${styles.compareThVip}`}>VIP 👑</th>
@@ -611,67 +640,67 @@ export default function Homepage() {
               </thead>
               <tbody>
                 <tr className={styles.compareCategoryRow}>
-                  <td colSpan="5">Boshqaruv & Foydalanuvchilar</td>
+                  <td colSpan="5">{isEn ? 'Practice Management & Staff' : 'Boshqaruv & Foydalanuvchilar'}</td>
                 </tr>
                 <tr>
-                  <td>Foydalanuvchilar va kreslolar soni</td>
-                  <td className={styles.compareTdValue}>1 Shifokor</td>
-                  <td className={styles.compareTdValue}>3 tagacha</td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>1 Shifokor + 2 Assistent</td>
-                  <td className={styles.compareTdValue}>Cheksiz</td>
+                  <td>{isEn ? 'Staff accounts & operatory chairs' : 'Foydalanuvchilar va kreslolar soni'}</td>
+                  <td className={styles.compareTdValue}>{isEn ? '1 Practitioner' : '1 Shifokor'}</td>
+                  <td className={styles.compareTdValue}>{isEn ? 'Up to 3' : '3 tagacha'}</td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '1 Doctor + 2 Assistants' : '1 Shifokor + 2 Assistent'}</td>
+                  <td className={styles.compareTdValue}>{isEn ? 'Unlimited' : 'Cheksiz'}</td>
                 </tr>
                 <tr>
-                  <td>Elektron bemor kartasi (043/h shakl)</td>
+                  <td>{isEn ? 'Digital Patient Record (Form 043/h)' : 'Elektron bemor kartasi (043/h shakl)'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                 </tr>
                 <tr>
-                  <td>Aqlli taqvim va kreslolar grafigi</td>
+                  <td>{isEn ? 'Smart scheduler & operatory calendar' : 'Aqlli taqvim va kreslolar grafigi'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                </tr>
-
-                <tr className={styles.compareCategoryRow}>
-                  <td colSpan="5">Klinik Imkoniyatlar & Odontogramma</td>
-                </tr>
-                <tr>
-                  <td>FDI Odontogramma (5 ta anatomik yuza)</td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                </tr>
-                <tr>
-                  <td>Davolash rejalari va bosqichli smeta</td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
-                </tr>
-                <tr>
-                  <td>Tish texnik laboratoriya buyurtmalari</td>
-                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                 </tr>
 
                 <tr className={styles.compareCategoryRow}>
-                  <td colSpan="5">Hujjatlar & Rentgen Arxiv</td>
+                  <td colSpan="5">{isEn ? 'Clinical Charting & Odontogram' : 'Klinik Imkoniyatlar & Odontogramma'}</td>
+                </tr>
+                <tr>
+                  <td>{isEn ? 'FDI Odontogram (5 anatomic surfaces)' : 'FDI Odontogramma (5 ta anatomik yuza)'}</td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                </tr>
+                <tr>
+                  <td>{isEn ? 'Phased treatment plans & estimates' : 'Davolash rejalari va bosqichli smeta'}</td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                </tr>
+                <tr>
+                  <td>{isEn ? 'Dental lab work orders & tracking' : 'Tish texnik laboratoriya buyurtmalari'}</td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
+                  <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
+                </tr>
+
+                <tr className={styles.compareCategoryRow}>
+                  <td colSpan="5">{isEn ? 'Documents & Radiograph Archive' : 'Hujjatlar & Rentgen Arxiv'}</td>
                 </tr>
                 <tr>
                   <td>Rentgen (OPG, Bitewing) & 3D CBCT</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
-                  <td className={styles.compareTdValue}>150 ta / oy</td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>600 ta / oy</td>
-                  <td className={styles.compareTdValue}>Cheksiz</td>
+                  <td className={styles.compareTdValue}>{isEn ? '150 / mo' : '150 ta / oy'}</td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '600 / mo' : '600 ta / oy'}</td>
+                  <td className={styles.compareTdValue}>{isEn ? 'Unlimited' : 'Cheksiz'}</td>
                 </tr>
                 <tr>
-                  <td>PDF eksport va Kvitansiya (Chek) chop etish</td>
+                  <td>{isEn ? 'Official PDF export & receipt printing' : 'PDF eksport va Kvitansiya (Chek) chop etish'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
@@ -679,17 +708,17 @@ export default function Homepage() {
                 </tr>
 
                 <tr className={styles.compareCategoryRow}>
-                  <td colSpan="5">SMS & Bildirishnomalar</td>
+                  <td colSpan="5">{isEn ? 'SMS & Automated Notifications' : 'SMS & Bildirishnomalar'}</td>
                 </tr>
                 <tr>
-                  <td>SMS avto-eslatmalar va tabriklar</td>
+                  <td>{isEn ? 'Automated SMS reminders & greetings' : 'SMS avto-eslatmalar va tabriklar'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
-                  <td className={styles.compareTdValue}>150 ta / oy</td>
-                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>350 ta / oy</td>
-                  <td className={styles.compareTdValue}>Kelishuv asosida</td>
+                  <td className={styles.compareTdValue}>{isEn ? '150 / mo' : '150 ta / oy'}</td>
+                  <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '350 / mo' : '350 ta / oy'}</td>
+                  <td className={styles.compareTdValue}>{isEn ? 'Custom' : 'Kelishuv asosida'}</td>
                 </tr>
                 <tr>
-                  <td>Qabulni o'zgartirish va bekor qilish xabari</td>
+                  <td>{isEn ? 'Reschedule & cancellation alerts' : 'Qabulni o\'zgartirish va bekor qilish xabari'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
@@ -697,24 +726,24 @@ export default function Homepage() {
                 </tr>
 
                 <tr className={styles.compareCategoryRow}>
-                  <td colSpan="5">Moliya & Qo'llab-quvvatlash</td>
+                  <td colSpan="5">{isEn ? 'Finance, Analytics & Support' : 'Moliya & Qo\'llab-quvvatlash'}</td>
                 </tr>
                 <tr>
-                  <td>Moliyaviy hisobotlar va kassa balansi</td>
+                  <td>{isEn ? 'Financial reporting & cash registers' : 'Moliyaviy hisobotlar va kassa balansi'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                 </tr>
                 <tr>
-                  <td>Shifokorlar oylik ulushi va KPI hisobi</td>
+                  <td>{isEn ? 'Practitioner compensation & KPI calculation' : 'Shifokorlar oylik ulushi va KPI hisobi'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCheck}>✓</span></td>
                 </tr>
                 <tr>
-                  <td>24/7 Jonli tezkor yordam & Shaxsiy menejer</td>
+                  <td>{isEn ? '24/7 Dedicated support & account rep' : '24/7 Jonli tezkor yordam & Shaxsiy menejer'}</td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={styles.compareTdValue}><span className={styles.compareCross}>✕</span></td>
                   <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}><span className={styles.compareCheck}>✓</span></td>
@@ -727,10 +756,10 @@ export default function Homepage() {
 
         {/* Pricing FAQ Section */}
         <div className={styles.faqSection} id="faq">
-          <p className={styles.storyNumber}>Savol-Javoblar</p>
-          <h2 className={styles.storyHeading}>Ko'p beriladigan savollar</h2>
+          <p className={styles.storyNumber}>{t('homepage.faq.tag')}</p>
+          <h2 className={styles.storyHeading}>{t('homepage.faq.heading')}</h2>
           <p className={styles.heroSubhead} style={{ fontSize: '15px', marginTop: '8px' }}>
-            Narxlar, to'lov usullari va tizimdan foydalanish bo'yicha eng muhim savollarga javoblar.
+            {t('homepage.faq.subheading')}
           </p>
 
           <div className={styles.faqList}>
@@ -743,13 +772,17 @@ export default function Homepage() {
                 aria-controls="faq-answer-0"
               >
                 <span className={styles.faqQuestionText}>
-                  14 kunlik bepul sinov davrida bank kartasi kiritish shartmi?
+                  {isEn
+                    ? "Is a credit card required for the 14-day free trial?"
+                    : "14 kunlik bepul sinov davrida bank kartasi kiritish shartmi?"}
                 </span>
                 <Icon name="expand_more" size={20} className={`${styles.faqToggleIcon} ${openFaq === 0 ? styles.faqToggleIconOpen : ""}`} />
               </button>
               {openFaq === 0 && (
                 <div className={styles.faqAnswer} id="faq-answer-0" role="region">
-                  Yo'q, mutlaqo shart emas! Ro'yxatdan o'tganingizdan so'ng darhol barcha modullar 14 kun davomida to'liq ochiladi. Hech qanday karta raqami yoki to'lov majburiyati yuklanmaydi.
+                  {isEn
+                    ? "No, absolutely not! All modules and features are fully unlocked for 14 days immediately upon signing up. No payment card details or purchase obligations are required."
+                    : "Yo'q, mutlaqo shart emas! Ro'yxatdan o'tganingizdan so'ng darhol barcha modullar 14 kun davomida to'liq ochiladi. Hech qanday karta raqami yoki to'lov majburiyati yuklanmaydi."}
                 </div>
               )}
             </div>
@@ -763,13 +796,17 @@ export default function Homepage() {
                 aria-controls="faq-answer-1"
               >
                 <span className={styles.faqQuestionText}>
-                  Boshqa dasturdan yoki Excel jadvallaridan ma'lumotlarni ko'chirishda yordam berasizmi?
+                  {isEn
+                    ? "Do you assist with data migration from Excel or other legacy software?"
+                    : "Boshqa dasturdan yoki Excel jadvallaridan ma'lumotlarni ko'chirishda yordam berasizmi?"}
                 </span>
                 <Icon name="expand_more" size={20} className={`${styles.faqToggleIcon} ${openFaq === 1 ? styles.faqToggleIconOpen : ""}`} />
               </button>
               {openFaq === 1 && (
                 <div className={styles.faqAnswer} id="faq-answer-1" role="region">
-                  Albatta! Bizning professional texnik ko'mak jamoamiz bemorlaringiz bazasini, telefon raqamlarni va klinik ma'lumotlarni bepul, tez va xavfsiz tarzda DentUz tizimiga import qilib beradi.
+                  {isEn
+                    ? "Yes, definitely! Our technical onboarding team will securely and quickly migrate your patient rosters, phone numbers, and clinical history into DentUz completely free of charge."
+                    : "Albatta! Bizning professional texnik ko'mak jamoamiz bemorlaringiz bazasini, telefon raqamlarni va klinik ma'lumotlarni bepul, tez va xavfsiz tarzda DentUz tizimiga import qilib beradi."}
                 </div>
               )}
             </div>
@@ -783,13 +820,17 @@ export default function Homepage() {
                 aria-controls="faq-answer-2"
               >
                 <span className={styles.faqQuestionText}>
-                  Tarifni keyinchalik o'zgartirish yoki bekor qilish mumkinmi?
+                  {isEn
+                    ? "Can we upgrade, downgrade, or cancel our subscription at any time?"
+                    : "Tarifni keyinchalik o'zgartirish yoki bekor qilish mumkinmi?"}
                 </span>
                 <Icon name="expand_more" size={20} className={`${styles.faqToggleIcon} ${openFaq === 2 ? styles.faqToggleIconOpen : ""}`} />
               </button>
               {openFaq === 2 && (
                 <div className={styles.faqAnswer} id="faq-answer-2" role="region">
-                  Ha, istalgan payt shaxsiy kabinet orqali tarifingizni oshirishingiz yoki bekor qilishingiz mumkin. Yillik to'lovga o'tganingizda esa avtomatik 2 oy bepul foydalanasiz (20% tejash).
+                  {isEn
+                    ? "Yes, you can upgrade, adjust, or cancel your subscription anytime via your clinic settings. Choosing annual billing also automatically unlocks 2 free months (20% discount)."
+                    : "Ha, istalgan payt shaxsiy kabinet orqali tarifingizni oshirishingiz yoki bekor qilishingiz mumkin. Yillik to'lovga o'tganingizda esa avtomatik 2 oy bepul foydalanasiz (20% tejash)."}
                 </div>
               )}
             </div>
@@ -803,13 +844,17 @@ export default function Homepage() {
                 aria-controls="faq-answer-3"
               >
                 <span className={styles.faqQuestionText}>
-                  Ma'lumotlarimiz xavfsizligi va zaxira nusxalari qanday saqlanadi?
+                  {isEn
+                    ? "How is patient data secured and backed up?"
+                    : "Ma'lumotlarimiz xavfsizligi va zaxira nusxalari qanday saqlanadi?"}
                 </span>
                 <Icon name="expand_more" size={20} className={`${styles.faqToggleIcon} ${openFaq === 3 ? styles.faqToggleIconOpen : ""}`} />
               </button>
               {openFaq === 3 && (
                 <div className={styles.faqAnswer} id="faq-answer-3" role="region">
-                  Barcha ma'lumotlar O'zbekiston hududidagi zamonaviy serverlarda O'zR "Shaxsiy ma'lumotlar to'g'risida"gi (O'RQ-547) qonuni talablari asosida 256-bit SSL bilan shifrlanadi. Har kecha avtomatik zaxira nusxalash (backup) amalga oshiriladi.
+                  {isEn
+                    ? "All data is securely hosted within modern Uzbekistan data centers, fully compliant with national data protection regulations (Law No. 547) and encrypted with 256-bit SSL. Backups are performed automatically every night."
+                    : "Barcha ma'lumotlar O'zbekiston hududidagi zamonaviy serverlarda O'zR \"Shaxsiy ma'lumotlar to'g'risida\"gi (O'RQ-547) qonuni talablari asosida 256-bit SSL bilan shifrlanadi. Har kecha avtomatik zaxira nusxalash (backup) amalga oshiriladi."}
                 </div>
               )}
             </div>
@@ -822,13 +867,13 @@ export default function Homepage() {
         <div className={styles.contactHeader}>
           <div className={styles.contactBadge}>
             <Icon name="support_agent" size={18} />
-            <span>Yordam Markazi & Aloqa</span>
+            <span>{t('homepage.contact.badge')}</span>
           </div>
           <h2 className={styles.contactTitle}>
-            Biz bilan bog'laning
+            {t('homepage.contact.title')}
           </h2>
           <p className={styles.contactSubtitle}>
-            DentUz jamoasi savollaringizga javob berish, klinikangiz uchun bepul taqdimot (demo) o'tkazish yoki tizimga ulanishda ko'maklashishga doimo tayyor.
+            {t('homepage.contact.subtitle')}
           </p>
         </div>
 
@@ -837,10 +882,10 @@ export default function Homepage() {
           <div className={styles.contactInfoCard}>
             <h3 className={styles.contactCardTitle}>
               <Icon name="apartment" size={26} style={{ color: "var(--color-cyan)" }} />
-              Aloqa Ma'lumotlari
+              {t('homepage.contact.infoTitle')}
             </h3>
             <p className={styles.contactCardSub}>
-              Klinikangizga qulay aloqa kanallari orqali 24/7 biz bilan muloqotda bo'ling yoki ofisimizga tashrif buyuring.
+              {t('homepage.contact.infoSub')}
             </p>
 
             <div className={styles.contactOfficesWrapper}>
@@ -848,16 +893,16 @@ export default function Homepage() {
                 <div className={styles.officeHeader}>
                   <div className={styles.officeName}>
                     <Icon name="location_on" size={18} style={{ color: 'var(--color-cyan)' }} />
-                    <span>Toshkent Bosh Ofisi</span>
+                    <span>{t('homepage.contact.tashkentOffice')}</span>
                   </div>
-                  <span className={styles.officeRegionBadge}>Bosh Qarorgoh</span>
+                  <span className={styles.officeRegionBadge}>{t('homepage.contact.tashkentBadge')}</span>
                 </div>
                 <div className={styles.officeAddress}>
-                  Toshkent shahri, Chilonzor tumani, Bunyodkor shoh ko'chasi 42, IT Park binosi, 5-qavat
+                  {t('homepage.contact.tashkentAddr')}
                 </div>
                 <div className={styles.officeHours}>
                   <Icon name="schedule" size={14} />
-                  <span>Dush - Shan: 09:00 - 19:00</span>
+                  <span>{isEn ? 'Mon - Sat: 09:00 - 19:00' : 'Dush - Shan: 09:00 - 19:00'}</span>
                 </div>
               </div>
 
@@ -865,16 +910,16 @@ export default function Homepage() {
                 <div className={styles.officeHeader}>
                   <div className={styles.officeName}>
                     <Icon name="location_on" size={18} style={{ color: 'var(--color-cyan)' }} />
-                    <span>Samarqand Mintaqaviy Ofisi</span>
+                    <span>{t('homepage.contact.samarkandOffice')}</span>
                   </div>
-                  <span className={styles.officeRegionBadge}>Mintaqaviy Ofis</span>
+                  <span className={styles.officeRegionBadge}>{t('homepage.contact.samarkandBadge')}</span>
                 </div>
                 <div className={styles.officeAddress}>
-                  Samarqand shahri, Universitet xiyoboni 14, Digital Hub
+                  {t('homepage.contact.samarkandAddr')}
                 </div>
                 <div className={styles.officeHours}>
                   <Icon name="schedule" size={14} />
-                  <span>Dush - Juma: 09:00 - 18:00</span>
+                  <span>{isEn ? 'Mon - Fri: 09:00 - 18:00' : 'Dush - Juma: 09:00 - 18:00'}</span>
                 </div>
               </div>
             </div>
@@ -885,9 +930,9 @@ export default function Homepage() {
                   <Icon name="call" size={20} />
                 </div>
                 <div className={styles.contactDetailContent}>
-                  <span className={styles.contactDetailLabel}>Telefon Markazi</span>
+                  <span className={styles.contactDetailLabel}>{t('homepage.contact.phoneCenter')}</span>
                   <a href="tel:+998712008855" className={styles.contactDetailLink}>+998 71 200 88 55</a>
-                  <span className={styles.contactDetailSub}>Birlamchi konsultatsiya va yordam</span>
+                  <span className={styles.contactDetailSub}>{t('homepage.contact.phoneCenterSub')}</span>
                 </div>
               </div>
 
@@ -896,9 +941,9 @@ export default function Homepage() {
                   <Icon name="mail" size={20} />
                 </div>
                 <div className={styles.contactDetailContent}>
-                  <span className={styles.contactDetailLabel}>Elektron Pochta</span>
+                  <span className={styles.contactDetailLabel}>{t('homepage.contact.emailLabel')}</span>
                   <a href="mailto:info@dentuz.uz" className={styles.contactDetailLink}>info@dentuz.uz</a>
-                  <span className={styles.contactDetailSub}>Rasmiy murojaatlar va shartnomalar</span>
+                  <span className={styles.contactDetailSub}>{t('homepage.contact.emailSub')}</span>
                 </div>
               </div>
 
@@ -907,9 +952,9 @@ export default function Homepage() {
                   <Icon name="send" size={20} />
                 </div>
                 <div className={styles.contactDetailContent}>
-                  <span className={styles.contactDetailLabel}>Tezkor Telegram Yordam</span>
+                  <span className={styles.contactDetailLabel}>{t('homepage.contact.telegramLabel')}</span>
                   <a href="https://t.me/dentuz_support" target="_blank" rel="noopener noreferrer" className={styles.contactDetailLink}>@dentuz_support</a>
-                  <span className={styles.contactDetailSub}>24/7 onlayn qo'llab-quvvatlash xizmati</span>
+                  <span className={styles.contactDetailSub}>{t('homepage.contact.telegramSub')}</span>
                 </div>
               </div>
             </div>
@@ -919,10 +964,10 @@ export default function Homepage() {
           <div className={styles.contactFormCard}>
             <h3 className={styles.contactCardTitle}>
               <Icon name="edit_note" size={26} style={{ color: "var(--color-cyan)" }} />
-              Bizga Yozing
+              {t('homepage.contact.formTitle')}
             </h3>
             <p className={styles.contactCardSub}>
-              Murojaatingizni qoldiring, mutaxassislarimiz 15 daqiqa ichida siz bilan bog'lanishadi.
+              {t('homepage.contact.formSub')}
             </p>
 
             {contactSubmitted ? (
@@ -930,9 +975,13 @@ export default function Homepage() {
                 <div className={styles.successIconBadge}>
                   <Icon name="check_circle" size={20} />
                 </div>
-                <div className={styles.successTitle}>Murojaatingiz qabul qilindi!</div>
+                <div className={styles.successTitle}>{t('homepage.contact.successTitle')}</div>
                 <p className={styles.successMessage}>
-                  Rahmat, <strong>{contactForm.fullName || 'Hurmatli foydalanuvchi'}</strong>. Mutaxassisimiz tez orada siz bilan telefon orqali bog'lanadi.
+                  {isEn ? (
+                    <>Thank you, <strong>{contactForm.fullName || 'Valued Doctor'}</strong>. Our representative will contact you shortly by phone.</>
+                  ) : (
+                    <>Rahmat, <strong>{contactForm.fullName || 'Hurmatli foydalanuvchi'}</strong>. Mutaxassisimiz tez orada siz bilan telefon orqali bog'lanadi.</>
+                  )}
                 </p>
                 <button
                   type="button"
@@ -943,31 +992,31 @@ export default function Homepage() {
                       fullName: '',
                       phone: '',
                       email: '',
-                      subject: 'Bepul demo taqdimot',
+                      subject: isEn ? 'Free Demo Walkthrough' : 'Bepul demo taqdimot',
                       message: ''
                     });
                   }}
                 >
-                  Yangi xabar yuborish
+                  {t('homepage.contact.newMsgBtn')}
                 </button>
               </div>
             ) : (
               <form className={styles.contactForm} onSubmit={handleContactSubmit}>
                 <div className={styles.formRowTwo}>
                   <div className={styles.formField}>
-                    <label className={styles.formLabel} htmlFor="contactName">Ism va familiya *</label>
+                    <label className={styles.formLabel} htmlFor="contactName">{t('homepage.contact.nameLabel')}</label>
                     <input
                       id="contactName"
                       type="text"
                       className={styles.formInput}
-                      placeholder="Masalan: Dr. Sherzod Aliyev"
+                      placeholder={t('homepage.contact.namePlaceholder')}
                       required
                       value={contactForm.fullName}
                       onChange={(e) => setContactForm({ ...contactForm, fullName: e.target.value })}
                     />
                   </div>
                   <div className={styles.formField}>
-                    <label className={styles.formLabel} htmlFor="contactPhone">Telefon raqamingiz *</label>
+                    <label className={styles.formLabel} htmlFor="contactPhone">{t('homepage.contact.phoneLabel')}</label>
                     <input
                       id="contactPhone"
                       type="tel"
@@ -982,38 +1031,38 @@ export default function Homepage() {
 
                 <div className={styles.formRowTwo}>
                   <div className={styles.formField}>
-                    <label className={styles.formLabel} htmlFor="contactEmail">Elektron pochta</label>
+                    <label className={styles.formLabel} htmlFor="contactEmail">{t('homepage.contact.emailInputLabel')}</label>
                     <input
                       id="contactEmail"
                       type="email"
                       className={styles.formInput}
-                      placeholder="doktor@klinika.uz"
+                      placeholder={t('homepage.contact.emailInputPlaceholder')}
                       value={contactForm.email}
                       onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                     />
                   </div>
                   <div className={styles.formField}>
-                    <label className={styles.formLabel} htmlFor="contactSubject">Murojaat mavzusi</label>
+                    <label className={styles.formLabel} htmlFor="contactSubject">{t('homepage.contact.subjectLabel')}</label>
                     <select
                       id="contactSubject"
                       className={styles.formSelect}
                       value={contactForm.subject}
                       onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
                     >
-                      <option value="Bepul demo taqdimot">Bepul demo taqdimot</option>
-                      <option value="Tariflar va to'lov">Tariflar va to'lov</option>
-                      <option value="Texnik yordam">Texnik yordam va o'rnatish</option>
-                      <option value="Hamkorlik va integratsiya">Hamkorlik va integratsiya</option>
+                      <option value="Bepul demo taqdimot">{isEn ? 'Free Demo Walkthrough' : 'Bepul demo taqdimot'}</option>
+                      <option value="Tariflar va to'lov">{isEn ? 'Pricing & Billing Plans' : 'Tariflar va to\'lov'}</option>
+                      <option value="Texnik yordam">{isEn ? 'Technical Support & Setup' : 'Texnik yordam va o\'rnatish'}</option>
+                      <option value="Hamkorlik va integratsiya">{isEn ? 'Partnership & API Integration' : 'Hamkorlik va integratsiya'}</option>
                     </select>
                   </div>
                 </div>
 
                 <div className={styles.formField}>
-                  <label className={styles.formLabel} htmlFor="contactMessage">Xabar yoki savolingiz</label>
+                  <label className={styles.formLabel} htmlFor="contactMessage">{t('homepage.contact.messageLabel')}</label>
                   <textarea
                     id="contactMessage"
                     className={styles.formTextarea}
-                    placeholder="Klinikangiz nomi, shifokorlar soni yoki qiziqtirgan savollaringizni yozing..."
+                    placeholder={t('homepage.contact.messagePlaceholder')}
                     rows={4}
                     value={contactForm.message}
                     onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
@@ -1021,12 +1070,12 @@ export default function Homepage() {
                 </div>
 
                 <button type="submit" className={styles.contactSubmitBtn}>
-                  <span>Xabarni Yuborish</span>
+                  <span>{t('homepage.contact.sendBtn')}</span>
                   <Icon name="send" size={18} />
                 </button>
 
                 <p className={styles.formFootnote}>
-                  🔒 Yuborish tugmasini bosish orqali siz O'zbekiston Respublikasi O'RQ-547 qonuniga binoan shaxsiy ma'lumotlarni qayta ishlashga rozilik bildirasiz.
+                  {t('homepage.contact.privacyFootnote')}
                 </p>
               </form>
             )}

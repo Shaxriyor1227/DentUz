@@ -116,10 +116,41 @@
   color: var(--color-cyan-hover);
 }
 
-.themeLabelText { display: none; }
+.themeLabelText {
+  display: none;
+}
 
 @media (min-width: 768px) {
-  .themeLabelText { display: inline-block; }
+  .themeLabelText {
+    display: inline-block;
+  }
+}
+
+.langToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.langToggleBtn:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan-hover);
+}
+
+.langLabelText {
+  display: inline-block;
+  letter-spacing: 0.04em;
+  font-family: var(--font-body);
 }
 
 .loginLink {

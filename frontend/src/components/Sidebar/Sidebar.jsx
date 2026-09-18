@@ -1,21 +1,23 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useSidebar } from '../../context/SidebarContext';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
 
   const navLinks = [
-    { to: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
-    { to: '/patients', label: 'Bemorlar', icon: 'group' },
-    { to: '/calendar', label: 'Taqvim', icon: 'calendar_today' },
-    { to: '/treatment-plan', label: 'Davolash Rejasi', icon: 'healing' },
-    { to: '/finance', label: 'Moliya', icon: 'account_balance_wallet' },
-    { to: '/settings', label: 'Sozlamalar', icon: 'settings' }
+    { to: '/dashboard', label: t('nav.dashboard'), icon: 'grid_view' },
+    { to: '/patients', label: t('nav.patients'), icon: 'group' },
+    { to: '/calendar', label: t('nav.calendar'), icon: 'calendar_today' },
+    { to: '/treatment-plan', label: t('nav.treatmentPlan'), icon: 'healing' },
+    { to: '/finance', label: t('nav.finance'), icon: 'account_balance_wallet' },
+    { to: '/settings', label: t('nav.settings'), icon: 'settings' }
   ];
 
   const handleLogout = () => {
@@ -56,8 +58,8 @@ export default function Sidebar() {
             type="button"
             className={styles.collapseToggleBtn}
             onClick={toggleSidebar}
-            title={collapsed ? "Yon panelni ochish (Ctrl+B)" : "Yon panelni yig'ish (Ctrl+B)"}
-            aria-label="Yon panelni ochish yoki yopish"
+            title={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+            aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             <span className="material-symbols-outlined">
               {collapsed ? 'chevron_right' : 'chevron_left'}
@@ -66,7 +68,7 @@ export default function Sidebar() {
         </div>
 
         {!collapsed ? (
-          <div className={styles.sectionLabel}>Asosiy Panel</div>
+          <div className={styles.sectionLabel}>{t('nav.mainSections')}</div>
         ) : (
           <div className={styles.sectionDivider} />
         )}
@@ -102,12 +104,12 @@ export default function Sidebar() {
         <Link
           to="/"
           className={styles.bottomLink}
-          title={collapsed ? 'Bosh sahifa' : 'Bosh sahifa (Landing page)'}
+          title={collapsed ? 'Landing' : undefined}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>home</span>
-          {!collapsed && <span>Bosh sahifa</span>}
+          {!collapsed && <span>DentUz.uz</span>}
           {collapsed && (
-            <span className={styles.floatingTooltip}>Bosh sahifa</span>
+            <span className={styles.floatingTooltip}>DentUz.uz</span>
           )}
         </Link>
 
@@ -115,12 +117,12 @@ export default function Sidebar() {
           onClick={handleLogout}
           className={styles.logoutBtn}
           type="button"
-          title={collapsed ? 'Chiqish' : undefined}
+          title={collapsed ? t('nav.logout') : undefined}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>logout</span>
-          {!collapsed && <span>Chiqish</span>}
+          {!collapsed && <span>{t('nav.logout')}</span>}
           {collapsed && (
-            <span className={styles.floatingTooltip}>Chiqish</span>
+            <span className={styles.floatingTooltip}>{t('nav.logout')}</span>
           )}
         </button>
 
@@ -129,15 +131,15 @@ export default function Sidebar() {
           type="button"
           className={styles.bottomToggleBtn}
           onClick={toggleSidebar}
-          title={collapsed ? "Yon panelni ochish (Ctrl+B)" : "Yon panelni yig'ish (Ctrl+B)"}
+          title={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>
             {collapsed ? 'last_page' : 'first_page'}
           </span>
-          {!collapsed && <span className={styles.toggleText}>Panelni yig'ish</span>}
+          {!collapsed && <span className={styles.toggleText}>{t('nav.collapseSidebar')}</span>}
           {!collapsed && <kbd className={styles.kbdShortcut}>Ctrl+B</kbd>}
           {collapsed && (
-            <span className={styles.floatingTooltip}>Panelni ochish (Ctrl+B)</span>
+            <span className={styles.floatingTooltip}>{t('nav.expandSidebar')}</span>
           )}
         </button>
       </div>

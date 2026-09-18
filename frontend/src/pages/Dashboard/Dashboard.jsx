@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useApi } from '../../hooks/useApi';
 import { appointmentsApi } from '../../api/appointmentsApi';
 import StatCard from '../../components/StatCard/StatCard';
@@ -7,69 +8,80 @@ import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import styles from './Dashboard.module.css';
 
-// Dental Chairs Live Status Data — short status line only
-const CHAIRS_STATUS = [
-  { id: 1, label: 'Kreslo #1', status: 'active',   statusText: 'Band — 15 daq qoldi' },
-  { id: 2, label: 'Kreslo #2', status: 'idle',     statusText: "Bo'sh" },
-  { id: 3, label: 'Kreslo #3', status: 'active',   statusText: 'Band — 25 daq qoldi' },
-  { id: 4, label: 'Kreslo #4', status: 'cleaning', statusText: 'Dezinfeksiya' }
-];
-
 // 7-day revenue & patients inflow metrics dynamically aligned with current week
-function getWeeklyChartData() {
+function getWeeklyChartData(lang = 'uz') {
   const now = new Date();
   const dayOfWeek = now.getDay();
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(now);
   monday.setDate(now.getDate() + diffToMonday);
 
-  const monthShort = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
-  const dayLabels = [
-    { key: 'Dush', rev: '3.8M', pts: 9, hp: 65 },
-    { key: 'Sesh', rev: '4.2M', pts: 11, hp: 74 },
-    { key: 'Chor', rev: '5.1M', pts: 14, hp: 88 },
-    { key: 'Pay',  rev: '4.6M', pts: 12, hp: 78 },
-    { key: 'Jum',  rev: '4.85M', pts: 13, hp: 84 },
-    { key: 'Shan', rev: '3.4M', pts: 8, hp: 55 },
-    { key: 'Yak',  rev: '2.5M', pts: 5, hp: 40 }
+  const monthShortUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+  const monthShortEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthShort = lang === 'uz' ? monthShortUz : monthShortEn;
+
+  const dayLabelsUz = ['Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'];
+  const dayLabelsEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayLabels = lang === 'uz' ? dayLabelsUz : dayLabelsEn;
+
+  const mockData = [
+    { rev: '3.8M', pts: 9, hp: 65 },
+    { rev: '4.2M', pts: 11, hp: 74 },
+    { rev: '5.1M', pts: 14, hp: 88 },
+    { rev: '4.6M', pts: 12, hp: 78 },
+    { rev: '4.85M', pts: 13, hp: 84 },
+    { rev: '3.4M', pts: 8, hp: 55 },
+    { rev: '2.5M', pts: 5, hp: 40 }
   ];
 
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-  return dayLabels.map((item, idx) => {
+  return dayLabels.map((label, idx) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + idx);
     const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     return {
-      day: item.key,
+      day: label,
       date: `${d.getDate()}-${monthShort[d.getMonth()]}`,
-      revenue: item.rev,
-      patients: item.pts,
-      heightPercent: item.hp,
+      revenue: mockData[idx].rev,
+      patients: mockData[idx].pts,
+      heightPercent: mockData[idx].hp,
       isToday: dStr === todayStr
     };
   });
 }
 
-const WEEKLY_DATA = getWeeklyChartData();
-
 export default function Dashboard() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data: appointments, loading } = useApi(appointmentsApi.getToday, []);
 
   const today = new Date();
-  const dayNames = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
-  const monthNames = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
-  const formattedToday = `${dayNames[today.getDay()]}, ${today.getDate()}-${monthNames[today.getMonth()]}, ${today.getFullYear()}-yil`;
+  const locale = i18n.language === 'uz' ? 'uz-UZ' : 'en-US';
+  const formattedToday = today.toLocaleDateString(locale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
+
+  const chairs = [
+    { id: 1, label: `${t('dashboard.chair')} #1`, status: 'active',   statusText: i18n.language === 'uz' ? 'Band — 15 daq qoldi' : 'In treatment — 15 min left' },
+    { id: 2, label: `${t('dashboard.chair')} #2`, status: 'idle',     statusText: t('dashboard.chairIdle') },
+    { id: 3, label: `${t('dashboard.chair')} #3`, status: 'active',   statusText: i18n.language === 'uz' ? 'Band — 25 daq qoldi' : 'In treatment — 25 min left' },
+    { id: 4, label: `${t('dashboard.chair')} #4`, status: 'cleaning', statusText: t('dashboard.chairCleaning') }
+  ];
 
   return (
     <div className={styles.pageContainer}>
       {/* 1. Greeting Section */}
       <section className={styles.greetingSection}>
         <div>
-          <h1 className={styles.greetingTitle}>Xayrli tong, Dr. Azimov</h1>
+          <h1 className={styles.greetingTitle}>{i18n.language === 'uz' ? 'Xayrli tong, Dr. Azimov' : 'Good day, Dr. Azimov'}</h1>
           <p className={styles.greetingSubtext}>
-            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span> Bugun {appointments?.length || 8} ta qabul rejalashtirilgan
+            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span> {i18n.language === 'uz' ? `Bugun ${appointments?.length || 8} ta qabul rejalashtirilgan` : `${appointments?.length || 8} appointments scheduled for today`}
           </p>
         </div>
       </section>
@@ -86,8 +98,8 @@ export default function Dashboard() {
             <span className="material-symbols-outlined">person_add</span>
           </div>
           <div className={styles.quickActionTextGroup}>
-            <span className={styles.quickActionTitle}>Yangi Bemor</span>
-            <span className={styles.quickActionSub}>Ro'yxatga olish</span>
+            <span className={styles.quickActionTitle}>{t('patients.newPatient')}</span>
+            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? "Ro'yxatga olish" : 'Registration'}</span>
           </div>
         </div>
 
@@ -101,8 +113,8 @@ export default function Dashboard() {
             <span className="material-symbols-outlined">calendar_today</span>
           </div>
           <div className={styles.quickActionTextGroup}>
-            <span className={styles.quickActionTitle}>Yangi Qabul</span>
-            <span className={styles.quickActionSub}>Taqvimga kiritish</span>
+            <span className={styles.quickActionTitle}>{t('calendar.newAppointment')}</span>
+            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'Taqvimga kiritish' : 'Add to schedule'}</span>
           </div>
         </div>
 
@@ -116,8 +128,8 @@ export default function Dashboard() {
             <span className="material-symbols-outlined">receipt_long</span>
           </div>
           <div className={styles.quickActionTextGroup}>
-            <span className={styles.quickActionTitle}>Kassa & To'lov</span>
-            <span className={styles.quickActionSub}>Hisob-fakturalar</span>
+            <span className={styles.quickActionTitle}>{t('finance.title')}</span>
+            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'Hisob-fakturalar' : 'Billing & Ledger'}</span>
           </div>
         </div>
 
@@ -131,13 +143,11 @@ export default function Dashboard() {
             <span className="material-symbols-outlined">dentistry</span>
           </div>
           <div className={styles.quickActionTextGroup}>
-            <span className={styles.quickActionTitle}>Odontogramma</span>
-            <span className={styles.quickActionSub}>FDI tish xaritasi</span>
+            <span className={styles.quickActionTitle}>{t('odontogram.title')}</span>
+            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'FDI tish xaritasi' : '32-tooth chart'}</span>
           </div>
         </div>
       </section>
-
-
 
       {/* 4. Dental Chairs Real-time Status */}
       <section className={styles.chairsSection}>
@@ -146,15 +156,15 @@ export default function Dashboard() {
             <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)' }}>
               airline_seat_recline_normal
             </span>
-            <h2 className={styles.sectionTitle}>Stomatologik Kreslolar Jonli Holati</h2>
+            <h2 className={styles.sectionTitle}>{t('dashboard.chairOccupancy')}</h2>
           </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-            Real vaqt monitoringi
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            {t('dashboard.chairOccupancyDesc')}
           </span>
         </div>
 
         <div className={styles.chairsGrid}>
-          {CHAIRS_STATUS.map((chair) => {
+          {chairs.map((chair) => {
             const isPulse = chair.status === 'active';
             const isIdle = chair.status === 'idle';
             return (
@@ -184,11 +194,11 @@ export default function Dashboard() {
         <div className={styles.appointmentsCard}>
           <div className={styles.cardHeader}>
             <div className={styles.headerTitleWrapper}>
-              <h2 className={styles.headerTitle}>Bugungi qabullar</h2>
+              <h2 className={styles.headerTitle}>{t('dashboard.quickAppointments')}</h2>
               <span className={styles.headerDot} />
             </div>
             <span className={styles.patientCountBadge}>
-              {loading ? '...' : `${appointments?.length || 8} ta bemor`}
+              {loading ? '...' : `${appointments?.length || 8} ${i18n.language === 'uz' ? 'ta bemor' : 'patients'}`}
             </span>
           </div>
 
@@ -235,24 +245,24 @@ export default function Dashboard() {
           ) : (
             <>
               <StatCard
-                label="Bugungi bemorlar"
+                label={t('dashboard.todayStats')}
                 value="8"
-                subtext="5 ta qabul yakunlandi, 3 ta kutilmoqda"
+                subtext={i18n.language === 'uz' ? "5 ta qabul yakunlandi, 3 ta kutilmoqda" : "5 completed, 3 waiting"}
                 icon="groups"
               />
               <StatCard
-                label="Bugungi tushum"
+                label={t('dashboard.expectedRevenue')}
                 value="4 850 000"
-                unit="UZS"
-                subtext="Payme, Click va naqd to'lovlar"
+                unit={t('common.som')}
+                subtext={i18n.language === 'uz' ? "Payme, Click va naqd to'lovlar" : "Payme, Click & Cash receipts"}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
-                label="Kutilayotgan to'lovlar"
+                label={t('finance.stats.expectedPayments')}
                 value="1 200 000"
-                unit="UZS"
-                subtext="2 ta muolaja bo'yicha qoldiq"
+                unit={t('common.som')}
+                subtext={i18n.language === 'uz' ? "2 ta muolaja bo'yicha qoldiq" : "Balance due on 2 procedures"}
                 isMono={true}
                 icon="pending"
               />
@@ -264,10 +274,10 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                  Haftalik Tushum Dinamikasi
+                  {t('dashboard.weeklyRevenue')}
                 </h3>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                  Jami: 28 450 000 UZS • 72 bemor
+                  {i18n.language === 'uz' ? 'Jami: 28 450 000 so\'m • 72 bemor' : 'Total: 28,450,000 UZS • 72 patients'}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '20px' }}>
@@ -276,14 +286,14 @@ export default function Dashboard() {
             </div>
 
             <div className={styles.chartBarsContainer}>
-              {WEEKLY_DATA.map((item) => (
+              {weeklyData.map((item) => (
                 <div key={item.day} className={styles.chartBarCol}>
                   <span className={styles.chartValTooltip}>{item.revenue}</span>
                   <div className={styles.chartBarTrack}>
                     <div
                       className={`${styles.chartBarFill} ${item.isToday ? styles.chartBarFillToday : ''}`}
                       style={{ height: `${item.heightPercent}%` }}
-                      title={`${item.day} (${item.date}): ${item.revenue} UZS (${item.patients} bemor)`}
+                      title={`${item.day} (${item.date}): ${item.revenue} ${t('common.som')}`}
                     />
                   </div>
                   <span className={styles.chartDayLabel}>{item.day}</span>

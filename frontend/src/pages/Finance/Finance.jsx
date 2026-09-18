@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { financeApi } from '../../api/financeApi';
 import StatCard from '../../components/StatCard/StatCard';
 import StatusPill from '../../components/StatusPill/StatusPill';
@@ -8,6 +9,7 @@ import { formatUZS } from '../../utils/formatters';
 import styles from './Finance.module.css';
 
 export default function Finance() {
+  const { t, i18n } = useTranslation();
   const [stats, setStats] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ export default function Finance() {
 
   const columns = [
     {
-      title: 'Hisob raqami',
+      title: t('finance.invoicesTable.colId'),
       key: 'id',
       render: (val) => (
         <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-cyan-hover)' }}>
@@ -59,7 +61,7 @@ export default function Finance() {
       )
     },
     {
-      title: 'Bemor',
+      title: t('finance.invoicesTable.colPatient'),
       key: 'patient',
       render: (val, row) => (
         <div>
@@ -71,7 +73,7 @@ export default function Finance() {
       )
     },
     {
-      title: 'Muolaja / Shifokor',
+      title: t('finance.invoicesTable.colProc'),
       key: 'procedure',
       render: (val, row) => (
         <div>
@@ -81,7 +83,7 @@ export default function Finance() {
       )
     },
     {
-      title: 'Sana & Vaqt',
+      title: t('finance.invoicesTable.colDate'),
       key: 'date',
       render: (val) => (
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
@@ -90,12 +92,12 @@ export default function Finance() {
       )
     },
     {
-      title: "To'lov Usuli",
+      title: t('finance.invoicesTable.colMethod'),
       key: 'method',
       render: (val) => <span className={styles.paymentMethodChip}>{val}</span>
     },
     {
-      title: 'Summa',
+      title: t('finance.invoicesTable.colAmount'),
       key: 'amount',
       align: 'right',
       render: (val) => (
@@ -105,9 +107,9 @@ export default function Finance() {
       )
     },
     {
-      title: 'Holati',
+      title: t('finance.invoicesTable.colStatus'),
       key: 'status',
-      render: (val) => <StatusPill status={val} />
+      render: (val) => <StatusPill status={val} label={val === 'paid' ? t('patientProfile.billingTab.statusPaid') : t('patientProfile.billingTab.statusPending')} />
     }
   ];
 
@@ -117,11 +119,11 @@ export default function Finance() {
       <div className={styles.headerRow}>
         <div>
           <div className={styles.titleArea}>
-            <h1 className={styles.title}>Moliya</h1>
-            <span className={styles.badge}>Asosiy Balans</span>
+            <h1 className={styles.title}>{t('finance.title')}</h1>
+            <span className={styles.badge}>{i18n.language === 'en' ? 'Main Ledger' : 'Asosiy Balans'}</span>
           </div>
           <p className={styles.subtitle}>
-            Klinika moliyaviy hisobotlari, tushumlar va hisob-fakturalar boshqaruvi
+            {t('finance.subtitle')}
           </p>
         </div>
 
@@ -132,21 +134,21 @@ export default function Finance() {
             className={`${styles.dateFilterBtn} ${dateRange === 'this_month' ? styles.dateFilterBtnActive : ''}`}
             onClick={() => setDateRange('this_month')}
           >
-            Shu oy
+            {t('finance.periods.thisMonth')}
           </button>
           <button
             type="button"
             className={`${styles.dateFilterBtn} ${dateRange === 'last_month' ? styles.dateFilterBtnActive : ''}`}
             onClick={() => setDateRange('last_month')}
           >
-            O'tgan oy
+            {t('finance.periods.lastMonth')}
           </button>
           <button
             type="button"
             className={`${styles.dateFilterBtn} ${dateRange === 'custom' ? styles.dateFilterBtnActive : ''}`}
             onClick={() => setDateRange('custom')}
           >
-            Boshqa sana
+            {t('finance.periods.customDate')}
           </button>
         </div>
       </div>
@@ -157,7 +159,7 @@ export default function Finance() {
       ) : (
         <div className={styles.statsGrid}>
           <StatCard
-            label="Davr tushumlari"
+            label={t('finance.stats.totalRevenue')}
             value={stats ? formatUZS(stats.monthlyRevenue, false) : '—'}
             unit="UZS"
             trend={stats ? `+${stats.revenueGrowth}%` : ''}
@@ -166,29 +168,29 @@ export default function Finance() {
             icon="account_balance_wallet"
           />
           <StatCard
-            label="Kutilayotgan to'lovlar"
+            label={t('finance.stats.expectedPayments')}
             value={stats ? formatUZS(stats.pendingPayments, false) : '—'}
             unit="UZS"
-            subtext={stats ? `${stats.pendingCount} ta hisob bo'yicha` : ''}
+            subtext={stats ? `${stats.pendingCount} ${t('common.qty')}` : ''}
             isMono={true}
             icon="pending_actions"
           />
           <StatCard
-            label="Xarajatlar"
+            label={i18n.language === 'en' ? 'Expenses' : 'Xarajatlar'}
             value={stats ? formatUZS(stats.expenses, false) : '—'}
             unit="UZS"
             trend={stats ? `${stats.expensesGrowth > 0 ? '+' : ''}${stats.expensesGrowth}%` : ''}
             trendPositive={stats ? stats.expensesGrowth < 0 : false}
-            subtext="o'tgan oyga nisbatan"
+            subtext={i18n.language === 'en' ? 'vs previous period' : "o'tgan oyga nisbatan"}
             isMono={true}
             icon="shopping_cart_checkout"
           />
           <StatCard
-            label="Sof foyda"
+            label={i18n.language === 'en' ? 'Net Profit' : 'Sof foyda'}
             value={stats ? formatUZS(stats.netProfit, false) : '—'}
             unit="UZS"
             trend={stats ? `+${stats.netProfitGrowth}%` : ''}
-            subtext="sof rentabellik"
+            subtext={i18n.language === 'en' ? 'net margin' : 'sof rentabellik'}
             isMono={true}
             icon="savings"
           />
@@ -202,21 +204,21 @@ export default function Finance() {
           className={`${styles.tabBtn} ${activeTab === 'all' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('all')}
         >
-          Barcha to'lovlar
+          {t('finance.paymentMethods.all')}
         </button>
         <button
           type="button"
           className={`${styles.tabBtn} ${activeTab === 'paid' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('paid')}
         >
-          Hisob-fakturalar (To'langan)
+          {i18n.language === 'en' ? 'Paid Invoices' : 'Hisob-fakturalar (To\'langan)'}
         </button>
         <button
           type="button"
           className={`${styles.tabBtn} ${activeTab === 'pending' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('pending')}
         >
-          Kutilayotgan qoldiqlar
+          {i18n.language === 'en' ? 'Pending Receivables' : 'Kutilayotgan qoldiqlar'}
         </button>
       </div>
 
@@ -227,7 +229,7 @@ export default function Finance() {
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="Hisob raqami, bemor yoki shifokor..."
+            placeholder={t('finance.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -237,22 +239,22 @@ export default function Finance() {
           <button
             type="button"
             style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 500 }}
-            onClick={() => alert("Moliya hisoboti eksport qilindi.")}
+            onClick={() => alert(i18n.language === 'en' ? "Financial ledger exported." : "Moliya hisoboti eksport qilindi.")}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               file_download
             </span>
-            <span>Eksport</span>
+            <span>{t('common.export')}</span>
           </button>
           <button
             type="button"
             style={{ padding: '8px 16px', borderRadius: '8px', background: 'var(--color-cyan)', color: '#FFFFFF', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}
-            onClick={() => alert("Yangi to'lov qabul qilish modal oynasi")}
+            onClick={() => alert(i18n.language === 'en' ? "Collect payment modal" : "Yangi to'lov qabul qilish modal oynasi")}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
             </span>
-            <span>Yangi to'lov</span>
+            <span>{i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov'}</span>
           </button>
         </div>
       </div>

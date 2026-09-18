@@ -1,56 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme';
 import styles from './AuthLayout.module.css';
 
-const CAROUSEL_SLIDES = [
-  {
-    badge: '01 • TIBBIY KARTA',
-    title: 'Bemorlar elektron kartasi',
-    desc: 'Bemor tarixi, 043-shakl, tashxislar, rentgen suratlari va davolash rejalari yagona bazada.',
-    icon: 'assignment_ind',
-    features: [
-      'Elektron 043-raqamli bemor kartasi',
-      "To'liq anamnez, allergiyalar va tashxislar",
-      'Rentgen va hujjatlarning xavfsiz arxivi'
-    ]
-  },
-  {
-    badge: '02 • INTERAKTIV TIZIM',
-    title: 'Interaktiv FDI Odontogramma',
-    desc: "Har bir tishning 5 ta sathi bo'yicha aniq raqamli xarita va bosqichma-bosqich davolash rejasi.",
-    icon: 'dentistry',
-    features: [
-      'Xalqaro FDI (11–48) tishlar tizimi',
-      'Rangli statuslar va materiallar hisobi',
-      'Davolash narxi va cheklarni avto-hisoblash'
-    ]
-  },
-  {
-    badge: '03 • KLINIKA NAZORATI',
-    title: 'Smart Taqvim va Moliya',
-    desc: 'Shifokorlar va kreslolar bandligi, avtomatik cheklar, SMS eslatmalar va kassa tahlili.',
-    icon: 'calendar_month',
-    features: [
-      "Ko'p kresloli interaktiv jadval va SMS eslatmalar",
-      'Avtomatik chek, Payme/Click va qarzlar nazorati',
-      'Shifokorlar KPI ulushi va oylik daromad hisoboti'
-    ]
-  }
-];
+const CAROUSEL_ICONS = ['assignment_ind', 'dentistry', 'calendar_month'];
 
 export default function AuthLayout() {
+  const { t, i18n } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const { theme, toggleTheme } = useTheme();
 
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('dentuz_lang', lang);
+  };
+
+  const rawSlides = t('auth.carousel', { returnObjects: true }) || [];
+  const slides = Array.isArray(rawSlides) ? rawSlides : [];
+
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
-  const slide = CAROUSEL_SLIDES[currentSlide];
+  const slide = slides[currentSlide] || slides[0] || {};
+  const currentIcon = CAROUSEL_ICONS[currentSlide] || 'dentistry';
 
   return (
     <div className={styles.container}>
@@ -61,21 +39,42 @@ export default function AuthLayout() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               arrow_back
             </span>
-            <span>Bosh sahifaga qaytish</span>
+            <span>{t('common.backToHome')}</span>
           </Link>
 
-          <button
-            className={styles.themeToggleBtn}
-            onClick={toggleTheme}
-            type="button"
-            title={theme === 'dark' ? "Kunduzgi rejimga o'tish" : "Tungi rejimga o'tish"}
-            aria-label="Toggle theme"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-            <span>{theme === 'dark' ? 'Kunduzgi' : 'Tungi'}</span>
-          </button>
+          <div className={styles.topRightActions}>
+            <div className={styles.langSwitcher}>
+              <button
+                type="button"
+                className={`${styles.langBtn} ${i18n.language === 'uz' ? styles.langBtnActive : ''}`}
+                onClick={() => changeLanguage('uz')}
+                title="O'zbekcha"
+              >
+                UZ
+              </button>
+              <button
+                type="button"
+                className={`${styles.langBtn} ${i18n.language === 'en' ? styles.langBtnActive : ''}`}
+                onClick={() => changeLanguage('en')}
+                title="English"
+              >
+                EN
+              </button>
+            </div>
+
+            <button
+              className={styles.themeToggleBtn}
+              onClick={toggleTheme}
+              type="button"
+              title={theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
+              aria-label="Toggle theme"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+              <span>{theme === 'dark' ? t('topbar.lightMode') : t('topbar.darkMode')}</span>
+            </button>
+          </div>
         </div>
 
         <div className={styles.centerForm}>
@@ -87,14 +86,14 @@ export default function AuthLayout() {
             <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan)', fontSize: '16px' }}>
               lock
             </span>
-            <span>256-bit SSL Shifrlangan</span>
+            <span>{t('common.sslEncrypted')}</span>
           </div>
           <div className={styles.trustDot} />
           <div className={styles.trustItem}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-mint)', fontSize: '16px' }}>
               verified_user
             </span>
-            <span>O'zR O'RQ-547 Qonuniga Mos</span>
+            <span>{t('common.complianceLaw')}</span>
           </div>
         </div>
       </div>
@@ -107,14 +106,14 @@ export default function AuthLayout() {
         <div className={styles.showcaseWrapper}>
           <div className={styles.topTrustPill}>
             <span className={styles.trustPillDot} />
-            <span>O'zbekistondagi 350+ stomatologlar tanlovi</span>
+            <span>{t('common.dentistsChoice')}</span>
           </div>
 
           <div className={styles.showcaseCard}>
             <div className={styles.slideHeader}>
               <div className={styles.slideIconBadge}>
                 <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-                  {slide.icon}
+                  {currentIcon}
                 </span>
               </div>
               <div>
@@ -126,7 +125,7 @@ export default function AuthLayout() {
             <p className={styles.slideDesc}>{slide.desc}</p>
 
             <div className={styles.slideFeatures}>
-              {slide.features.map((feat, idx) => (
+              {slide.features?.map((feat, idx) => (
                 <div key={idx} className={styles.featureRow}>
                   <div className={styles.checkDot}>
                     <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
@@ -140,7 +139,7 @@ export default function AuthLayout() {
           </div>
 
           <div className={styles.carouselDots}>
-            {CAROUSEL_SLIDES.map((_, idx) => (
+            {slides.map((_, idx) => (
               <button
                 key={idx}
                 type="button"

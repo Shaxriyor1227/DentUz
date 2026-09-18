@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import Toast from '../../components/Toast/Toast';
 import { formatUZS } from '../../utils/formatters';
@@ -63,13 +64,14 @@ const INITIAL_PROCEDURES = [
 ];
 
 const STATUS_OPTIONS = [
-  { key: 'completed', label: 'Yakunlandi', dotColor: 'var(--color-mint)' },
-  { key: 'in_progress', label: 'Jarayonda', dotColor: 'var(--color-cyan)' },
-  { key: 'scheduled', label: 'Rejalashtirilgan', dotColor: 'var(--color-info)' },
-  { key: 'cancelled', label: 'Bekor qilingan', dotColor: '#EF4444' }
+  { key: 'completed', labelUz: 'Yakunlandi', labelEn: 'Completed', dotColor: 'var(--color-mint)' },
+  { key: 'in_progress', labelUz: 'Jarayonda', labelEn: 'In Progress', dotColor: 'var(--color-cyan)' },
+  { key: 'scheduled', labelUz: 'Rejalashtirilgan', labelEn: 'Scheduled', dotColor: 'var(--color-info)' },
+  { key: 'cancelled', labelUz: 'Bekor qilingan', labelEn: 'Cancelled', dotColor: '#EF4444' }
 ];
 
 export default function TreatmentPlan() {
+  const { t, i18n } = useTranslation();
   const [items, setItems] = useState(INITIAL_PROCEDURES);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
@@ -192,7 +194,12 @@ export default function TreatmentPlan() {
     );
     setOpenDropdownStep(null);
     const matched = STATUS_OPTIONS.find((s) => s.key === newStatus);
-    setToastNotice(`#${stepId} muolaja holati "${matched?.label || newStatus}" ga o'zgartirildi.`);
+    const lbl = i18n.language === 'en' ? matched?.labelEn : matched?.labelUz;
+    setToastNotice(
+      i18n.language === 'en'
+        ? `#${stepId} procedure status changed to "${lbl || newStatus}".`
+        : `#${stepId} muolaja holati "${lbl || newStatus}" ga o'zgartirildi.`
+    );
   };
 
   return (
@@ -204,47 +211,47 @@ export default function TreatmentPlan() {
             arrow_back
           </span>
           <span>
-            Bemor profiliga qaytish: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (#P-1042)</strong>
+            {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (#P-1042)</strong>
           </span>
         </Link>
-        <StatusPill status="in_progress" label="Faol reja" />
+        <StatusPill status="in_progress" label={i18n.language === 'en' ? 'Active Plan' : 'Faol reja'} />
       </div>
 
       {/* 2. Header Area */}
       <div className={styles.headerCard}>
         <div className={styles.headerInfo}>
           <div className={styles.tagRow}>
-            <span className={styles.planTag}>Reja #TR-8821</span>
+            <span className={styles.planTag}>{i18n.language === 'en' ? 'Plan' : 'Reja'} #TR-8821</span>
             <span style={{ color: 'var(--color-border)' }}>•</span>
-            <span className={styles.protocolType}>Terapevtik va ortopedik protokol</span>
+            <span className={styles.protocolType}>{i18n.language === 'en' ? 'Therapeutic & Prosthetic Protocol' : 'Terapevtik va ortopedik protokol'}</span>
           </div>
 
           <div className={styles.titleRow}>
-            <h1 className={styles.planTitle}>Kompleks reabilitatsiya va endodontiya</h1>
+            <h1 className={styles.planTitle}>{t('treatmentPlan.title')}</h1>
             <span className={styles.h1ProgressBadge}>
               <span className={styles.h1BadgeDot} />
-              {progressPercent}% yakunlandi
+              {progressPercent}% {t('treatmentPlan.planProgress')}
             </span>
           </div>
 
           <div className={styles.metaRow}>
-            <span>Bemor: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov</strong></span>
+            <span>{t('treatmentPlan.patient')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov</strong></span>
             <span className={styles.metaSeparator}>/</span>
             <span>ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>#P-1042</strong></span>
             <span className={styles.metaSeparator}>/</span>
-            <span>Boshlangan: 18-Sentabr, 2026</span>
+            <span>{t('treatmentPlan.date')}: 18-Sentabr, 2026</span>
             <span className={styles.metaSeparator}>/</span>
-            <span>Mas'ul shifokor: Dr. Azimov</span>
+            <span>{t('dashboard.doctor')}: Dr. Azimov</span>
           </div>
 
           {/* Integrated progress bar directly inside headerCard */}
           <div className={styles.headerProgressRow}>
             <div className={styles.headerProgressCounts}>
-              <span>Jami: <strong style={{ color: 'var(--color-text-primary)' }}>{items.length} ta</strong></span>
+              <span>{i18n.language === 'en' ? 'Total' : 'Jami'}: <strong style={{ color: 'var(--color-text-primary)' }}>{items.length} {t('common.qty')}</strong></span>
               <span>•</span>
-              <span>Bajarildi: <strong style={{ color: 'var(--color-mint-text)' }}>{completedCount} ta</strong></span>
+              <span>{i18n.language === 'en' ? 'Done' : 'Bajarildi'}: <strong style={{ color: 'var(--color-mint-text)' }}>{completedCount} {t('common.qty')}</strong></span>
               <span>•</span>
-              <span>Kutilmoqda: <strong style={{ color: 'var(--color-cyan-hover)' }}>{inProgressCount + scheduledCount} ta</strong></span>
+              <span>{i18n.language === 'en' ? 'Pending' : 'Kutilmoqda'}: <strong style={{ color: 'var(--color-cyan-hover)' }}>{inProgressCount + scheduledCount} {t('common.qty')}</strong></span>
             </div>
             <div className={styles.headerProgressBarBg}>
               <div className={styles.headerProgressBarFill} style={{ width: `${progressPercent}%` }} />
@@ -261,7 +268,7 @@ export default function TreatmentPlan() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               picture_as_pdf
             </span>
-            <span>Chop etish / PDF</span>
+            <span>{t('treatmentPlan.printOfficialPdf')}</span>
           </button>
 
           <button
@@ -272,7 +279,7 @@ export default function TreatmentPlan() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
             </span>
-            <span>Yangi muolaja</span>
+            <span>{t('treatmentPlan.addStep')}</span>
           </button>
         </div>
       </div>
@@ -281,10 +288,10 @@ export default function TreatmentPlan() {
       <div className={styles.ledgerCard}>
         <div className={styles.ledgerHeader}>
           <span>#</span>
-          <span>Muolaja va klinik protokol</span>
-          <span>Lokalizatsiya</span>
-          <span>Reja sanasi</span>
-          <span style={{ textAlign: 'right' }}>Qiymati & Holat</span>
+          <span>{t('treatmentPlan.procedure')}</span>
+          <span>{t('treatmentPlan.tooth')}</span>
+          <span>{t('treatmentPlan.date')}</span>
+          <span style={{ textAlign: 'right' }}>{t('treatmentPlan.cost')} & {t('treatmentPlan.status')}</span>
         </div>
 
         {items.map((proc) => (
@@ -312,7 +319,7 @@ export default function TreatmentPlan() {
                     e.stopPropagation();
                     setOpenDropdownStep((prev) => (prev === proc.step ? null : proc.step));
                   }}
-                  title="Muolaja holatini tanlash"
+                  title={t('treatmentPlan.status')}
                   aria-haspopup="listbox"
                   aria-expanded={openDropdownStep === proc.step}
                 >
@@ -337,7 +344,7 @@ export default function TreatmentPlan() {
                             className={styles.optionDot}
                             style={{ backgroundColor: opt.dotColor }}
                           />
-                          <span className={styles.optionLabel}>{opt.label}</span>
+                          <span className={styles.optionLabel}>{i18n.language === 'en' ? opt.labelEn : opt.labelUz}</span>
                           {isCurrent && (
                             <span
                               className={`material-symbols-outlined ${styles.optionCheck}`}
@@ -359,19 +366,19 @@ export default function TreatmentPlan() {
       {/* 5. Total calculation summary card */}
       <div className={styles.totalSummaryCard}>
         <div className={styles.summaryRow}>
-          <span>Davolash rejasi umumiy smetasi</span>
+          <span>{t('treatmentPlan.totalCost')}</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {formatUZS(totalAmount)}
           </span>
         </div>
         <div className={styles.summaryRow}>
-          <span>Bemor tomonidan to'langan (Kassa / Payme)</span>
+          <span>{t('treatmentPlan.paidAmount')} (Payme / Cash)</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-mint-text)' }}>
             {formatUZS(paidAmount)}
           </span>
         </div>
         <div className={styles.summaryTotalRow}>
-          <span>Qoldiq to'lanishi lozim</span>
+          <span>{t('treatmentPlan.remainingAmount')}</span>
           <span className={styles.remainingAmount}>
             {formatUZS(remainingAmount)}
           </span>
@@ -406,18 +413,18 @@ export default function TreatmentPlan() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--color-text-primary)' }}>
-              Rejaga Yangi Muolaja Qo'shish
+              {t('treatmentPlan.addStep')}
             </h3>
 
             <form onSubmit={handleAddStep} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Muolaja nomi
+                  {t('treatmentPlan.procedure')}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="masalan, #46 Tishni plombalash"
+                  placeholder={i18n.language === 'en' ? "e.g., #46 Composite Restoration" : "masalan, #46 Tishni plombalash"}
                   value={newStep.title}
                   onChange={(e) => setNewStep({ ...newStep, title: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -426,11 +433,11 @@ export default function TreatmentPlan() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Protokol va tavsif
+                  {i18n.language === 'en' ? 'Protocol & Description' : 'Protokol va tavsif'}
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Muolaja tafsilotlari"
+                  placeholder={i18n.language === 'en' ? "Clinical procedure details" : "Muolaja tafsilotlari"}
                   value={newStep.desc}
                   onChange={(e) => setNewStep({ ...newStep, desc: e.target.value })}
                   style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -440,7 +447,7 @@ export default function TreatmentPlan() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                    Tish / Soha
+                    {t('treatmentPlan.tooth')}
                   </label>
                   <input
                     type="text"
@@ -452,7 +459,7 @@ export default function TreatmentPlan() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                    Qiymati (UZS)
+                    {t('treatmentPlan.cost')} (UZS)
                   </label>
                   <input
                     type="number"
@@ -466,16 +473,16 @@ export default function TreatmentPlan() {
               <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
                 <button
                   type="submit"
-                  style={{ flex: 1, height: '40px', background: 'var(--color-cyan)', color: '#FFFFFF', borderRadius: '8px', fontWeight: 600 }}
+                  style={{ flex: 1, height: '40px', background: 'var(--color-cyan)', color: '#FFFFFF', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
                 >
-                  Rejaga kiritish
+                  {t('common.save')}
                 </button>
                 <button
                   type="button"
-                  style={{ height: '40px', padding: '0 16px', background: 'var(--color-surface-container)', color: 'var(--color-text-secondary)', borderRadius: '8px' }}
+                  style={{ height: '40px', padding: '0 16px', background: 'var(--color-surface-container)', color: 'var(--color-text-secondary)', borderRadius: '8px', cursor: 'pointer' }}
                   onClick={() => setShowAddModal(false)}
                 >
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>
@@ -492,7 +499,7 @@ export default function TreatmentPlan() {
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)' }}>
                   description
                 </span>
-                <span>Rasmiy Davolash Rejasi & Moliyaviy Smeta (A4)</span>
+                <span>{t('treatmentPlan.pdf.modalTitle')}</span>
               </div>
 
               <div className={styles.pdfToolbarActions}>
@@ -504,26 +511,26 @@ export default function TreatmentPlan() {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     print
                   </span>
-                  <span>Chop etish / PDF</span>
+                  <span>{t('treatmentPlan.printOfficialPdf')}</span>
                 </button>
 
                 <button
                   type="button"
                   className={`${styles.pdfActionBtn} ${styles.pdfJsonBtn}`}
                   onClick={handleExportJson}
-                  title="Backend API uchun barcha ma'lumotlarni JSON qilib yuklab olish"
+                  title={i18n.language === 'en' ? "Download JSON payload for EHR sync" : "Backend API uchun barcha ma'lumotlarni JSON qilib yuklab olish"}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan-hover)' }}>
                     download
                   </span>
-                  <span>JSON ma'lumotlar</span>
+                  <span>{i18n.language === 'en' ? 'Export JSON' : 'JSON ma\'lumotlar'}</span>
                 </button>
 
                 <button
                   type="button"
                   className={styles.pdfCloseBtn}
                   onClick={() => setShowPdfModal(false)}
-                  title="Yopish"
+                  title={t('common.close')}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     close
@@ -543,15 +550,15 @@ export default function TreatmentPlan() {
                       </span>
                     </div>
                     <div>
-                      <div className={styles.pdfClinicName}>Toshkent Dental Clinic</div>
-                      <div className={styles.pdfClinicLicense}>Litsenziya: MED-UZ-2021-9988 • O'zR SSV Standarti</div>
+                      <div className={styles.pdfClinicName}>{t('treatmentPlan.pdf.clinicName')}</div>
+                      <div className={styles.pdfClinicLicense}>{t('treatmentPlan.pdf.license')}</div>
                     </div>
                   </div>
 
                   <div className={styles.pdfDocMeta}>
-                    <div className={styles.pdfDocTitle}>DAVOLASH REJASI & SMETA</div>
-                    <div>Hujjat №: <strong>TR-8821</strong></div>
-                    <div>Sana: <strong>18-Sentabr, 2026</strong></div>
+                    <div className={styles.pdfDocTitle}>{t('treatmentPlan.pdf.docTitle')}</div>
+                    <div>{i18n.language === 'en' ? 'Document #:' : 'Hujjat №:'} <strong>TR-8821</strong></div>
+                    <div>{t('treatmentPlan.date')}: <strong>18-Sentabr, 2026</strong></div>
                   </div>
                 </div>
 
@@ -559,31 +566,31 @@ export default function TreatmentPlan() {
                 <div className={styles.pdfDossierGrid}>
                   <div className={styles.pdfDossierCol}>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Bemor F.I.SH.:</span>
+                      <span className={styles.pdfDossierLabel}>{t('treatmentPlan.pdf.patientName')}:</span>
                       <span className={styles.pdfDossierVal}>Anvar Qosimov</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Bemor ID:</span>
+                      <span className={styles.pdfDossierLabel}>ID:</span>
                       <span className={styles.pdfDossierVal}>#P-1042</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Telefon:</span>
+                      <span className={styles.pdfDossierLabel}>{t('treatmentPlan.pdf.phone')}:</span>
                       <span className={styles.pdfDossierVal}>+998 90 842 11 00</span>
                     </div>
                   </div>
 
                   <div className={styles.pdfDossierCol}>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Mas'ul shifokor:</span>
+                      <span className={styles.pdfDossierLabel}>{t('treatmentPlan.pdf.doctor')}:</span>
                       <span className={styles.pdfDossierVal}>Dr. Jasur Azimov</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Mutaxassislik:</span>
-                      <span className={styles.pdfDossierVal}>Bosh shifokor / Terapevt-Endodont</span>
+                      <span className={styles.pdfDossierLabel}>{i18n.language === 'en' ? 'Specialty:' : 'Mutaxassislik:'}</span>
+                      <span className={styles.pdfDossierVal}>{i18n.language === 'en' ? 'Chief Doctor / Endodontist' : 'Bosh shifokor / Terapevt-Endodont'}</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>Klinik Tashxis:</span>
-                      <span className={styles.pdfDossierVal}>#16 Tish chuqur kariesi va pulpiti</span>
+                      <span className={styles.pdfDossierLabel}>{i18n.language === 'en' ? 'Diagnosis:' : 'Klinik Tashxis:'}</span>
+                      <span className={styles.pdfDossierVal}>{i18n.language === 'en' ? '#16 Deep Caries & Pulpitis' : '#16 Tish chuqur kariesi va pulpiti'}</span>
                     </div>
                   </div>
                 </div>
@@ -592,12 +599,12 @@ export default function TreatmentPlan() {
                 <table className={styles.pdfTable}>
                   <thead>
                     <tr>
-                      <th style={{ width: '40px' }}>№</th>
-                      <th>Klinik Muolaja va Protokol</th>
-                      <th style={{ width: '70px' }}>Soha</th>
-                      <th style={{ width: '130px' }}>Reja Sanasi</th>
-                      <th style={{ width: '100px' }}>Holat</th>
-                      <th style={{ width: '120px', textAlign: 'right' }}>Qiymati</th>
+                      <th style={{ width: '40px' }}>{t('treatmentPlan.pdf.tableStep')}</th>
+                      <th>{t('treatmentPlan.pdf.tableProc')}</th>
+                      <th style={{ width: '70px' }}>{t('treatmentPlan.pdf.tableTooth')}</th>
+                      <th style={{ width: '130px' }}>{t('treatmentPlan.date')}</th>
+                      <th style={{ width: '100px' }}>{t('treatmentPlan.status')}</th>
+                      <th style={{ width: '120px', textAlign: 'right' }}>{t('treatmentPlan.cost')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -612,7 +619,7 @@ export default function TreatmentPlan() {
                         <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{item.date}</td>
                         <td>
                           <span style={{ fontSize: '10.5px', fontWeight: 600, color: item.status === 'completed' ? '#059669' : item.status === 'in_progress' ? '#0891B2' : '#64748B' }}>
-                            {item.status === 'completed' ? '✓ Yakunlandi' : item.status === 'in_progress' ? '● Jarayonda' : '○ Rejada'}
+                            {item.status === 'completed' ? (i18n.language === 'en' ? '✓ Completed' : '✓ Yakunlandi') : item.status === 'in_progress' ? (i18n.language === 'en' ? '● In Progress' : '● Jarayonda') : (i18n.language === 'en' ? '○ Scheduled' : '○ Rejada')}
                           </span>
                         </td>
                         <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
@@ -627,15 +634,15 @@ export default function TreatmentPlan() {
                 <div className={styles.pdfFinancialSummary}>
                   <div className={styles.pdfSummaryBox}>
                     <div className={styles.pdfSummaryLine}>
-                      <span>Reja umumiy smetasi:</span>
+                      <span>{t('treatmentPlan.totalCost')}:</span>
                       <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{formatUZS(totalAmount)}</span>
                     </div>
                     <div className={styles.pdfSummaryLine}>
-                      <span>Bemor to'lagan (Kassa / Payme):</span>
+                      <span>{t('treatmentPlan.paidAmount')}:</span>
                       <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#059669' }}>- {formatUZS(paidAmount)}</span>
                     </div>
                     <div className={styles.pdfSummaryLineTotal}>
-                      <span>Qoldiq to'lanishi lozim:</span>
+                      <span>{t('treatmentPlan.remainingAmount')}:</span>
                       <span style={{ fontFamily: 'var(--font-mono)', color: '#0891B2' }}>{formatUZS(remainingAmount)}</span>
                     </div>
                   </div>
@@ -643,13 +650,13 @@ export default function TreatmentPlan() {
 
                 {/* Notice */}
                 <div className={styles.pdfNotice}>
-                  * Ushbu hujjat stomatologiya klinikasi va bemor o'rtasidagi kelishilgan muolaja protokoli hisoblanadi. Klinik muolajalar O'zR SSV №043/h talablariga mos ravishda 12 oylik kafolat bilan ta'minlanadi. To'lovlar Click, Payme, Uzcard, Humo yoki naqd shaklda amalga oshirilishi mumkin.
+                  * {t('treatmentPlan.pdf.footerNote')}
                 </div>
 
                 {/* Signatures */}
                 <div className={styles.pdfSignatures}>
                   <div className={styles.pdfSignCol}>
-                    <div className={styles.pdfSignTitle}>Davolovchi Shifokor:</div>
+                    <div className={styles.pdfSignTitle}>{t('treatmentPlan.pdf.doctorSign')}</div>
                     <div className={styles.pdfSignLine}>
                       <span>Dr. Jasur Azimov</span>
                       <span>(imzo / muhr)</span>
@@ -657,7 +664,7 @@ export default function TreatmentPlan() {
                   </div>
 
                   <div className={styles.pdfSignCol}>
-                    <div className={styles.pdfSignTitle}>Bemor (yoki vasiy) roziligi:</div>
+                    <div className={styles.pdfSignTitle}>{t('treatmentPlan.pdf.patientSign')}</div>
                     <div className={styles.pdfSignLine}>
                       <span>Anvar Qosimov</span>
                       <span>(imzo)</span>

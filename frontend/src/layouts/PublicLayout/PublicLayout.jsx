@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme';
 import styles from './PublicLayout.module.css';
 import Icon from '../../components/Icon/Icon';
@@ -26,7 +27,17 @@ function useReveal(threshold = 0.08) {
 }
 
 export default function PublicLayout() {
+  const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === 'uz' ? 'en' : 'uz';
+    i18n.changeLanguage(nextLang);
+    try {
+      localStorage.setItem('dentuz_lang', nextLang);
+    } catch (e) {}
+  };
+
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [footerRef, footerVisible] = useReveal(0.04);
 
@@ -70,10 +81,10 @@ export default function PublicLayout() {
   ];
 
   const TRUST_ITEMS = [
-    { icon: 'lock', color: '#22D3EE', label: '256-bit SSL Shifrlash' },
-    { icon: 'verified_user', color: '#34D399', label: "O'RQ-547 Qonunchiligi" },
-    { icon: 'health_and_safety', color: '#22D3EE', label: 'SSV 043/h Standartlari' },
-    { icon: 'cloud_done', color: '#34D399', label: "O'zbekiston Serverlari" },
+    { icon: 'lock', color: '#22D3EE', label: t('homepage.footer.trustSsl') },
+    { icon: 'verified_user', color: '#34D399', label: t('homepage.footer.trustLaw') },
+    { icon: 'health_and_safety', color: '#22D3EE', label: t('homepage.footer.trustMph') },
+    { icon: 'cloud_done', color: '#34D399', label: t('homepage.footer.trustServers') },
   ];
 
   return (
@@ -93,27 +104,42 @@ export default function PublicLayout() {
           </Link>
 
           <nav className={styles.navLinks} aria-label="Asosiy navigatsiya">
-            <a href="#features" className={styles.navLink} onClick={(e) => handleNavClick(e, 'features')}>Imkoniyatlar</a>
-            <a href="#stats" className={styles.navLink} onClick={(e) => handleNavClick(e, 'stats')}>Afzalliklar</a>
-            <a href="#pricing" className={styles.navLink} onClick={(e) => handleNavClick(e, 'pricing')}>Tariflar</a>
-            <a href="#contact" className={styles.navLink} onClick={(e) => handleNavClick(e, 'contact')}>Bog'lanish</a>
+            <a href="#features" className={styles.navLink} onClick={(e) => handleNavClick(e, 'features')}>{t('homepage.nav.features')}</a>
+            <a href="#stats" className={styles.navLink} onClick={(e) => handleNavClick(e, 'stats')}>{t('homepage.nav.benefits')}</a>
+            <a href="#pricing" className={styles.navLink} onClick={(e) => handleNavClick(e, 'pricing')}>{t('homepage.nav.pricing')}</a>
+            <a href="#contact" className={styles.navLink} onClick={(e) => handleNavClick(e, 'contact')}>{t('homepage.nav.contact')}</a>
           </nav>
 
           <div className={styles.headerActions}>
+            {/* Language Switcher */}
+            <button
+              className={styles.langToggleBtn}
+              onClick={toggleLanguage}
+              title={i18n.language === 'uz' ? "Switch to English" : "O'zbek tiliga o'tish"}
+              type="button"
+              aria-label="Toggle language"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan-hover)' }}>translate</span>
+              <span className={styles.langLabelText}>
+                {i18n.language?.startsWith('en') ? 'EN' : 'UZ'}
+              </span>
+            </button>
+
+            {/* Theme Toggle */}
             <button
               className={styles.themeToggleBtn}
               onClick={toggleTheme}
-              title={theme === 'dark' ? "Kunduzgi rejimga o'tish" : "Tungi rejimga o'tish"}
+              title={theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
               type="button"
               aria-label="Toggle dark/light theme"
             >
               <Icon name={theme === 'dark' ? 'light_mode' : 'dark_mode'} size={20} />
               <span className={styles.themeLabelText}>
-                {theme === 'dark' ? 'Kunduzgi' : 'Tungi'}
+                {theme === 'dark' ? t('topbar.lightMode') : t('topbar.darkMode')}
               </span>
             </button>
-            <Link to="/login" className={styles.loginLink}>Kirish</Link>
-            <Link to="/signup" className={styles.ctaBtn}>Boshlash</Link>
+            <Link to="/login" className={styles.loginLink}>{t('homepage.nav.login')}</Link>
+            <Link to="/signup" className={styles.ctaBtn}>{t('homepage.nav.getStarted')}</Link>
           </div>
         </div>
       </header>
@@ -163,7 +189,7 @@ export default function PublicLayout() {
               </Link>
 
               <p className={styles.brandTagline}>
-                O'zbekistonning eng zamonaviy stomatologiya boshqaruv tizimi. Klinikangizni raqamlashtiring, kelajakka qadam qo'ying.
+                {t('homepage.footer.brandDesc')}
               </p>
 
               {/* IT Park Resident Badge (GateDent Product Hunt style) */}
@@ -172,13 +198,13 @@ export default function PublicLayout() {
                 target="_blank"
                 rel="noreferrer"
                 className={styles.itParkCard}
-                title="IT Park O'zbekiston Rasmiy Rezidenti"
+                title={i18n.language === 'en' ? 'IT Park Uzbekistan Official Resident' : "IT Park O'zbekiston Rasmiy Rezidenti"}
               >
                 <div className={styles.itParkCardLeft}>
                   <div className={styles.itParkBadgeIcon}>P</div>
                   <div className={styles.itParkCardText}>
-                    <span className={styles.itParkCardSub}>RASMIY REZIDENT</span>
-                    <span className={styles.itParkCardTitle}>IT Park Resident</span>
+                    <span className={styles.itParkCardSub}>{t('homepage.footer.officialResident')}</span>
+                    <span className={styles.itParkCardTitle}>{t('homepage.footer.itParkResident')}</span>
                   </div>
                 </div>
                 <div className={styles.itParkVoteBadge}>
@@ -208,15 +234,15 @@ export default function PublicLayout() {
 
             {/* Column 2: Mahsulot */}
             <div className={styles.footerCol}>
-              <h4 className={styles.colHeading}>Mahsulot</h4>
+              <h4 className={styles.colHeading}>{t('homepage.footer.product')}</h4>
               <ul className={styles.linkList}>
-                <li><a href="#features" className={styles.footerLink}>Imkoniyatlar</a></li>
-                <li><a href="#pricing" className={styles.footerLink}>Tariflar</a></li>
-                <li><a href="#compare" className={styles.footerLink}>Rejalarni taqqoslash</a></li>
-                <li><a href="#hero-canvas" className={styles.footerLink}>FDI Odontogramma</a></li>
+                <li><a href="#features" className={styles.footerLink}>{t('homepage.nav.features')}</a></li>
+                <li><a href="#pricing" className={styles.footerLink}>{t('homepage.nav.pricing')}</a></li>
+                <li><a href="#compare" className={styles.footerLink}>{t('homepage.footer.comparePlans')}</a></li>
+                <li><a href="#hero-canvas" className={styles.footerLink}>{t('homepage.footer.fdiOdontogram')}</a></li>
                 <li>
                   <Link to="/dashboard" className={`${styles.footerLink} ${styles.demoLink}`}>
-                    Namoyish (Demo)
+                    {t('homepage.footer.liveDemo')}
                   </Link>
                 </li>
               </ul>
@@ -224,36 +250,36 @@ export default function PublicLayout() {
 
             {/* Column 3: Kompaniya */}
             <div className={styles.footerCol}>
-              <h4 className={styles.colHeading}>Kompaniya</h4>
+              <h4 className={styles.colHeading}>{t('homepage.footer.company')}</h4>
               <ul className={styles.linkList}>
-                <li><a href="#stats" className={styles.footerLink}>Biz haqimizda</a></li>
+                <li><a href="#stats" className={styles.footerLink}>{t('homepage.footer.aboutUs')}</a></li>
                 <li>
                   <a href="#blog" className={styles.footerLink}>
                     Blog
                   </a>
                 </li>
-                <li><a href="#features" className={styles.footerLink}>Klinikalar tarmog'i</a></li>
+                <li><a href="#features" className={styles.footerLink}>{t('homepage.footer.clinicNetwork')}</a></li>
                 <li>
                   <a href="#contact" className={`${styles.footerLink} ${styles.careerLinkRow}`}>
-                    Karyera <span className={styles.careerBadge}>Faol</span>
+                    {t('homepage.footer.careers')} <span className={styles.careerBadge}>{t('homepage.footer.activeBadge')}</span>
                   </a>
                 </li>
-                <li><a href="#contact" className={styles.footerLink}>Hamkorlar</a></li>
-                <li><a href="#faq" className={styles.footerLink}>Savol-javoblar</a></li>
+                <li><a href="#contact" className={styles.footerLink}>{t('homepage.footer.partners')}</a></li>
+                <li><a href="#faq" className={styles.footerLink}>{t('homepage.footer.faqs')}</a></li>
               </ul>
             </div>
 
             {/* Column 4: Bog'lanish */}
             <div className={styles.footerCol}>
-              <h4 className={styles.colHeading}>Bog'lanish</h4>
+              <h4 className={styles.colHeading}>{t('homepage.footer.contact')}</h4>
 
               <div className={styles.officeBlock}>
                 <div className={styles.officeHeader}>
                   <span className={styles.officeCountryTag}>UZ</span>
-                  <span className={styles.officeCityName}>Bosh Ofis — Toshkent</span>
+                  <span className={styles.officeCityName}>{t('homepage.footer.tashkentHq')}</span>
                 </div>
                 <p className={styles.officeAddress}>
-                  Toshkent sh., Chilonzor t., Bunyodkor 42 / IT Park
+                  {t('homepage.contact.tashkentAddr')}
                 </p>
                 <a href="tel:+998712004545" className={styles.officePhoneLink}>
                   +998 71 200 45 45
@@ -263,10 +289,10 @@ export default function PublicLayout() {
               <div className={styles.officeBlock}>
                 <div className={styles.officeHeader}>
                   <span className={styles.officeCountryTag}>UZ</span>
-                  <span className={styles.officeCityName}>Samarqand filiali</span>
+                  <span className={styles.officeCityName}>{t('homepage.footer.samarkandBranch')}</span>
                 </div>
                 <p className={styles.officeAddress}>
-                  Samarqand sh., Universitet xiyoboni 14
+                  {t('homepage.contact.samarkandAddr')}
                 </p>
                 <a href="tel:+998901234567" className={styles.officePhoneLink}>
                   +998 90 123 45 67
@@ -280,13 +306,13 @@ export default function PublicLayout() {
 
             {/* Column 5: Huquqiy */}
             <div className={styles.footerCol}>
-              <h4 className={styles.colHeading}>Huquqiy</h4>
+              <h4 className={styles.colHeading}>{t('homepage.footer.legal')}</h4>
               <ul className={styles.linkList}>
-                <li><a href="#legal" className={styles.footerLink}>Maxfiylik siyosati</a></li>
-                <li><a href="#legal" className={styles.footerLink}>Foydalanish shartlari</a></li>
-                <li><a href="#legal" className={styles.footerLink}>Ommaviy oferta</a></li>
-                <li><a href="#legal" className={styles.footerLink}>SSV 043/h Standartlari</a></li>
-                <li><a href="#legal" className={styles.footerLink}>Cookie sozlamalari</a></li>
+                <li><a href="#legal" className={styles.footerLink}>{t('homepage.footer.privacyPolicy')}</a></li>
+                <li><a href="#legal" className={styles.footerLink}>{t('homepage.footer.termsOfUse')}</a></li>
+                <li><a href="#legal" className={styles.footerLink}>{t('homepage.footer.publicOffer')}</a></li>
+                <li><a href="#legal" className={styles.footerLink}>{t('homepage.footer.ssvStandard')}</a></li>
+                <li><a href="#legal" className={styles.footerLink}>{t('homepage.footer.cookieSettings')}</a></li>
               </ul>
             </div>
 
@@ -318,10 +344,10 @@ export default function PublicLayout() {
             }}
           >
             <p className={styles.copyrightText}>
-              © 2025 - 2026 - DentUz. Barcha huquqlar himoyalangan.
+              © 2025 - 2026 - DentUz. {t('homepage.footer.rights')}
             </p>
             <div className={styles.devCredit}>
-              Raqamlashtirish: <span className={styles.devCreditHighlight}>DentUz Tech • IT Park Rezidenti</span>
+              {t('homepage.footer.digitization')} <span className={styles.devCreditHighlight}>{t('homepage.footer.devCredit')}</span>
             </div>
           </div>
 
@@ -332,7 +358,7 @@ export default function PublicLayout() {
       <button
         className={`${styles.scrollTopBtn} ${showScrollTop ? styles.scrollTopBtnVisible : ''}`}
         onClick={scrollToTop}
-        title="Sahifa boshiga qaytish"
+        title={i18n.language === 'en' ? 'Scroll to top' : 'Sahifa boshiga qaytish'}
         type="button"
         aria-label="Scroll to top"
       >

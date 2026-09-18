@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useSidebar } from '../../context/SidebarContext';
@@ -83,10 +84,19 @@ const ALL_SEARCH_ITEMS = [
 ];
 
 export default function TopBar() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === 'uz' ? 'en' : 'uz';
+    i18n.changeLanguage(nextLang);
+    try {
+      localStorage.setItem('dentuz_lang', nextLang);
+    } catch (e) {}
+  };
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -233,7 +243,7 @@ export default function TopBar() {
               type="text"
               readOnly
               className={styles.searchInput}
-              placeholder="Bemor, telefon yoki sahifani qidiring..."
+              placeholder={t('topbar.searchPlaceholder')}
               value={searchQuery}
             />
             <span className={styles.searchShortcut}>⌘K</span>
@@ -241,10 +251,25 @@ export default function TopBar() {
         </div>
 
         <div className={styles.rightSection}>
+          {/* Language Switcher (UZ / EN) */}
+          <button
+            className={styles.langToggleBtn}
+            onClick={toggleLanguage}
+            title={i18n.language === 'uz' ? "Switch to English" : "O'zbek tiliga o'tish"}
+            type="button"
+            aria-label="Toggle language"
+          >
+            <span className="material-symbols-outlined">translate</span>
+            <span className={styles.langLabelText}>
+              {i18n.language?.startsWith('en') ? 'EN' : 'UZ'}
+            </span>
+          </button>
+
+          {/* Theme Toggle */}
           <button
             className={styles.themeToggleBtn}
             onClick={toggleTheme}
-            title={theme === 'dark' ? "Kunduzgi rejimga o'tish" : "Tungi rejimga o'tish (Ko'zga qulay)"}
+            title={theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
             type="button"
             aria-label="Toggle dark/light theme"
           >
@@ -252,7 +277,7 @@ export default function TopBar() {
               {theme === 'dark' ? 'light_mode' : 'dark_mode'}
             </span>
             <span className={styles.themeLabelText}>
-              {theme === 'dark' ? 'Kunduzgi' : 'Tungi'}
+              {theme === 'dark' ? t('topbar.lightMode') : t('topbar.darkMode')}
             </span>
           </button>
 
@@ -260,11 +285,11 @@ export default function TopBar() {
           <div className={styles.notifWrapper} ref={notifRef}>
             <button
               className={`${styles.iconBtn} ${notifOpen ? styles.iconBtnActive : ''}`}
-              title="Bildirishnomalar"
+              title={t('topbar.notifications')}
               type="button"
               onClick={() => setNotifOpen((prev) => !prev)}
               aria-expanded={notifOpen}
-              aria-label="Bildirishnomalar oynasi"
+              aria-label={t('topbar.notifications')}
             >
               <span className="material-symbols-outlined">notifications</span>
               {unreadCount > 0 && (
@@ -283,9 +308,9 @@ export default function TopBar() {
               >
                 <div className={styles.notifHeader}>
                   <div className={styles.notifHeaderLeft}>
-                    <span className={styles.notifTitle}>Bildirishnomalar</span>
+                    <span className={styles.notifTitle}>{t('topbar.notificationsTitle')}</span>
                     {unreadCount > 0 && (
-                      <span className={styles.notifCountBadge}>{unreadCount} yangi</span>
+                      <span className={styles.notifCountBadge}>{unreadCount} {i18n.language === 'uz' ? 'yangi' : 'new'}</span>
                     )}
                   </div>
                   {unreadCount > 0 && (
@@ -294,7 +319,7 @@ export default function TopBar() {
                       className={styles.markReadBtn}
                       onClick={handleMarkAllAsRead}
                     >
-                      Barchasini o'qilgan qilish
+                      {t('topbar.markAllRead')}
                     </button>
                   )}
                 </div>
@@ -305,14 +330,14 @@ export default function TopBar() {
                     className={`${styles.notifTab} ${notifFilter === 'all' ? styles.notifTabActive : ''}`}
                     onClick={() => setNotifFilter('all')}
                   >
-                    Barchasi ({notifications.length})
+                    {t('common.all')} ({notifications.length})
                   </button>
                   <button
                     type="button"
                     className={`${styles.notifTab} ${notifFilter === 'unread' ? styles.notifTabActive : ''}`}
                     onClick={() => setNotifFilter('unread')}
                   >
-                    O'qilmagan ({unreadCount})
+                    {i18n.language === 'uz' ? "O'qilmagan" : 'Unread'} ({unreadCount})
                   </button>
                 </div>
 
@@ -335,7 +360,7 @@ export default function TopBar() {
                       <span className="material-symbols-outlined" style={{ fontSize: '32px', color: 'var(--color-outline)' }}>
                         notifications_off
                       </span>
-                      <p>Yangi bildirishnomalar yo'q</p>
+                      <p>{t('topbar.noNotifications')}</p>
                     </div>
                   ) : (
                     displayedNotifications.map((n) => (
@@ -374,7 +399,7 @@ export default function TopBar() {
                       navigate('/calendar');
                     }}
                   >
-                    Taqvimga o'tish
+                    {t('dashboard.viewAllCalendar')}
                   </button>
                   {notifications.length > 0 && (
                     <button
@@ -382,7 +407,7 @@ export default function TopBar() {
                       className={styles.clearNotifsBtn}
                       onClick={() => setNotifications([])}
                     >
-                      Tozalash
+                      {t('topbar.clearAll')}
                     </button>
                   )}
                 </div>
@@ -396,7 +421,7 @@ export default function TopBar() {
             </div>
             <div className={styles.userInfo}>
               <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
-              <span className={styles.userRole}>{user?.title || 'Bosh shifokor'}</span>
+              <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
             </div>
           </div>
         </div>
@@ -418,7 +443,7 @@ export default function TopBar() {
               <input
                 autoFocus
                 className={styles.spotlightInput}
-                placeholder="Bemor, telefon, sahifa yoki amalni qidiring..."
+                placeholder={t('topbar.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -427,7 +452,7 @@ export default function TopBar() {
                   type="button"
                   className={styles.clearQueryBtn}
                   onClick={() => setSearchQuery('')}
-                  title="Tozalash"
+                  title={t('topbar.clearAll')}
                 >
                   <span className="material-symbols-outlined">cancel</span>
                 </button>
@@ -442,14 +467,16 @@ export default function TopBar() {
               {flattenedResults.length === 0 ? (
                 <div className={styles.emptySpotlight}>
                   <span className="material-symbols-outlined">search_off</span>
-                  <p>"{searchQuery}" bo'yicha hech narsa topilmadi</p>
-                  <span>Bemor ismi, telefon raqami yoki bo'lim nomini tekshiring</span>
+                  <p>{t('topbar.searchNoResults')}</p>
                 </div>
               ) : (
                 groupedResults.map((group) => (
                   <div key={group.category} className={styles.spotlightGroup}>
                     <div className={styles.spotlightGroupHeader}>
-                      {group.categoryLabel}
+                      {group.category === 'pages' ? t('topbar.searchGroupPages') :
+                       group.category === 'patients' ? t('topbar.searchGroupPatients') :
+                       group.category === 'actions' ? t('topbar.searchGroupDoctors') :
+                       group.categoryLabel}
                     </div>
                     {group.items.map((item) => {
                       const itemIndex = flattenedResults.findIndex((r) => r.id === item.id);
@@ -489,15 +516,15 @@ export default function TopBar() {
                 <span className={styles.shortcutItem}>
                   <kbd className={styles.footerKey}>↑</kbd>
                   <kbd className={styles.footerKey}>↓</kbd>
-                  <span>Harakatlanish</span>
+                  <span>{t('topbar.searchNavigate')}</span>
                 </span>
                 <span className={styles.shortcutItem}>
                   <kbd className={styles.footerKey}>↵</kbd>
-                  <span>Tanlash</span>
+                  <span>{t('topbar.searchPressEnter')}</span>
                 </span>
                 <span className={styles.shortcutItem}>
                   <kbd className={styles.footerKey}>ESC</kbd>
-                  <span>Chiqish</span>
+                  <span>{t('topbar.searchClose')}</span>
                 </span>
               </div>
               <div className={styles.spotlightBrand}>

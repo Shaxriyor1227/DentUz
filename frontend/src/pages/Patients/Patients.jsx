@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FixedSizeList as List } from 'react-window';
 import { patientsApi } from '../../api/patientsApi';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -7,6 +8,7 @@ import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import styles from './Patients.module.css';
 
 export default function Patients() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(342);
@@ -113,7 +115,7 @@ export default function Patients() {
           <button
             type="button"
             className={styles.actionIconBtn}
-            title="Karta ochish"
+            title={t('common.details')}
             onClick={(e) => {
               e.stopPropagation();
               handleRowClick(p);
@@ -126,7 +128,7 @@ export default function Patients() {
           <button
             type="button"
             className={styles.actionIconBtn}
-            title="Batafsil"
+            title={t('common.details')}
             onClick={(e) => {
               e.stopPropagation();
               handleRowClick(p);
@@ -146,11 +148,9 @@ export default function Patients() {
       {/* Page Header */}
       <div className={styles.headerRow}>
         <div>
-          <h1 className={styles.title}>Bemorlar</h1>
+          <h1 className={styles.title}>{t('patients.title')}</h1>
           <p className={styles.subtitle}>
-            Jami{' '}
-            <span className={styles.countHighlight}>{totalCount}</span> ta faol bemor
-            kartasi ro'yxatga olingan
+            {t('patients.subtitle', { count: totalCount })}
           </p>
         </div>
 
@@ -158,12 +158,12 @@ export default function Patients() {
           <button
             type="button"
             className={styles.exportBtn}
-            onClick={() => alert("Bemorlar ro'yxati CSV formatida eksport qilindi.")}
+            onClick={() => alert(i18n.language === 'uz' ? "Bemorlar ro'yxati CSV formatida eksport qilindi." : "Patient list exported as CSV.")}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               file_download
             </span>
-            <span>Eksport</span>
+            <span>{t('patients.exportCsv')}</span>
           </button>
 
           <button
@@ -174,7 +174,7 @@ export default function Patients() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
             </span>
-            <span>Yangi bemor</span>
+            <span>{t('patients.newPatient')}</span>
           </button>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function Patients() {
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="Bemor ismi, telefon raqami yoki ID bo'yicha qidirish..."
+            placeholder={t('patients.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -200,28 +200,28 @@ export default function Patients() {
             className={`${styles.filterPill} ${filter === 'all' ? styles.filterPillActive : ''}`}
             onClick={() => setFilter('all')}
           >
-            Barchasi ({totalCount})
+            {t('patients.filterAll')} ({totalCount})
           </button>
           <button
             type="button"
             className={`${styles.filterPill} ${filter === 'today' ? styles.filterPillActive : ''}`}
             onClick={() => setFilter('today')}
           >
-            Bugun qabulda (14)
+            {t('patients.filterToday')} (14)
           </button>
           <button
             type="button"
             className={`${styles.filterPill} ${filter === 'scheduled' ? styles.filterPillActive : ''}`}
             onClick={() => setFilter('scheduled')}
           >
-            Rejalashtirilgan (89)
+            {t('patients.filterScheduled')} (89)
           </button>
           <button
             type="button"
             className={`${styles.filterPill} ${filter === 'debtor' ? styles.filterPillActive : ''}`}
             onClick={() => setFilter('debtor')}
           >
-            Qarzdorlar (5)
+            {t('patients.filterDebtors')} (5)
           </button>
         </div>
       </div>
@@ -229,11 +229,11 @@ export default function Patients() {
       {/* Virtualized Table Container with react-window */}
       <div className={styles.tableCard}>
         <div className={styles.tableHeader}>
-          <span>Bemor</span>
-          <span>Telefon Raqami</span>
-          <span>Oxirgi Tashrif</span>
-          <span>Keyingi Qabul</span>
-          <span className={styles.tableHeaderRight}>Amallar</span>
+          <span>{t('patients.table.patient')}</span>
+          <span>{t('patients.table.phone')}</span>
+          <span>{t('patients.table.lastVisit')}</span>
+          <span>{t('patients.table.nextVisit')}</span>
+          <span className={styles.tableHeaderRight}>{t('patients.table.actions')}</span>
         </div>
 
         {loading ? (
@@ -242,7 +242,7 @@ export default function Patients() {
           </div>
         ) : patients.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-            Mos keluvchi bemor topilmadi
+            {t('patients.table.noPatientsFound')}
           </div>
         ) : (
           <List
@@ -260,11 +260,11 @@ export default function Patients() {
       {showAddModal && (
         <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>Yangi bemor qo'shish</h2>
+            <h2 className={styles.modalTitle}>{t('patients.modal.title')}</h2>
             <form onSubmit={handleAddPatient} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  F.I.SH. (To'liq ism)
+                  {t('patients.modal.fullName')}
                 </label>
                 <input
                   required
@@ -278,7 +278,7 @@ export default function Patients() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Telefon raqami
+                  {t('patients.modal.phone')}
                 </label>
                 <input
                   required
@@ -292,11 +292,11 @@ export default function Patients() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Allergiyalar / Muhim tibbiy belgilar
+                  {t('patientProfile.allergies')}
                 </label>
                 <input
                   type="text"
-                  placeholder="masalan, Penitsillin, Lidokain yoki Yo'q"
+                  placeholder="masalan, Penitsillin, Lidokain"
                   value={newPatient.allergies}
                   onChange={(e) => setNewPatient({ ...newPatient, allergies: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -309,13 +309,13 @@ export default function Patients() {
                   onClick={() => setShowAddModal(false)}
                   style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface-container)', color: 'var(--color-text-primary)', cursor: 'pointer' }}
                 >
-                  Bekor qilish
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   style={{ padding: '8px 20px', borderRadius: '8px', background: 'var(--color-cyan)', color: '#FFFFFF', fontWeight: 600, cursor: 'pointer' }}
                 >
-                  Saqlash
+                  {t('common.save')}
                 </button>
               </div>
             </form>
