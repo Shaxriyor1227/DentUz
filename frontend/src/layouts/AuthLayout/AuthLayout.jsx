@@ -43,22 +43,22 @@ export default function AuthLayout() {
           </Link>
 
           <div className={styles.topRightActions}>
-            <div className={styles.langSwitcher}>
+            <div className={styles.langSegment} role="group" aria-label="Language selector">
               <button
                 type="button"
-                className={`${styles.langBtn} ${i18n.language === 'uz' ? styles.langBtnActive : ''}`}
+                className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
                 onClick={() => changeLanguage('uz')}
                 title="O'zbekcha"
               >
-                UZ
+                UZB
               </button>
               <button
                 type="button"
-                className={`${styles.langBtn} ${i18n.language === 'en' ? styles.langBtnActive : ''}`}
+                className={`${styles.langOption} ${i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
                 onClick={() => changeLanguage('en')}
                 title="English"
               >
-                EN
+                ENG
               </button>
             </div>
 

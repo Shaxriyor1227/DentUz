@@ -90,11 +90,10 @@ export default function TopBar() {
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
 
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === 'uz' ? 'en' : 'uz';
-    i18n.changeLanguage(nextLang);
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
     try {
-      localStorage.setItem('dentuz_lang', nextLang);
+      localStorage.setItem('dentuz_lang', lang);
     } catch (e) {}
   };
 
@@ -251,19 +250,25 @@ export default function TopBar() {
         </div>
 
         <div className={styles.rightSection}>
-          {/* Language Switcher (UZ / EN) */}
-          <button
-            className={styles.langToggleBtn}
-            onClick={toggleLanguage}
-            title={i18n.language === 'uz' ? "Switch to English" : "O'zbek tiliga o'tish"}
-            type="button"
-            aria-label="Toggle language"
-          >
-            <span className="material-symbols-outlined">translate</span>
-            <span className={styles.langLabelText}>
-              {i18n.language?.startsWith('en') ? 'EN' : 'UZ'}
-            </span>
-          </button>
+          {/* Premium Pro Segmented Language Switcher */}
+          <div className={styles.langSegment} role="group" aria-label="Language selector">
+            <button
+              type="button"
+              className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
+              onClick={() => changeLanguage('uz')}
+              title="O'zbekcha"
+            >
+              UZB
+            </button>
+            <button
+              type="button"
+              className={`${styles.langOption} ${i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
+              onClick={() => changeLanguage('en')}
+              title="English"
+            >
+              ENG
+            </button>
+          </div>
 
           {/* Theme Toggle */}
           <button
