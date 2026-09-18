@@ -274,7 +274,8 @@ export default function PublicLayout() {
                 <li><a href="#features" className={styles.footerLink}>{t('homepage.footer.clinicNetwork')}</a></li>
                 <li>
                   <a href="#contact" className={`${styles.footerLink} ${styles.careerLinkRow}`}>
-                    {t('homepage.footer.careers')} <span className={styles.careerBadge}>{t('homepage.footer.activeBadge')}</span>
+                    <span>{t('homepage.footer.careers')}</span>
+                    <span className={styles.careerBadge}>{t('homepage.footer.activeBadge')}</span>
                   </a>
                 </li>
                 <li><a href="#contact" className={styles.footerLink}>{t('homepage.footer.partners')}</a></li>
