@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import Logo from '../../components/Logo/Logo';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -15,7 +16,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(email, password);
+    login({ email, name: 'Dr. Jasur Azimov', clinic: 'Toshkent Dental Clinic', role: 'Bosh shifokor' });
     navigate('/dashboard');
   };
 
@@ -23,21 +24,7 @@ export default function Login() {
     <div>
       <div className={styles.header}>
         <div className={styles.brandRow}>
-          <div className={styles.logoIcon}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-              <path
-                d="M12 2C7.5 2 6 5.5 6 9c0 4 2 8 3 11 1 3 2.5 3 3 0 .5-3 1-5 2-5s1.5 2 2 5c.5 3 2 3 3 0 1-3 3-7 3-11 0-3.5-1.5-7-6-7z"
-                fill="#06B6D4"
-              />
-              <circle cx="12" cy="7.5" r="1.5" fill="#FFFFFF" />
-            </svg>
-          </div>
-          <div>
-            <span className={styles.brandTitle}>
-              Dent<span className={styles.brandCyan}>Uz</span>
-            </span>
-            <span className={styles.clinicBadge}>Clinic</span>
-          </div>
+          <Logo size={36} withText subtitle="Clinic OS" />
         </div>
 
         <h1 className={styles.title}>{t('auth.loginTitle')}</h1>

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme';
 import styles from './PublicLayout.module.css';
 import Icon from '../../components/Icon/Icon';
+import Logo from '../../components/Logo/Logo';
 
 /* ─── Scroll-reveal hook ─── */
 function useReveal(threshold = 0.08) {
@@ -93,13 +94,7 @@ export default function PublicLayout() {
       <header className={styles.stickyHeader}>
         <div className={styles.headerInner}>
           <Link to="/" className={styles.brandLogoLink} aria-label="DentUz - Bosh sahifaga qaytish">
-            <div className={styles.logoBox}>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"
-                style={{ color: 'var(--color-cyan)' }} aria-hidden="true" focusable="false">
-                <path d="M12 2C7.5 2 6 5.5 6 9c0 4 2 8 3 11 1 3 2.5 3 3 0 .5-3 1-5 2-5s1.5 2 2 5c.5 3 2 3 3 0 1-3 3-7 3-11 0-3.5-1.5-7-6-7z" />
-              </svg>
-            </div>
-            <span className={styles.brandText}>Dent<span className={styles.brandCyan}>Uz</span></span>
+            <Logo size={34} withText />
           </Link>
 
           <nav className={styles.navLinks} aria-label="Asosiy navigatsiya">
@@ -184,13 +179,7 @@ export default function PublicLayout() {
             {/* Column 1: Brand & Social */}
             <div className={styles.brandCol}>
               <Link to="/" className={styles.brandLink} aria-label="DentUz bosh sahifasi">
-                <div className={styles.logoBoxFooter}>
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"
-                    style={{ color: '#2DD4BF' }} aria-hidden="true">
-                    <path d="M12 2C7.5 2 6 5.5 6 9c0 4 2 8 3 11 1 3 2.5 3 3 0 .5-3 1-5 2-5s1.5 2 2 5c.5 3 2 3 3 0 1-3 3-7 3-11 0-3.5-1.5-7-6-7z" />
-                  </svg>
-                </div>
-                <span className={styles.brandTitle}>DentUz</span>
+                <Logo size={36} withText />
               </Link>
 
               <p className={styles.brandTagline}>

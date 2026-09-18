@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import Toast from '../../components/Toast/Toast';
+import Logo from '../../components/Logo/Logo';
 import { formatUZS } from '../../utils/formatters';
 import styles from './TreatmentPlan.module.css';
 
@@ -544,11 +545,7 @@ export default function TreatmentPlan() {
                 {/* Header */}
                 <div className={styles.pdfClinicHeader}>
                   <div className={styles.pdfClinicBrand}>
-                    <div className={styles.pdfLogoMark}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-                        dentistry
-                      </span>
-                    </div>
+                    <Logo size={34} animated={false} />
                     <div>
                       <div className={styles.pdfClinicName}>{t('treatmentPlan.pdf.clinicName')}</div>
                       <div className={styles.pdfClinicLicense}>{t('treatmentPlan.pdf.license')}</div>

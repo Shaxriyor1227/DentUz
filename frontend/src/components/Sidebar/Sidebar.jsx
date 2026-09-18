@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useSidebar } from '../../context/SidebarContext';
+import Logo from '../Logo/Logo';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
@@ -13,11 +14,11 @@ export default function Sidebar() {
 
   const navLinks = [
     { to: '/dashboard', label: t('nav.dashboard'), icon: 'grid_view' },
-    { to: '/patients', label: t('nav.patients'), icon: 'group' },
-    { to: '/calendar', label: t('nav.calendar'), icon: 'calendar_today' },
-    { to: '/treatment-plan', label: t('nav.treatmentPlan'), icon: 'healing' },
-    { to: '/finance', label: t('nav.finance'), icon: 'account_balance_wallet' },
-    { to: '/settings', label: t('nav.settings'), icon: 'settings' }
+    { to: '/patients', label: t('nav.patients'), icon: 'person_search' },
+    { to: '/calendar', label: t('nav.calendar'), icon: 'calendar_month' },
+    { to: '/treatment-plan', label: t('nav.treatmentPlan'), icon: 'assignment' },
+    { to: '/finance', label: t('nav.finance'), icon: 'payments' },
+    { to: '/settings', label: t('nav.settings'), icon: 'settings' },
   ];
 
   const handleLogout = () => {
@@ -26,7 +27,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+    <aside
+      className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}
+      aria-label="Asosiy navigatsiya paneli"
+    >
       <div className={styles.topSection}>
         {/* Brand Header */}
         <div className={styles.brandHeaderWrapper}>
@@ -35,23 +39,11 @@ export default function Sidebar() {
             className={styles.brandHeader}
             title={collapsed ? 'DentUz Dental OS' : undefined}
           >
-            <div className={styles.brandLogo}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                <path
-                  d="M12 2C7.5 2 6 5.5 6 9c0 4 2 8 3 11 1 3 2.5 3 3 0 .5-3 1-5 2-5s1.5 2 2 5c.5 3 2 3 3 0 1-3 3-7 3-11 0-3.5-1.5-7-6-7z"
-                  fill="#06B6D4"
-                />
-                <circle cx="12" cy="7.5" r="1.5" fill="#FFFFFF" />
-              </svg>
-            </div>
-            {!collapsed && (
-              <div className={styles.brandTitles}>
-                <span className={styles.brandName}>
-                  Dent<span className={styles.brandNameCyan}>Uz</span>
-                </span>
-                <span className={styles.brandTag}>Dental OS</span>
-              </div>
-            )}
+            <Logo
+              size={collapsed ? 32 : 36}
+              withText={!collapsed}
+              subtitle="Dental OS"
+            />
           </Link>
 
           <button
