@@ -650,6 +650,23 @@
       "upperJaw": "Yuqori jag'",
       "lowerJaw": "Pastki jag'"
     },
+    "whyChoose": {
+      "badge": "Yagona Ekotizim",
+      "title": "Nega aynan DentUz?",
+      "subtitle": "Barcha klinik jarayonlar yagona markazlashtirilgan boshqaruv tizimi orqali bitta ekranda jamlangan.",
+      "items": [
+        "Yagona bulutli baza (Cloud EHR)",
+        "Har qanday qurilmadan kirish (Mobil, Planshet, PC)",
+        "Cheksiz bemorlar va qabullar ro'yxati",
+        "Avtomatik kundalik zaxiralash (Cloud Backup)",
+        "Yaxlit integratsiyalashgan modullar",
+        "Moliya, kassa va to'lovlar nazorati (Payme, Click)",
+        "5 ta anatomik yuza FDI Odontogramma (30+ holat)",
+        "24/7 Jonli tezkor texnik ko'mak",
+        "SSV 043/h standarti va O'RQ-547 qonuni"
+      ],
+      "viewAllModules": "Barcha modullarni ko'rish"
+    },
     "stories": {
       "story1": {
         "tag": "01 / Rejalashtirish",

@@ -650,6 +650,23 @@
       "upperJaw": "Maxillary Arch (Upper)",
       "lowerJaw": "Mandibular Arch (Lower)"
     },
+    "whyChoose": {
+      "badge": "Unified Ecosystem",
+      "title": "Why Choose DentUz?",
+      "subtitle": "All your clinical processes on one screen with a centralized management system.",
+      "items": [
+        "Unified Database (Cloud EHR)",
+        "Access from any device (Mobile, Tablet, PC)",
+        "Unlimited Patients and Appointments",
+        "Automatic Backup and Updates",
+        "Fully Integrated Modules",
+        "Finance and Inventory Control (Payme, Click)",
+        "5-Surface Modern Odontogram (30+ conditions)",
+        "Live Support (Real-time Technical Support)",
+        "SSV 043/h Health Standard & Law No. 547 Compliant"
+      ],
+      "viewAllModules": "View all modules"
+    },
     "stories": {
       "story1": {
         "tag": "01 / Scheduling",
