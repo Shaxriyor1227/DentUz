@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme';
 import styles from './PublicLayout.module.css';
@@ -30,6 +30,7 @@ function useReveal(threshold = 0.08) {
 export default function PublicLayout() {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
@@ -41,6 +42,11 @@ export default function PublicLayout() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [footerRef, footerVisible] = useReveal(0.04);
 
+  // Automatically scroll to top on page transition
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -48,14 +54,6 @@ export default function PublicLayout() {
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  const handleNavClick = (e, targetId) => {
-    e.preventDefault();
-    const el = document.getElementById(targetId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   const SOCIAL_LINKS = [
     {
@@ -110,10 +108,30 @@ export default function PublicLayout() {
           </Link>
 
           <nav className={styles.navLinks} aria-label="Asosiy navigatsiya">
-            <a href="#features" className={styles.navLink} onClick={(e) => handleNavClick(e, 'features')}>{t('homepage.nav.features')}</a>
-            <a href="#stats" className={styles.navLink} onClick={(e) => handleNavClick(e, 'stats')}>{t('homepage.nav.benefits')}</a>
-            <a href="#pricing" className={styles.navLink} onClick={(e) => handleNavClick(e, 'pricing')}>{t('homepage.nav.pricing')}</a>
-            <a href="#contact" className={styles.navLink} onClick={(e) => handleNavClick(e, 'contact')}>{t('homepage.nav.contact')}</a>
+            <NavLink
+              to="/features"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+            >
+              {t('homepage.nav.features')}
+            </NavLink>
+            <NavLink
+              to="/advantages"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+            >
+              {t('homepage.nav.benefits')}
+            </NavLink>
+            <NavLink
+              to="/pricing"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+            >
+              {t('homepage.nav.pricing')}
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+            >
+              {t('homepage.nav.contact')}
+            </NavLink>
           </nav>
 
           <div className={styles.headerActions}>
@@ -156,10 +174,10 @@ export default function PublicLayout() {
         </div>
       </header>
 
-      {/* ── Main Content ── */}
-      <div className={styles.mainWrapper}>
+      {/* ── Main Content with smooth page entrance animation ── */}
+      <main key={location.pathname} className={styles.pageOutletWrapper}>
         <Outlet />
-      </div>
+      </main>
 
       {/* ══════════════════════════════════════════
           APPLE-STYLE PREMIUM FOOTER
@@ -249,10 +267,10 @@ export default function PublicLayout() {
             <div className={styles.footerCol}>
               <h4 className={styles.colHeading}>{t('homepage.footer.product')}</h4>
               <ul className={styles.linkList}>
-                <li><a href="#features" className={styles.footerLink}>{t('homepage.nav.features')}</a></li>
-                <li><a href="#pricing" className={styles.footerLink}>{t('homepage.nav.pricing')}</a></li>
-                <li><a href="#compare" className={styles.footerLink}>{t('homepage.footer.comparePlans')}</a></li>
-                <li><a href="#hero-canvas" className={styles.footerLink}>{t('homepage.footer.fdiOdontogram')}</a></li>
+                <li><Link to="/features" className={styles.footerLink}>{t('homepage.nav.features')}</Link></li>
+                <li><Link to="/pricing" className={styles.footerLink}>{t('homepage.nav.pricing')}</Link></li>
+                <li><Link to="/pricing" className={styles.footerLink}>{t('homepage.footer.comparePlans')}</Link></li>
+                <li><Link to="/features" className={styles.footerLink}>{t('homepage.footer.fdiOdontogram')}</Link></li>
                 <li>
                   <Link to="/dashboard" className={`${styles.footerLink} ${styles.demoLink}`}>
                     {t('homepage.footer.liveDemo')}
@@ -265,21 +283,21 @@ export default function PublicLayout() {
             <div className={styles.footerCol}>
               <h4 className={styles.colHeading}>{t('homepage.footer.company')}</h4>
               <ul className={styles.linkList}>
-                <li><a href="#stats" className={styles.footerLink}>{t('homepage.footer.aboutUs')}</a></li>
+                <li><Link to="/advantages" className={styles.footerLink}>{t('homepage.footer.aboutUs')}</Link></li>
                 <li>
-                  <a href="#blog" className={styles.footerLink}>
+                  <Link to="/advantages" className={styles.footerLink}>
                     Blog
-                  </a>
+                  </Link>
                 </li>
-                <li><a href="#features" className={styles.footerLink}>{t('homepage.footer.clinicNetwork')}</a></li>
+                <li><Link to="/features" className={styles.footerLink}>{t('homepage.footer.clinicNetwork')}</Link></li>
                 <li>
-                  <a href="#contact" className={`${styles.footerLink} ${styles.careerLinkRow}`}>
+                  <Link to="/contact" className={`${styles.footerLink} ${styles.careerLinkRow}`}>
                     <span>{t('homepage.footer.careers')}</span>
                     <span className={styles.careerBadge}>{t('homepage.footer.activeBadge')}</span>
-                  </a>
+                  </Link>
                 </li>
-                <li><a href="#contact" className={styles.footerLink}>{t('homepage.footer.partners')}</a></li>
-                <li><a href="#faq" className={styles.footerLink}>{t('homepage.footer.faqs')}</a></li>
+                <li><Link to="/contact" className={styles.footerLink}>{t('homepage.footer.partners')}</Link></li>
+                <li><Link to="/pricing" className={styles.footerLink}>{t('homepage.footer.faqs')}</Link></li>
               </ul>
             </div>
 

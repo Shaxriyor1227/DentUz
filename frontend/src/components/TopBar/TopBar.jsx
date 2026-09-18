@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
@@ -85,7 +85,7 @@ const ALL_SEARCH_ITEMS = [
 
 export default function TopBar() {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
@@ -107,6 +107,10 @@ export default function TopBar() {
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const notifRef = useRef(null);
 
+  // Doctor Profile Popover State
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const displayedNotifications = notifications.filter((n) => {
@@ -114,16 +118,20 @@ export default function TopBar() {
     return true;
   });
 
-  // Global hotkeys (ESC, Cmd+K)
+  // Global hotkeys (ESC, Cmd+K) & Click Outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotifOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
     };
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         if (notifOpen) setNotifOpen(false);
+        if (profileOpen) setProfileOpen(false);
         if (searchOpen) setSearchOpen(false);
       } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -137,7 +145,7 @@ export default function TopBar() {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [notifOpen, searchOpen]);
+  }, [notifOpen, profileOpen, searchOpen]);
 
   const handleMarkAllAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -420,15 +428,107 @@ export default function TopBar() {
             )}
           </div>
 
-          <div className={styles.userProfile}>
-            <div className={styles.avatar}>
-              <span className="material-symbols-outlined">person</span>
+            {/* Doctor Profile Trigger & Dropdown Popover */}
+            <div className={styles.profileWrapper} ref={profileRef}>
+              <button
+                type="button"
+                className={`${styles.userProfile} ${profileOpen ? styles.userProfileActive : ''}`}
+                onClick={() => setProfileOpen((prev) => !prev)}
+                aria-expanded={profileOpen}
+                aria-label="Doctor Profile"
+              >
+                <div className={styles.avatar}>
+                  <span className="material-symbols-outlined">person</span>
+                  <span className={styles.onlineBadge} />
+                </div>
+                <div className={styles.userInfo}>
+                  <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
+                  <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
+                </div>
+                <span className={`material-symbols-outlined ${styles.profileChevron} ${profileOpen ? styles.profileChevronOpen : ''}`}>
+                  expand_more
+                </span>
+              </button>
+
+              {/* Doctor Profile Popover Dropdown */}
+              {profileOpen && (
+                <div
+                  className={styles.profilePopover}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className={styles.profilePopHeader}>
+                    <div className={styles.popAvatarLarge}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 32 }}>person</span>
+                    </div>
+                    <div className={styles.popDoctorMeta}>
+                      <div className={styles.popDoctorName}>{user?.name || 'Dr. Jasur Azimov'}</div>
+                      <div className={styles.popDoctorRole}>{user?.title || 'Bosh shifokor • Stomatolog'}</div>
+                      <div className={styles.popDoctorClinic}>🏥 {user?.clinic || 'Toshkent Dental Clinic'}</div>
+                    </div>
+                  </div>
+
+                  <div className={styles.popInfoGrid}>
+                    <div className={styles.popInfoItem}>
+                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Elektron pochta' : 'Email'}</span>
+                      <span className={styles.popInfoValue}>
+                        {typeof user?.email === 'string' ? user.email : (user?.email?.email || 'j.azimov@dentuz.uz')}
+                      </span>
+                    </div>
+                    <div className={styles.popInfoItem}>
+                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Telefon raqam' : 'Phone'}</span>
+                      <span className={styles.popInfoValue}>+998 (90) 123-45-67</span>
+                    </div>
+                    <div className={styles.popInfoItem}>
+                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Klinika ID' : 'Clinic ID'}</span>
+                      <span className={styles.popInfoValue} style={{ color: 'var(--color-cyan)', fontWeight: 700 }}>#DENT-778</span>
+                    </div>
+                    <div className={styles.popInfoItem}>
+                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Litsenziya' : 'License'}</span>
+                      <span className={styles.popInfoValue}>SSV-UZ-2024-884</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.popDivider} />
+
+                  <div className={styles.popNavActions}>
+                    <Link
+                      to="/settings"
+                      className={styles.popActionLink}
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      <span className="material-symbols-outlined">tune</span>
+                      <span>{i18n.language === 'uz' ? 'Klinika va profil sozlamalari' : 'Clinic & Profile Settings'}</span>
+                    </Link>
+
+                    <Link
+                      to="/finance"
+                      className={styles.popActionLink}
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      <span className="material-symbols-outlined">payments</span>
+                      <span>{i18n.language === 'uz' ? 'Shifokor ulushi va hisob-kitob' : 'Doctor KPI & Compensation'}</span>
+                    </Link>
+                  </div>
+
+                  <div className={styles.popDivider} />
+
+                  <div className={styles.popFooter}>
+                    <button
+                      type="button"
+                      className={styles.popLogoutBtn}
+                      onClick={() => {
+                        setProfileOpen(false);
+                        logout();
+                        navigate('/login');
+                      }}
+                    >
+                      <span className="material-symbols-outlined">logout</span>
+                      <span>{i18n.language === 'uz' ? 'Tizimdan chiqish' : 'Sign Out'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className={styles.userInfo}>
-              <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
-              <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
-            </div>
-          </div>
         </div>
       </header>
 

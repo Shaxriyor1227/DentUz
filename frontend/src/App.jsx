@@ -11,8 +11,12 @@ import AuthLayout from './layouts/AuthLayout/AuthLayout';
 import AppLayout from './layouts/AppLayout/AppLayout';
 
 // ALL routes are code-split for maximum initial bundle reduction.
-// Public / marketing pages — separate chunk so app shell stays tiny
+// Public / marketing pages — separate chunks so app shell stays tiny
 const Homepage = lazy(() => import('./pages/Homepage/Homepage'));
+const Features = lazy(() => import('./pages/Features/Features'));
+const Advantages = lazy(() => import('./pages/Advantages/Advantages'));
+const Pricing = lazy(() => import('./pages/Pricing/Pricing'));
+const Contact = lazy(() => import('./pages/Contact/Contact'));
 const Login = lazy(() => import('./pages/Login/Login'));
 const Signup = lazy(() => import('./pages/Signup/Signup'));
 
@@ -45,6 +49,10 @@ export default function App() {
                 {/* Public Marketing Route */}
                 <Route path="/" element={<PublicLayout />}>
                   <Route index element={<Homepage />} />
+                  <Route path="features" element={<Features />} />
+                  <Route path="advantages" element={<Advantages />} />
+                  <Route path="pricing" element={<Pricing />} />
+                  <Route path="contact" element={<Contact />} />
                 </Route>
 
                 {/* Auth Split-Screen Routes */}

@@ -85,9 +85,45 @@
   color: var(--color-text-secondary);
   transition: color var(--transition-fast);
   text-decoration: none;
+  position: relative;
+  padding: 4px 0;
 }
 
 .navLink:hover { color: var(--color-cyan-hover); }
+
+.navLinkActive {
+  color: var(--color-cyan, #0ea5e9) !important;
+  font-weight: 600;
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, var(--color-cyan, #0ea5e9), #10b981);
+  border-radius: 2px;
+}
+
+.pageOutletWrapper {
+  animation: pageTransitionFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes pageTransitionFade {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .headerActions {
   display: flex;

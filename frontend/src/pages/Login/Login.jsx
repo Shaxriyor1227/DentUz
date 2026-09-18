@@ -52,14 +52,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login({ email, name: 'Dr. Jasur Azimov', clinic: 'Toshkent Dental Clinic', role: 'Bosh shifokor' });
-    navigate('/dashboard');
-  };
-
-  const fillQuickAccount = (demoEmail, demoName, demoRole) => {
-    setEmail(demoEmail);
-    setPassword('demoPass2026!');
-    login({ email: demoEmail, name: demoName, clinic: 'Toshkent Dental Clinic', role: demoRole });
+    login({ email: email || 'j.azimov@dentuz.uz', name: 'Dr. Jasur Azimov', clinic: 'Toshkent Dental Clinic', role: 'Bosh shifokor' });
     navigate('/dashboard');
   };
 
@@ -158,27 +151,6 @@ export default function Login() {
           <span>{t('auth.loginBtn')}</span>
           <ArrowRightIcon />
         </button>
-
-        {/* Quick Demo Fill Buttons */}
-        <div className={styles.quickDemoSection}>
-          <span className={styles.quickDemoLabel}>{t('auth.quickDemoAccounts')}</span>
-          <div className={styles.quickDemoPills}>
-            <button
-              type="button"
-              className={styles.demoPill}
-              onClick={() => fillQuickAccount('j.azimov@dentuz.uz', 'Dr. Jasur Azimov', 'Bosh shifokor')}
-            >
-              🩺 {t('auth.demoDoctor')}
-            </button>
-            <button
-              type="button"
-              className={styles.demoPill}
-              onClick={() => fillQuickAccount('admin@dentuz.uz', 'Shaxzoda Alimova', 'Administrator')}
-            >
-              💼 {t('auth.demoAdmin')}
-            </button>
-          </div>
-        </div>
       </form>
 
       {/* Switch to Signup */}
