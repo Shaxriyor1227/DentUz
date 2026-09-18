@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './Homepage.module.css';
 import Icon from '../../components/Icon/Icon';
+import OrbitEcosystem from '../../components/OrbitEcosystem/OrbitEcosystem';
+import AnimatedCounter from '../../components/AnimatedCounter/AnimatedCounter';
+import { useInView } from '../../hooks/useInView';
 
 const HERO_UPPER_TEETH = [
   '18', '17', '16', '15', '14', '13', '12', '11',
@@ -62,6 +65,18 @@ export default function Homepage() {
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
+  // Scroll reveal section observers
+  const [heroRef, heroInView] = useInView({ threshold: 0.05 });
+  const [orbitRef, orbitInView] = useInView({ threshold: 0.1 });
+  const [story1Ref, story1InView] = useInView({ threshold: 0.12 });
+  const [story2Ref, story2InView] = useInView({ threshold: 0.12 });
+  const [story3Ref, story3InView] = useInView({ threshold: 0.12 });
+  const [statsRef, statsInView] = useInView({ threshold: 0.15 });
+  const [pricingRef, pricingInView] = useInView({ threshold: 0.08 });
+  const [compareRef, compareInView] = useInView({ threshold: 0.08 });
+  const [faqRef, faqInView] = useInView({ threshold: 0.1 });
+  const [contactRef, contactInView] = useInView({ threshold: 0.1 });
+
   const handleContactSubmit = (e) => {
     e.preventDefault();
     setContactSubmitted(true);
@@ -79,7 +94,7 @@ export default function Homepage() {
   return (
     <main id="main-content">
       {/* 2. HERO SECTION */}
-      <section className={styles.heroSection} aria-label={t('homepage.hero.headline')}>
+      <section ref={heroRef} className={`${styles.heroSection} ${heroInView ? 'revealed' : 'reveal'}`} aria-label={t('homepage.hero.headline')}>
         <h1 className={styles.heroHeadline}>
           {t('homepage.hero.headline')}
         </h1>
@@ -254,9 +269,14 @@ export default function Homepage() {
         </div>
       </section>
 
+      {/* 2.5 ORBITING ECOSYSTEM SECTION (Bitta tizim) */}
+      <section ref={orbitRef} className={`${styles.orbitWrapperSection} ${orbitInView ? 'revealed' : 'reveal'}`}>
+        <OrbitEcosystem />
+      </section>
+
       {/* 3. FEATURE STORYTELLING SECTIONS */}
       {/* Story 1: Smart Taqvim */}
-      <section className={styles.storySection} id="features">
+      <section ref={story1Ref} className={`${styles.storySection} ${story1InView ? 'revealed' : 'reveal'}`} id="features">
         <div className={styles.storyGrid}>
           <div>
             <p className={styles.storyNumber}>{t('homepage.stories.story1.tag')}</p>
@@ -295,7 +315,7 @@ export default function Homepage() {
 
       {/* Story 2: Bemorlar tarixi */}
       <div className={styles.storySectionAltWrapper}>
-        <section className={styles.storySection}>
+        <section ref={story2Ref} className={`${styles.storySection} ${story2InView ? 'revealed' : 'reveal'}`}>
           <div className={`${styles.storyGrid} ${styles.storyGridReverse}`}>
             <div className={styles.storyCardVisual}>
               <div className={styles.patientProfileHeader}>
@@ -328,7 +348,7 @@ export default function Homepage() {
       </div>
 
       {/* Story 3: Moliyaviy intizom */}
-      <section className={styles.storySection}>
+      <section ref={story3Ref} className={`${styles.storySection} ${story3InView ? 'revealed' : 'reveal'}`}>
         <div className={styles.storyGrid}>
           <div>
             <p className={styles.storyNumber}>{t('homepage.stories.story3.tag')}</p>
@@ -360,25 +380,31 @@ export default function Homepage() {
       </section>
 
       {/* 4. STATS SECTION */}
-      <section className={styles.statsSection} id="stats">
+      <section ref={statsRef} className={`${styles.statsSection} ${statsInView ? 'revealed' : 'reveal'}`} id="stats">
         <div className={styles.statsGrid}>
           <div>
-            <div className={`${styles.statNum} ${styles.statCyan}`}>{t('homepage.stats.clinics')}</div>
+            <div className={`${styles.statNum} ${styles.statCyan}`}>
+              <AnimatedCounter value={t('homepage.stats.clinics')} />
+            </div>
             <div className={styles.statLabel}>{t('homepage.stats.clinicsLabel')}</div>
           </div>
           <div>
-            <div className={styles.statNum}>{t('homepage.stats.cards')}</div>
+            <div className={styles.statNum}>
+              <AnimatedCounter value={t('homepage.stats.cards')} />
+            </div>
             <div className={styles.statLabel}>{t('homepage.stats.cardsLabel')}</div>
           </div>
           <div>
-            <div className={`${styles.statNum} ${styles.statCyan}`}>{t('homepage.stats.uptime')}</div>
+            <div className={`${styles.statNum} ${styles.statCyan}`}>
+              <AnimatedCounter value={t('homepage.stats.uptime')} />
+            </div>
             <div className={styles.statLabel}>{t('homepage.stats.uptimeLabel')}</div>
           </div>
         </div>
       </section>
 
       {/* 5. PRICING SECTION (GateDent-inspired & Simplified) */}
-      <section className={styles.pricingSection} id="pricing">
+      <section ref={pricingRef} className={`${styles.pricingSection} ${pricingInView ? 'revealed' : 'reveal'}`} id="pricing">
         <p className={styles.storyNumber}>{t('homepage.pricing.tag')}</p>
         <h2 className={styles.storyHeading}>{t('homepage.pricing.heading')}</h2>
         <p className={styles.heroSubhead} style={{ fontSize: '16px', marginTop: '10px' }}>
@@ -410,7 +436,7 @@ export default function Homepage() {
         {/* 4 Pricing Tiers */}
         <div className={styles.pricingGrid}>
           {/* Plan 1: Standard */}
-          <div className={styles.priceCard}>
+          <div className={`${styles.priceCard} ${pricingInView ? 'revealed' : 'reveal'} stagger1`}>
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>Standard</h3>
@@ -451,7 +477,7 @@ export default function Homepage() {
           </div>
 
           {/* Plan 2: Premium */}
-          <div className={styles.priceCard}>
+          <div className={`${styles.priceCard} ${pricingInView ? 'revealed' : 'reveal'} stagger2`}>
             <div>
               <div className={styles.planHeader}>
                 <h3 className={styles.planName}>Premium</h3>
@@ -492,7 +518,7 @@ export default function Homepage() {
           </div>
 
           {/* Plan 3: VIP (Featured) */}
-          <div className={`${styles.priceCard} ${styles.priceCardFeatured}`}>
+          <div className={`${styles.priceCard} ${styles.priceCardFeatured} ${pricingInView ? 'revealed' : 'reveal'} stagger3`}>
             <span className={styles.popularBadge}>{t('homepage.pricing.popularBadge')}</span>
             <div>
               <div className={styles.planHeader}>
@@ -534,7 +560,7 @@ export default function Homepage() {
           </div>
 
           {/* Plan 4: Enterprise */}
-          <div className={styles.priceCard}>
+          <div className={`${styles.priceCard} ${pricingInView ? 'revealed' : 'reveal'} stagger4`}>
             <span className={styles.customBadge}>Custom</span>
             <div>
               <div className={styles.planHeader}>
@@ -620,7 +646,7 @@ export default function Homepage() {
         </div>
 
         {/* Compare Plans Table (GateDent-style) */}
-        <div className={styles.compareSection} id="compare">
+        <div ref={compareRef} className={`${styles.compareSection} ${compareInView ? 'revealed' : 'reveal'}`} id="compare">
           <p className={styles.storyNumber}>{t('homepage.compare.tag')}</p>
           <h2 className={styles.storyHeading}>{t('homepage.compare.heading')}</h2>
           <p className={styles.heroSubhead} style={{ fontSize: '15px', marginTop: '8px' }}>
@@ -755,7 +781,7 @@ export default function Homepage() {
         </div>
 
         {/* Pricing FAQ Section */}
-        <div className={styles.faqSection} id="faq">
+        <div ref={faqRef} className={`${styles.faqSection} ${faqInView ? 'revealed' : 'reveal'}`} id="faq">
           <p className={styles.storyNumber}>{t('homepage.faq.tag')}</p>
           <h2 className={styles.storyHeading}>{t('homepage.faq.heading')}</h2>
           <p className={styles.heroSubhead} style={{ fontSize: '15px', marginTop: '8px' }}>
@@ -763,7 +789,7 @@ export default function Homepage() {
           </p>
 
           <div className={styles.faqList}>
-            <div className={`${styles.faqItem} ${openFaq === 0 ? styles.faqItemOpen : ''}`}>
+            <div className={`${styles.faqItem} ${faqInView ? 'revealed' : 'reveal'} stagger1 ${openFaq === 0 ? styles.faqItemOpen : ''}`}>
               <button
                 type="button"
                 className={styles.faqQuestionBtn}
@@ -787,7 +813,7 @@ export default function Homepage() {
               )}
             </div>
 
-            <div className={`${styles.faqItem} ${openFaq === 1 ? styles.faqItemOpen : ''}`}>
+            <div className={`${styles.faqItem} ${faqInView ? 'revealed' : 'reveal'} stagger2 ${openFaq === 1 ? styles.faqItemOpen : ''}`}>
               <button
                 type="button"
                 className={styles.faqQuestionBtn}
@@ -811,7 +837,7 @@ export default function Homepage() {
               )}
             </div>
 
-            <div className={`${styles.faqItem} ${openFaq === 2 ? styles.faqItemOpen : ''}`}>
+            <div className={`${styles.faqItem} ${faqInView ? 'revealed' : 'reveal'} stagger3 ${openFaq === 2 ? styles.faqItemOpen : ''}`}>
               <button
                 type="button"
                 className={styles.faqQuestionBtn}
@@ -835,7 +861,7 @@ export default function Homepage() {
               )}
             </div>
 
-            <div className={`${styles.faqItem} ${openFaq === 3 ? styles.faqItemOpen : ''}`}>
+            <div className={`${styles.faqItem} ${faqInView ? 'revealed' : 'reveal'} stagger4 ${openFaq === 3 ? styles.faqItemOpen : ''}`}>
               <button
                 type="button"
                 className={styles.faqQuestionBtn}
@@ -863,7 +889,7 @@ export default function Homepage() {
       </section>
 
       {/* 10. CONTACT SECTION (GATE DENT INSPIRED) */}
-      <section className={styles.contactSection} id="contact">
+      <section ref={contactRef} className={`${styles.contactSection} ${contactInView ? 'revealed' : 'reveal'}`} id="contact">
         <div className={styles.contactHeader}>
           <div className={styles.contactBadge}>
             <Icon name="support_agent" size={18} />
@@ -879,7 +905,7 @@ export default function Homepage() {
 
         <div className={styles.contactGrid}>
           {/* Left Card: Office Locations and Direct Info */}
-          <div className={styles.contactInfoCard}>
+          <div className={`${styles.contactInfoCard} ${contactInView ? 'revealed' : 'reveal'} stagger1`}>
             <h3 className={styles.contactCardTitle}>
               <Icon name="apartment" size={26} style={{ color: "var(--color-cyan)" }} />
               {t('homepage.contact.infoTitle')}
@@ -961,7 +987,7 @@ export default function Homepage() {
           </div>
 
           {/* Right Card: Interactive Contact Form */}
-          <div className={styles.contactFormCard}>
+          <div className={`${styles.contactFormCard} ${contactInView ? 'revealed' : 'reveal'} stagger2`}>
             <h3 className={styles.contactCardTitle}>
               <Icon name="edit_note" size={26} style={{ color: "var(--color-cyan)" }} />
               {t('homepage.contact.formTitle')}

@@ -1,0 +1,81 @@
+/* ── Cohesive Animation System for DentUz ── */
+
+/* ── 1. Scroll-Reveal Utilities ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.revealed {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Staggered cascading child delays */
+.stagger1 { transition-delay: 80ms; }
+.stagger2 { transition-delay: 160ms; }
+.stagger3 { transition-delay: 240ms; }
+.stagger4 { transition-delay: 320ms; }
+.stagger5 { transition-delay: 400ms; }
+.stagger6 { transition-delay: 480ms; }
+
+/* ── 2. Tactile Micro-Interactions ── */
+.interactiveBtn {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease,
+              background-color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.interactiveBtn:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.interactiveBtn:active {
+  transform: scale(0.98);
+}
+
+.interactiveCard {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+}
+
+.interactiveCard:hover {
+  transform: translateY(-2px);
+}
+
+/* ── 3. Smooth Toggle Transition ── */
+.smoothToggle {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.25s ease;
+}
+
+/* ── 4. Accessibility: Prefers-Reduced-Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .revealed {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .stagger1,
+  .stagger2,
+  .stagger3,
+  .stagger4,
+  .stagger5,
+  .stagger6 {
+    transition-delay: 0ms !important;
+  }
+
+  .interactiveBtn:hover,
+  .interactiveBtn:active,
+  .interactiveCard:hover {
+    transform: none !important;
+  }
+}
