@@ -75,7 +75,7 @@ const CheckCircleIcon = () => (
   </svg>
 );
 
-export default function OrbitEcosystem() {
+export default function OrbitEcosystem({ visualOnly = false }) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
 
@@ -86,7 +86,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Laboratory' : 'Laboratoriya',
       icon: <LabIcon />,
       color: '#8B5CF6',
-      bg: 'rgba(139, 92, 246, 0.1)',
+      bg: 'rgba(139, 92, 246, 0.15)',
       angleClass: styles.card_0,
     },
     {
@@ -94,7 +94,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Support' : 'Jonli yordam',
       icon: <SupportIcon />,
       color: '#06B6D4',
-      bg: 'rgba(6, 182, 212, 0.1)',
+      bg: 'rgba(6, 182, 212, 0.15)',
       angleClass: styles.card_45,
     },
     {
@@ -102,7 +102,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Patients' : 'Bemorlar',
       icon: <PatientsIcon />,
       color: '#0284C7',
-      bg: 'rgba(2, 132, 199, 0.1)',
+      bg: 'rgba(2, 132, 199, 0.15)',
       angleClass: styles.card_90,
     },
     {
@@ -110,7 +110,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Processes' : 'Jarayonlar',
       icon: <ProcessesIcon />,
       color: '#F59E0B',
-      bg: 'rgba(245, 158, 11, 0.1)',
+      bg: 'rgba(245, 158, 11, 0.15)',
       angleClass: styles.card_135,
     },
     {
@@ -118,7 +118,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Inventory' : 'Omborxona',
       icon: <InventoryIcon />,
       color: '#EA580C',
-      bg: 'rgba(234, 88, 12, 0.1)',
+      bg: 'rgba(234, 88, 12, 0.15)',
       angleClass: styles.card_180,
     },
     {
@@ -126,7 +126,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Treatments' : 'Muolajalar',
       icon: <TreatmentIcon />,
       color: '#10B981',
-      bg: 'rgba(16, 185, 129, 0.1)',
+      bg: 'rgba(16, 185, 129, 0.15)',
       angleClass: styles.card_225,
     },
     {
@@ -134,7 +134,7 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Appointments' : 'Taqvim',
       icon: <AppointmentIcon />,
       color: '#0D9488',
-      bg: 'rgba(13, 148, 136, 0.1)',
+      bg: 'rgba(13, 148, 136, 0.15)',
       angleClass: styles.card_270,
     },
     {
@@ -142,12 +142,67 @@ export default function OrbitEcosystem() {
       label: isEn ? 'Finance' : 'Moliya',
       icon: <FinanceIcon />,
       color: '#3B82F6',
-      bg: 'rgba(59, 130, 246, 0.1)',
+      bg: 'rgba(59, 130, 246, 0.15)',
       angleClass: styles.card_315,
     },
   ];
 
   const checklistItems = t('homepage.whyChoose.items', { returnObjects: true }) || [];
+
+  const visualContent = (
+    <div className={styles.visualColumn}>
+      <div className={styles.orbitStage}>
+        {/* Background Orbit Guide Rings */}
+        <div className={styles.trackRingOuter} />
+        <div className={styles.trackRingInner} />
+
+        {/* Central Core Logo Node */}
+        <div className={styles.centralHub} title="DentUz Central Core">
+          <div className={styles.hubAura} />
+          <div className={styles.centralHubInner}>
+            <Logo size={42} animated={false} />
+          </div>
+        </div>
+
+        {/* 8 Satellite Cards in Upright Orbit */}
+        {satellites.map((sat) => (
+          <div
+            key={sat.id}
+            className={`${styles.satelliteNode} ${sat.angleClass}`}
+          >
+            <div className={styles.satelliteCard}>
+              <div
+                className={styles.satelliteIconBox}
+                style={{ color: sat.color, backgroundColor: sat.bg }}
+              >
+                {sat.icon}
+              </div>
+              <span className={styles.satelliteLabel}>{sat.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile Fallback: compact 2-column card grid */}
+      <div className={styles.mobileCardsGrid}>
+        {satellites.map((sat) => (
+          <div key={sat.id} className={styles.mobileCard}>
+            <div
+              className={styles.satelliteIconBox}
+              style={{ color: sat.color, backgroundColor: sat.bg }}
+            >
+              {sat.icon}
+            </div>
+            <span className={styles.satelliteLabel}>{sat.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (visualOnly) {
+    return <div className={styles.visualOnlyWrapper}>{visualContent}</div>;
+  }
 
   return (
     <div className={styles.sectionContainer} id="ecosystem" aria-label={t('homepage.whyChoose.title')}>

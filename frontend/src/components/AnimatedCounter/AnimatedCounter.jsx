@@ -13,11 +13,14 @@ import { useInView } from '../../hooks/useInView';
  */
 export default function AnimatedCounter({
   value,
+  target,
   duration = 1000,
+  decimals,
   className = '',
 }) {
   const [ref, inView] = useInView({ threshold: 0.15, triggerOnce: true });
-  const rawString = String(value);
+  const valToUse = value !== undefined ? value : (target !== undefined ? target : 0);
+  const rawString = String(valToUse);
 
   // Parse suffix (e.g. "+", "%")
   const hasPlus = rawString.includes('+');
@@ -25,11 +28,11 @@ export default function AnimatedCounter({
   const hasSpaceSep = rawString.includes(' ');
 
   // Extract clean numerical float
-  const numericMatch = rawString.match(/[\d.,]+/);
-  const cleanNumberStr = numericMatch ? numericMatch[0].replace(/\s/g, '').replace(',', '.') : '0';
+  const numericMatch = rawString.replace(/\s+/g, '').match(/[\d.,]+/);
+  const cleanNumberStr = numericMatch ? numericMatch[0].replace(',', '.') : '0';
   const targetNumber = parseFloat(cleanNumberStr) || 0;
-  const isDecimal = cleanNumberStr.includes('.');
-  const decimalPlaces = isDecimal ? cleanNumberStr.split('.')[1].length : 0;
+  const isDecimal = cleanNumberStr.includes('.') || decimals !== undefined;
+  const decimalPlaces = decimals !== undefined ? decimals : (cleanNumberStr.includes('.') ? cleanNumberStr.split('.')[1].length : 0);
 
   const [displayValue, setDisplayValue] = useState(0);
   const animatedRef = useRef(false);
@@ -72,8 +75,8 @@ export default function AnimatedCounter({
     ? displayValue.toFixed(decimalPlaces)
     : Math.round(displayValue).toString();
 
-  if (hasSpaceSep) {
-    // Insert spaces as thousand separators (e.g. 140 000)
+  if (hasSpaceSep || targetNumber >= 1000) {
+    // Insert spaces as thousand separators (e.g. 45 000)
     formattedNumber = formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 

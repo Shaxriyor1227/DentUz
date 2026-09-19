@@ -65,9 +65,10 @@ export default function Advantages() {
     <main className={styles.advantagesPage} id="main-content">
       {/* ── Page Hero Header ── */}
       <section className={styles.heroSection}>
-        <span className={styles.pageBadge}>
-          {isEn ? 'Why Choose DentUz' : 'Nega Aynan DentUz?'}
-        </span>
+        <div className={styles.pageBadge}>
+          <span>🛡️</span>
+          <span>{isEn ? 'Clinical Advantages & Trust' : 'Klinik Afzalliklar & Kafolat'}</span>
+        </div>
         <h1 className={styles.pageTitle}>
           {isEn ? 'Engineered for Reliability, Speed & Clinical Excellence' : 'Ishonchlilik, Tezlik Va Klinik Xavfsizlik'}
         </h1>

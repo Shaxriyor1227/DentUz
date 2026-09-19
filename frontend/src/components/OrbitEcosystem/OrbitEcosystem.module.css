@@ -268,17 +268,24 @@
   animation-play-state: paused;
 }
 
-/* Base Satellite Card (Image 3 GateDent Squircle Style) */
+.visualOnlyWrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Base Satellite Card (GateDent Squircle Style) */
 .satelliteCard {
   position: absolute;
   top: 0;
   left: 0;
-  width: 94px;
-  height: 80px;
+  width: 98px;
+  height: 82px;
   transform: translate(-50%, -50%);
   background: var(--color-surface, #FFFFFF);
   border-radius: 16px;
-  border: 1px solid rgba(226, 232, 240, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
@@ -287,27 +294,29 @@
   gap: 6px;
   padding: 8px 6px;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease,
-              border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 [data-theme='dark'] .satelliteCard {
-  background: #1E293B;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  background: rgba(19, 27, 46, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(6, 182, 212, 0.1);
 }
 
 .satelliteCard:hover {
   transform: translate(-50%, -50%) scale(1.12);
   border-color: #00B4D8;
-  box-shadow: 0 10px 28px rgba(0, 180, 216, 0.24);
+  box-shadow: 0 12px 32px rgba(0, 180, 216, 0.3);
   z-index: 30;
 }
 
 .satelliteIconBox {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -317,7 +326,7 @@
 }
 
 .satelliteCard:hover .satelliteIconBox {
-  transform: scale(1.1);
+  transform: scale(1.12);
 }
 
 .satelliteLabel {
@@ -338,6 +347,7 @@
 /* Radius R = 175px */
 
 .card_0 {
+  transform: rotate(0deg) translateX(175px) rotate(0deg);
   animation: orbitNode_0 55s linear infinite;
 }
 @keyframes orbitNode_0 {
@@ -346,6 +356,7 @@
 }
 
 .card_45 {
+  transform: rotate(45deg) translateX(175px) rotate(-45deg);
   animation: orbitNode_45 55s linear infinite;
 }
 @keyframes orbitNode_45 {
@@ -354,6 +365,7 @@
 }
 
 .card_90 {
+  transform: rotate(90deg) translateX(175px) rotate(-90deg);
   animation: orbitNode_90 55s linear infinite;
 }
 @keyframes orbitNode_90 {
@@ -362,6 +374,7 @@
 }
 
 .card_135 {
+  transform: rotate(135deg) translateX(175px) rotate(-135deg);
   animation: orbitNode_135 55s linear infinite;
 }
 @keyframes orbitNode_135 {
@@ -370,6 +383,7 @@
 }
 
 .card_180 {
+  transform: rotate(180deg) translateX(175px) rotate(-180deg);
   animation: orbitNode_180 55s linear infinite;
 }
 @keyframes orbitNode_180 {
@@ -378,6 +392,7 @@
 }
 
 .card_225 {
+  transform: rotate(225deg) translateX(175px) rotate(-225deg);
   animation: orbitNode_225 55s linear infinite;
 }
 @keyframes orbitNode_225 {
@@ -386,6 +401,7 @@
 }
 
 .card_270 {
+  transform: rotate(270deg) translateX(175px) rotate(-270deg);
   animation: orbitNode_270 55s linear infinite;
 }
 @keyframes orbitNode_270 {
@@ -394,6 +410,7 @@
 }
 
 .card_315 {
+  transform: rotate(315deg) translateX(175px) rotate(-315deg);
   animation: orbitNode_315 55s linear infinite;
 }
 @keyframes orbitNode_315 {

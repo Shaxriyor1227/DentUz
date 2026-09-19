@@ -11,6 +11,15 @@
   --color-mint-soft: #ECFDF5;
   --color-mint-text: #047857;
 
+  /* Compatibility Aliases for Public & Marketing Components */
+  --bg-primary: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --surface: #FFFFFF;
+  --bg-subtle: #F8FAFC;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --border-color: #E2E8F0;
+
   /* Surfaces & Containers - Soft Ergonomic Light Mode */
   --color-surface: #FFFFFF;
   --color-surface-container-lowest: #FFFFFF;
@@ -106,6 +115,15 @@
   --color-cyan-glow: rgba(34, 211, 238, 0.3);
   --color-bg: #0B0F19;
   --color-slate: #94A3B8;
+
+  /* Compatibility Aliases for Public & Marketing Components in Dark Mode */
+  --bg-primary: #0B0F19;
+  --bg-surface: #131B2E;
+  --surface: #131B2E;
+  --bg-subtle: #182238;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-color: #243049;
 
   /* Dark Surfaces */
   --color-surface: #131B2E;

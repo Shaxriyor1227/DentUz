@@ -379,7 +379,7 @@ export default function PublicLayout() {
               © 2025 - 2026 - DentUz. {t('homepage.footer.rights')}
             </p>
             <div className={styles.devCredit}>
-              {t('homepage.footer.digitization')} <span className={styles.devCreditHighlight}>{t('homepage.footer.devCredit')}</span>
+              Made by <span className={styles.devCreditHighlight}>Shaxriyor</span> • IT Park Resident
             </div>
           </div>
 

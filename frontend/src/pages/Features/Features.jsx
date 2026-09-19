@@ -26,7 +26,7 @@ export default function Features() {
       badge: 'FDI Standard',
     },
     {
-      icon: 'assignment_ind',
+      icon: 'clinical_notes',
       title: isEn ? 'Electronic Health Record (043/h)' : 'Elektron Bemor Kartasi (043/h)',
       desc: isEn
         ? 'Fully compliant with national healthcare standards. Medical history, anamnesis, allergies, and treatment stages.'
@@ -85,28 +85,39 @@ export default function Features() {
 
   return (
     <main className={styles.featuresPage} id="main-content">
-      {/* ── Page Hero Header ── */}
+      {/* Ambient background glow orbs */}
+      <div className={styles.ambientGlow} />
+
+      {/* ── Page Hero Header (GateDent Pro Style) ── */}
       <section className={styles.heroSection}>
-        <span className={styles.pageBadge}>
-          {isEn ? 'Core Platform Capabilities' : 'Klinika Imkoniyatlari'}
-        </span>
+        <div className={styles.pageBadge}>
+          <span className={styles.badgeEmoji}>🚀</span>
+          <span>{isEn ? 'A New Era for Dental Clinics' : 'Stomatologiyada yangi davr'}</span>
+        </div>
+
         <h1 className={styles.pageTitle}>
-          {isEn ? '9 Powerful Modules Built for Modern Dentistry' : 'Zamonaviy Stomatologiya Uchun 9 Ta Aqlli Modul'}
+          <span className={styles.titleLine1}>
+            {isEn ? 'Dental Software' : 'Stomatologiya Boshqaruvi'}
+          </span>
+          <span className={styles.titleLine2}>
+            {isEn ? 'Your Practice on One Platform' : 'Butun Klinikangiz Yagona Tizimda'}
+          </span>
         </h1>
+
         <p className={styles.pageSubtitle}>
           {isEn
-            ? 'Everything your dental practice needs from scheduling to odontogram, digital charts, and automated billing — integrated into one fluid platform.'
-            : 'Kreslolar jadvalidan tortib, 5 ta yuza tish kartasi, 043-shakl, kassa va laboratoriyagacha barcha jarayonlar yagona tizimda birlashgan.'}
+            ? 'From patient registration to financial reports — manage all your dental clinic operations from a single platform, securely and efficiently.'
+            : 'Bemorlar ro‘yxatidan kassa va tish xaritasigacha — barcha klinika operatsiyalarini yagona, xavfsiz va qulay bulutli platformada boshqaring.'}
         </p>
 
         <div className={styles.heroCtaRow}>
           <Link to="/signup" className={styles.primaryCta}>
-            {t('homepage.hero.startFree')}
+            <span>{isEn ? 'Start for Free' : '14 kun bepul boshlash'}</span>
+            <span className={styles.ctaArrow}>→</span>
           </Link>
-          <Link to="/pricing" className={styles.secondaryCta}>
-            <span>{isEn ? 'View Pricing & Plans' : 'Tariflar bilan tanishish'}</span>
-            <span>→</span>
-          </Link>
+          <a href="#features-grid" className={styles.secondaryCta}>
+            <span>{isEn ? 'Learn More' : 'Imkoniyatlar bilan tanishish'}</span>
+          </a>
         </div>
       </section>
 
@@ -221,7 +232,7 @@ export default function Features() {
       </div>
 
       {/* ── 9 Modules Comprehensive Grid ── */}
-      <section className={styles.gridSection}>
+      <section className={styles.gridSection} id="features-grid">
         <div className={styles.gridHeader}>
           <span className={styles.pageBadge}>{isEn ? 'Full Capabilities' : 'Barcha Modullar'}</span>
           <h2 className={styles.gridTitle}>

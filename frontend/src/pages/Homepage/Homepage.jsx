@@ -148,74 +148,110 @@ export default function Homepage() {
         </div>
 
         {/* Hero Dental Arch Interactive Visual */}
-        <div className={styles.heroToothCanvas} id="hero-canvas">
-          <div className={styles.dentalArchCard}>
-            <div className={styles.canvasHeader}>
-              <div className={styles.canvasTitleRow}>
-                <span className={styles.canvasDot} />
-                <span className={styles.canvasTitle}>
+        <div className={styles.heroCanvasWrapper} id="hero-canvas">
+          <div className={styles.heroCanvasCard}>
+            <div className={styles.canvasTop}>
+              <div>
+                <div className={styles.canvasTag}>
+                  {isEn ? 'FDI WORLD DENTAL STANDARD' : 'FDI XALQARO STANDARTI'}
+                </div>
+                <div className={styles.canvasTitle}>
                   {isEn ? 'Interactive FDI Dental Chart (Live Demonstration)' : 'Interaktiv FDI Odontogramma (Jonli namoyish)'}
+                </div>
+              </div>
+              <div className={styles.canvasLegend}>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#64748B' }} />
+                  {isEn ? 'Healthy' : 'Sog\'lom'}
+                </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#10B981' }} />
+                  {isEn ? 'Restored' : 'Plomba'}
+                </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#0EA5E9' }} />
+                  {isEn ? 'Implant' : 'Implant'}
+                </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#F59E0B' }} />
+                  {isEn ? 'Crown' : 'Koronka'}
                 </span>
               </div>
-              <span className={styles.canvasHint}>
-                {isEn ? 'Click any tooth to inspect status' : 'Tish holatini ko\'rish uchun ustiga bosing'}
-              </span>
             </div>
 
-            {/* Upper Arch */}
-            <div className={styles.archLabelRow}>
-              <span>{isEn ? 'Maxillary Arch (Upper)' : 'Yuqori jag\' (18 - 28)'}</span>
-            </div>
-            <div className={styles.teethRow}>
-              {HERO_UPPER_TEETH.map((tooth) => {
-                const isSelected = selectedTooth === tooth;
-                const status = getToothStatus(tooth);
-                return (
-                  <button
-                    key={tooth}
-                    type="button"
-                    className={`${styles.toothBtn} ${isSelected ? styles.toothBtnActive : ''}`}
-                    onClick={() => setSelectedTooth(tooth)}
-                    style={{ '--status-color': status.color }}
-                    title={`Tish #${tooth} - ${status.label}`}
-                  >
-                    <span className={styles.toothNumber}>{tooth}</span>
-                    <span className={styles.toothPill} style={{ backgroundColor: status.color }} />
-                  </button>
-                );
-              })}
-            </div>
+            {/* Arches Grid */}
+            <div className={styles.archGrid}>
+              {/* Upper Arch */}
+              <div>
+                <div className={styles.archRowHeader}>
+                  <span>{isEn ? 'Maxillary Arch (Upper • 18 - 28)' : 'Yuqori jag\' (18 - 28)'}</span>
+                  <span>{isEn ? 'Click any tooth to inspect' : 'Tekshirish uchun ustiga bosing'}</span>
+                </div>
+                <div className={styles.teethGrid}>
+                  {HERO_UPPER_TEETH.map((tooth) => {
+                    const isSelected = selectedTooth === tooth;
+                    const status = getToothStatus(tooth);
+                    return (
+                      <div
+                        key={tooth}
+                        className={styles.toothCell}
+                        onClick={() => setSelectedTooth(tooth)}
+                        title={`Tish #${tooth} - ${status.label}`}
+                      >
+                        <div
+                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
+                          style={!isSelected && status.customColor ? { borderColor: status.customColor, backgroundColor: status.customBg } : undefined}
+                        >
+                          <span className={styles.toothNumber}>{tooth}</span>
+                        </div>
+                        <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
+                          #{tooth}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Lower Arch */}
-            <div className={styles.archLabelRow} style={{ marginTop: '12px' }}>
-              <span>{isEn ? 'Mandibular Arch (Lower)' : 'Pastki jag\' (48 - 38)'}</span>
-            </div>
-            <div className={styles.teethRow}>
-              {HERO_LOWER_TEETH.map((tooth) => {
-                const isSelected = selectedTooth === tooth;
-                const status = getToothStatus(tooth);
-                return (
-                  <button
-                    key={tooth}
-                    type="button"
-                    className={`${styles.toothBtn} ${isSelected ? styles.toothBtnActive : ''}`}
-                    onClick={() => setSelectedTooth(tooth)}
-                    style={{ '--status-color': status.color }}
-                    title={`Tish #${tooth} - ${status.label}`}
-                  >
-                    <span className={styles.toothNumber}>{tooth}</span>
-                    <span className={styles.toothPill} style={{ backgroundColor: status.color }} />
-                  </button>
-                );
-              })}
+              {/* Lower Arch */}
+              <div>
+                <div className={styles.archRowHeader}>
+                  <span>{isEn ? 'Mandibular Arch (Lower • 48 - 38)' : 'Pastki jag\' (48 - 38)'}</span>
+                </div>
+                <div className={styles.teethGrid}>
+                  {HERO_LOWER_TEETH.map((tooth) => {
+                    const isSelected = selectedTooth === tooth;
+                    const status = getToothStatus(tooth);
+                    return (
+                      <div
+                        key={tooth}
+                        className={styles.toothCell}
+                        onClick={() => setSelectedTooth(tooth)}
+                        title={`Tish #${tooth} - ${status.label}`}
+                      >
+                        <div
+                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
+                          style={!isSelected && status.customColor ? { borderColor: status.customColor, backgroundColor: status.customBg } : undefined}
+                        >
+                          <span className={styles.toothNumber}>{tooth}</span>
+                        </div>
+                        <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
+                          #{tooth}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* Selected Tooth Live Inspection Bar */}
-            <div className={styles.toothInspectionBar}>
-              <div className={styles.inspectionBadge} style={{ backgroundColor: currentStatus.bg, color: currentStatus.color }}>
-                {currentStatus.label}
+            <div className={styles.canvasInspectionPill}>
+              <div className={styles.pillBadge}>
+                <span className={styles.statusDot} style={{ backgroundColor: currentStatus.color }} />
+                <strong style={{ color: currentStatus.color }}>{currentStatus.label}:</strong>
+                <span>{currentDesc}</span>
               </div>
-              <p className={styles.inspectionText}>{currentDesc}</p>
             </div>
           </div>
         </div>
@@ -329,7 +365,7 @@ export default function Homepage() {
           </div>
 
           <div className={styles.orbitRightCol}>
-            <OrbitEcosystem />
+            <OrbitEcosystem visualOnly={true} />
           </div>
         </div>
       </section>
@@ -339,7 +375,7 @@ export default function Homepage() {
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <div className={styles.statNumber}>
-              <AnimatedCounter target={350} inView={statsInView} duration={1600} />+
+              <AnimatedCounter value="350+" duration={1600} />
             </div>
             <div className={styles.statLabel}>
               {isEn ? 'Active Dental Clinics' : 'Faol stomatologiyalar'}
@@ -348,7 +384,7 @@ export default function Homepage() {
 
           <div className={styles.statCard}>
             <div className={styles.statNumber}>
-              <AnimatedCounter target={45000} inView={statsInView} duration={1800} />+
+              <AnimatedCounter value="45 000+" duration={1800} />
             </div>
             <div className={styles.statLabel}>
               {isEn ? 'Registered Patients' : 'Bemorlar elektron kartasi'}
@@ -357,7 +393,7 @@ export default function Homepage() {
 
           <div className={styles.statCard}>
             <div className={styles.statNumber}>
-              <AnimatedCounter target={99.8} inView={statsInView} duration={1500} decimals={1} />%
+              <AnimatedCounter value="99.8%" duration={1500} />
             </div>
             <div className={styles.statLabel}>
               {isEn ? 'System Uptime & Stability' : 'Tizim barqarorligi'}
@@ -366,7 +402,7 @@ export default function Homepage() {
 
           <div className={styles.statCard}>
             <div className={styles.statNumber}>
-              15 <span style={{ fontSize: '1.5rem', fontWeight: 600 }}>daqiqa</span>
+              15 <span className={styles.statUnit}>{isEn ? 'minutes' : 'daqiqa'}</span>
             </div>
             <div className={styles.statLabel}>
               {isEn ? 'Average Onboarding Time' : 'Tizimni ishga tushirish vaqti'}

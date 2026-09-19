@@ -45,9 +45,10 @@ export default function Pricing() {
     <main className={styles.pricingPage} id="main-content">
       {/* ── Header ── */}
       <section className={styles.heroSection}>
-        <span className={styles.pageBadge}>
-          {t('homepage.pricing.tag')}
-        </span>
+        <div className={styles.pageBadge}>
+          <span>💳</span>
+          <span>{t('homepage.pricing.tag')}</span>
+        </div>
         <h1 className={styles.pageTitle}>
           {t('homepage.pricing.heading')}
         </h1>
