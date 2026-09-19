@@ -90,6 +90,7 @@ export default function Dashboard() {
       <section className={styles.quickActionsRow}>
         <div
           className={styles.quickActionBtn}
+          style={{ '--btn-idx': 0 }}
           onClick={() => navigate('/patients')}
           role="button"
           tabIndex={0}
@@ -105,6 +106,7 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
+          style={{ '--btn-idx': 1 }}
           onClick={() => navigate('/calendar')}
           role="button"
           tabIndex={0}
@@ -120,6 +122,7 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
+          style={{ '--btn-idx': 2 }}
           onClick={() => navigate('/finance')}
           role="button"
           tabIndex={0}
@@ -135,6 +138,7 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
+          style={{ '--btn-idx': 3 }}
           onClick={() => navigate('/patients/1042')}
           role="button"
           tabIndex={0}
@@ -164,11 +168,15 @@ export default function Dashboard() {
         </div>
 
         <div className={styles.chairsGrid}>
-          {chairs.map((chair) => {
+          {chairs.map((chair, idx) => {
             const isPulse = chair.status === 'active';
             const isIdle = chair.status === 'idle';
             return (
-              <div key={chair.id} className={styles.chairCard}>
+              <div
+                key={chair.id}
+                className={styles.chairCard}
+                style={{ '--chair-idx': idx }}
+              >
                 <div className={styles.chairTop}>
                   <span className={styles.chairNum}>{chair.label}</span>
                   <span
@@ -206,7 +214,7 @@ export default function Dashboard() {
             <SkeletonLoader type="table" count={6} />
           ) : (
             <div className={styles.appointmentList}>
-              {appointments?.map((apt) => {
+              {appointments?.map((apt, idx) => {
                 const isActive = apt.status === 'in_progress';
                 return (
                   <div
@@ -214,6 +222,7 @@ export default function Dashboard() {
                     className={`${styles.appointmentItem} ${
                       isActive ? styles.appointmentItemActive : ''
                     }`}
+                    style={{ '--apt-idx': idx }}
                     onClick={() => navigate(`/patients/${apt.patientId.replace('P-', '')}`)}
                   >
                     <div className={styles.itemLeft}>
@@ -286,8 +295,12 @@ export default function Dashboard() {
             </div>
 
             <div className={styles.chartBarsContainer}>
-              {weeklyData.map((item) => (
-                <div key={item.day} className={styles.chartBarCol}>
+              {weeklyData.map((item, idx) => (
+                <div
+                  key={item.day}
+                  className={styles.chartBarCol}
+                  style={{ '--bar-idx': idx }}
+                >
                   <span className={styles.chartValTooltip}>{item.revenue}</span>
                   <div className={styles.chartBarTrack}>
                     <div

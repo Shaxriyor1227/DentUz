@@ -1,3 +1,59 @@
+/* ── Dashboard Smooth Animations & Micro-Interactions ── */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rowSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes radarDotPing {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  75%, 100% {
+    transform: translate(-50%, -50%) scale(3.2);
+    opacity: 0;
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+    opacity: 0.2;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
 .pageContainer {
   display: flex;
   flex-direction: column;
@@ -10,6 +66,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-xs);
+  animation: fadeInDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (min-width: 640px) {
@@ -89,6 +146,8 @@
   box-shadow: var(--shadow-xs);
   display: flex;
   flex-direction: column;
+  animation: cardPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.18s;
 }
 
 .cardHeader {
@@ -141,9 +200,11 @@
   justify-content: space-between;
   padding: 14px 10px;
   border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border-bottom: 1px solid var(--color-border-subtle);
+  animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--apt-idx, 0) * 0.04s + 0.22s);
 }
 
 .appointmentItem:last-child {
@@ -152,6 +213,7 @@
 
 .appointmentItem:hover {
   background-color: var(--color-surface-container-low);
+  padding-left: 14px;
 }
 
 .appointmentItemActive {
@@ -212,6 +274,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  animation: cardPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.2s;
 }
 
 /* =======================================================
@@ -240,15 +304,18 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: var(--shadow-xs);
   text-align: left;
+  animation: cardPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--btn-idx, 0) * 0.05s + 0.06s);
 }
 
 .quickActionBtn:hover {
   border-color: var(--color-cyan);
   background-color: var(--color-surface-container-low);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.15);
 }
 
 .quickActionIconBox {
@@ -261,6 +328,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.quickActionBtn:hover .quickActionIconBox {
+  transform: scale(1.1);
+  color: var(--color-cyan);
+  background-color: rgba(0, 180, 216, 0.15);
 }
 
 .quickActionTextGroup {
@@ -290,6 +364,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  animation: cardPopIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.12s;
 }
 
 .sectionHeader {
@@ -337,11 +413,15 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: all var(--transition-fast);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: cardPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--chair-idx, 0) * 0.05s + 0.14s);
 }
 
 .chairCard:hover {
   border-color: var(--color-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 180, 216, 0.12);
 }
 
 .chairTop {
@@ -371,8 +451,21 @@
 }
 
 .pulseActive {
-  background-color: var(--color-mint);
-  box-shadow: 0 0 0 3px var(--color-mint-soft);
+  background-color: #10B981;
+  position: relative;
+}
+
+.pulseActive::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid #10B981;
+  transform: translate(-50%, -50%);
+  animation: radarDotPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .pulseIdle {
@@ -416,6 +509,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  animation: cardPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.26s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chartCard:hover {
+  border-color: rgba(0, 180, 216, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 180, 216, 0.1);
 }
 
 .chartBarsContainer {
@@ -436,6 +537,7 @@
   gap: 6px;
   height: 100%;
   justify-content: flex-end;
+  cursor: pointer;
 }
 
 .chartBarTrack {
@@ -453,7 +555,14 @@
   width: 100%;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: linear-gradient(180deg, var(--color-cyan) 0%, var(--color-cyan-hover) 100%);
-  transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom;
+  animation: barGrow 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--bar-idx, 0) * 0.05s + 0.3s);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.chartBarCol:hover .chartBarFill {
+  filter: brightness(1.22);
 }
 
 .chartBarFillToday {
@@ -473,6 +582,13 @@
   font-size: 10px;
   font-weight: 600;
   color: var(--color-text-primary);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.chartBarCol:hover .chartValTooltip {
+  transform: translateY(-2px);
+  color: var(--color-cyan-hover);
+  font-weight: 700;
 }
 
 /* Urgent Notification Banner */

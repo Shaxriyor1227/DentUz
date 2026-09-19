@@ -357,17 +357,33 @@
 }
 
 /* ── Upright Orbiting Satellite Nodes (Zero-Tilt Mathematical System) ── */
-.satelliteNode {
+/* ── Synchronized Rotating Orbit System ── */
+.orbitRotatingSystem {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 0;
-  height: 0;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  animation: orbitSystemSpin 26s linear infinite;
+  transform-origin: center center;
   z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes orbitSystemSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* Pause the orbit on hover so the user can comfortably inspect cards */
-.orbitStage:hover .satelliteNode {
+.orbitStage:hover .orbitRotatingSystem,
+.orbitStage:hover .satelliteRotateSlot,
+.orbitStage:hover .radarSweep {
   animation-play-state: paused;
 }
 
@@ -376,6 +392,85 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Base Satellite Node Anchor at Center */
+.satelliteNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: auto;
+  z-index: 12;
+}
+
+/* Radial Coordinate Distribution (R = 175px) */
+.card_0   { transform: rotate(0deg)   translateX(175px); }
+.card_45  { transform: rotate(45deg)  translateX(175px); }
+.card_90  { transform: rotate(90deg)  translateX(175px); }
+.card_135 { transform: rotate(135deg) translateX(175px); }
+.card_180 { transform: rotate(180deg) translateX(175px); }
+.card_225 { transform: rotate(225deg) translateX(175px); }
+.card_270 { transform: rotate(270deg) translateX(175px); }
+.card_315 { transform: rotate(315deg) translateX(175px); }
+
+/* Rotating Slot for Counter-Rotation to keep cards 100% Upright */
+.satelliteRotateSlot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+.card_0   .satelliteRotateSlot { animation: counterRotate_0   26s linear infinite; }
+.card_45  .satelliteRotateSlot { animation: counterRotate_45  26s linear infinite; }
+.card_90  .satelliteRotateSlot { animation: counterRotate_90  26s linear infinite; }
+.card_135 .satelliteRotateSlot { animation: counterRotate_135 26s linear infinite; }
+.card_180 .satelliteRotateSlot { animation: counterRotate_180 26s linear infinite; }
+.card_225 .satelliteRotateSlot { animation: counterRotate_225 26s linear infinite; }
+.card_270 .satelliteRotateSlot { animation: counterRotate_270 26s linear infinite; }
+.card_315 .satelliteRotateSlot { animation: counterRotate_315 26s linear infinite; }
+
+@keyframes counterRotate_0 {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+@keyframes counterRotate_45 {
+  from { transform: rotate(-45deg); }
+  to   { transform: rotate(-405deg); }
+}
+
+@keyframes counterRotate_90 {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(-450deg); }
+}
+
+@keyframes counterRotate_135 {
+  from { transform: rotate(-135deg); }
+  to   { transform: rotate(-495deg); }
+}
+
+@keyframes counterRotate_180 {
+  from { transform: rotate(-180deg); }
+  to   { transform: rotate(-540deg); }
+}
+
+@keyframes counterRotate_225 {
+  from { transform: rotate(-225deg); }
+  to   { transform: rotate(-585deg); }
+}
+
+@keyframes counterRotate_270 {
+  from { transform: rotate(-270deg); }
+  to   { transform: rotate(-630deg); }
+}
+
+@keyframes counterRotate_315 {
+  from { transform: rotate(-315deg); }
+  to   { transform: rotate(-675deg); }
 }
 
 /* Base Satellite Card (GateDent Squircle Style) */
@@ -402,20 +497,21 @@
               border-color 0.25s ease;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  user-select: none;
 }
 
 [data-theme='dark'] .satelliteCard {
-  background: rgba(19, 27, 46, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(6, 182, 212, 0.1);
+  background: rgba(19, 27, 46, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(6, 182, 212, 0.12);
 }
 
 .satelliteCard:hover {
-  transform: translate(-50%, -50%) scale(1.14) translateY(-3px);
+  transform: translate(-50%, -50%) scale(1.15) translateY(-2px);
   border-color: var(--card-accent, #00B4D8);
-  box-shadow: 0 16px 36px -6px var(--card-accent, rgba(0, 180, 216, 0.35)),
-              0 0 18px rgba(0, 180, 216, 0.12);
-  z-index: 35;
+  box-shadow: 0 16px 36px -6px var(--card-accent, rgba(0, 180, 216, 0.45)),
+              0 0 20px rgba(0, 180, 216, 0.2);
+  z-index: 40;
 }
 
 .satelliteIconBox {
@@ -430,7 +526,7 @@
 }
 
 .satelliteCard:hover .satelliteIconBox {
-  transform: scale(1.15);
+  transform: scale(1.12);
 }
 
 .satelliteLabel {
@@ -445,81 +541,6 @@
 
 [data-theme='dark'] .satelliteLabel {
   color: #F1F5F9;
-}
-
-/* ── Mathematical 8-Node Orbit Keyframes (100% Horizontal & Upright at ALL Angles) ── */
-/* Radius R = 175px */
-
-.card_0 {
-  transform: rotate(0deg) translateX(175px) rotate(0deg);
-  animation: orbitNode_0 55s linear infinite;
-}
-@keyframes orbitNode_0 {
-  from { transform: rotate(0deg) translateX(175px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(175px) rotate(-360deg); }
-}
-
-.card_45 {
-  transform: rotate(45deg) translateX(175px) rotate(-45deg);
-  animation: orbitNode_45 55s linear infinite;
-}
-@keyframes orbitNode_45 {
-  from { transform: rotate(45deg) translateX(175px) rotate(-45deg); }
-  to   { transform: rotate(405deg) translateX(175px) rotate(-405deg); }
-}
-
-.card_90 {
-  transform: rotate(90deg) translateX(175px) rotate(-90deg);
-  animation: orbitNode_90 55s linear infinite;
-}
-@keyframes orbitNode_90 {
-  from { transform: rotate(90deg) translateX(175px) rotate(-90deg); }
-  to   { transform: rotate(450deg) translateX(175px) rotate(-450deg); }
-}
-
-.card_135 {
-  transform: rotate(135deg) translateX(175px) rotate(-135deg);
-  animation: orbitNode_135 55s linear infinite;
-}
-@keyframes orbitNode_135 {
-  from { transform: rotate(135deg) translateX(175px) rotate(-135deg); }
-  to   { transform: rotate(495deg) translateX(175px) rotate(-495deg); }
-}
-
-.card_180 {
-  transform: rotate(180deg) translateX(175px) rotate(-180deg);
-  animation: orbitNode_180 55s linear infinite;
-}
-@keyframes orbitNode_180 {
-  from { transform: rotate(180deg) translateX(175px) rotate(-180deg); }
-  to   { transform: rotate(540deg) translateX(175px) rotate(-540deg); }
-}
-
-.card_225 {
-  transform: rotate(225deg) translateX(175px) rotate(-225deg);
-  animation: orbitNode_225 55s linear infinite;
-}
-@keyframes orbitNode_225 {
-  from { transform: rotate(225deg) translateX(175px) rotate(-225deg); }
-  to   { transform: rotate(585deg) translateX(175px) rotate(-585deg); }
-}
-
-.card_270 {
-  transform: rotate(270deg) translateX(175px) rotate(-270deg);
-  animation: orbitNode_270 55s linear infinite;
-}
-@keyframes orbitNode_270 {
-  from { transform: rotate(270deg) translateX(175px) rotate(-270deg); }
-  to   { transform: rotate(630deg) translateX(175px) rotate(-630deg); }
-}
-
-.card_315 {
-  transform: rotate(315deg) translateX(175px) rotate(-315deg);
-  animation: orbitNode_315 55s linear infinite;
-}
-@keyframes orbitNode_315 {
-  from { transform: rotate(315deg) translateX(175px) rotate(-315deg); }
-  to   { transform: rotate(675deg) translateX(175px) rotate(-675deg); }
 }
 
 /* ── Mobile Fallback: Compact 4x2 Grid (<900px) ── */

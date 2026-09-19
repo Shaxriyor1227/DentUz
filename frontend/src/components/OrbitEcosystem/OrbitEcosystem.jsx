@@ -180,28 +180,52 @@ export default function OrbitEcosystem({ visualOnly = false }) {
         {/* Ambient Radar Scanner Beam */}
         <div className={styles.radarSweep} />
 
-        {/* Dynamic Connecting Data Spokes */}
-        <svg className={styles.spokesSvg} viewBox="-200 -200 400 400" aria-hidden="true">
-          <circle cx="0" cy="0" r="175" className={styles.spokeCircleGuide} />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
-            const rad = (angle * Math.PI) / 180;
-            const x2 = Math.round(Math.cos(rad) * 175);
-            const y2 = Math.round(Math.sin(rad) * 175);
-            return (
-              <line
-                key={i}
-                x1="0"
-                y1="0"
-                x2={x2}
-                y2={y2}
-                className={styles.spokeLine}
-                style={{ '--spoke-idx': i }}
-              />
-            );
-          })}
-        </svg>
+        {/* Dynamic Synchronized Rotating Orbit System */}
+        <div className={styles.orbitRotatingSystem}>
+          {/* Dynamic Connecting Data Spokes */}
+          <svg className={styles.spokesSvg} viewBox="-200 -200 400 400" aria-hidden="true">
+            <circle cx="0" cy="0" r="175" className={styles.spokeCircleGuide} />
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
+              const rad = (angle * Math.PI) / 180;
+              const x2 = Math.round(Math.cos(rad) * 175);
+              const y2 = Math.round(Math.sin(rad) * 175);
+              return (
+                <line
+                  key={i}
+                  x1="0"
+                  y1="0"
+                  x2={x2}
+                  y2={y2}
+                  className={styles.spokeLine}
+                  style={{ '--spoke-idx': i }}
+                />
+              );
+            })}
+          </svg>
 
-        {/* Central Core Logo Node */}
+          {/* 8 Satellite Cards in Upright Orbit */}
+          {satellites.map((sat) => (
+            <div
+              key={sat.id}
+              className={`${styles.satelliteNode} ${sat.angleClass}`}
+              style={{ '--card-accent': sat.color }}
+            >
+              <div className={styles.satelliteRotateSlot}>
+                <div className={styles.satelliteCard}>
+                  <div
+                    className={styles.satelliteIconBox}
+                    style={{ color: sat.color, backgroundColor: sat.bg }}
+                  >
+                    {sat.icon}
+                  </div>
+                  <span className={styles.satelliteLabel}>{sat.label}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Central Core Logo Node (Stationary Anchor) */}
         <div className={styles.centralHub} title="DentUz Central Core">
           <div className={styles.hubAura} />
           <div className={styles.hubPingRing} />
@@ -209,25 +233,6 @@ export default function OrbitEcosystem({ visualOnly = false }) {
             <Logo size={44} animated={false} />
           </div>
         </div>
-
-        {/* 8 Satellite Cards in Upright Orbit */}
-        {satellites.map((sat) => (
-          <div
-            key={sat.id}
-            className={`${styles.satelliteNode} ${sat.angleClass}`}
-            style={{ '--card-accent': sat.color }}
-          >
-            <div className={styles.satelliteCard}>
-              <div
-                className={styles.satelliteIconBox}
-                style={{ color: sat.color, backgroundColor: sat.bg }}
-              >
-                {sat.icon}
-              </div>
-              <span className={styles.satelliteLabel}>{sat.label}</span>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Mobile Fallback: compact 2-column card grid */}
