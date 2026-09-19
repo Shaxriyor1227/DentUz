@@ -216,7 +216,7 @@ export default function PublicLayout() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
-                <Logo size={36} withText />
+                <Logo size={36} withText variant="onDark" />
               </Link>
 
               <p className={styles.brandTagline}>

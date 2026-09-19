@@ -40,6 +40,26 @@
 }
 
 /* Variant Overrides */
+.onDark .pathNavy {
+  fill: #FFFFFF;
+}
+
+.onDark .pathCyan {
+  fill: #00B4D8;
+}
+
+.onDark .brandTitle {
+  color: #FFFFFF;
+}
+
+.onDark .brandAccent {
+  color: #38BDF8;
+}
+
+.onDark .brandSubtitle {
+  color: #94A3B8;
+}
+
 .white .pathNavy,
 .white .pathCyan {
   fill: #FFFFFF;

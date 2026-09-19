@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Logo from '../Logo/Logo';
 import styles from './OrbitEcosystem.module.css';
@@ -78,6 +78,27 @@ const CheckCircleIcon = () => (
 export default function OrbitEcosystem({ visualOnly = false }) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
   // 8 Satellite nodes placed at 45-degree intervals (GateDent reference style)
   const satellites = [
@@ -150,17 +171,42 @@ export default function OrbitEcosystem({ visualOnly = false }) {
   const checklistItems = t('homepage.whyChoose.items', { returnObjects: true }) || [];
 
   const visualContent = (
-    <div className={styles.visualColumn}>
+    <div className={`${styles.visualColumn} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.orbitStage}>
         {/* Background Orbit Guide Rings */}
         <div className={styles.trackRingOuter} />
         <div className={styles.trackRingInner} />
 
+        {/* Ambient Radar Scanner Beam */}
+        <div className={styles.radarSweep} />
+
+        {/* Dynamic Connecting Data Spokes */}
+        <svg className={styles.spokesSvg} viewBox="-200 -200 400 400" aria-hidden="true">
+          <circle cx="0" cy="0" r="175" className={styles.spokeCircleGuide} />
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
+            const rad = (angle * Math.PI) / 180;
+            const x2 = Math.round(Math.cos(rad) * 175);
+            const y2 = Math.round(Math.sin(rad) * 175);
+            return (
+              <line
+                key={i}
+                x1="0"
+                y1="0"
+                x2={x2}
+                y2={y2}
+                className={styles.spokeLine}
+                style={{ '--spoke-idx': i }}
+              />
+            );
+          })}
+        </svg>
+
         {/* Central Core Logo Node */}
         <div className={styles.centralHub} title="DentUz Central Core">
           <div className={styles.hubAura} />
+          <div className={styles.hubPingRing} />
           <div className={styles.centralHubInner}>
-            <Logo size={42} animated={false} />
+            <Logo size={44} animated={false} />
           </div>
         </div>
 
@@ -169,6 +215,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
           <div
             key={sat.id}
             className={`${styles.satelliteNode} ${sat.angleClass}`}
+            style={{ '--card-accent': sat.color }}
           >
             <div className={styles.satelliteCard}>
               <div
@@ -186,7 +233,11 @@ export default function OrbitEcosystem({ visualOnly = false }) {
       {/* Mobile Fallback: compact 2-column card grid */}
       <div className={styles.mobileCardsGrid}>
         {satellites.map((sat) => (
-          <div key={sat.id} className={styles.mobileCard}>
+          <div
+            key={sat.id}
+            className={styles.mobileCard}
+            style={{ '--card-accent': sat.color }}
+          >
             <div
               className={styles.satelliteIconBox}
               style={{ color: sat.color, backgroundColor: sat.bg }}
@@ -205,9 +256,14 @@ export default function OrbitEcosystem({ visualOnly = false }) {
   }
 
   return (
-    <div className={styles.sectionContainer} id="ecosystem" aria-label={t('homepage.whyChoose.title')}>
+    <div
+      ref={sectionRef}
+      className={`${styles.sectionContainer} ${isVisible ? styles.visible : ''}`}
+      id="ecosystem"
+      aria-label={t('homepage.whyChoose.title')}
+    >
       <div className={styles.twoColLayout}>
-        {/* LEFT COLUMN: Text Content & Checklist (Image 3 layout) */}
+        {/* LEFT COLUMN: Text Content & Checklist */}
         <div className={styles.contentColumn}>
           <span className={styles.sectionBadge}>
             {t('homepage.whyChoose.badge')}
@@ -241,54 +297,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
         </div>
 
         {/* RIGHT COLUMN: Orbiting Visual System */}
-        <div className={styles.visualColumn}>
-          <div className={styles.orbitStage}>
-            {/* Background Orbit Guide Rings */}
-            <div className={styles.trackRingOuter} />
-            <div className={styles.trackRingInner} />
-
-            {/* Central Core Logo Node */}
-            <div className={styles.centralHub} title="DentUz Central Core">
-              <div className={styles.hubAura} />
-              <div className={styles.centralHubInner}>
-                <Logo size={42} animated={false} />
-              </div>
-            </div>
-
-            {/* 8 Satellite Cards in Upright Orbit */}
-            {satellites.map((sat) => (
-              <div
-                key={sat.id}
-                className={`${styles.satelliteNode} ${sat.angleClass}`}
-              >
-                <div className={styles.satelliteCard}>
-                  <div
-                    className={styles.satelliteIconBox}
-                    style={{ color: sat.color, backgroundColor: sat.bg }}
-                  >
-                    {sat.icon}
-                  </div>
-                  <span className={styles.satelliteLabel}>{sat.label}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile Fallback: compact 2-column card grid */}
-          <div className={styles.mobileCardsGrid}>
-            {satellites.map((sat) => (
-              <div key={sat.id} className={styles.mobileCard}>
-                <div
-                  className={styles.satelliteIconBox}
-                  style={{ color: sat.color, backgroundColor: sat.bg }}
-                >
-                  {sat.icon}
-                </div>
-                <span className={styles.satelliteLabel}>{sat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {visualContent}
       </div>
     </div>
   );

@@ -24,7 +24,9 @@ export default function Logo({
   variant = 'default',
 }) {
   return (
-    <div className={`${styles.logoContainer} ${className} ${animated ? styles.animated : ''}`}>
+    <div
+      className={`${styles.logoContainer} ${styles[variant] || ''} ${className} ${animated ? styles.animated : ''}`}
+    >
       <div
         className={styles.logoMarkWrapper}
         style={{ width: size, height: size }}

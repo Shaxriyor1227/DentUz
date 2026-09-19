@@ -373,6 +373,24 @@
   margin-bottom: 18px;
 }
 
+/* Ensure brand logo in footer is crisp and visible on dark background */
+.brandLink :global(.pathNavy),
+.brandLink svg path:first-of-type {
+  fill: #FFFFFF !important;
+}
+
+.brandLink :global(.pathCyan) {
+  fill: #00B4D8 !important;
+}
+
+.brandLink :global([class*="brandTitle"]) {
+  color: #FFFFFF !important;
+}
+
+.brandLink :global([class*="brandAccent"]) {
+  color: #38BDF8 !important;
+}
+
 .logoBoxFooter {
   width: 44px;
   height: 44px;

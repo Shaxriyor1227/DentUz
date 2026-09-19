@@ -154,6 +154,14 @@
   position: relative;
   width: 100%;
   max-width: 520px;
+  opacity: 0.85;
+  transform: scale(0.95);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.visualColumn.visible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .orbitStage {
@@ -191,8 +199,76 @@
   height: 220px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px solid rgba(0, 180, 216, 0.12);
+  border: 1px solid rgba(0, 180, 216, 0.14);
   pointer-events: none;
+}
+
+/* ── Active Radar Scanner Beam (GateDent Pro Cyber Sweep) ── */
+.radarSweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 370px;
+  height: 370px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 280deg,
+    rgba(0, 180, 216, 0.03) 310deg,
+    rgba(0, 180, 216, 0.12) 345deg,
+    rgba(0, 180, 216, 0.32) 360deg
+  );
+  animation: radarRotate 22s linear infinite;
+  mask-image: radial-gradient(circle, transparent 90px, black 95px, black 185px, transparent 186px);
+  -webkit-mask-image: radial-gradient(circle, transparent 90px, black 95px, black 185px, transparent 186px);
+  z-index: 3;
+}
+
+@keyframes radarRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── SVG Connecting Data Spokes ── */
+.spokesSvg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  overflow: visible;
+  z-index: 4;
+}
+
+.spokeCircleGuide {
+  fill: none;
+  stroke: rgba(0, 180, 216, 0.12);
+  stroke-width: 1px;
+}
+
+.spokeLine {
+  stroke: rgba(0, 180, 216, 0.16);
+  stroke-width: 1.2px;
+  stroke-dasharray: 4 6;
+  animation: spokeDataFlow 5s ease-in-out infinite;
+  animation-delay: calc(var(--spoke-idx, 0) * 0.35s);
+}
+
+@keyframes spokeDataFlow {
+  0%, 100% {
+    stroke: rgba(0, 180, 216, 0.12);
+    stroke-width: 1px;
+    opacity: 0.5;
+  }
+  50% {
+    stroke: rgba(0, 180, 216, 0.4);
+    stroke-width: 1.6px;
+    opacity: 1;
+  }
 }
 
 /* ── Central Hub Node ── */
@@ -217,17 +293,43 @@
   pointer-events: none;
 }
 
+/* Signal Ping expanding from central core */
+.hubPingRing {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 180, 216, 0.5);
+  pointer-events: none;
+  animation: hubPing 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes hubPing {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
 .centralHubInner {
-  width: 86px;
-  height: 86px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background: var(--color-surface, #FFFFFF);
   border: 2px solid rgba(0, 180, 216, 0.35);
-  box-shadow: 0 6px 26px rgba(0, 180, 216, 0.22), 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 28px rgba(0, 180, 216, 0.24), 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
   position: relative;
   z-index: 2;
 }
@@ -235,11 +337,12 @@
 [data-theme='dark'] .centralHubInner {
   background: #0F172A;
   border-color: rgba(0, 180, 216, 0.45);
-  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.3), 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 180, 216, 0.35), 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 .centralHubInner:hover {
   transform: scale(1.08);
+  box-shadow: 0 12px 36px rgba(0, 180, 216, 0.45);
 }
 
 @keyframes hubPulse {
@@ -308,10 +411,11 @@
 }
 
 .satelliteCard:hover {
-  transform: translate(-50%, -50%) scale(1.12);
-  border-color: #00B4D8;
-  box-shadow: 0 12px 32px rgba(0, 180, 216, 0.3);
-  z-index: 30;
+  transform: translate(-50%, -50%) scale(1.14) translateY(-3px);
+  border-color: var(--card-accent, #00B4D8);
+  box-shadow: 0 16px 36px -6px var(--card-accent, rgba(0, 180, 216, 0.35)),
+              0 0 18px rgba(0, 180, 216, 0.12);
+  z-index: 35;
 }
 
 .satelliteIconBox {
@@ -322,11 +426,11 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .satelliteCard:hover .satelliteIconBox {
-  transform: scale(1.12);
+  transform: scale(1.15);
 }
 
 .satelliteLabel {
@@ -458,8 +562,9 @@
 }
 
 .mobileCard:hover {
-  transform: translateY(-2px);
-  border-color: #00B4D8;
+  transform: translateY(-3px) scale(1.02);
+  border-color: var(--card-accent, #00B4D8);
+  box-shadow: 0 8px 20px -4px var(--card-accent, rgba(0, 180, 216, 0.25));
 }
 
 /* ── Accessibility ── */
