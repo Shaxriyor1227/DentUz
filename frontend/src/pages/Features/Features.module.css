@@ -98,6 +98,7 @@
 .titleLine2 {
   background: linear-gradient(135deg, #00A86B 0%, #06B6D4 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
 }
@@ -105,6 +106,7 @@
 [data-theme='dark'] .titleLine2 {
   background: linear-gradient(135deg, #10B981 0%, #22D3EE 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 16px rgba(16, 185, 129, 0.3));
 }
