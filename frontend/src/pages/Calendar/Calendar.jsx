@@ -1025,10 +1025,10 @@ export default function Calendar() {
                                     }}
                                   >
                                     {apt.status === 'completed'
-                                      ? t('treatmentPlan.statusLabels.completed')
+                                      ? (t('treatmentPlan.statusLabels.completed') || t('common.completed') || 'Yakunlandi')
                                       : apt.status === 'in_progress'
-                                      ? t('treatmentPlan.statusLabels.in_progress')
-                                      : t('common.pending')}
+                                      ? (t('treatmentPlan.statusLabels.in_progress') || t('common.inProgress') || 'Jarayonda')
+                                      : (t('treatmentPlan.statusLabels.pending') || t('common.pending') || 'Kutilmoqda')}
                                   </span>
                                 </div>
 
@@ -1190,7 +1190,8 @@ export default function Calendar() {
 
             {/* Simplified Form */}
             <form onSubmit={handleCreateAppointment} className={styles.modalForm}>
-              {/* 1. Patient Name Input */}
+              <div className={styles.modalFormBody}>
+                {/* 1. Patient Name Input */}
               <div className={styles.formFieldGroup}>
                 <label className={styles.fieldLabel}>{t('calendar.modal.patient')}</label>
                 <div className={styles.fieldInputWrapper}>
@@ -1392,6 +1393,7 @@ export default function Calendar() {
                     ))}
                   </select>
                 </div>
+              </div>
               </div>
 
               {/* Footer buttons */}

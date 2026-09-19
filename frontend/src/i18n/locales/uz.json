@@ -31,7 +31,11 @@
     "backToHome": "Bosh sahifaga qaytish",
     "sslEncrypted": "256-bit SSL Shifrlangan",
     "complianceLaw": "O'zR O'RQ-547 Qonuniga Mos",
-    "dentistsChoice": "O'zbekistondagi 350+ stomatologlar tanlovi"
+    "dentistsChoice": "O'zbekistondagi 350+ stomatologlar tanlovi",
+    "pending": "Kutilmoqda",
+    "completed": "Yakunlandi",
+    "inProgress": "Jarayonda",
+    "scheduled": "Rejalashtirilgan"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -396,6 +400,7 @@
       "completed": "Yakunlandi",
       "in_progress": "Jarayonda",
       "scheduled": "Rejalashtirilgan",
+      "pending": "Kutilmoqda",
       "cancelled": "Bekor qilingan"
     },
     "pdf": {

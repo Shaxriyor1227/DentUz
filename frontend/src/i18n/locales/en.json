@@ -31,7 +31,11 @@
     "backToHome": "Back to Homepage",
     "sslEncrypted": "256-bit SSL Encrypted",
     "complianceLaw": "Compliant with Healthcare Data Law",
-    "dentistsChoice": "Trusted by 350+ dental practices across Uzbekistan"
+    "dentistsChoice": "Trusted by 350+ dental practices across Uzbekistan",
+    "pending": "Pending",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "scheduled": "Scheduled"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -396,6 +400,7 @@
       "completed": "Completed",
       "in_progress": "In Progress",
       "scheduled": "Scheduled",
+      "pending": "Pending",
       "cancelled": "Cancelled"
     },
     "pdf": {
