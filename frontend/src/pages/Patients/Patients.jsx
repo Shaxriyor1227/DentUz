@@ -111,6 +111,19 @@ export default function Patients() {
           </div>
         </div>
 
+        <div className={styles.balanceCell}>
+          {p.balance > 0 ? (
+            <span className={styles.debtBadge}>
+              <span className={styles.debtBadgeDot} />
+              <span>-{p.balance.toLocaleString()} {t('common.som')}</span>
+            </span>
+          ) : (
+            <span className={styles.paidBadge}>
+              <span>0 {t('common.som')}</span>
+            </span>
+          )}
+        </div>
+
         <div className={styles.actionsCell}>
           <button
             type="button"
@@ -233,6 +246,7 @@ export default function Patients() {
           <span>{t('patients.table.phone')}</span>
           <span>{t('patients.table.lastVisit')}</span>
           <span>{t('patients.table.nextVisit')}</span>
+          <span>{t('patients.table.balance')}</span>
           <span className={styles.tableHeaderRight}>{t('patients.table.actions')}</span>
         </div>
 
@@ -256,15 +270,28 @@ export default function Patients() {
         )}
       </div>
 
-      {/* New Patient Modal */}
+      {/* Modernized New Patient Modal */}
       {showAddModal && (
         <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>{t('patients.modal.title')}</h2>
-            <form onSubmit={handleAddPatient} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  {t('patients.modal.fullName')}
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>{t('patients.modal.title')}</h2>
+              <button
+                type="button"
+                className={styles.modalCloseBtn}
+                onClick={() => setShowAddModal(false)}
+                title={t('common.close')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  close
+                </span>
+              </button>
+            </div>
+
+            <form onSubmit={handleAddPatient} className={styles.modalForm}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {t('patients.modal.fullName')} *
                 </label>
                 <input
                   required
@@ -272,13 +299,13 @@ export default function Patients() {
                   placeholder="masalan, Shavkat Karimov"
                   value={newPatient.name}
                   onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
-                  style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
+                  className={styles.modalInput}
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  {t('patients.modal.phone')}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {t('patients.modal.phone')} *
                 </label>
                 <input
                   required
@@ -286,12 +313,12 @@ export default function Patients() {
                   placeholder="+998 90 123 45 67"
                   value={newPatient.phone}
                   onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
-                  style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
+                  className={styles.modalInput}
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
                   {t('patientProfile.allergies')}
                 </label>
                 <input
@@ -299,21 +326,21 @@ export default function Patients() {
                   placeholder="masalan, Penitsillin, Lidokain"
                   value={newPatient.allergies}
                   onChange={(e) => setNewPatient({ ...newPatient, allergies: e.target.value })}
-                  style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
+                  className={styles.modalInput}
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div className={styles.modalActions}>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface-container)', color: 'var(--color-text-primary)', cursor: 'pointer' }}
+                  className={styles.cancelBtn}
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '8px 20px', borderRadius: '8px', background: 'var(--color-cyan)', color: '#FFFFFF', fontWeight: 600, cursor: 'pointer' }}
+                  className={styles.saveBtn}
                 >
                   {t('common.save')}
                 </button>

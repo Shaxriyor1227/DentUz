@@ -135,6 +135,9 @@
       "lastVisit": "Oxirgi Tashrif",
       "nextVisit": "Keyingi Qabul",
       "status": "Holat",
+      "balance": "Balans / Qarz",
+      "debt": "qarz",
+      "paid": "To'langan",
       "actions": "Amallar",
       "noPatientsFound": "Mos keluvchi bemorlar topilmadi",
       "notScheduled": "Belgilanmagan"

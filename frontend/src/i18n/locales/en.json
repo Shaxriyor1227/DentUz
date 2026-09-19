@@ -135,6 +135,9 @@
       "lastVisit": "Last Visit",
       "nextVisit": "Next Appointment",
       "status": "Status",
+      "balance": "Balance / Due",
+      "debt": "due",
+      "paid": "Paid",
       "actions": "Actions",
       "noPatientsFound": "No matching patient records found",
       "notScheduled": "Unscheduled"
