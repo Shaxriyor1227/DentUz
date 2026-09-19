@@ -113,7 +113,8 @@ export default function Homepage() {
 
   return (
     <div className={styles.homepageRoot}>
-      {/* Ambient background glow */}
+      {/* Ambient background glow & cyber medical matrix */}
+      <div className={styles.ambientGridMatrix} />
       <div className={styles.ambientGlowPrimary} />
       <div className={styles.ambientGlowSecondary} />
 
@@ -150,6 +151,9 @@ export default function Homepage() {
         {/* Hero Dental Arch Interactive Visual */}
         <div className={styles.heroCanvasWrapper} id="hero-canvas">
           <div className={styles.heroCanvasCard}>
+            {/* High-tech holographic scanning beam */}
+            <div className={styles.canvasScanBeam} />
+
             <div className={styles.canvasTop}>
               <div>
                 <div className={styles.canvasTag}>
@@ -188,13 +192,14 @@ export default function Homepage() {
                   <span>{isEn ? 'Click any tooth to inspect' : 'Tekshirish uchun ustiga bosing'}</span>
                 </div>
                 <div className={styles.teethGrid}>
-                  {HERO_UPPER_TEETH.map((tooth) => {
+                  {HERO_UPPER_TEETH.map((tooth, idx) => {
                     const isSelected = selectedTooth === tooth;
                     const status = getToothStatus(tooth);
                     return (
                       <div
                         key={tooth}
                         className={styles.toothCell}
+                        style={{ '--tooth-idx': idx }}
                         onClick={() => setSelectedTooth(tooth)}
                         title={`Tish #${tooth} - ${status.label}`}
                       >
@@ -219,13 +224,14 @@ export default function Homepage() {
                   <span>{isEn ? 'Mandibular Arch (Lower • 48 - 38)' : 'Pastki jag\' (48 - 38)'}</span>
                 </div>
                 <div className={styles.teethGrid}>
-                  {HERO_LOWER_TEETH.map((tooth) => {
+                  {HERO_LOWER_TEETH.map((tooth, idx) => {
                     const isSelected = selectedTooth === tooth;
                     const status = getToothStatus(tooth);
                     return (
                       <div
                         key={tooth}
                         className={styles.toothCell}
+                        style={{ '--tooth-idx': idx + 16 }}
                         onClick={() => setSelectedTooth(tooth)}
                         title={`Tish #${tooth} - ${status.label}`}
                       >
