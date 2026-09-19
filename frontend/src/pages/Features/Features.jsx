@@ -111,7 +111,7 @@ export default function Features() {
         </p>
 
         <div className={styles.heroCtaRow}>
-          <Link to="/signup" className={styles.primaryCta}>
+          <Link to="/contact" className={styles.primaryCta}>
             <span>{isEn ? 'Start for Free' : '14 kun bepul boshlash'}</span>
             <span className={styles.ctaArrow}>→</span>
           </Link>
@@ -267,7 +267,7 @@ export default function Features() {
               ? 'No credit card required. 14 days free with full access to all 9 modules.'
               : 'Bank kartasi talab qilinmaydi. Barcha 9 ta modul 14 kun davomida to\'liq bepul ochiladi.'}
           </p>
-          <Link to="/signup" className={styles.ctaBannerBtn}>
+          <Link to="/contact" className={styles.ctaBannerBtn}>
             {t('homepage.hero.startFree')} →
           </Link>
         </div>

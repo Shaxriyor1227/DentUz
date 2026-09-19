@@ -169,7 +169,7 @@ export default function PublicLayout() {
               </span>
             </button>
             <Link to="/login" className={styles.loginLink}>{t('homepage.nav.login')}</Link>
-            <Link to="/signup" className={styles.ctaBtn}>{t('homepage.nav.getStarted')}</Link>
+            <Link to="/contact" className={styles.ctaBtn}>{t('homepage.nav.getStarted')}</Link>
           </div>
         </div>
       </header>

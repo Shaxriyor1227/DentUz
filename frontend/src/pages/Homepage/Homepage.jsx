@@ -139,8 +139,8 @@ export default function Homepage() {
         </p>
 
         <div className={styles.heroActions}>
-          <Link to="/signup" className={styles.primaryCta}>
-            {isEn ? 'Start 14-Day Free Trial' : "14 kun bepul sinab ko'rish"}
+          <Link to="/contact" className={styles.primaryCta}>
+            {isEn ? 'Request Live Demo' : "14 kun bepul sinab ko'rish"}
           </Link>
           <Link to="/dashboard" className={styles.secondaryCta}>
             <Icon name="health_and_safety" size={18} />
@@ -429,8 +429,8 @@ export default function Homepage() {
               : "O'zbekistondagi 350+ dan ortiq yetakchi klinikalar qatoriga qo'shiling. 14 kunlik bepul sinov muddati."}
           </p>
           <div className={styles.ctaBannerActions}>
-            <Link to="/signup" className={styles.ctaBannerBtn}>
-              {isEn ? 'Create Free Clinic Account' : "14 kun bepul sinab ko'rish"}
+            <Link to="/contact" className={styles.ctaBannerBtn}>
+              {isEn ? 'Request Live Demo' : "14 kun bepul sinab ko'rish"}
             </Link>
             <Link to="/pricing" className={styles.ctaBannerOutlineBtn}>
               {isEn ? 'View Pricing Plans' : 'Tariflar bilan tanishish'}

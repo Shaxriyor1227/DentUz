@@ -144,7 +144,7 @@ export default function Advantages() {
               ? 'Start your 14-day risk-free trial. Zero credit card required, instant setup.'
               : '14 kunlik bepul sinov muddatini boshlang. Karta kiritish talab qilinmaydi.'}
           </p>
-          <Link to="/signup" className={styles.ctaBannerBtn}>
+          <Link to="/contact" className={styles.ctaBannerBtn}>
             {t('homepage.hero.startFree')} →
           </Link>
         </div>

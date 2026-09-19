@@ -562,8 +562,8 @@
     }
   },
   "auth": {
-    "loginTitle": "Xush kelibsiz",
-    "loginSubtitle": "Klinika boshqaruv hisobingizga kiring",
+    "loginTitle": "Kirish",
+    "loginSubtitle": "DentUz klinika boshqaruv tizimiga kiring",
     "signupTitle": "Klinika hisobini yaratish",
     "signupSubtitle": "14 kunlik bepul sinov muddatini boshlang",
     "clinicName": "Klinika nomi *",
@@ -576,9 +576,9 @@
     "forgotPassword": "Parolni unutdingizmi?",
     "loginBtn": "Tizimga kirish",
     "signupBtn": "Hisob yaratish",
-    "noAccount": "Akkauntingiz yo'qmi?",
+    "noAccount": "Klinikangiz uchun hisob kerakmi?",
     "hasAccount": "Allaqachon hisobingiz bormi?",
-    "registerNow": "Ro'yxatdan o'ting",
+    "registerNow": "Bog'lanish va Demo olish",
     "demoFill": "Demo to'ldirish",
     "demoFillTooltip": "Sinov uchun namuna ma'lumotlarni avtomatik to'ldirish",
     "trialNote": "🔒 Karta talab qilinmaydi • 14 kun bepul sinov • O'RQ-547 himoyasi",

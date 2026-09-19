@@ -562,8 +562,8 @@
     }
   },
   "auth": {
-    "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your practice management account",
+    "loginTitle": "Sign In",
+    "loginSubtitle": "Access your DentUz clinical management portal",
     "signupTitle": "Create Practice Account",
     "signupSubtitle": "Start your 14-day free clinical trial",
     "clinicName": "Clinic Name *",
@@ -576,9 +576,9 @@
     "forgotPassword": "Forgot password?",
     "loginBtn": "Sign In",
     "signupBtn": "Create Account",
-    "noAccount": "Don't have an account?",
+    "noAccount": "Need an account for your clinic?",
     "hasAccount": "Already have an account?",
-    "registerNow": "Register now",
+    "registerNow": "Contact & Request Demo",
     "demoFill": "Demo Autofill",
     "demoFillTooltip": "Autofill sample credentials for demo evaluation",
     "trialNote": "🔒 No card required • 14-day free trial • Healthcare Law compliant",

@@ -117,7 +117,7 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-          <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
+          <Link to="/contact" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
             {t('homepage.pricing.startBtn')}
           </Link>
         </div>
@@ -158,7 +158,7 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-          <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
+          <Link to="/contact" className={`${styles.planBtn} ${styles.planBtnOutline}`}>
             {t('homepage.pricing.startBtn')}
           </Link>
         </div>
@@ -200,7 +200,7 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-          <Link to="/signup" className={`${styles.planBtn} ${styles.planBtnPrimary}`}>
+          <Link to="/contact" className={`${styles.planBtn} ${styles.planBtnPrimary}`}>
             {t('homepage.pricing.selectVip')}
           </Link>
         </div>

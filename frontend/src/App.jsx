@@ -18,7 +18,6 @@ const Advantages = lazy(() => import('./pages/Advantages/Advantages'));
 const Pricing = lazy(() => import('./pages/Pricing/Pricing'));
 const Contact = lazy(() => import('./pages/Contact/Contact'));
 const Login = lazy(() => import('./pages/Login/Login'));
-const Signup = lazy(() => import('./pages/Signup/Signup'));
 
 // Authenticated app pages — each gets its own async chunk
 const Dashboard = lazy(() => import('./pages/Dashboard/Dashboard'));
@@ -58,7 +57,7 @@ export default function App() {
                 {/* Auth Split-Screen Routes */}
                 <Route element={<AuthLayout />}>
                   <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/signup" element={<Navigate to="/contact" replace />} />
                 </Route>
 
                 {/* Authenticated Clinical App Routes */}

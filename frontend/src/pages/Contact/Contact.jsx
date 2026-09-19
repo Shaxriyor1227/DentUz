@@ -355,9 +355,13 @@ export default function Contact() {
               : 'O\'zbekistondagi 350+ dan ortiq ilg\'or stomatologiyalar safiga hoziroq qo\'shiling.'}
           </p>
           <div className={styles.ctaActions}>
-            <Link to="/signup" className={styles.ctaPrimaryBtn}>
-              {isEn ? 'Start 14-Day Free Trial' : '14 kun bepul sinab ko\'rish'}
-            </Link>
+            <button
+              type="button"
+              className={styles.ctaPrimaryBtn}
+              onClick={() => window.scrollTo({ top: 200, behavior: 'smooth' })}
+            >
+              {isEn ? 'Request Live Demo' : "Bepul demo so'rash"}
+            </button>
             <Link to="/pricing" className={styles.ctaSecondaryBtn}>
               {isEn ? 'View Pricing Plans' : 'Tariflar bilan tanishish'}
             </Link>
