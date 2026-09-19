@@ -40,18 +40,18 @@
     max-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 36px 56px 28px;
+    padding: 22px 42px 16px;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
 }
 
 .leftColumn::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .leftColumn::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgba(0, 180, 216, 0.25);
   border-radius: var(--radius-full);
 }
 
@@ -61,7 +61,16 @@
   justify-content: space-between;
   width: 100%;
   flex-shrink: 0;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background-color: var(--color-surface, #FFFFFF);
+  padding: 2px 0 6px;
+}
+
+[data-theme='dark'] .topBar {
+  background-color: #0B132B;
 }
 
 .topBackLink {
@@ -167,7 +176,7 @@
 
 .centerForm {
   margin: auto 0;
-  padding: 16px 0;
+  padding: 6px 0;
   width: 100%;
   max-width: 440px;
   align-self: center;
@@ -178,14 +187,14 @@
 }
 
 .bottomTrust {
-  padding-top: 20px;
+  padding-top: 14px;
   border-top: 1px solid var(--color-border-subtle, rgba(0, 0, 0, 0.06));
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 18px;
   font-family: var(--font-body);
-  font-size: 12.5px;
+  font-size: 12px;
   color: #64748B;
   flex-shrink: 0;
   margin-top: 24px;

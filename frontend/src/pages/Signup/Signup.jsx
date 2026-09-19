@@ -73,10 +73,27 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+  </svg>
+);
+
+const TelegramIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="#2AABEE">
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.832.942z"/>
+  </svg>
+);
+
 export default function Signup() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language === 'en';
   const [clinicName, setClinicName] = useState('');
   const [doctorName, setDoctorName] = useState('');
+  const [selectedRole, setSelectedRole] = useState('lead');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -90,15 +107,38 @@ export default function Signup() {
     setEmail('s.karimov@dentuz.uz');
     setPhone('+998 (90) 123-45-67');
     setPassword('demoPass2026!');
+    setSelectedRole('lead');
+  };
+
+  const getPasswordStrength = (pass) => {
+    if (!pass) return 0;
+    let score = 0;
+    if (pass.length >= 6) score++;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
+    if (/\d/.test(pass) || /[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+  const strength = getPasswordStrength(password);
+
+  const handleQuickSignup = (provider) => {
+    login({
+      email: provider === 'google' ? 'dr.sanjar@dentuz.uz' : 'dr.telegram@dentuz.uz',
+      name: provider === 'google' ? 'Dr. Sanjar Karimov (Google)' : 'Dr. Sanjar Karimov (Telegram)',
+      clinic: 'Premium Dental Care',
+      role: selectedRole === 'lead' ? 'Klinika rahbari' : selectedRole === 'dentist' ? 'Shifokor' : 'Administrator',
+    });
+    navigate('/dashboard');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const roleTitle = selectedRole === 'lead' ? 'Klinika rahbari' : selectedRole === 'dentist' ? 'Shifokor' : 'Administrator';
     login({
-      email,
+      email: email || 's.karimov@dentuz.uz',
       name: doctorName || 'Yangi shifokor',
       clinic: clinicName || 'Mening Klinikam',
-      role: 'Klinika rahbari',
+      role: roleTitle,
     });
     navigate('/dashboard');
   };
@@ -129,49 +169,73 @@ export default function Signup() {
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Clinic Name */}
-        <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="clinic_name">
-            {t('auth.clinicName')}
-          </label>
-          <div className={styles.inputWrapper}>
-            <span className={styles.inputIconLeft}>
-              <BuildingIcon />
-            </span>
-            <input
-              id="clinic_name"
-              type="text"
-              required
-              className={styles.input}
-              placeholder={t('auth.clinicPlaceholder')}
-              value={clinicName}
-              onChange={(e) => setClinicName(e.target.value)}
-            />
+        {/* Clinic & Doctor Name in 2 Columns */}
+        <div className={styles.twoColRow}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.label} htmlFor="clinic_name">
+              {t('auth.clinicName')}
+            </label>
+            <div className={styles.inputWrapper}>
+              <span className={styles.inputIconLeft}>
+                <BuildingIcon />
+              </span>
+              <input
+                id="clinic_name"
+                type="text"
+                required
+                className={styles.input}
+                placeholder={t('auth.clinicPlaceholder')}
+                value={clinicName}
+                onChange={(e) => setClinicName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label} htmlFor="doctor_name">
+              {t('auth.doctorName')}
+            </label>
+            <div className={styles.inputWrapper}>
+              <span className={styles.inputIconLeft}>
+                <UserIcon />
+              </span>
+              <input
+                id="doctor_name"
+                type="text"
+                required
+                className={styles.input}
+                placeholder={t('auth.doctorPlaceholder')}
+                value={doctorName}
+                onChange={(e) => setDoctorName(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Doctor Name */}
+        {/* Clinical Role Selection Chips */}
         <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="doctor_name">
-            {t('auth.doctorName')}
+          <label className={styles.label}>
+            {t('auth.roleSelectLabel')}
           </label>
-          <div className={styles.inputWrapper}>
-            <span className={styles.inputIconLeft}>
-              <UserIcon />
-            </span>
-            <input
-              id="doctor_name"
-              type="text"
-              required
-              className={styles.input}
-              placeholder={t('auth.doctorPlaceholder')}
-              value={doctorName}
-              onChange={(e) => setDoctorName(e.target.value)}
-            />
+          <div className={styles.roleGrid}>
+            {[
+              { id: 'lead', label: t('auth.roleLead') },
+              { id: 'dentist', label: t('auth.roleDentist') },
+              { id: 'admin', label: t('auth.roleAdmin') },
+            ].map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                className={`${styles.roleChip} ${selectedRole === r.id ? styles.roleChipActive : ''}`}
+                onClick={() => setSelectedRole(r.id)}
+              >
+                {r.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Email & Phone in 2 Columns on Tablet/Desktop */}
+        {/* Email & Phone in 2 Columns */}
         <div className={styles.twoColRow}>
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="signup-email">
@@ -243,11 +307,28 @@ export default function Signup() {
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
+
+          {/* Dynamic Password Strength Indicator */}
+          {password && (
+            <div className={styles.strengthMeter}>
+              <div className={styles.strengthBars}>
+                {[1, 2, 3, 4].map((bar) => (
+                  <div
+                    key={bar}
+                    className={`${styles.strengthBar} ${bar <= strength ? styles[`bar_${strength}`] : ''}`}
+                  />
+                ))}
+              </div>
+              <span className={styles.strengthLabel}>
+                {strength <= 1 ? (isEn ? 'Weak' : 'Oddiy') : strength <= 3 ? (isEn ? 'Medium' : "O'rtacha") : (isEn ? 'Strong password' : 'Kuchli parol')}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Terms Agreement Note */}
         <p className={styles.termsAgreement}>
-          {t('auth.termsAgreement')}
+          {t('auth.signupTermsAgreement') || t('auth.termsAgreement')}
         </p>
 
         {/* Submit Button */}
@@ -255,6 +336,30 @@ export default function Signup() {
           <span>{t('auth.signupBtn')}</span>
           <ArrowRightIcon />
         </button>
+
+        {/* Social / Quick Login Divider */}
+        <div className={styles.socialDivider}>
+          <span>{t('auth.orDivider')}</span>
+        </div>
+
+        <div className={styles.socialButtonsRow}>
+          <button
+            type="button"
+            className={styles.socialBtn}
+            onClick={() => handleQuickSignup('google')}
+          >
+            <GoogleIcon />
+            <span>{t('auth.continueGoogle')}</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.socialBtn} ${styles.telegramBtn}`}
+            onClick={() => handleQuickSignup('telegram')}
+          >
+            <TelegramIcon />
+            <span>{t('auth.continueTelegram')}</span>
+          </button>
+        </div>
 
         <p className={styles.trialNote}>
           {t('auth.trialNote')}

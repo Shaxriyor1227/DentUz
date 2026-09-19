@@ -627,6 +627,15 @@
     "digitalHeartTitle": "Stomatologiyaning Raqamli Yuragi",
     "digitalHeartSubtitle": "Barcha boshqaruv jarayonlarini soddalashtiring va bemorlar qoniqishini oshiring.",
     "termsAgreement": "Tizimga kirish orqali siz Foydalanish shartlari va Maxfiylik siyosatiga rozilik bildirasiz.",
+    "signupTermsAgreement": "Ro'yxatdan o'tish orqali siz Foydalanish shartlari va Maxfiylik siyosatiga rozilik bildirasiz.",
+    "orDivider": "yoki",
+    "continueGoogle": "Google orqali davom etish",
+    "continueTelegram": "Telegram orqali tezkor kirish",
+    "roleLead": "Bosh shifokor",
+    "roleDentist": "Shifokor",
+    "roleAdmin": "Administrator",
+    "roleSelectLabel": "Klinikadagi vazifangiz",
+    "demoLogin": "Demo hisob",
     "secureLogin": "Xavfsiz Kirish"
   },
   "homepage": {

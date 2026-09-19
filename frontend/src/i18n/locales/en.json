@@ -627,6 +627,15 @@
     "digitalHeartTitle": "The Digital Heart of Dentists",
     "digitalHeartSubtitle": "Simplify all your management processes and increase patient satisfaction.",
     "termsAgreement": "By logging into the system, you agree to our Terms of Use and Privacy Policy.",
+    "signupTermsAgreement": "By creating an account, you agree to our Terms of Service and Privacy Policy.",
+    "orDivider": "or",
+    "continueGoogle": "Continue with Google",
+    "continueTelegram": "Fast access with Telegram",
+    "roleLead": "Head Doctor",
+    "roleDentist": "Dentist",
+    "roleAdmin": "Receptionist",
+    "roleSelectLabel": "Your Clinical Role",
+    "demoLogin": "Demo Fill",
     "secureLogin": "Secure Login"
   },
   "homepage": {
