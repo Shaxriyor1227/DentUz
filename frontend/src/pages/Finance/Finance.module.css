@@ -1179,157 +1179,266 @@
 
 
 
-/* Receipt Modal Styles */
+/* Authentic Thermal Receipt & Invoice Modal */
 .receiptModalCard {
   width: 100%;
-  max-width: 440px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
-  padding: 24px;
+  max-width: 420px;
+  background-color: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.6);
+  padding: 18px 20px 20px 20px;
   display: flex;
   flex-direction: column;
+  gap: 14px;
   animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
 }
 
-.receiptTopHeader {
-  text-align: center;
-  padding-bottom: 14px;
-  border-bottom: 1px dashed var(--color-border);
-}
-
-.receiptClinicTitle {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-
-.receiptClinicSub {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  margin-top: 3px;
-}
-
-.receiptDocNumber {
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--color-cyan-hover);
-  margin-top: 8px;
-  display: inline-block;
-  background: rgba(6, 182, 212, 0.1);
-  padding: 2px 10px;
-  border-radius: var(--radius-full);
-}
-
-.receiptBody {
-  padding: 16px 0;
+.receiptTopControl {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.receiptPreviewTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
-}
-
-.receiptRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.receiptLabel {
-  color: var(--color-text-secondary);
-}
-
-.receiptVal {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.receiptTotalRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--color-border);
-  font-size: 15px;
-}
-
-.receiptTotalLabel {
   font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.receiptTotalVal {
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 17px;
   color: var(--color-cyan-hover);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
-.receiptFiscalBox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--color-surface-container-low);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 10px;
-  color: var(--color-text-secondary);
-  font-size: 11px;
+.receiptFormatBadge {
   font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.receiptPaperScrollArea {
+  overflow-y: auto;
+  max-height: 60vh;
+  padding: 4px 6px 14px 6px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Realistic Thermal Slip with Serrated Cut */
+.receiptThermalPaper {
+  width: 100%;
+  max-width: 360px;
+  background-color: #FAFAF7;
+  color: #111827;
+  padding: 20px 18px 22px 18px;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  font-family: 'Courier New', Courier, 'Lucida Console', monospace;
+  position: relative;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.receiptThermalPaper::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: radial-gradient(circle, transparent, transparent 52%, #FAFAF7 53%, #FAFAF7 100%);
+  background-size: 12px 12px;
+}
+
+.paperHeader {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.paperClinicTitle {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.paperClinicSub {
+  font-size: 9.5px;
+  color: #4B5563;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.paperDividerSolid {
+  border-top: 1px solid #111827;
+  margin: 7px 0;
+}
+
+.paperDividerDashed {
+  border-top: 1px dashed #6B7280;
+  margin: 7px 0;
+}
+
+.paperDividerDouble {
+  border-top: 2px dashed #111827;
+  margin: 9px 0;
+}
+
+.paperRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.5px;
+  font-size: 10.5px;
+}
+
+.paperRowLabel {
+  color: #4B5563;
+}
+
+.paperRowVal {
+  font-weight: 700;
+  color: #111827;
+}
+
+.paperTableHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 10.5px;
+  border-bottom: 1px solid #111827;
+  padding-bottom: 3px;
+  margin-bottom: 4px;
+}
+
+.paperTableItem {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+.paperTotalBox {
+  margin: 6px 0;
+  padding: 5px 0;
+  border-top: 2px solid #111827;
+  border-bottom: 2px solid #111827;
+}
+
+.paperTotalAmount {
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+}
+
+.paperFiscalBadge {
+  border: 1px solid #111827;
+  padding: 3px 4px;
+  margin: 7px 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 9.5px;
+  letter-spacing: 0.3px;
+  background: #F3F4F6;
+}
+
+.paperQrBox {
+  margin: 6px auto;
   text-align: center;
 }
 
-.receiptActions {
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
+.paperBarcodeBox {
+  margin: 6px auto 2px auto;
+  text-align: center;
 }
 
-.receiptPrintBtn {
-  flex: 1;
+.paperFooterNote {
+  font-size: 9px;
+  text-align: center;
+  color: #4B5563;
+  line-height: 1.3;
+  margin-top: 6px;
+}
+
+/* Modal Action Buttons */
+.receiptActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.receiptPrintThermalBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 38px;
+  height: 40px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
   color: #FFFFFF;
   font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.35);
   transition: all 0.2s ease;
 }
 
-.receiptPrintBtn:hover {
+.receiptPrintThermalBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.5);
+}
+
+.receiptPrintA4Btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.receiptPrintA4Btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
 }
 
 .receiptCloseBtn {
-  height: 38px;
-  padding: 0 16px;
+  height: 40px;
+  padding: 0 14px;
   border-radius: var(--radius-md);
-  background: var(--color-surface-container);
+  background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .receiptCloseBtn:hover {
-  background: var(--color-surface-container-high);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-primary);
 }
 
