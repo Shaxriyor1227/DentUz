@@ -549,94 +549,370 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   CHECKOUT-STYLE PAYMENT METHOD SELECTOR (Like Reference Image)
+   APPLE-INSPIRED PAYMENT SHEET (Minimal, Clean, Zero-Scroll)
    ════════════════════════════════════════════════════════════ */
-.paymentSelectorBox {
+.appleModalCard {
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
+  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.paymentSelectorTitle {
-  font-family: var(--font-body);
-  font-size: 13px;
+.appleModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 14px 24px;
+}
+
+.appleModalTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.appleModalTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appleInvoiceBadge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.appleModalSub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.appleCloseBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface-container);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.appleCloseBtn:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-text-primary);
+  transform: scale(1.05);
+}
+
+.appleForm {
+  padding: 0 24px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Patient Context Card (Apple Receipt style) */
+.applePatientCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.applePatientAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.applePatientInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.applePatientName {
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
 }
 
-.paymentSelectorSub {
+.applePatientId {
+  font-family: var(--font-mono);
   font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.applePatientMeta {
+  font-size: 11.5px;
   color: var(--color-text-secondary);
-  font-weight: 400;
-}
-
-.methodsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.paymentCardTile {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  user-select: none;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.paymentCardTile:hover {
-  border-color: #94A3B8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+/* Hero Amount Box (Apple Cash style) */
+.appleHeroAmountBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 14px 12px 14px;
+  border-radius: 16px;
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-border);
+  gap: 8px;
 }
 
-.paymentCardTileActive {
-  border-color: #06B6D4 !important;
-  box-shadow: 0 0 0 2.5px rgba(6, 182, 212, 0.35), 0 6px 16px rgba(6, 182, 212, 0.15) !important;
-  transform: translateY(-2px);
-  background: #FFFFFF !important;
-}
-
-.paymentCardCheckmark {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #06B6D4;
-  color: #FFFFFF;
+.appleAmountHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px rgba(6, 182, 212, 0.4);
-  animation: modalScaleUp 0.18s ease;
-}
-
-.paymentCardLogoContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
-  height: 100%;
 }
 
-@media (max-width: 560px) {
-  .methodsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.appleAmountLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.appleAmountInputWrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.appleAmountInput {
+  background: transparent;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  text-align: center;
+  outline: none;
+  width: 100%;
+  max-width: 320px;
+  letter-spacing: -0.02em;
+}
+
+.appleCurrencyTag {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+}
+
+.appleChipsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.appleChip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.appleChip:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  background: rgba(6, 182, 212, 0.08);
+}
+
+.appleChipActive {
+  background: rgba(6, 182, 212, 0.15) !important;
+  border-color: var(--color-cyan) !important;
+  color: var(--color-cyan-hover) !important;
+}
+
+/* Payment Method Segmented Buttons */
+.appleMethodSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appleMethodLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.appleSegmentGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  background: var(--color-surface-container-low);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.appleSegmentBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 4px;
+  border-radius: 9px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.appleSegmentBtn:hover {
+  background: var(--color-surface-container);
+  color: var(--color-text-primary);
+}
+
+.appleSegmentBtnActive {
+  background: var(--color-surface) !important;
+  color: var(--color-cyan-hover) !important;
+  border-color: rgba(6, 182, 212, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(6, 182, 212, 0.25) !important;
+}
+
+/* Quick 1-line Card Transfer Strip */
+.appleTransferStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(6, 182, 212, 0.06);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  gap: 8px;
+  animation: modalFadeIn 0.2s ease;
+}
+
+.appleTransferLeft {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+}
+
+.appleTransferLeft strong {
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.appleTransferActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appleMiniBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.appleMiniBtn:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+/* Apple Primary Action Button */
+.applePrimaryBtn {
+  width: 100%;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.applePrimaryBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.45);
+}
+
+.applePrimaryBtn:active {
+  transform: scale(0.99);
 }
 
 .modalFooter {

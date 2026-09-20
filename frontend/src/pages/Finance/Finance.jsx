@@ -888,117 +888,153 @@ export default function Finance() {
         <DataTable columns={columns} data={filteredInvoices} />
       )}
 
-      {/* Collect Payment Modal Dialog */}
+      {/* Apple-Inspired Payment Sheet Dialog */}
       {showCollectModal && (
         <div className={styles.modalOverlay} onClick={() => { setShowCollectModal(false); setSelectedInvoice(null); }}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div className={styles.modalHeaderInfo}>
-                <div className={styles.modalTitle}>
-                  <span className={`material-symbols-outlined ${styles.modalTitleIcon}`}>
+          <div className={styles.appleModalCard} onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className={styles.appleModalHeader}>
+              <div className={styles.appleModalTitleGroup}>
+                <div className={styles.appleModalTitle}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '22px' }}>
                     account_balance_wallet
                   </span>
                   <span>
                     {selectedInvoice
-                      ? (i18n.language === 'en' ? `Settle Payment #${selectedInvoice.id}` : `To'lovni qabul qilish — #${selectedInvoice.id}`)
-                      : (i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov qabul qilish')}
+                      ? (i18n.language === 'en' ? 'Settle Payment' : 'To\'lovni qabul qilish')
+                      : (i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov')}
                   </span>
+                  {selectedInvoice && (
+                    <span className={styles.appleInvoiceBadge}>
+                      #{selectedInvoice.id}
+                    </span>
+                  )}
                 </div>
-                <div className={styles.modalSub}>
+                <div className={styles.appleModalSub}>
                   {selectedInvoice
-                    ? (i18n.language === 'en'
-                        ? `Settle pending invoice for patient ${selectedInvoice.patient} (ID: #${selectedInvoice.patientId})`
-                        : `${selectedInvoice.patient} (ID: #${selectedInvoice.patientId}) hisobi bo'yicha to'lovni rasmiylashtirish`)
-                    : (i18n.language === 'en'
-                        ? 'Register dental procedure payment and generate invoice receipt'
-                        : 'Muolaja to\'lovini qabul qilish va kassa invoysini rasmiylashtirish')}
+                    ? `${selectedInvoice.patient} hisobi bo'yicha to'lovni tasdiqlash`
+                    : 'Muolaja to\'lovini qabul qilish va kassa invoysini yaratish'}
                 </div>
               </div>
               <button
                 type="button"
-                className={styles.modalCloseBtn}
+                className={styles.appleCloseBtn}
                 onClick={() => { setShowCollectModal(false); setSelectedInvoice(null); }}
                 aria-label="Close"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
               </button>
             </div>
 
-            <form onSubmit={handleCollectSubmit} className={styles.modalForm}>
-              {/* Patient */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  {i18n.language === 'en' ? 'Patient' : 'Bemor'}
-                </label>
-                <input
-                  type="text"
-                  className={styles.formInput}
-                  placeholder={i18n.language === 'en' ? 'e.g. Anvar Qosimov' : 'Masalan: Anvar Qosimov'}
-                  value={paymentForm.patient}
-                  onChange={(e) => setPaymentForm((prev) => ({ ...prev, patient: e.target.value }))}
-                  required
-                />
-              </div>
+            <form onSubmit={handleCollectSubmit} className={styles.appleForm}>
+              {/* Context: Patient & Treatment */}
+              {selectedInvoice ? (
+                <div className={styles.applePatientCard}>
+                  <div className={styles.applePatientAvatar}>
+                    {paymentForm.patient?.charAt(0) || 'P'}
+                  </div>
+                  <div className={styles.applePatientInfo}>
+                    <div className={styles.applePatientName}>
+                      {paymentForm.patient}
+                      <span className={styles.applePatientId}>ID: #{paymentForm.patientId}</span>
+                    </div>
+                    <div className={styles.applePatientMeta}>
+                      {paymentForm.procedure} • {paymentForm.doctor}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.appleMethodLabel}>
+                      {i18n.language === 'en' ? 'Patient Name' : 'Bemor ismi'}
+                    </label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      placeholder={i18n.language === 'en' ? 'e.g. Anvar Qosimov' : 'Masalan: Anvar Qosimov'}
+                      value={paymentForm.patient}
+                      onChange={(e) => setPaymentForm((prev) => ({ ...prev, patient: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.appleMethodLabel}>
+                        {i18n.language === 'en' ? 'Procedure' : 'Muolaja'}
+                      </label>
+                      <select
+                        className={styles.formSelect}
+                        value={paymentForm.procedure}
+                        onChange={(e) => setPaymentForm((prev) => ({ ...prev, procedure: e.target.value }))}
+                      >
+                        <option value="Kompozit restavratsiya">Kompozit restavratsiya</option>
+                        <option value="Endodontiya & kanal davolash">Endodontiya & kanal davolash</option>
+                        <option value="Tish tozalash & Air-Flow">Tish tozalash & Air-Flow</option>
+                        <option value="Implantatsiya (Straumann)">Implantatsiya (Straumann)</option>
+                        <option value="Breket korreksiyasi">Breket korreksiyasi</option>
+                        <option value="3D CBCT tomografiya">3D CBCT tomografiya</option>
+                      </select>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.appleMethodLabel}>
+                        {i18n.language === 'en' ? 'Doctor' : 'Shifokor'}
+                      </label>
+                      <select
+                        className={styles.formSelect}
+                        value={paymentForm.doctor}
+                        onChange={(e) => setPaymentForm((prev) => ({ ...prev, doctor: e.target.value }))}
+                      >
+                        <option value="Dr. Azimov">Dr. Azimov (Bosh shifokor)</option>
+                        <option value="Dr. Saidova">Dr. Saidova (Ortodont)</option>
+                        <option value="Dr. Karimov">Dr. Karimov (Jarroh-implantolog)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              {/* Procedure & Doctor */}
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    {i18n.language === 'en' ? 'Procedure' : 'Muolaja / Xizmat'}
-                  </label>
-                  <select
-                    className={styles.formSelect}
-                    value={paymentForm.procedure}
-                    onChange={(e) => setPaymentForm((prev) => ({ ...prev, procedure: e.target.value }))}
-                  >
-                    <option value="Kompozit restavratsiya">Kompozit restavratsiya</option>
-                    <option value="Endodontiya & kanal davolash">Endodontiya & kanal davolash</option>
-                    <option value="Tish tozalash & Air-Flow">Tish tozalash & Air-Flow</option>
-                    <option value="Implantatsiya (Straumann)">Implantatsiya (Straumann)</option>
-                    <option value="Breket korreksiyasi">Breket korreksiyasi</option>
-                    <option value="3D CBCT tomografiya">3D CBCT tomografiya</option>
-                    <option value="Dastlabki konsultatsiya">Dastlabki konsultatsiya</option>
-                  </select>
+              {/* Apple Hero Amount Display */}
+              <div className={styles.appleHeroAmountBox}>
+                <div className={styles.appleAmountHeader}>
+                  <span className={styles.appleAmountLabel}>
+                    {i18n.language === 'en' ? 'Amount to pay' : 'To\'lov summasi'}
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                    {formatUZS(Number(paymentForm.amount) || 0)}
+                  </span>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    {i18n.language === 'en' ? 'Doctor' : 'Shifokor'}
-                  </label>
-                  <select
-                    className={styles.formSelect}
-                    value={paymentForm.doctor}
-                    onChange={(e) => setPaymentForm((prev) => ({ ...prev, doctor: e.target.value }))}
-                  >
-                    <option value="Dr. Azimov">Dr. Azimov (Bosh shifokor)</option>
-                    <option value="Dr. Saidova">Dr. Saidova (Ortodont)</option>
-                    <option value="Dr. Karimov">Dr. Karimov (Jarroh-implantolog)</option>
-                  </select>
+                <div className={styles.appleAmountInputWrap}>
+                  <input
+                    type="text"
+                    className={styles.appleAmountInput}
+                    value={paymentForm.amount ? Number(paymentForm.amount).toLocaleString('ru-RU') : ''}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '');
+                      setPaymentForm((prev) => ({ ...prev, amount: raw }));
+                    }}
+                    placeholder="0"
+                    required
+                  />
+                  <span className={styles.appleCurrencyTag}>UZS</span>
                 </div>
-              </div>
 
-              {/* Amount */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  {i18n.language === 'en' ? 'Amount (UZS)' : 'To\'lov summasi (UZS)'}
-                </label>
-                <input
-                  type="text"
-                  className={styles.formInput}
-                  value={paymentForm.amount}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, '');
-                    setPaymentForm((prev) => ({ ...prev, amount: raw }));
-                  }}
-                  placeholder="500000"
-                  required
-                />
-                <div className={styles.quickChipsRow}>
-                  {['200000', '450000', '800000', '1500000', '3000000'].map((amt) => (
+                <div className={styles.appleChipsRow}>
+                  {selectedInvoice && (
+                    <button
+                      type="button"
+                      className={`${styles.appleChip} ${paymentForm.amount === String(selectedInvoice.amount) ? styles.appleChipActive : ''}`}
+                      onClick={() => setPaymentForm((prev) => ({ ...prev, amount: String(selectedInvoice.amount) }))}
+                    >
+                      To'liq ({formatUZS(selectedInvoice.amount)})
+                    </button>
+                  )}
+                  {['350000', '800000', '1500000', '3000000'].map((amt) => (
                     <button
                       key={amt}
                       type="button"
-                      className={styles.quickChip}
+                      className={`${styles.appleChip} ${paymentForm.amount === amt ? styles.appleChipActive : ''}`}
                       onClick={() => setPaymentForm((prev) => ({ ...prev, amount: amt }))}
                     >
                       {formatUZS(Number(amt))}
@@ -1007,161 +1043,85 @@ export default function Finance() {
                 </div>
               </div>
 
-              {/* Payment Method Selector (Checkout Style matching user reference) */}
-              <div className={styles.paymentSelectorBox}>
-                <div className={styles.paymentSelectorTitle}>
-                  <span>{i18n.language === 'en' ? 'How would you like to pay?' : 'To\'lov usulini tanlang (To\'lov tizimlari)'}</span>
-                  <span className={styles.paymentSelectorSub}>
-                    {i18n.language === 'en' ? 'Select provider' : 'Rasmiy integratsiya'}
-                  </span>
+              {/* Apple Segmented Payment Method Control */}
+              <div className={styles.appleMethodSection}>
+                <div className={styles.appleMethodLabel}>
+                  {i18n.language === 'en' ? 'Select payment method' : 'To\'lov usulini tanlang'}
                 </div>
-
-                <div className={styles.methodsGrid}>
+                <div className={styles.appleSegmentGrid}>
                   {[
-                    { key: 'Payme', label: 'Payme', logo: <PaymeBrandLogo /> },
-                    { key: 'Click', label: 'Click', logo: <ClickBrandLogo /> },
-                    { key: 'Uzcard', label: 'Uzcard', logo: <UzcardBrandLogo /> },
-                    { key: 'Humo', label: 'Humo', logo: <HumoBrandLogo /> },
-                    { key: 'Visa / Mastercard', label: 'Visa & Mastercard', logo: <VisaMastercardLogo /> },
-                    { key: 'Naqd', label: 'Naqd pul', logo: <CashBrandLogo /> }
+                    { key: 'Payme', label: 'Payme', icon: <PaymeLogo size={18} /> },
+                    { key: 'Click', label: 'Click', icon: <ClickLogo size={18} /> },
+                    { key: 'Uzcard', label: 'Uzcard', icon: <UzcardLogo size={18} /> },
+                    { key: 'Humo', label: 'Humo', icon: <HumoLogo size={18} /> },
+                    { key: 'Naqd', label: 'Naqd pul', icon: <CashLogo size={18} /> }
                   ].map((m) => (
                     <button
                       key={m.key}
                       type="button"
-                      className={`${styles.paymentCardTile} ${paymentForm.method === m.key ? styles.paymentCardTileActive : ''}`}
+                      className={`${styles.appleSegmentBtn} ${paymentForm.method === m.key ? styles.appleSegmentBtnActive : ''}`}
                       onClick={() => setPaymentForm((prev) => ({ ...prev, method: m.key }))}
-                      title={m.label}
                     >
-                      {paymentForm.method === m.key && (
-                        <div className={styles.paymentCardCheckmark}>
-                          <span className="material-symbols-outlined" style={{ fontSize: '11px', fontWeight: 800 }}>
-                            check
-                          </span>
-                        </div>
-                      )}
-                      <div className={styles.paymentCardLogoContainer}>
-                        {m.logo}
-                      </div>
+                      {m.icon}
+                      <span>{m.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Dedicated Online Payment Box (Payme / Click / Cards) */}
+              {/* Compact 1-line Card Transfer Strip (Only for online/card) */}
               {paymentForm.method !== 'Naqd' && (
-                <div className={styles.onlinePaymentBox}>
-                  <div className={styles.onlinePaymentHeader}>
-                    <div className={styles.onlinePaymentTitle}>
-                      {getPaymentLogo(paymentForm.method, 20)}
-                      <span>{paymentForm.method} orqali tezkor to'lov</span>
-                    </div>
-                    <span className={styles.onlineBadge}>
-                      {paymentForm.method === 'Payme' ? 'Payme Business' : paymentForm.method === 'Click' ? 'Click Up' : 'Karta / Terminal'}
+                <div className={styles.appleTransferStrip}>
+                  <div className={styles.appleTransferLeft}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-cyan-hover)' }}>
+                      credit_card
+                    </span>
+                    <span>
+                      Klinika kartasi: <strong>9860 3501 8844 2200</strong>
                     </span>
                   </div>
-
-                  <div className={styles.onlineBody}>
-                    <div className={styles.qrContainer} title={`${paymentForm.method} QR to'lov kodi`}>
-                      <svg width="88" height="88" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="6" y="6" width="28" height="28" rx="4" stroke="#0F172A" strokeWidth="6" fill="white"/>
-                        <rect x="13" y="13" width="14" height="14" rx="2" fill="#0F172A"/>
-                        <rect x="66" y="6" width="28" height="28" rx="4" stroke="#0F172A" strokeWidth="6" fill="white"/>
-                        <rect x="73" y="13" width="14" height="14" rx="2" fill="#0F172A"/>
-                        <rect x="6" y="66" width="28" height="28" rx="4" stroke="#0F172A" strokeWidth="6" fill="white"/>
-                        <rect x="13" y="73" width="14" height="14" rx="2" fill="#0F172A"/>
-                        <rect x="42" y="8" width="6" height="6" fill="#0F172A"/>
-                        <rect x="52" y="8" width="6" height="6" fill="#0F172A"/>
-                        <rect x="42" y="20" width="6" height="6" fill="#0F172A"/>
-                        <rect x="52" y="26" width="6" height="6" fill="#0F172A"/>
-                        <rect x="8" y="42" width="6" height="6" fill="#0F172A"/>
-                        <rect x="20" y="42" width="6" height="6" fill="#0F172A"/>
-                        <rect x="26" y="52" width="6" height="6" fill="#0F172A"/>
-                        <rect x="86" y="42" width="6" height="6" fill="#0F172A"/>
-                        <rect x="76" y="52" width="6" height="6" fill="#0F172A"/>
-                        <rect x="68" y="42" width="6" height="6" fill="#0F172A"/>
-                        <rect x="42" y="70" width="6" height="6" fill="#0F172A"/>
-                        <rect x="52" y="80" width="6" height="6" fill="#0F172A"/>
-                        <rect x="72" y="72" width="6" height="6" fill="#0F172A"/>
-                        <rect x="84" y="82" width="6" height="6" fill="#0F172A"/>
-                        <rect x="64" y="86" width="6" height="6" fill="#0F172A"/>
-                      </svg>
-                      <div className={styles.qrIconBadge}>
-                        {getPaymentLogo(paymentForm.method, 18)}
-                      </div>
-                    </div>
-
-                    <div className={styles.onlineDetails}>
-                      <div className={styles.cardRow}>
-                        <div className={styles.cardInfo}>
-                          <span className={styles.cardLabel}>Klinika hisob kartasi (DentUz)</span>
-                          <span className={styles.cardNum}>9860 3501 8844 2200</span>
-                        </div>
-                        <button
-                          type="button"
-                          className={styles.copyCardBtn}
-                          onClick={handleCopyClinicCard}
-                          title="Karta raqamini nusxalash"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
-                            {copiedCard ? 'check' : 'content_copy'}
-                          </span>
-                          <span>{copiedCard ? 'Nusxalandi' : 'Nusxa'}</span>
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        className={styles.sendSmsBtn}
-                        onClick={handleSendPaymentSms}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                          sms
-                        </span>
-                        <span>Bemorga to'lov havolasini SMS yuborish</span>
-                      </button>
-                    </div>
+                  <div className={styles.appleTransferActions}>
+                    <button
+                      type="button"
+                      className={styles.appleMiniBtn}
+                      onClick={handleCopyClinicCard}
+                      title="Karta raqamini nusxalash"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                        {copiedCard ? 'check' : 'content_copy'}
+                      </span>
+                      <span>{copiedCard ? 'Nusxalandi' : 'Nusxa'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.appleMiniBtn}
+                      onClick={handleSendPaymentSms}
+                      title="Bemorga SMS havola"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                        sms
+                      </span>
+                      <span>SMS</span>
+                    </button>
                   </div>
                 </div>
               )}
 
-              {/* Payment Status */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  {i18n.language === 'en' ? 'Payment Status' : 'To\'lov holati'}
-                </label>
-                <select
-                  className={styles.formSelect}
-                  value={paymentForm.status}
-                  onChange={(e) => setPaymentForm((prev) => ({ ...prev, status: e.target.value }))}
-                >
-                  <option value="paid">{i18n.language === 'en' ? 'Fully Paid' : 'To\'liq to\'langan'}</option>
-                  <option value="pending">{i18n.language === 'en' ? 'Pending' : 'Kutilmoqda'}</option>
-                  <option value="partial">{i18n.language === 'en' ? 'Partial' : 'Qisman to\'langan'}</option>
-                </select>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button
-                  type="button"
-                  className={styles.cancelBtn}
-                  onClick={() => { setShowCollectModal(false); setSelectedInvoice(null); }}
-                >
-                  {i18n.language === 'en' ? 'Cancel' : 'Bekor qilish'}
-                </button>
-                <button
-                  type="submit"
-                  className={styles.confirmBtn}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                    check
-                  </span>
-                  <span>
-                    {selectedInvoice
-                      ? (i18n.language === 'en' ? 'Confirm Settlement' : 'To\'lovni qabul qilish')
-                      : (i18n.language === 'en' ? 'Confirm Payment' : 'To\'lovni tasdiqlash')}
-                  </span>
-                </button>
-              </div>
+              {/* Apple Primary CTA Button */}
+              <button
+                type="submit"
+                className={styles.applePrimaryBtn}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  check_circle
+                </span>
+                <span>
+                  {selectedInvoice
+                    ? (i18n.language === 'en' ? 'Confirm Settlement' : 'To\'lovni qabul qilish')
+                    : (i18n.language === 'en' ? 'Confirm Payment' : 'To\'lovni tasdiqlash')}
+                  {' '}• {formatUZS(Number(paymentForm.amount) || 0)}
+                </span>
+              </button>
             </form>
           </div>
         </div>
