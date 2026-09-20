@@ -123,7 +123,7 @@ const INITIAL_INVOICES = [
 ];
 
 export default function PatientProfile() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [chartData, setChartData] = useState({});
@@ -320,7 +320,7 @@ export default function PatientProfile() {
           <div className={styles.identityMeta}>
             <div className={styles.nameRow}>
               <h1 className={styles.patientFullName}>{patient?.name || 'Anvar Qosimov'}</h1>
-              <span className={styles.idBadge}>#{patient?.id || 'P-1042'}</span>
+              <span className={styles.idBadge}>{patient?.id || 'P-1042'}</span>
               <span className={styles.regularBadge}>{t('patientProfile.regularPatient')}</span>
             </div>
 

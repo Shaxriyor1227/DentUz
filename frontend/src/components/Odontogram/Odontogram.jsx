@@ -82,7 +82,7 @@ const ToothSvgNode = memo(
         className={styles.toothNode}
         onClick={handleClick}
         transform={isSelected ? `translate(0, ${isUpper ? -2 : 2}) scale(1.02)` : undefined}
-        transformOrigin={`${x + w / 2} ${y + h / 2}`}
+        style={{ transformOrigin: `${x + w / 2}px ${y + h / 2}px` }}
       >
         {/* Selection Halo */}
         {isSelected && (
