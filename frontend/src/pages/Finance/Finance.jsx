@@ -12,6 +12,9 @@ import styles from './Finance.module.css';
 // ─────────────────────────────────────────────────────────────
 // AUTHENTIC BRANDED PAYMENT LOGOS (Payme, Click, Uzcard, Humo, Cash)
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// COMPACT LOGO BADGES (Used in DataTable Chips & Notifications)
+// ─────────────────────────────────────────────────────────────
 function PaymeLogo({ size = 20, className = '' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={{ flexShrink: 0 }}>
@@ -54,6 +57,17 @@ function HumoLogo({ size = 20, className = '' }) {
   );
 }
 
+function VisaMiniLogo({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <rect width="28" height="28" rx="7" fill="#1434CB" />
+      <text x="14" y="19" fontFamily="sans-serif" fontSize="11" fontWeight="900" fill="#FFFFFF" textAnchor="middle" fontStyle="italic">
+        VISA
+      </text>
+    </svg>
+  );
+}
+
 function CashLogo({ size = 20, className = '' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={{ flexShrink: 0 }}>
@@ -66,12 +80,104 @@ function CashLogo({ size = 20, className = '' }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// FULL OFFICIAL BRAND LOGOS (Used in Checkout Card Tiles)
+// ─────────────────────────────────────────────────────────────
+function PaymeBrandLogo() {
+  return (
+    <svg width="112" height="30" viewBox="0 0 115 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#00CCCC" />
+      <path d="M10 8.5C10 7.67 10.67 7 11.5 7H18C21.31 7 24 9.69 24 13C24 16.31 21.31 19 18 19H14V24C14 24.55 13.55 25 13 25H11C10.45 25 10 24.55 10 24V8.5Z" fill="#FFFFFF" />
+      <circle cx="17.5" cy="13" r="2.8" fill="#00CCCC" />
+      <text x="38" y="23" fontFamily="system-ui, -apple-system, sans-serif" fontSize="21" fontWeight="800" fill="#1E293B" letterSpacing="-0.3px">
+        pay<tspan fill="#00CCCC">me</tspan>
+      </text>
+    </svg>
+  );
+}
+
+function ClickBrandLogo() {
+  return (
+    <svg width="105" height="30" viewBox="0 0 108 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="16" fill="#0073FF" />
+      <circle cx="16" cy="16" r="9.5" stroke="#FFFFFF" strokeWidth="2.2" strokeDasharray="42 12" strokeLinecap="round" />
+      <polygon points="14,10 21,16 14,22 16,16" fill="#FFFFFF" />
+      <text x="38" y="24" fontFamily="system-ui, -apple-system, sans-serif" fontSize="22" fontWeight="900" fill="#0073FF" letterSpacing="0.8px">
+        CLICK
+      </text>
+    </svg>
+  );
+}
+
+function UzcardBrandLogo() {
+  return (
+    <svg width="112" height="30" viewBox="0 0 116 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#581C87" />
+      <rect x="6" y="8" width="20" height="16" rx="3" stroke="#FFFFFF" strokeWidth="1.8" />
+      <rect x="9" y="12" width="5.5" height="4.5" rx="1" fill="#FBBF24" />
+      <line x1="6" y1="12" x2="26" y2="12" stroke="#FFFFFF" strokeWidth="1.2" strokeOpacity="0.4" />
+      <circle cx="21" cy="19.5" r="2" fill="#C084FC" />
+      <text x="38" y="23.5" fontFamily="system-ui, -apple-system, sans-serif" fontSize="19" fontWeight="800" fill="#581C87" letterSpacing="0.4px">
+        UZCARD
+      </text>
+    </svg>
+  );
+}
+
+function HumoBrandLogo() {
+  return (
+    <svg width="102" height="30" viewBox="0 0 106 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#D97706" />
+      <path d="M7 21C11 21 15 17.5 18 12C20 16 23.5 19.5 26 19.5C22 24 12 24 7 21Z" fill="#FFFFFF" />
+      <path d="M10 16C13 16 17 11.5 19 7C21 10 23 12 25 13C21 16.5 14 18 10 16Z" fill="#FEF3C7" />
+      <text x="38" y="24" fontFamily="system-ui, -apple-system, sans-serif" fontSize="21" fontWeight="900" fill="#D97706" letterSpacing="1px">
+        HUMO
+      </text>
+    </svg>
+  );
+}
+
+function VisaMastercardLogo() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%' }}>
+      <svg width="48" height="17" viewBox="0 0 60 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M23.5 1L15.3 19.5H10.2L6 4.2C5.7 3 5.5 2.5 4.6 2C3.3 1.3 1.4 0.7 0 0.3L0.1 0H8.4C9.5 0 10.5 0.8 10.7 2L12.7 13.1L17.8 0H23.5Z" fill="#1434CB"/>
+        <path d="M30 13.5C30.1 8.3 22.8 8 22.9 5.7C23 4.9 23.8 4.1 25.3 3.9C26.1 3.8 28.2 3.7 30.4 4.8L31.3 0.6C30.1 0.2 28.5 0 26.5 0C20.9 0 17 3 16.9 7.3C16.8 10.5 19.7 12.3 21.9 13.3C24.1 14.4 24.8 15.1 24.8 16.1C24.7 17.6 23 18.2 21.4 18.3C18.6 18.3 17 17.5 15.7 16.9L14.7 21.2C16 21.8 18.4 22.3 20.9 22.3C26.8 22.3 30.1 19.3 30 13.5Z" fill="#1434CB"/>
+        <path d="M38.8 19.5H44L40 1H35.4C34.3 1 33.4 1.6 33 2.6L28 19.5H33.7L34.8 16.3H38.3L38.8 19.5ZM36.1 12.8L37.5 8.7L38.7 12.8H36.1Z" fill="#1434CB"/>
+        <path d="M53 1H48C46.9 1 46.1 1.6 45.7 2.6L38.4 19.5H44.1L45.2 16.3H50.4L50.9 19.5H56L53 1ZM46.5 12.8L48.8 5.7L50.2 12.8H46.5Z" fill="#1434CB"/>
+      </svg>
+      <span style={{ width: '1px', height: '20px', background: '#E2E8F0' }} />
+      <svg width="34" height="22" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="15" cy="13" r="11" fill="#EB001B"/>
+        <circle cx="25" cy="13" r="11" fill="#F79E1B"/>
+        <path d="M20 5.6C22.5 7.6 24.1 10.6 24.1 14C24.1 17.4 22.5 20.4 20 22.4C17.5 20.4 15.9 17.4 15.9 14C15.9 10.6 17.5 7.6 20 5.6Z" fill="#FF5F00"/>
+      </svg>
+    </div>
+  );
+}
+
+function CashBrandLogo() {
+  return (
+    <svg width="108" height="30" viewBox="0 0 114 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#059669" />
+      <rect x="5.5" y="8.5" width="21" height="15" rx="2.5" stroke="#FFFFFF" strokeWidth="2" />
+      <circle cx="16" cy="16" r="3.5" fill="#FFFFFF" />
+      <circle cx="9.5" cy="16" r="1.2" fill="#A7F3D0" />
+      <circle cx="22.5" cy="16" r="1.2" fill="#A7F3D0" />
+      <text x="38" y="23" fontFamily="system-ui, -apple-system, sans-serif" fontSize="17.5" fontWeight="800" fill="#059669" letterSpacing="0.4px">
+        NAQD PUL
+      </text>
+    </svg>
+  );
+}
+
 function getPaymentLogo(methodName, size = 18) {
   const norm = (methodName || '').toLowerCase();
   if (norm.includes('payme')) return <PaymeLogo size={size} />;
   if (norm.includes('click')) return <ClickLogo size={size} />;
   if (norm.includes('uzcard')) return <UzcardLogo size={size} />;
   if (norm.includes('humo')) return <HumoLogo size={size} />;
+  if (norm.includes('visa') || norm.includes('mastercard') || norm.includes('mc')) return <VisaMiniLogo size={size} />;
   if (norm.includes('naqd') || norm.includes('cash')) return <CashLogo size={size} />;
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
@@ -901,29 +1007,41 @@ export default function Finance() {
                 </div>
               </div>
 
-              {/* Payment Method with Brand Logos */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  {i18n.language === 'en' ? 'Payment Method' : 'To\'lov usuli'}
-                </label>
+              {/* Payment Method Selector (Checkout Style matching user reference) */}
+              <div className={styles.paymentSelectorBox}>
+                <div className={styles.paymentSelectorTitle}>
+                  <span>{i18n.language === 'en' ? 'How would you like to pay?' : 'To\'lov usulini tanlang (To\'lov tizimlari)'}</span>
+                  <span className={styles.paymentSelectorSub}>
+                    {i18n.language === 'en' ? 'Select provider' : 'Rasmiy integratsiya'}
+                  </span>
+                </div>
+
                 <div className={styles.methodsGrid}>
                   {[
-                    { key: 'Payme', label: 'Payme' },
-                    { key: 'Click', label: 'Click' },
-                    { key: 'Uzcard', label: 'Uzcard' },
-                    { key: 'Humo', label: 'Humo' },
-                    { key: 'Naqd', label: 'Naqd pul' }
+                    { key: 'Payme', label: 'Payme', logo: <PaymeBrandLogo /> },
+                    { key: 'Click', label: 'Click', logo: <ClickBrandLogo /> },
+                    { key: 'Uzcard', label: 'Uzcard', logo: <UzcardBrandLogo /> },
+                    { key: 'Humo', label: 'Humo', logo: <HumoBrandLogo /> },
+                    { key: 'Visa / Mastercard', label: 'Visa & Mastercard', logo: <VisaMastercardLogo /> },
+                    { key: 'Naqd', label: 'Naqd pul', logo: <CashBrandLogo /> }
                   ].map((m) => (
                     <button
                       key={m.key}
                       type="button"
-                      className={`${styles.methodCard} ${paymentForm.method === m.key ? styles.methodCardActive : ''}`}
+                      className={`${styles.paymentCardTile} ${paymentForm.method === m.key ? styles.paymentCardTileActive : ''}`}
                       onClick={() => setPaymentForm((prev) => ({ ...prev, method: m.key }))}
+                      title={m.label}
                     >
-                      <div className={styles.methodLogoWrap}>
-                        {getPaymentLogo(m.key, 24)}
+                      {paymentForm.method === m.key && (
+                        <div className={styles.paymentCardCheckmark}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '11px', fontWeight: 800 }}>
+                            check
+                          </span>
+                        </div>
+                      )}
+                      <div className={styles.paymentCardLogoContainer}>
+                        {m.logo}
                       </div>
-                      <span>{m.label}</span>
                     </button>
                   ))}
                 </div>
