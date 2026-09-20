@@ -53,6 +53,34 @@ export default function Patients() {
     navigate(`/patients/${cleanId}`);
   };
 
+  const handleExportCSV = () => {
+    if (!patients || patients.length === 0) return;
+    const isEn = i18n.language === 'en';
+    const headers = isEn
+      ? ['ID', 'Patient Name', 'Phone', 'Last Visit', 'Next Appointment', 'Balance (UZS)']
+      : ['ID', 'Bemor F.I.SH', 'Telefon', 'Oxirgi Tashrif', 'Keyingi Qabul', 'Balans (UZS)'];
+
+    const rows = patients.map((p) => [
+      p.id || '',
+      `"${(p.name || '').replace(/"/g, '""')}"`,
+      `"${p.phone || ''}"`,
+      `"${p.lastVisit || ''} ${p.lastProcedure ? '- ' + p.lastProcedure : ''}"`,
+      `"${p.nextVisit || (isEn ? 'Not scheduled' : 'Rejalashtirilmagan')}"`,
+      p.balance ? `-${p.balance}` : 0
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `DentUz_Bemorlar_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleAddPatient = async (e) => {
     e.preventDefault();
     if (!newPatient.name) return;
@@ -60,7 +88,9 @@ export default function Patients() {
     setShowAddModal(false);
     setNewPatient({ name: '', phone: '+998 ', allergies: '', notes: '' });
     fetchPatients();
-    navigate(`/patients/${created.id.replace('P-', '')}`);
+    if (created && created.id) {
+      handleRowClick(created);
+    }
   };
 
   // Virtual row renderer for react-window
@@ -68,32 +98,25 @@ export default function Patients() {
     const p = patients[index];
     if (!p) return null;
 
-    const initials = p.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-
-    const isCyanAvatar = index % 3 === 1;
-
     return (
       <div
         style={style}
-        className={styles.virtualRow}
+        className={styles.patientRow}
         onClick={() => handleRowClick(p)}
+        role="button"
+        tabIndex={0}
       >
-        <div className={styles.patientCell}>
-          <div
-            className={`${styles.avatarBox} ${
-              isCyanAvatar ? styles.avatarBoxCyan : ''
-            }`}
-          >
-            {initials}
+        <div className={styles.patientMainCell}>
+          <div className={styles.avatarCircle}>
+            {p.name
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .toUpperCase()}
           </div>
-          <div className={styles.patientInfo}>
+          <div className={styles.patientDetails}>
             <span className={styles.patientName}>{p.name}</span>
-            <span className={styles.patientId}>ID: #{p.id}</span>
+            <span className={styles.patientId}>ID: {p.id}</span>
           </div>
         </div>
 
@@ -171,7 +194,7 @@ export default function Patients() {
           <button
             type="button"
             className={styles.exportBtn}
-            onClick={() => alert(i18n.language === 'uz' ? "Bemorlar ro'yxati CSV formatida eksport qilindi." : "Patient list exported as CSV.")}
+            onClick={handleExportCSV}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               file_download

@@ -70,6 +70,7 @@ const INITIAL_TREATMENTS = [
 ];
 
 // Initial X-ray and CT gallery items with authentic dental radiology
+// Initial X-ray and CT gallery items with authentic dental radiology
 const XRAY_GALLERY = [
   {
     id: 'xr-1',
@@ -79,46 +80,46 @@ const XRAY_GALLERY = [
     doctor: 'Dr. M. Saidova',
     region: "Yuqori va pastki jag'",
     desc: "Barcha tishlar ildiz tizimi va suyak to'qimasi balandligi holati ko'rinishi.",
-    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80"
+    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: 'xr-2',
-    title: "3D CBCT Tomografiya kesimi (#16 soha)",
+    title: "3D CBCT Tomografiya kesimi (16-tish sohasi)",
     type: "3D Tomografiya",
     date: '18.09.2026',
     doctor: 'Dr. J. Azimov',
-    region: "#16 Oziq tish apeksi",
+    region: "16-tish oziq tish apeksi",
     desc: "MB2 qo'shimcha ildiz kanalini aniqlash va gaymor bo'shlig'i tubi munosabati.",
-    img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80"
+    img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: 'xr-3',
-    title: "Periapikal viziografiya (#16 ildiz kanallari)",
+    title: "Periapikal viziografiya (16-tish ildiz kanallari)",
     type: "Periapikal",
     date: '18.09.2026',
     doctor: 'Dr. J. Azimov',
-    region: "#16 Tish",
+    region: "16-tish",
     desc: "Ishchi uzunlikni o'lchash (Working Length) nazorat rentgen tasviri.",
-    img: "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=800&q=80"
+    img: "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: 'xr-4',
-    title: "Bitewing interproksimal rentgen (#36, #37)",
+    title: "Bitewing interproksimal rentgen (36 va 37-tishlar)",
     type: "Bitewing",
     date: '15.09.2026',
     doctor: 'Dr. M. Saidova',
-    region: "Pastki chap molar",
+    region: "Pastki chap molyarlar",
     desc: "Yashirin kontakt karies profilaktik nazorati, patologiya aniqlanmadi.",
-    img: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80"
+    img: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80"
   }
 ];
 
 // Initial Invoices for this patient
 const INITIAL_INVOICES = [
-  { id: 'INV-1042-01', date: '18-sentabr, 2026', procedure: '#16 Endodontik davolash', amount: 950000, method: 'Payme', status: 'paid' },
-  { id: 'INV-1042-02', date: '15-sentabr, 2026', procedure: '3D CBCT Tomografiya', amount: 350000, method: 'Naqd', status: 'paid' },
-  { id: 'INV-1042-03', date: '02-sentabr, 2026', procedure: '#14 Estetik plomba', amount: 450000, method: 'Click', status: 'paid' },
-  { id: 'INV-1042-04', date: '25-sentabr, 2026 (Reja)', procedure: '#16 Sirkoniy toj fiksatsiyasi', amount: 1400000, method: 'Kutilmoqda', status: 'pending' }
+  { id: 'INV-1042-01', date: '18-sentabr, 2026', procedure: '16-tish Endodontik davolash', amount: 950000, method: 'Payme', status: 'paid' },
+  { id: 'INV-1042-02', date: '15-sentabr, 2026', procedure: '3D CBCT Tomografiya kesimi', amount: 350000, method: 'Naqd', status: 'paid' },
+  { id: 'INV-1042-03', date: '02-sentabr, 2026', procedure: '14-tish Estetik plomba', amount: 450000, method: 'Click', status: 'paid' },
+  { id: 'INV-1042-04', date: '25-sentabr, 2026 (Reja)', procedure: '16-tish Sirkoniy toj fiksatsiyasi', amount: 1400000, method: 'Kutilmoqda', status: 'pending' }
 ];
 
 export default function PatientProfile() {
@@ -140,17 +141,23 @@ export default function PatientProfile() {
   const [treatments, setTreatments] = useState(INITIAL_TREATMENTS);
   const [showAddTreatmentModal, setShowAddTreatmentModal] = useState(false);
   const [newTreatment, setNewTreatment] = useState({
-    tooth: '#16',
+    tooth: '16-tish',
     title: '',
     materials: '',
     price: '',
     doctor: 'Dr. J. Azimov'
   });
 
-  // X-Ray viewer lightbox states
+  // Clinical Dossier (Form 043/h) modal
+  const [showDossierModal, setShowDossierModal] = useState(false);
+
+  // X-Ray viewer lightbox states (Apple Pro Dark Room)
   const [selectedXray, setSelectedXray] = useState(null);
   const [xrayZoom, setXrayZoom] = useState(1);
   const [xrayInvert, setXrayInvert] = useState(false);
+  const [xrayBrightness, setXrayBrightness] = useState(100);
+  const [xrayContrast, setXrayContrast] = useState(120);
+  const [showRuler, setShowRuler] = useState(false);
 
   // Billing states
   const [invoices, setInvoices] = useState(INITIAL_INVOICES);
@@ -346,13 +353,13 @@ export default function PatientProfile() {
           <button
             type="button"
             className={styles.btnSecondary}
-            onClick={() => setActiveTab('general')}
+            onClick={() => setShowDossierModal(true)}
             title={t('patientProfile.clinicalRecord')}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              badge
+              assignment
             </span>
-            <span>{t('patientProfile.clinicalRecord')}</span>
+            <span>{t('patientProfile.clinicalRecord')} (043/h)</span>
           </button>
           <Link to="/calendar" className={styles.btnPrimary}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -494,9 +501,42 @@ export default function PatientProfile() {
                 </button>
               </div>
 
-              {/* Status Select */}
+              {/* Status Select & One-Click Quick Pills */}
               <div className={styles.panelField}>
                 <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.currentStatus')}</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '8px' }}>
+                  {[
+                    { id: 'healthy', label: t('odontogram.conditions.healthy'), color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' },
+                    { id: 'caries', label: t('odontogram.conditions.caries'), color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' },
+                    { id: 'treated', label: t('odontogram.conditions.treated'), color: '#00B4D8', bg: 'rgba(0, 180, 216, 0.1)' },
+                    { id: 'crown', label: t('odontogram.conditions.crown'), color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+                    { id: 'missing', label: t('odontogram.conditions.missing'), color: '#64748B', bg: 'rgba(100, 116, 139, 0.1)' },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => setToothStatus(st.id)}
+                      style={{
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        border: toothStatus === st.id ? `2px solid ${st.color}` : '1px solid var(--color-border)',
+                        background: toothStatus === st.id ? st.bg : 'var(--color-surface-container-low)',
+                        color: toothStatus === st.id ? st.color : 'var(--color-text-secondary)',
+                        fontWeight: toothStatus === st.id ? 700 : 500,
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: st.color }} />
+                      <span>{st.label}</span>
+                    </button>
+                  ))}
+                </div>
                 <select
                   className={styles.selectInput}
                   value={toothStatus}
@@ -1154,33 +1194,98 @@ export default function PatientProfile() {
 
               <button
                 type="button"
-                style={{ padding: '6px', borderRadius: '6px', color: 'var(--color-text-secondary)' }}
-                onClick={() => setSelectedXray(null)}
+                style={{ padding: '6px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedXray(null);
+                  setXrayZoom(1);
+                  setXrayInvert(false);
+                  setShowRuler(false);
+                }}
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <div className={styles.lightboxCanvas}>
+            {/* Apple Dark Room Canvas */}
+            <div
+              className={styles.lightboxCanvas}
+              style={{
+                background: '#070B12',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                minHeight: '440px',
+                cursor: 'grab'
+              }}
+            >
               <img
                 src={selectedXray.img}
                 alt={selectedXray.title}
                 style={{
-                  maxHeight: '100%',
-                  maxWidth: '100%',
+                  maxHeight: '420px',
+                  maxWidth: '92%',
+                  borderRadius: '10px',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
                   transform: `scale(${xrayZoom})`,
-                  filter: xrayInvert ? 'invert(1) contrast(1.5)' : 'contrast(1.2)',
-                  transition: 'transform 0.2s ease, filter 0.2s ease'
+                  filter: `invert(${xrayInvert ? 1 : 0}) contrast(${xrayContrast}%) brightness(${xrayBrightness}%)`,
+                  transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease'
                 }}
               />
+
+              {/* Dental Calibration Ruler Overlay */}
+              {showRuler && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '24px',
+                    left: '24px',
+                    background: 'rgba(0,0,0,0.75)',
+                    border: '1px solid rgba(0, 180, 216, 0.5)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: '#00E5FF',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>straighten</span>
+                    <span>KALIBRLANGAN O'LCHAGICH (CALIPER)</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(0,180,216,0.3)', paddingTop: '4px' }}>
+                    <span>0 mm</span>
+                    <span>• 10 mm •</span>
+                    <span>25 mm</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className={styles.lightboxToolbar}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Apple Pro Floating Toolbar */}
+            <div
+              className={styles.lightboxToolbar}
+              style={{
+                background: 'rgba(15, 23, 42, 0.92)',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                padding: '12px 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <button
                   type="button"
-                  style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--color-surface-container-low)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-primary)' }}
-                  onClick={() => setXrayZoom((z) => Math.min(2.5, z + 0.25))}
+                  style={{ padding: '7px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', color: '#F1F5F9', cursor: 'pointer' }}
+                  onClick={() => setXrayZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>zoom_in</span>
                   <span>{t('patientProfile.xrayTab.zoomIn')}</span>
@@ -1188,8 +1293,8 @@ export default function PatientProfile() {
 
                 <button
                   type="button"
-                  style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--color-surface-container-low)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-primary)' }}
-                  onClick={() => setXrayZoom((z) => Math.max(0.75, z - 0.25))}
+                  style={{ padding: '7px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', color: '#F1F5F9', cursor: 'pointer' }}
+                  onClick={() => setXrayZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>zoom_out</span>
                   <span>{t('patientProfile.xrayTab.zoomOut')}</span>
@@ -1197,16 +1302,39 @@ export default function PatientProfile() {
 
                 <button
                   type="button"
-                  style={{ padding: '6px 12px', borderRadius: '6px', background: xrayInvert ? 'var(--color-cyan-soft)' : 'var(--color-surface-container-low)', color: xrayInvert ? 'var(--color-cyan-hover)' : 'var(--color-text-primary)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                  style={{ padding: '7px 12px', borderRadius: '8px', background: xrayInvert ? '#00B4D8' : 'rgba(255,255,255,0.06)', color: xrayInvert ? '#fff' : '#F1F5F9', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600, cursor: 'pointer' }}
                   onClick={() => setXrayInvert(!xrayInvert)}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>contrast</span>
-                  <span>{xrayInvert ? t('patientProfile.xrayTab.normalMode') : t('patientProfile.xrayTab.invertMode')}</span>
+                  <span>{xrayInvert ? 'Normal' : 'Negativ'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  style={{ padding: '7px 12px', borderRadius: '8px', background: showRuler ? 'rgba(0, 180, 216, 0.25)' : 'rgba(255,255,255,0.06)', color: showRuler ? '#00E5FF' : '#F1F5F9', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+                  onClick={() => setShowRuler(!showRuler)}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>straighten</span>
+                  <span>O'lchagich (mm)</span>
+                </button>
+
+                <button
+                  type="button"
+                  style={{ padding: '7px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px', cursor: 'pointer' }}
+                  onClick={() => {
+                    setXrayZoom(1);
+                    setXrayInvert(false);
+                    setXrayBrightness(100);
+                    setXrayContrast(120);
+                    setShowRuler(false);
+                  }}
+                >
+                  Qaytarish (100%)
                 </button>
               </div>
 
-              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                {t('patientProfile.xrayTab.zoomScale')} {Math.round(xrayZoom * 100)}%
+              <div style={{ fontSize: '12px', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
+                Masshtab: <strong style={{ color: '#00E5FF' }}>{Math.round(xrayZoom * 100)}%</strong>
               </div>
             </div>
           </div>
@@ -1214,45 +1342,53 @@ export default function PatientProfile() {
       )}
 
       {/* ========================================================
-          MODAL: OFFICIAL INVOICE RECEIPT PREVIEW (PRINT)
+          MODAL: OFFICIAL INVOICE RECEIPT PREVIEW (PRINT / POS)
           ======================================================== */}
       {activeReceipt && (
         <div className={styles.lightboxOverlay} onClick={() => setActiveReceipt(null)}>
-          <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px', borderRadius: '16px' }}>
             <div style={{ textAlign: 'center', paddingBottom: '16px', borderBottom: '1px dashed var(--color-border)' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 {t('patientProfile.receiptModal.clinicName')}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
-                {t('patientProfile.receiptModal.clinicLicense')}
+                Litsenziya MED-UZ-2021-9988 • Tel: +998 71 200 44 22
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--color-cyan-hover)', marginTop: '8px' }}>
-                {t('patientProfile.receiptModal.receiptTitle')} {activeReceipt.id}
+                KVITANSIYA / CHEK {activeReceipt.id}
               </div>
             </div>
 
-            <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
+            <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '9px', fontSize: '13px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.patientLabel')}</span>
-                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{patient?.name} (#{patient?.id})</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Bemor:</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{patient?.name} (ID: {patient?.id})</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.dateTimeLabel')}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Sana & Vaqt:</span>
                 <span style={{ fontFamily: 'var(--font-mono)' }}>{activeReceipt.date}, 11:45</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.serviceLabel')}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Xizmat turi:</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{activeReceipt.procedure}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{t('patientProfile.receiptModal.paymentMethodLabel')}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>To'lov usuli:</span>
                 <span style={{ fontWeight: 600 }}>{activeReceipt.method}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--color-border)', fontSize: '16px' }}>
-                <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>{t('patientProfile.receiptModal.totalPaidLabel')}</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Jami to'landi:</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-cyan-hover)' }}>
                   {formatUZS(activeReceipt.amount)}
                 </span>
+              </div>
+            </div>
+
+            {/* Visual Receipt Barcode / QR Code simulation */}
+            <div style={{ textAlign: 'center', padding: '12px', background: 'var(--color-surface-container-low)', borderRadius: '10px', marginTop: '4px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-secondary)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--color-cyan-hover)' }}>qr_code_2</span>
+                <span>TO'LOV FISKAL CHEKI TASDIQLANDI (SOLIQ / INTEGRATSIYA)</span>
               </div>
             </div>
 
@@ -1261,14 +1397,10 @@ export default function PatientProfile() {
                 type="button"
                 className={styles.btnPrimary}
                 style={{ flex: 1, justifyContent: 'center' }}
-                onClick={() => {
-                  window.print();
-                }}
+                onClick={() => window.print()}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                  print
-                </span>
-                <span>{t('patientProfile.receiptModal.printBtn')}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span>
+                <span>Chop etish (Print)</span>
               </button>
 
               <button
@@ -1276,7 +1408,114 @@ export default function PatientProfile() {
                 className={styles.btnSecondary}
                 onClick={() => setActiveReceipt(null)}
               >
-                {t('patientProfile.receiptModal.closeBtn')}
+                Yopish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: OFFICIAL MEDICAL CARD (SSV SHAKL 043/h)
+          ======================================================== */}
+      {showDossierModal && (
+        <div className={styles.lightboxOverlay} onClick={() => setShowDossierModal(false)}>
+          <div
+            className={styles.receiptModalCard}
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '18px', padding: '28px' }}
+          >
+            {/* Official SSV Header */}
+            <div style={{ textAlign: 'center', borderBottom: '2px solid var(--color-text-primary)', paddingBottom: '14px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-text-secondary)' }}>
+                O'ZBEKISTON RESPUBLIKASI SOG'LIQNI SAQLASH VAZIRLIGI
+              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '4px' }}>
+                STOMATOLOGIK BEMORNING TIBBIY KARTASI
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-cyan-hover)', marginTop: '2px' }}>
+                (TIBBIY HUJJAT SHAKLI № 043/h) • Karta № {patient?.id || '1042'}/2026
+              </div>
+            </div>
+
+            {/* Patient Credentials */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '16px 0', borderBottom: '1px solid var(--color-border)', fontSize: '13px' }}>
+              <div>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Bemor F.I.SH:</span>
+                <div style={{ fontWeight: 700, color: 'var(--color-text-primary)', marginTop: '2px' }}>{patient?.name}</div>
+              </div>
+              <div>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Tug'ilgan yili & Yoshi:</span>
+                <div style={{ fontWeight: 600, marginTop: '2px' }}>1992-yil (34 yosh) • Erkak</div>
+              </div>
+              <div>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Telefon:</span>
+                <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, marginTop: '2px' }}>{patient?.phone}</div>
+              </div>
+              <div>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Birinchi murojaat sanasi:</span>
+                <div style={{ fontWeight: 600, marginTop: '2px' }}>18-Sentabr, 2026</div>
+              </div>
+            </div>
+
+            {/* Allergy Banner */}
+            <div style={{ marginTop: '14px', padding: '10px 14px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="material-symbols-outlined" style={{ color: '#EF4444', fontSize: '18px' }}>warning</span>
+              <div style={{ fontSize: '12px', color: '#EF4444', fontWeight: 700 }}>
+                Allergologik Anamnez: Penitsillin antibiotiklariga yuqori sezuvchanlik! (Lidokain sinamasi manfiy)
+              </div>
+            </div>
+
+            {/* Clinical Diagnosis & Plan */}
+            <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+              <div>
+                <strong style={{ color: 'var(--color-text-primary)' }}>Birlamchi klinik tashxis:</strong>
+                <div style={{ padding: '8px 12px', background: 'var(--color-surface-container-low)', borderRadius: '6px', marginTop: '4px' }}>
+                  K04.0 — 16-tish o'tkir o'choqli pulpit (Caries profunda asorati).
+                </div>
+              </div>
+              <div>
+                <strong style={{ color: 'var(--color-text-primary)' }}>Rejalashtirilgan davolash bosqichlari:</strong>
+                <ol style={{ margin: '4px 0 0 18px', padding: 0, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                  <li>Infiltratsion anesteziya (Ubistesin / Artikain 1:200 000).</li>
+                  <li>Karies bo'shlig'ini shakllantirish, pulpa kamerasini ochish.</li>
+                  <li>3 ta ildiz kanalini mexanik va medikamentoz ishlov berish (Working length: MB 21mm, DB 20mm, P 22mm).</li>
+                  <li>Kanallarni gutta-percha va AH-Plus sillere bilan obturatsiya qilish.</li>
+                  <li>Sirkoniy ortopedik toj (Crown) bilan tish anatomiyasini tiklash.</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Stamp & Doctor Signature Footer */}
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '12px' }}>
+              <div>
+                <div style={{ color: 'var(--color-text-secondary)' }}>Davolovchi shifokor:</div>
+                <strong style={{ color: 'var(--color-text-primary)', fontSize: '13px' }}>Dr. Jasur Azimov</strong>
+                <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Stomatolog-terapevt, ortoped</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ borderBottom: '1px solid var(--color-text-primary)', width: '140px', height: '24px', marginBottom: '4px' }} />
+                <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>(Shifokor imzosi va muhri)</div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                style={{ flex: 1, justifyContent: 'center', gap: '8px' }}
+                onClick={() => window.print()}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span>
+                <span>Rasmiy Shaklni Chop Etish (Print / PDF)</span>
+              </button>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={() => setShowDossierModal(false)}
+              >
+                Yopish
               </button>
             </div>
           </div>
