@@ -10,7 +10,6 @@ import { formatUZS } from '../../utils/formatters';
 import {
   printThermalReceipt,
   printOfficialInvoiceA4,
-  ReceiptQRCode,
   ReceiptBarcode
 } from '../../utils/exportFinanceReceipt';
 import styles from './Finance.module.css';
@@ -1284,13 +1283,7 @@ export default function Finance() {
                     <span className={styles.paperRowVal}>{activeReceipt.fiscalNumber || '482910481239'}</span>
                   </div>
 
-                  {/* QR Code */}
-                  <div className={styles.paperQrBox}>
-                    <ReceiptQRCode size={84} />
-                    <div style={{ fontSize: '8.5px', color: '#6B7280', marginTop: '2px' }}>
-                      soliq.uz tekshirish uchun skaner qiling
-                    </div>
-                  </div>
+
 
                   {/* Barcode */}
                   <div className={styles.paperBarcodeBox}>
@@ -1358,13 +1351,14 @@ export default function Finance() {
                     </table>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0FDFA', border: '1px dashed #0891B2', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0FDFA', border: '1px dashed #0891B2', borderRadius: '6px', padding: '10px 14px', marginBottom: '14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <ReceiptQRCode size={48} />
-                      <div style={{ fontSize: '8.5px', color: '#0F766E' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#0891B2' }}>
+                        verified
+                      </span>
+                      <div style={{ fontSize: '9px', color: '#0F766E' }}>
                         <strong>SOLIQ QO'MITASIDA RO'YXATDAN O'TGAN</strong>
-                        <div>ФМ: {activeReceipt.fmNumber || '001928374'}</div>
-                        <div>ФП: {activeReceipt.fiscalNumber || '482910481239'}</div>
+                        <div>ФМ: {activeReceipt.fmNumber || '001928374'} &bull; ФП: {activeReceipt.fiscalNumber || '482910481239'}</div>
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -1441,9 +1435,7 @@ export default function Finance() {
               <div style={{ border: '1px solid #000', textAlign: 'center', padding: '2px', margin: '6px 0', fontSize: '9px', fontWeight: 'bold' }}>
                 SOLIQ QO'MITASIDA QAYD ETILDI
               </div>
-              <div style={{ textAlign: 'center', margin: '6px 0' }}>
-                <ReceiptQRCode size={84} />
-              </div>
+
               <div style={{ textAlign: 'center', margin: '4px 0' }}>
                 <ReceiptBarcode code={activeReceipt.id} width={180} height={30} />
               </div>
@@ -1493,9 +1485,9 @@ export default function Finance() {
                 </tbody>
               </table>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '2px solid #000', paddingTop: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <ReceiptQRCode size={60} />
-                  <div style={{ fontSize: '8pt', color: '#444' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ fontSize: '20px', color: '#0891b2', fontWeight: 'bold' }}>✓</div>
+                  <div style={{ fontSize: '8.5pt', color: '#444' }}>
                     <strong>SOLIQ QO'MITASI FISKAL TIZIMIDA QAYD ETILGAN</strong><br />
                     ФМ: {activeReceipt.fmNumber || '001928374'} &bull; ФП: {activeReceipt.fiscalNumber || '482910481239'}
                   </div>

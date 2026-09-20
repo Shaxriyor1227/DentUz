@@ -5,64 +5,10 @@ import React from 'react';
  * Generates authentic 80mm thermal receipts and A4 medical fiscal invoices
  */
 
-export function ReceiptQRCode({ size = 96, className = '' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={{ display: 'block', margin: '0 auto' }}>
-      <rect width="110" height="110" fill="#ffffff" />
-      {/* Corner Markers */}
-      <rect x="10" y="10" width="28" height="28" fill="#111827" />
-      <rect x="14" y="14" width="20" height="20" fill="#ffffff" />
-      <rect x="18" y="18" width="12" height="12" fill="#111827" />
-      
-      <rect x="72" y="10" width="28" height="28" fill="#111827" />
-      <rect x="76" y="14" width="20" height="20" fill="#ffffff" />
-      <rect x="80" y="18" width="12" height="12" fill="#111827" />
-      
-      <rect x="10" y="72" width="28" height="28" fill="#111827" />
-      <rect x="14" y="76" width="20" height="20" fill="#ffffff" />
-      <rect x="18" y="80" width="12" height="12" fill="#111827" />
-
-      {/* Realistic pattern dots */}
-      <rect x="44" y="12" width="6" height="6" fill="#111827" />
-      <rect x="54" y="12" width="10" height="6" fill="#111827" />
-      <rect x="44" y="24" width="8" height="6" fill="#111827" />
-      <rect x="58" y="24" width="6" height="6" fill="#111827" />
-      <rect x="48" y="34" width="14" height="6" fill="#111827" />
-      
-      <rect x="12" y="44" width="8" height="6" fill="#111827" />
-      <rect x="24" y="44" width="6" height="6" fill="#111827" />
-      <rect x="34" y="44" width="12" height="6" fill="#111827" />
-      <rect x="52" y="44" width="8" height="6" fill="#111827" />
-      <rect x="66" y="44" width="14" height="6" fill="#111827" />
-      <rect x="86" y="44" width="12" height="6" fill="#111827" />
-
-      <rect x="12" y="56" width="14" height="6" fill="#111827" />
-      <rect x="32" y="56" width="8" height="6" fill="#111827" />
-      <rect x="46" y="56" width="18" height="6" fill="#111827" />
-      <rect x="70" y="56" width="6" height="6" fill="#111827" />
-      <rect x="82" y="56" width="16" height="6" fill="#111827" />
-
-      <rect x="44" y="68" width="6" height="6" fill="#111827" />
-      <rect x="56" y="68" width="10" height="6" fill="#111827" />
-      <rect x="72" y="68" width="8" height="6" fill="#111827" />
-      <rect x="86" y="68" width="12" height="6" fill="#111827" />
-
-      <rect x="44" y="78" width="14" height="6" fill="#111827" />
-      <rect x="64" y="78" width="8" height="6" fill="#111827" />
-      <rect x="78" y="78" width="18" height="6" fill="#111827" />
-
-      <rect x="44" y="88" width="8" height="10" fill="#111827" />
-      <rect x="58" y="88" width="14" height="10" fill="#111827" />
-      <rect x="78" y="88" width="10" height="10" fill="#111827" />
-      <rect x="94" y="88" width="6" height="10" fill="#111827" />
-    </svg>
-  );
-}
-
 export function ReceiptBarcode({ code = 'INV-2026-008', width = 200, height = 36 }) {
   const cleanCode = code.replace(/[^A-Za-z0-9]/g, '');
   return (
-    <div style={{ textAlign: 'center', margin: '4px auto' }}>
+    <div style={{ textAlign: 'center', margin: '6px auto 2px auto' }}>
       <svg width={width} height={height} viewBox="0 0 220 38" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', margin: '0 auto' }}>
         <rect x="10" y="0" width="3" height="28" fill="#111827"/>
         <rect x="15" y="0" width="2" height="28" fill="#111827"/>
@@ -100,59 +46,6 @@ export function ReceiptBarcode({ code = 'INV-2026-008', width = 200, height = 36
       </svg>
     </div>
   );
-}
-
-// Generate raw SVG string for print window
-function getRawQrSvg() {
-  return `
-    <svg width="105" height="105" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="110" height="110" fill="#ffffff"/>
-      <rect x="10" y="10" width="28" height="28" fill="#000000"/>
-      <rect x="14" y="14" width="20" height="20" fill="#ffffff"/>
-      <rect x="18" y="18" width="12" height="12" fill="#000000"/>
-      
-      <rect x="72" y="10" width="28" height="28" fill="#000000"/>
-      <rect x="76" y="14" width="20" height="20" fill="#ffffff"/>
-      <rect x="80" y="18" width="12" height="12" fill="#000000"/>
-      
-      <rect x="10" y="72" width="28" height="28" fill="#000000"/>
-      <rect x="14" y="76" width="20" height="20" fill="#ffffff"/>
-      <rect x="18" y="80" width="12" height="12" fill="#000000"/>
-
-      <rect x="44" y="12" width="6" height="6" fill="#000000"/>
-      <rect x="54" y="12" width="10" height="6" fill="#000000"/>
-      <rect x="44" y="24" width="8" height="6" fill="#000000"/>
-      <rect x="58" y="24" width="6" height="6" fill="#000000"/>
-      <rect x="48" y="34" width="14" height="6" fill="#000000"/>
-      
-      <rect x="12" y="44" width="8" height="6" fill="#000000"/>
-      <rect x="24" y="44" width="6" height="6" fill="#000000"/>
-      <rect x="34" y="44" width="12" height="6" fill="#000000"/>
-      <rect x="52" y="44" width="8" height="6" fill="#000000"/>
-      <rect x="66" y="44" width="14" height="6" fill="#000000"/>
-      <rect x="86" y="44" width="12" height="6" fill="#000000"/>
-
-      <rect x="12" y="56" width="14" height="6" fill="#000000"/>
-      <rect x="32" y="56" width="8" height="6" fill="#000000"/>
-      <rect x="46" y="56" width="18" height="6" fill="#000000"/>
-      <rect x="70" y="56" width="6" height="6" fill="#000000"/>
-      <rect x="82" y="56" width="16" height="6" fill="#000000"/>
-
-      <rect x="44" y="68" width="6" height="6" fill="#000000"/>
-      <rect x="56" y="68" width="10" height="6" fill="#000000"/>
-      <rect x="72" y="68" width="8" height="6" fill="#000000"/>
-      <rect x="86" y="68" width="12" height="6" fill="#000000"/>
-
-      <rect x="44" y="78" width="14" height="6" fill="#000000"/>
-      <rect x="64" y="78" width="8" height="6" fill="#000000"/>
-      <rect x="78" y="78" width="18" height="6" fill="#000000"/>
-
-      <rect x="44" y="88" width="8" height="10" fill="#000000"/>
-      <rect x="58" y="88" width="14" height="10" fill="#000000"/>
-      <rect x="78" y="88" width="10" height="10" fill="#000000"/>
-      <rect x="94" y="88" width="6" height="10" fill="#000000"/>
-    </svg>
-  `;
 }
 
 function getRawBarcodeSvg(code = 'INV2026008') {
@@ -221,7 +114,6 @@ export function printThermalReceipt(receiptData) {
   } = receiptData;
 
   const formattedAmount = Number(amount || 0).toLocaleString('uz-UZ') + ' UZS';
-  const qrSvg = getRawQrSvg();
   const barcodeSvg = getRawBarcodeSvg(id.replace(/[^A-Za-z0-9]/g, ''));
 
   const receiptHtml = `
@@ -321,25 +213,16 @@ export function printThermalReceipt(receiptData) {
 
         .fiscal-badge {
           border: 1px solid #000000;
-          padding: 3px;
+          padding: 4px;
           margin: 6px 0;
           text-align: center;
           font-weight: bold;
-          font-size: 10px;
+          font-size: 9.5px;
           letter-spacing: 0.3px;
         }
 
-        .qr-section {
-          margin: 8px 0;
-          text-align: center;
-        }
-        .qr-section svg {
-          margin: 0 auto;
-          display: block;
-        }
-
         .barcode-section {
-          margin: 6px 0 2px 0;
+          margin: 8px 0 4px 0;
           text-align: center;
         }
         .barcode-section svg {
@@ -443,7 +326,7 @@ export function printThermalReceipt(receiptData) {
       </div>
 
       <div class="fiscal-badge">
-        SOLIQ QO'MITASI FISKAL TIZIMIDA QAYD ETILDI
+        ✓ SOLIQ VA FISKAL OPERATOR TIZIMIDA QAYD ETILDI
       </div>
 
       <div class="row" style="font-size: 9px;">
@@ -457,11 +340,6 @@ export function printThermalReceipt(receiptData) {
       <div class="row" style="font-size: 9px;">
         <span>Holati:</span>
         <span class="bold">MUVAFFAQIN YAKUNLANDI</span>
-      </div>
-
-      <div class="qr-section">
-        ${qrSvg}
-        <div style="font-size: 8px; margin-top: 2px;">soliq.uz tekshirish uchun skaner qiling</div>
       </div>
 
       <div class="barcode-section">
@@ -510,7 +388,6 @@ export function printOfficialInvoiceA4(receiptData) {
   } = receiptData;
 
   const formattedAmount = Number(amount || 0).toLocaleString('uz-UZ') + ' UZS';
-  const qrSvg = getRawQrSvg();
 
   const invoiceHtml = `
     <!DOCTYPE html>
@@ -634,11 +511,8 @@ export function printOfficialInvoiceA4(receiptData) {
           flex: 1;
           border: 1px dashed #0891b2;
           background: #f0fdfa;
-          padding: 12px 16px;
+          padding: 14px 18px;
           border-radius: 8px;
-          display: flex;
-          gap: 16px;
-          align-items: center;
         }
         .total-summary-card {
           width: 280px;
@@ -728,12 +602,11 @@ export function printOfficialInvoiceA4(receiptData) {
 
       <div class="summary-wrapper">
         <div class="fiscal-info-card">
-          <div>${qrSvg}</div>
-          <div style="font-size: 9pt; line-height: 1.4;">
-            <div style="font-weight: bold; color: #0f766e; margin-bottom: 3px;">SOLIQ QO'MITASI TIZIMIDA TASDIQLANGAN</div>
+          <div style="font-size: 9.5pt; line-height: 1.45;">
+            <div style="font-weight: bold; color: #0f766e; margin-bottom: 4px;">✓ SOLIQ QO'MITASI FISKAL TIZIMIDA QAYD ETILGAN</div>
             <div><strong>ФМ (Fiskal modul):</strong> ${fmNumber}</div>
             <div><strong>ФП (Fiskal belgi):</strong> ${fiscalNumber}</div>
-            <div style="color: #64748b; font-size: 8pt; margin-top: 4px;">Ushbu chek soliq va sug'urta kompensatsiyalari uchun rasmiy asos bo'ladi.</div>
+            <div style="color: #64748b; font-size: 8.5pt; margin-top: 5px;">Ushbu chek soliq va sug'urta kompensatsiyalari uchun rasmiy asos bo'ladi.</div>
           </div>
         </div>
 

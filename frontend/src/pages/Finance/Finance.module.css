@@ -1252,30 +1252,20 @@
   justify-content: center;
 }
 
-/* Realistic Thermal Slip with Serrated Cut */
+/* Clean, Crisp Thermal Paper Slip */
 .receiptThermalPaper {
   width: 100%;
-  max-width: 370px;
-  background-color: #FAFAF7;
+  max-width: 380px;
+  background-color: #FFFFFF;
   color: #111827;
-  padding: 20px 18px 22px 18px;
-  border-radius: 4px 4px 0 0;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  padding: 22px 20px 24px 20px;
+  border-radius: 12px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
   font-family: 'Courier New', Courier, 'Lucida Console', monospace;
   position: relative;
   font-size: 11.5px;
   line-height: 1.35;
-}
-
-.receiptThermalPaper::after {
-  content: '';
-  position: absolute;
-  bottom: -9px;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: radial-gradient(circle, transparent, transparent 52%, #FAFAF7 53%, #FAFAF7 100%);
-  background-size: 12px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Realistic A4 Medical Invoice Slip */
