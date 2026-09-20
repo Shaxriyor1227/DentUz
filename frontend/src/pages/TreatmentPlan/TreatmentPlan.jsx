@@ -730,6 +730,7 @@ export default function TreatmentPlan() {
         open={Boolean(toastNotice)}
         title="Muolaja holati yangilandi"
         message={toastNotice}
+        type="success"
         duration={3500}
         onClose={() => setToastNotice(null)}
       />
