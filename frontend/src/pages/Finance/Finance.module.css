@@ -186,16 +186,25 @@
 
 .paymentMethodChip {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 6px;
   background-color: var(--color-surface-container);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-subtle);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   letter-spacing: 0.02em;
+  transition: all 0.15s ease;
 }
+
+.paymentMethodChip:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-container-high);
+}
+
 
 /* Export Dropdown in Finance */
 .exportGroup {
@@ -639,3 +648,408 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(6, 182, 212, 0.45);
 }
+
+/* ════════════════════════════════════════════════════════════
+   QUICK ACTION BUTTONS & ONLINE PAYMENTS (QR, PAYME, CLICK)
+   ════════════════════════════════════════════════════════════ */
+.quickPayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.quickPayBtn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+}
+
+.viewReceiptBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.viewReceiptBtn:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-cyan);
+  border-color: var(--color-cyan);
+}
+
+.onlinePaymentBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  animation: modalFadeIn 0.2s ease;
+}
+
+.onlinePaymentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.onlinePaymentTitle {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.onlineBadge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--color-cyan-hover);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.onlineBody {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.qrContainer {
+  width: 100px;
+  height: 100px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.qrIconBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onlineDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 7px 12px;
+  border-radius: var(--radius-md);
+  gap: 8px;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardLabel {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cardNum {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.06em;
+}
+
+.copyCardBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.copyCardBtn:hover {
+  background: var(--color-cyan);
+  color: #FFFFFF;
+  border-color: var(--color-cyan);
+}
+
+.sendSmsBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-cyan);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-cyan);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sendSmsBtn:hover {
+  background: rgba(6, 182, 212, 0.1);
+  border-style: solid;
+}
+
+.methodCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  gap: 6px;
+}
+
+.methodCard:hover {
+  border-color: var(--color-cyan);
+  background-color: var(--color-surface-container);
+  transform: translateY(-1px);
+}
+
+.methodCardActive {
+  border-color: var(--color-cyan) !important;
+  background-color: rgba(6, 182, 212, 0.12) !important;
+  color: var(--color-cyan-hover) !important;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25);
+}
+
+.methodLogoWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+/* Receipt Modal Styles */
+.receiptModalCard {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.receiptTopHeader {
+  text-align: center;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.receiptClinicTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.receiptClinicSub {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 3px;
+}
+
+.receiptDocNumber {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  margin-top: 8px;
+  display: inline-block;
+  background: rgba(6, 182, 212, 0.1);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.receiptBody {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.receiptLabel {
+  color: var(--color-text-secondary);
+}
+
+.receiptVal {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.receiptTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border);
+  font-size: 15px;
+}
+
+.receiptTotalLabel {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.receiptTotalVal {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--color-cyan-hover);
+}
+
+.receiptFiscalBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.receiptActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.receiptPrintBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
+  transition: all 0.2s ease;
+}
+
+.receiptPrintBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45);
+}
+
+.receiptCloseBtn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.receiptCloseBtn:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-text-primary);
+}
+
