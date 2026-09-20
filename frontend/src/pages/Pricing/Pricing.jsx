@@ -97,23 +97,23 @@ export default function Pricing() {
             <ul className={styles.featureList}>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '1 Practitioner' : '1 ta Shifokor'}</span>
+                <span>{isEn ? '1 Practitioner (1 Operatory Chair)' : '1 ta Shifokor (1 ta kreslo)'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '2 Core Modules (EMR + Calendar)' : '2 ta Modul (Karta + Taqvim)'}</span>
+                <span>{isEn ? 'Unlimited Patient Database' : 'Cheksiz bemorlar bazasi'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? 'Digital Dental Chart' : 'Raqamli tish xaritasi'}</span>
+                <span>{isEn ? '2 Core Modules (EMR 043/h + Calendar)' : '2 ta Modul (043/h Karta + Taqvim)'}</span>
+              </li>
+              <li className={styles.featureItem}>
+                <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
+                <span>{isEn ? '1 GB Cloud Storage (Docs & Scans)' : '1 GB Bulutli xotira'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="cancel" size={18} className={styles.featureIconCross} />
                 <span className={styles.featureDisabledText}>{isEn ? 'Automated SMS Reminders' : 'SMS avto-eslatmalar'}</span>
-              </li>
-              <li className={styles.featureItem}>
-                <Icon name="cancel" size={18} className={styles.featureIconCross} />
-                <span className={styles.featureDisabledText}>{isEn ? 'Patient Dossier & Radiographs' : 'Bemor hujjatlari & Rentgen'}</span>
               </li>
             </ul>
           </div>
@@ -138,7 +138,7 @@ export default function Pricing() {
             <ul className={styles.featureList}>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '1 - 3 Practitioners' : '1 - 3 ta Shifokor'}</span>
+                <span>{isEn ? '1 - 3 Practitioners (Up to 3 Chairs)' : '1 - 3 ta Shifokor (3 tagacha kreslo)'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
@@ -146,11 +146,11 @@ export default function Pricing() {
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '150 SMS / mo' : '150 ta SMS / oy'}</span>
+                <span>{isEn ? 'Unlimited Patients • 15 GB Cloud' : 'Cheksiz bemorlar • 15 GB xotira'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '150 Patient Files / mo' : '150 ta Bemor hujjati / oy'}</span>
+                <span>{isEn ? '200 SMS / mo Included' : '200 ta SMS / oy kiritilgan'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
@@ -180,7 +180,7 @@ export default function Pricing() {
             <ul className={styles.featureList}>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '1 Doctor + 1 Assistant' : '1 Shifokor + 1 Assistent'}</span>
+                <span>{isEn ? '5 - 10 Practitioners (Unlimited Chairs)' : '5 - 10 ta Shifokor (Cheksiz kreslo)'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
@@ -188,15 +188,15 @@ export default function Pricing() {
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span className={styles.featureHighlightedChip}>{isEn ? '350 SMS / mo' : '350 ta SMS / oy'}</span>
+                <span>{isEn ? 'Unlimited Patients • 50 GB Cloud' : 'Cheksiz bemorlar • 50 GB xotira'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '600 Patient Files / mo' : '600 ta Bemor hujjati / oy'}</span>
+                <span className={styles.featureHighlightedChip}>{isEn ? '500 SMS / mo Included' : '500 ta SMS / oy kiritilgan'}</span>
               </li>
               <li className={styles.featureItem}>
                 <Icon name="check_circle" size={18} className={styles.featureIconCheck} />
-                <span>{isEn ? '24/7 Dedicated Live Support' : '24/7 Jonli qo\'llab-quvvatlash'}</span>
+                <span>{isEn ? '24/7 Dedicated Support & SLA' : '24/7 Jonli qo\'llab-quvvatlash va SLA'}</span>
               </li>
             </ul>
           </div>
@@ -275,15 +275,15 @@ export default function Pricing() {
                 <td>{isEn ? 'Staff accounts & operatory chairs' : 'Foydalanuvchilar va kreslolar soni'}</td>
                 <td className={styles.compareTdValue}>{isEn ? '1 Practitioner' : '1 Shifokor'}</td>
                 <td className={styles.compareTdValue}>{isEn ? 'Up to 3' : '3 tagacha'}</td>
-                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '1 Doctor + 2 Assistants' : '1 Shifokor + 2 Assistent'}</td>
+                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '5 - 10 Practitioners' : '5 - 10 ta Shifokor'}</td>
                 <td className={styles.compareTdValue}>{isEn ? 'Unlimited' : 'Cheksiz'}</td>
               </tr>
               <tr>
                 <td>{isEn ? 'Digital Patient Record (Form 043/h)' : 'Elektron bemor kartasi (043/h shakl)'}</td>
-                <td className={styles.compareTdValue}>✓</td>
-                <td className={styles.compareTdValue}>✓</td>
-                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>✓</td>
-                <td className={styles.compareTdValue}>✓</td>
+                <td className={styles.compareTdValue}>✓ ({isEn ? 'Unlimited' : 'Cheksiz'})</td>
+                <td className={styles.compareTdValue}>✓ ({isEn ? 'Unlimited' : 'Cheksiz'})</td>
+                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>✓ ({isEn ? 'Unlimited' : 'Cheksiz'})</td>
+                <td className={styles.compareTdValue}>✓ ({isEn ? 'Unlimited' : 'Cheksiz'})</td>
               </tr>
               <tr>
                 <td>{isEn ? 'Smart scheduler & operatory calendar' : 'Aqlli taqvim va kreslolar grafigi'}</td>
@@ -319,13 +319,13 @@ export default function Pricing() {
               </tr>
 
               <tr className={styles.compareCategoryRow}>
-                <td colSpan="5">{isEn ? 'Documents & Radiograph Archive' : 'Hujjatlar & Rentgen Arxiv'}</td>
+                <td colSpan="5">{isEn ? 'Documents & Cloud Storage' : 'Hujjatlar & Bulutli Xotira'}</td>
               </tr>
               <tr>
-                <td>Rentgen (OPG, Bitewing) & 3D CBCT</td>
-                <td className={styles.compareTdValue}>✕</td>
-                <td className={styles.compareTdValue}>{isEn ? '150 / mo' : '150 ta / oy'}</td>
-                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '600 / mo' : '600 ta / oy'}</td>
+                <td>{isEn ? 'Radiographs & Secure Cloud Storage' : 'Rentgen va Xavfsiz Bulutli Xotira'}</td>
+                <td className={styles.compareTdValue}>1 GB</td>
+                <td className={styles.compareTdValue}>15 GB</td>
+                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>50 GB</td>
                 <td className={styles.compareTdValue}>{isEn ? 'Unlimited' : 'Cheksiz'}</td>
               </tr>
               <tr>
@@ -342,8 +342,8 @@ export default function Pricing() {
               <tr>
                 <td>{isEn ? 'Automated SMS reminders & greetings' : 'SMS avto-eslatmalar va tabriklar'}</td>
                 <td className={styles.compareTdValue}>✕</td>
-                <td className={styles.compareTdValue}>{isEn ? '150 / mo' : '150 ta / oy'}</td>
-                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '350 / mo' : '350 ta / oy'}</td>
+                <td className={styles.compareTdValue}>{isEn ? '200 / mo' : '200 ta / oy'}</td>
+                <td className={`${styles.compareTdValue} ${styles.compareTdVip}`}>{isEn ? '500 / mo' : '500 ta / oy'}</td>
                 <td className={styles.compareTdValue}>{isEn ? 'Custom' : 'Kelishuv asosida'}</td>
               </tr>
 

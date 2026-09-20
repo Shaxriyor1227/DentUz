@@ -191,7 +191,7 @@
     },
     "detailsPanel": {
       "title": "Tish tafsilotlari",
-      "toothPrefix": "Tish #",
+      "toothPrefix": "Tish ",
       "currentStatus": "Hozirgi Holat (Status)",
       "clinicalDiagnosis": "Klinik Tashxis",
       "treatmentPlanNote": "Muolaja Rejasi va Shifokor Izohi",
@@ -697,7 +697,7 @@
         "title": "Har bir bemor bitta varaqda.",
         "body": "Rentgen tasvirlari, davolash rejasi, to'lovlar va tishlar xaritasi yagona profil ostida jamlangan.",
         "allergy": "Allergiya: Penitsillin",
-        "treatmentNote": "Oxirgi muolaja: Tish #16 endodontiya va ildiz kanallari tozalash."
+        "treatmentNote": "Oxirgi muolaja: 16-tish endodontiya va ildiz kanallari tozalash."
       },
       "story3": {
         "tag": "03 / Moliyaviy intizom",

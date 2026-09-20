@@ -258,7 +258,7 @@ export default function PatientProfile() {
 
   const currentTooth = chartData[selectedToothId] || {
     id: selectedToothId,
-    name: `Tish #${selectedToothId}`,
+    name: `${selectedToothId}-tish`,
     diagnosis: doctorDiag,
     plan: doctorPlan,
     history: []

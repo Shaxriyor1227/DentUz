@@ -47,7 +47,7 @@ const allToothIds = [
 allToothIds.forEach((id) => {
   initialChart[id] = {
     id: String(id),
-    name: toothNames[id] || `Tish #${id}`,
+    name: toothNames[id] || `${id}-tish`,
     status: 'healthy', // healthy, caries, treated, crown, missing
     diagnosis: 'Patologiyasiz, normada',
     plan: 'Profilaktik kuzatuv',

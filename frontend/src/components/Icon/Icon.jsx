@@ -176,6 +176,16 @@ const ICONS = {
       <path d="M22 21H2V3h2v16h18v2zM6 16l4-5 3 3 6-8 1.5 1.5-7.5 10-3-3-4 5z"/>
     </svg>
   ),
+  analytics: (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-5h2v5zm4 0h-2v-9h2v9zm4 0h-2v-7h2v7z"/>
+    </svg>
+  ),
+  image: (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+    </svg>
+  ),
   person: (
     <svg viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -193,7 +203,7 @@ const ICONS = {
   ),
 };
 
-export default function Icon({ name, style, className, size = 20, 'aria-hidden': ariaHidden = true }) {
+function Icon({ name, style, className, size = 20, 'aria-hidden': ariaHidden = true }) {
   const svg = ICONS[name];
   
   if (!svg) {
@@ -241,3 +251,5 @@ export default function Icon({ name, style, className, size = 20, 'aria-hidden':
     </span>
   );
 }
+
+export default React.memo(Icon);

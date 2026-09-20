@@ -212,7 +212,7 @@ export default function TreatmentPlan() {
             arrow_back
           </span>
           <span>
-            {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (#P-1042)</strong>
+            {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (P-1042)</strong>
           </span>
         </Link>
         <StatusPill status="in_progress" label={i18n.language === 'en' ? 'Active Plan' : 'Faol reja'} />
@@ -222,7 +222,7 @@ export default function TreatmentPlan() {
       <div className={styles.headerCard}>
         <div className={styles.headerInfo}>
           <div className={styles.tagRow}>
-            <span className={styles.planTag}>{i18n.language === 'en' ? 'Plan' : 'Reja'} #TR-8821</span>
+            <span className={styles.planTag}>{i18n.language === 'en' ? 'Plan' : 'Reja'} TR-8821</span>
             <span style={{ color: 'var(--color-border)' }}>•</span>
             <span className={styles.protocolType}>{i18n.language === 'en' ? 'Therapeutic & Prosthetic Protocol' : 'Terapevtik va ortopedik protokol'}</span>
           </div>
@@ -238,7 +238,7 @@ export default function TreatmentPlan() {
           <div className={styles.metaRow}>
             <span>{t('treatmentPlan.patient')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov</strong></span>
             <span className={styles.metaSeparator}>/</span>
-            <span>ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>#P-1042</strong></span>
+            <span>ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>P-1042</strong></span>
             <span className={styles.metaSeparator}>/</span>
             <span>{t('treatmentPlan.date')}: 18-Sentabr, 2026</span>
             <span className={styles.metaSeparator}>/</span>
@@ -568,7 +568,7 @@ export default function TreatmentPlan() {
                     </div>
                     <div className={styles.pdfDossierRow}>
                       <span className={styles.pdfDossierLabel}>ID:</span>
-                      <span className={styles.pdfDossierVal}>#P-1042</span>
+                      <span className={styles.pdfDossierVal}>P-1042</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
                       <span className={styles.pdfDossierLabel}>{t('treatmentPlan.pdf.phone')}:</span>

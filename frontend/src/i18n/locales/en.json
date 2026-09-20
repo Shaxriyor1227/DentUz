@@ -191,7 +191,7 @@
     },
     "detailsPanel": {
       "title": "Tooth Diagnostics",
-      "toothPrefix": "Tooth #",
+      "toothPrefix": "Tooth ",
       "currentStatus": "Current Condition (Status)",
       "clinicalDiagnosis": "Clinical Diagnosis",
       "treatmentPlanNote": "Treatment Protocol & Clinical Note",
@@ -697,7 +697,7 @@
         "title": "Every patient file on a single pane of glass.",
         "body": "Radiographic scans, phased treatment plans, clinical history, and financial billing unified in one secure dossier.",
         "allergy": "Allergy: Penicillin",
-        "treatmentNote": "Last procedure: Tooth #16 endodontic root canal debridement."
+        "treatmentNote": "Last procedure: Tooth 16 endodontic root canal debridement."
       },
       "story3": {
         "tag": "03 / Financial Control",

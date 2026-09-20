@@ -18,37 +18,37 @@ const HERO_LOWER_TEETH = [
 ];
 
 const TOOTH_DESCRIPTIONS = {
-  '11': "Tish #11 • Yuqori o'ng markaziy kurak: Emal butun, karies yo'q, sog'lom",
-  '12': "Tish #12 • Yuqori o'ng lateral kurak: Tabiiy holatda, sog'lom",
-  '13': "Tish #13 • Yuqori o'ng qoziq tish: Sog'lom anatomik shakl",
-  '14': "Tish #14 • Yuqori o'ng birinchi premolyar: Reabilitatsiya va implantatsiya",
-  '16': "Tish #16 • Yuqori o'ng birinchi molyar: Karies davolash va sirkoniy toj",
-  '21': "Tish #21 • Yuqori chap markaziy kurak: Metall-keramika toj",
-  '22': "Tish #22 • Yuqori chap lateral kurak: Sog'lom holatda",
-  '24': "Tish #24 • Yuqori chap premolyar: Fissuralar profilaktikasi tavsiya etiladi",
-  '26': "Tish #26 • Yuqori chap molyar: Fissura germetizatsiyasi muvaffaqiyatli",
-  '31': "Tish #31 • Pastki chap markaziy kurak: Tish toshlari ultratovushda tozalangan",
-  '36': "Tish #36 • Pastki chap birinchi molyar: Estetik kompozit plomba",
-  '41': "Tish #41 • Pastki o'ng markaziy kurak: Sog'lom va mustahkam",
-  '46': "Tish #46 • Pastki o'ng birinchi molyar: Kompozit restavratsiya barqaror",
-  '48': "Tish #48 • Aql tishi: Rentgen nazoratida, to'g'ri o'sgan"
+  '11': "11-tish • Yuqori o'ng markaziy kurak: Emal butun, karies yo'q, sog'lom",
+  '12': "12-tish • Yuqori o'ng lateral kurak: Tabiiy holatda, sog'lom",
+  '13': "13-tish • Yuqori o'ng qoziq tish: Sog'lom anatomik shakl",
+  '14': "14-tish • Yuqori o'ng birinchi premolyar: Reabilitatsiya va implantatsiya",
+  '16': "16-tish • Yuqori o'ng birinchi molyar: Karies davolash va sirkoniy toj",
+  '21': "21-tish • Yuqori chap markaziy kurak: Metall-keramika toj",
+  '22': "22-tish • Yuqori chap lateral kurak: Sog'lom holatda",
+  '24': "24-tish • Yuqori chap premolyar: Fissuralar profilaktikasi tavsiya etiladi",
+  '26': "26-tish • Yuqori chap molyar: Fissura germetizatsiyasi muvaffaqiyatli",
+  '31': "31-tish • Pastki chap markaziy kurak: Tish toshlari ultratovushda tozalangan",
+  '36': "36-tish • Pastki chap birinchi molyar: Estetik kompozit plomba",
+  '41': "41-tish • Pastki o'ng markaziy kurak: Sog'lom va mustahkam",
+  '46': "46-tish • Pastki o'ng birinchi molyar: Kompozit restavratsiya barqaror",
+  '48': "48-tish • Aql tishi: Rentgen nazoratida, to'g'ri o'sgan"
 };
 
 const TOOTH_DESCRIPTIONS_EN = {
-  '11': "Tooth #11 • Maxillary right central incisor: Intact enamel, caries-free, healthy",
-  '12': "Tooth #12 • Maxillary right lateral incisor: Natural presentation, healthy",
-  '13': "Tooth #13 • Maxillary right canine: Sound anatomical crown",
-  '14': "Tooth #14 • Maxillary right first premolar: Implant candidate & restoration",
-  '16': "Tooth #16 • Maxillary right first molar: Caries therapy and zirconia crown",
-  '21': "Tooth #21 • Maxillary left central incisor: PFM crown intact",
-  '22': "Tooth #22 • Maxillary left lateral incisor: Sound periodontal support",
-  '24': "Tooth #24 • Maxillary left premolar: Pit & fissure sealant recommended",
-  '26': "Tooth #26 • Maxillary left molar: Occlusal sealing successful",
-  '31': "Tooth #31 • Mandibular left central incisor: Ultrasonic calculus scaling completed",
-  '36': "Tooth #36 • Mandibular left first molar: Aesthetic composite restoration",
-  '41': "Tooth #41 • Mandibular right central incisor: Healthy and stable",
-  '46': "Tooth #46 • Mandibular right first molar: Composite restoration intact",
-  '48': "Tooth #48 • Third molar (Wisdom): Radiographically monitored, erupted"
+  '11': "Tooth 11 • Maxillary right central incisor: Intact enamel, caries-free, healthy",
+  '12': "Tooth 12 • Maxillary right lateral incisor: Natural presentation, healthy",
+  '13': "Tooth 13 • Maxillary right canine: Sound anatomical crown",
+  '14': "Tooth 14 • Maxillary right first premolar: Implant candidate & restoration",
+  '16': "Tooth 16 • Maxillary right first molar: Caries therapy and zirconia crown",
+  '21': "Tooth 21 • Maxillary left central incisor: PFM crown intact",
+  '22': "Tooth 22 • Maxillary left lateral incisor: Sound periodontal support",
+  '24': "Tooth 24 • Maxillary left premolar: Pit & fissure sealant recommended",
+  '26': "Tooth 26 • Maxillary left molar: Occlusal sealing successful",
+  '31': "Tooth 31 • Mandibular left central incisor: Ultrasonic calculus scaling completed",
+  '36': "Tooth 36 • Mandibular left first molar: Aesthetic composite restoration",
+  '41': "Tooth 41 • Mandibular right central incisor: Healthy and stable",
+  '46': "Tooth 46 • Mandibular right first molar: Composite restoration intact",
+  '48': "Tooth 48 • Third molar (Wisdom): Radiographically monitored, erupted"
 };
 
 export default function Homepage() {
@@ -67,8 +67,8 @@ export default function Homepage() {
   };
 
   const currentDesc = isEn
-    ? (TOOTH_DESCRIPTIONS_EN[selectedTooth] || `Tooth #${selectedTooth} • Regular healthy tooth status`)
-    : (TOOTH_DESCRIPTIONS[selectedTooth] || `Tish #${selectedTooth} • Sog'lom holatda`);
+    ? (TOOTH_DESCRIPTIONS_EN[selectedTooth] || `Tooth ${selectedTooth} • Regular healthy tooth status`)
+    : (TOOTH_DESCRIPTIONS[selectedTooth] || `${selectedTooth}-tish • Sog'lom holatda`);
 
   const currentStatus = getToothStatus(selectedTooth);
 
@@ -201,7 +201,7 @@ export default function Homepage() {
                         className={styles.toothCell}
                         style={{ '--tooth-idx': idx }}
                         onClick={() => setSelectedTooth(tooth)}
-                        title={`Tish #${tooth} - ${status.label}`}
+                        title={`${tooth}-tish • ${status.label}`}
                       >
                         <div
                           className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
@@ -210,7 +210,7 @@ export default function Homepage() {
                           <span className={styles.toothNumber}>{tooth}</span>
                         </div>
                         <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
-                          #{tooth}
+                          {tooth}
                         </span>
                       </div>
                     );
@@ -233,7 +233,7 @@ export default function Homepage() {
                         className={styles.toothCell}
                         style={{ '--tooth-idx': idx + 16 }}
                         onClick={() => setSelectedTooth(tooth)}
-                        title={`Tish #${tooth} - ${status.label}`}
+                        title={`${tooth}-tish • ${status.label}`}
                       >
                         <div
                           className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
@@ -242,7 +242,7 @@ export default function Homepage() {
                           <span className={styles.toothNumber}>{tooth}</span>
                         </div>
                         <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
-                          #{tooth}
+                          {tooth}
                         </span>
                       </div>
                     );

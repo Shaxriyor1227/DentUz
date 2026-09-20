@@ -172,7 +172,7 @@ export default function Features() {
                 <div className={styles.patientAvatar}>AQ</div>
                 <div>
                   <div className={styles.patientName}>Anvar Qosimov</div>
-                  <div className={styles.patientMeta}>ID: #P-1042 • {isEn ? '34 yrs' : '34 yosh'}</div>
+                  <div className={styles.patientMeta}>ID: P-1042 • {isEn ? '34 yrs' : '34 yosh'}</div>
                 </div>
               </div>
               <div className={styles.allergyAlert}>
