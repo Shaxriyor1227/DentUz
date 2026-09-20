@@ -828,12 +828,13 @@
   padding-bottom: 4px;
 }
 
-/* Print Overrides */
+/* Print Overrides - Scoped to clinical print sheet only */
 @media print {
-  body * {
+  body:has(#clinical-print-sheet) * {
     visibility: hidden;
   }
-  #clinical-print-sheet, #clinical-print-sheet * {
+  body:has(#clinical-print-sheet) #clinical-print-sheet,
+  body:has(#clinical-print-sheet) #clinical-print-sheet * {
     visibility: visible;
   }
   #clinical-print-sheet {

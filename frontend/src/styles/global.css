@@ -131,3 +131,25 @@ input, select, textarea {
 .skip-to-main:focus {
   top: 0;
 }
+
+/* Print rules for Receipts and Invoices */
+@media print {
+  body:has(#dentuz-print-receipt) * {
+    visibility: hidden !important;
+  }
+  body:has(#dentuz-print-receipt) #dentuz-print-receipt,
+  body:has(#dentuz-print-receipt) #dentuz-print-receipt * {
+    visibility: visible !important;
+  }
+  #dentuz-print-receipt {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    z-index: 9999999 !important;
+  }
+}

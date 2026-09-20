@@ -212,6 +212,7 @@ export default function Finance() {
   const [showCollectModal, setShowCollectModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeReceipt, setActiveReceipt] = useState(null);
+  const [receiptPrintFormat, setReceiptPrintFormat] = useState('thermal'); // 'thermal' | 'a4'
   const [copiedCard, setCopiedCard] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     patient: 'Anvar Qosimov',
@@ -406,6 +407,15 @@ export default function Finance() {
       address: 'Toshkent sh., Chilonzor t., Bunyodkor shoh ko\'chasi 42',
       phone: '+998 (71) 200-44-22'
     });
+  };
+
+  const handleDirectPrintReceipt = () => {
+    if (!activeReceipt) return;
+    if (receiptPrintFormat === 'thermal') {
+      printThermalReceipt(activeReceipt);
+    } else {
+      printOfficialInvoiceA4(activeReceipt);
+    }
   };
 
   const handleCollectSubmit = (e) => {
@@ -1152,158 +1162,244 @@ export default function Finance() {
           <div className={styles.receiptModalCard} onClick={(e) => e.stopPropagation()}>
             <div className={styles.receiptTopControl}>
               <div className={styles.receiptPreviewTitle}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan-hover)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '19px', color: 'var(--color-cyan-hover)' }}>
                   receipt_long
                 </span>
-                <span>Kassa Kvitansiyasi</span>
+                <span>Kvitansiya / Chek</span>
               </div>
-              <div className={styles.receiptFormatBadge}>
-                80mm Termo Chek
+              <div className={styles.receiptFormatTabs}>
+                <button
+                  type="button"
+                  className={`${styles.receiptFormatTab} ${receiptPrintFormat === 'thermal' ? styles.receiptFormatTabActive : ''}`}
+                  onClick={() => setReceiptPrintFormat('thermal')}
+                >
+                  🧾 80mm Termo Chek
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.receiptFormatTab} ${receiptPrintFormat === 'a4' ? styles.receiptFormatTabActive : ''}`}
+                  onClick={() => setReceiptPrintFormat('a4')}
+                >
+                  📄 A4 Blank (PDF)
+                </button>
               </div>
             </div>
 
             <div className={styles.receiptPaperScrollArea}>
-              <div className={styles.receiptThermalPaper}>
-                {/* Clinic Header */}
-                <div className={styles.paperHeader}>
-                  <div className={styles.paperClinicTitle}>DentUz Dental Clinic</div>
-                  <div className={styles.paperClinicSub} style={{ fontWeight: 'bold' }}>MCHJ "DENTUZ MED SERVIS"</div>
-                  <div className={styles.paperClinicSub}>STIR (INN): 308 124 591 &bull; Litsenziya: MED-UZ-2021-9988</div>
-                  <div className={styles.paperClinicSub}>Toshkent sh., Bunyodkor shoh k. 42 &bull; Tel: +998 71 200 44 22</div>
-                </div>
-
-                <div className={styles.paperDividerSolid} />
-
-                {/* Receipt Identification */}
-                <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '11px', marginBottom: '4px' }}>
-                  *** FISKAL TO'LOV CHEKI ***
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Chek №:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.id}</span>
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Sana va vaqt:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.date}</span>
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Kassir:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.cashier || 'Nigora R. (Kassir-1)'}</span>
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>POS Terminal:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.terminalId || 'T-88401'}</span>
-                </div>
-
-                <div className={styles.paperDividerDashed} />
-
-                {/* Patient and Doctor */}
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Bemor:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.patient}</span>
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Karta ID:</span>
-                  <span className={styles.paperRowVal}>#{activeReceipt.patientId}</span>
-                </div>
-                <div className={styles.paperRow}>
-                  <span className={styles.paperRowLabel}>Shifokor:</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.doctor}</span>
-                </div>
-
-                <div className={styles.paperDividerDashed} />
-
-                {/* Items */}
-                <div className={styles.paperTableHeader}>
-                  <span>Xizmat / Muolaja</span>
-                  <span>Summa</span>
-                </div>
-                <div className={styles.paperTableItem}>
-                  <span>1. {activeReceipt.procedure}</span>
-                  <span>{formatUZS(activeReceipt.amount)}</span>
-                </div>
-                <div className={styles.paperRow} style={{ fontSize: '9px', color: '#6B7280', marginTop: '2px' }}>
-                  <span>MXIK: 08621001001000000 (Stomatologiya)</span>
-                  <span>1 x {formatUZS(activeReceipt.amount)}</span>
-                </div>
-
-                {/* Total Box */}
-                <div className={styles.paperTotalBox}>
-                  <div className={styles.paperRow} style={{ alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 'bold' }}>JAMI TO'LOV:</span>
-                    <span className={styles.paperTotalAmount}>{formatUZS(activeReceipt.amount)}</span>
+              {receiptPrintFormat === 'thermal' ? (
+                /* Authentic 80mm Thermal Receipt Paper */
+                <div className={styles.receiptThermalPaper}>
+                  {/* Clinic Header */}
+                  <div className={styles.paperHeader}>
+                    <div className={styles.paperClinicTitle}>DentUz Dental Clinic</div>
+                    <div className={styles.paperClinicSub} style={{ fontWeight: 'bold' }}>MCHJ "DENTUZ MED SERVIS"</div>
+                    <div className={styles.paperClinicSub}>STIR (INN): 308 124 591 &bull; Litsenziya: MED-UZ-2021-9988</div>
+                    <div className={styles.paperClinicSub}>Toshkent sh., Bunyodkor shoh k. 42 &bull; Tel: +998 71 200 44 22</div>
                   </div>
-                  <div className={styles.paperRow} style={{ marginTop: '3px' }}>
-                    <span className={styles.paperRowLabel}>To'lov turi:</span>
-                    <span className={styles.paperRowVal} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      {getPaymentLogo(activeReceipt.method, 14)}
-                      <span>{activeReceipt.method}</span>
-                    </span>
+
+                  <div className={styles.paperDividerSolid} />
+
+                  {/* Receipt Identification */}
+                  <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '11px', marginBottom: '4px' }}>
+                    *** FISKAL TO'LOV CHEKI ***
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Chek №:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.id}</span>
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Sana va vaqt:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.date}</span>
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Kassir:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.cashier || 'Nigora R. (Kassir-1)'}</span>
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>POS Terminal:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.terminalId || 'T-88401'}</span>
+                  </div>
+
+                  <div className={styles.paperDividerDashed} />
+
+                  {/* Patient and Doctor */}
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Bemor:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.patient}</span>
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Karta ID:</span>
+                    <span className={styles.paperRowVal}>#{activeReceipt.patientId}</span>
+                  </div>
+                  <div className={styles.paperRow}>
+                    <span className={styles.paperRowLabel}>Shifokor:</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.doctor}</span>
+                  </div>
+
+                  <div className={styles.paperDividerDashed} />
+
+                  {/* Items */}
+                  <div className={styles.paperTableHeader}>
+                    <span>Xizmat / Muolaja</span>
+                    <span>Summa</span>
+                  </div>
+                  <div className={styles.paperTableItem}>
+                    <span>1. {activeReceipt.procedure}</span>
+                    <span>{formatUZS(activeReceipt.amount)}</span>
+                  </div>
+                  <div className={styles.paperRow} style={{ fontSize: '9px', color: '#6B7280', marginTop: '2px' }}>
+                    <span>MXIK: 08621001001000000 (Stomatologiya)</span>
+                    <span>1 x {formatUZS(activeReceipt.amount)}</span>
+                  </div>
+
+                  {/* Total Box */}
+                  <div className={styles.paperTotalBox}>
+                    <div className={styles.paperRow} style={{ alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 'bold' }}>JAMI TO'LOV:</span>
+                      <span className={styles.paperTotalAmount}>{formatUZS(activeReceipt.amount)}</span>
+                    </div>
+                    <div className={styles.paperRow} style={{ marginTop: '3px' }}>
+                      <span className={styles.paperRowLabel}>To'lov turi:</span>
+                      <span className={styles.paperRowVal} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {getPaymentLogo(activeReceipt.method, 14)}
+                        <span>{activeReceipt.method}</span>
+                      </span>
+                    </div>
+                    <div className={styles.paperRow} style={{ fontSize: '9px' }}>
+                      <span className={styles.paperRowLabel}>QQS (0% imtiyoz):</span>
+                      <span>0 UZS</span>
+                    </div>
+                  </div>
+
+                  {/* Soliq verification */}
+                  <div className={styles.paperFiscalBadge}>
+                    SOLIQ VA FISKAL TIZIMDA QAYD ETILDI
                   </div>
                   <div className={styles.paperRow} style={{ fontSize: '9px' }}>
-                    <span className={styles.paperRowLabel}>QQS (0% imtiyoz):</span>
-                    <span>0 UZS</span>
+                    <span className={styles.paperRowLabel}>ФМ (Modul №):</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.fmNumber || '001928374'}</span>
+                  </div>
+                  <div className={styles.paperRow} style={{ fontSize: '9px' }}>
+                    <span className={styles.paperRowLabel}>ФП (Fiskal belgi):</span>
+                    <span className={styles.paperRowVal}>{activeReceipt.fiscalNumber || '482910481239'}</span>
+                  </div>
+
+                  {/* QR Code */}
+                  <div className={styles.paperQrBox}>
+                    <ReceiptQRCode size={84} />
+                    <div style={{ fontSize: '8.5px', color: '#6B7280', marginTop: '2px' }}>
+                      soliq.uz tekshirish uchun skaner qiling
+                    </div>
+                  </div>
+
+                  {/* Barcode */}
+                  <div className={styles.paperBarcodeBox}>
+                    <ReceiptBarcode code={activeReceipt.id} width={180} height={32} />
+                  </div>
+
+                  <div className={styles.paperDividerDouble} />
+
+                  <div className={styles.paperFooterNote}>
+                    Tashrifingiz va ishonchingiz uchun rahmat!<br />
+                    Sizga sog'lom va chiroyli tabassum tilaymiz.<br />
+                    <strong>DentUz Dental OS</strong>
                   </div>
                 </div>
+              ) : (
+                /* Official A4 Medical Invoice Slip */
+                <div className={styles.receiptA4Paper}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #0891B2', paddingBottom: '12px', marginBottom: '14px' }}>
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0891B2' }}>🏥 DentUz Stomatologiya</div>
+                      <div style={{ fontSize: '9px', color: '#64748B' }}>MCHJ "DENTUZ MED SERVIS"</div>
+                      <div style={{ fontSize: '9px', color: '#64748B' }}>STIR: 308 124 591 &bull; Litsenziya: MED-UZ-2021-9988</div>
+                      <div style={{ fontSize: '9px', color: '#64748B' }}>Tel: +998 71 200 44 22</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '800', color: '#0F172A' }}>TO'LOV KVITANSIYASI</div>
+                      <div style={{ fontSize: '10px', color: '#0891B2', fontWeight: 'bold' }}>#{activeReceipt.id}</div>
+                      <div style={{ fontSize: '8.5px', color: '#64748B', marginTop: '2px' }}>{activeReceipt.date}</div>
+                    </div>
+                  </div>
 
-                {/* Soliq verification */}
-                <div className={styles.paperFiscalBadge}>
-                  SOLIQ VA FISKAL TIZIMDA QAYD ETILDI
-                </div>
-                <div className={styles.paperRow} style={{ fontSize: '9px' }}>
-                  <span className={styles.paperRowLabel}>ФМ (Modul №):</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.fmNumber || '001928374'}</span>
-                </div>
-                <div className={styles.paperRow} style={{ fontSize: '9px' }}>
-                  <span className={styles.paperRowLabel}>ФП (Fiskal belgi):</span>
-                  <span className={styles.paperRowVal}>{activeReceipt.fiscalNumber || '482910481239'}</span>
-                </div>
+                  <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '10px', marginBottom: '12px', fontSize: '9.5px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <div style={{ color: '#64748B' }}>Bemor F.I.Sh.:</div>
+                        <div style={{ fontWeight: '700', color: '#0F172A' }}>{activeReceipt.patient}</div>
+                        <div style={{ color: '#64748B', marginTop: '4px' }}>Tibbiy karta ID: #{activeReceipt.patientId}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748B' }}>Davolovchi shifokor:</div>
+                        <div style={{ fontWeight: '700', color: '#0F172A' }}>{activeReceipt.doctor}</div>
+                        <div style={{ color: '#64748B', marginTop: '4px' }}>To'lov usuli: {activeReceipt.method}</div>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* QR Code */}
-                <div className={styles.paperQrBox}>
-                  <ReceiptQRCode size={84} />
-                  <div style={{ fontSize: '8.5px', color: '#6B7280', marginTop: '2px' }}>
-                    soliq.uz tekshirish uchun skaner qiling
+                  <div style={{ border: '1px solid #E2E8F0', borderRadius: '6px', overflow: 'hidden', marginBottom: '12px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9.5px' }}>
+                      <thead>
+                        <tr style={{ background: '#0891B2', color: '#FFFFFF', textAlign: 'left' }}>
+                          <th style={{ padding: '6px 8px' }}>Muolaja nomi</th>
+                          <th style={{ padding: '6px 8px' }}>MXIK kodi</th>
+                          <th style={{ padding: '6px 8px', textAlign: 'right' }}>Summa</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '6px 8px', borderBottom: '1px solid #E2E8F0' }}>
+                            <strong>{activeReceipt.procedure}</strong>
+                          </td>
+                          <td style={{ padding: '6px 8px', borderBottom: '1px solid #E2E8F0', fontFamily: 'monospace' }}>08621001001000000</td>
+                          <td style={{ padding: '6px 8px', borderBottom: '1px solid #E2E8F0', textAlign: 'right', fontWeight: 'bold' }}>{formatUZS(activeReceipt.amount)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0FDFA', border: '1px dashed #0891B2', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <ReceiptQRCode size={48} />
+                      <div style={{ fontSize: '8.5px', color: '#0F766E' }}>
+                        <strong>SOLIQ QO'MITASIDA RO'YXATDAN O'TGAN</strong>
+                        <div>ФМ: {activeReceipt.fmNumber || '001928374'}</div>
+                        <div>ФП: {activeReceipt.fiscalNumber || '482910481239'}</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '8.5px', color: '#64748B' }}>Jami to'langan summa:</div>
+                      <div style={{ fontSize: '14px', fontWeight: '900', color: '#0891B2' }}>{formatUZS(activeReceipt.amount)}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', fontSize: '8.5px', color: '#64748B', borderTop: '1px solid #E2E8F0', paddingTop: '10px' }}>
+                    <div>
+                      <div>Kassir / Hisobchi:</div>
+                      <div style={{ marginTop: '10px' }}>Imzo: _______________ (M.O'.)</div>
+                    </div>
+                    <div>
+                      <div>Bemor (To'lovchi):</div>
+                      <div style={{ marginTop: '10px' }}>Imzo: _______________</div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Barcode */}
-                <div className={styles.paperBarcodeBox}>
-                  <ReceiptBarcode code={activeReceipt.id} width={180} height={32} />
-                </div>
-
-                <div className={styles.paperDividerDouble} />
-
-                <div className={styles.paperFooterNote}>
-                  Tashrifingiz va ishonchingiz uchun rahmat!<br />
-                  Sizga sog'lom va chiroyli tabassum tilaymiz.<br />
-                  <strong>DentUz Dental OS</strong>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className={styles.receiptActions}>
               <button
                 type="button"
-                className={styles.receiptPrintThermalBtn}
-                onClick={() => printThermalReceipt(activeReceipt)}
-                title="80mm kassa termo-printerida chop etish"
+                className={styles.receiptPrintMainBtn}
+                onClick={handleDirectPrintReceipt}
+                title="Chekni toza va professional tarzda chop etish yoki PDF sifatida saqlash"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '19px' }}>
                   print
                 </span>
-                <span>Termo Chek</span>
-              </button>
-              <button
-                type="button"
-                className={styles.receiptPrintA4Btn}
-                onClick={() => printOfficialInvoiceA4(activeReceipt)}
-                title="A4 formatida rasmiy tibbiy kvitansiya chop etish yoki PDF saqlash"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan-hover)' }}>
-                  description
+                <span>
+                  {receiptPrintFormat === 'thermal' ? "Termo chekni chop etish (80mm)" : "A4 Kvitansiyani chop etish (PDF)"}
                 </span>
-                <span>A4 Kvitansiya (PDF)</span>
               </button>
               <button
                 type="button"
@@ -1314,6 +1410,107 @@ export default function Finance() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Hidden container specifically for clean native window.print() if triggered */}
+      {activeReceipt && (
+        <div id="dentuz-print-receipt" className={styles.printOnlySheet}>
+          {receiptPrintFormat === 'thermal' ? (
+            <div style={{ width: '76mm', margin: '0 auto', fontFamily: 'monospace', fontSize: '11px', color: '#000', padding: '6mm 4mm' }}>
+              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>DentUz Dental Clinic</div>
+                <div style={{ fontSize: '9px' }}>MCHJ "DENTUZ MED SERVIS" &bull; STIR: 308 124 591</div>
+                <div style={{ fontSize: '9px' }}>Litsenziya: MED-UZ-2021-9988 &bull; Tel: +998 71 200 44 22</div>
+              </div>
+              <div style={{ borderTop: '1px solid #000', margin: '6px 0' }} />
+              <div style={{ textAlign: 'center', fontWeight: 'bold' }}>*** FISKAL TO'LOV CHEKI ***</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Chek №:</span><strong>{activeReceipt.id}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Sana:</span><span>{activeReceipt.date}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Bemor:</span><strong>{activeReceipt.patient} (#{activeReceipt.patientId})</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Shifokor:</span><span>{activeReceipt.doctor}</span></div>
+              <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>1. {activeReceipt.procedure}</span><strong>{formatUZS(activeReceipt.amount)}</strong></div>
+              <div style={{ fontSize: '9px', color: '#555' }}>MXIK: 08621001001000000</div>
+              <div style={{ borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '4px 0', margin: '6px 0', display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '13px' }}>JAMI:</span>
+                <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatUZS(activeReceipt.amount)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px' }}><span>To'lov usuli:</span><strong>{activeReceipt.method}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px' }}><span>QQS (0%):</span><span>0 UZS</span></div>
+              <div style={{ border: '1px solid #000', textAlign: 'center', padding: '2px', margin: '6px 0', fontSize: '9px', fontWeight: 'bold' }}>
+                SOLIQ QO'MITASIDA QAYD ETILDI
+              </div>
+              <div style={{ textAlign: 'center', margin: '6px 0' }}>
+                <ReceiptQRCode size={84} />
+              </div>
+              <div style={{ textAlign: 'center', margin: '4px 0' }}>
+                <ReceiptBarcode code={activeReceipt.id} width={180} height={30} />
+              </div>
+              <div style={{ textAlign: 'center', fontSize: '9px', marginTop: '6px' }}>
+                Tashrifingiz uchun rahmat! Salomat bo'ling!<br />
+                DentUz Dental OS
+              </div>
+            </div>
+          ) : (
+            <div style={{ width: '100%', maxWidth: '700px', margin: '20px auto', fontFamily: 'sans-serif', fontSize: '11pt', color: '#000' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '3px solid #0891b2', paddingBottom: '12px' }}>
+                <div>
+                  <h2 style={{ color: '#0891b2', margin: 0 }}>DentUz Dental Clinic</h2>
+                  <div style={{ fontSize: '9pt', color: '#555' }}>MCHJ "DENTUZ MED SERVIS" &bull; STIR: 308 124 591 &bull; Litsenziya: MED-UZ-2021-9988</div>
+                  <div style={{ fontSize: '9pt', color: '#555' }}>Toshkent sh., Bunyodkor shoh ko'chasi 42 &bull; Tel: +998 (71) 200-44-22</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <h3 style={{ margin: 0 }}>TO'LOV KVITANSIYASI</h3>
+                  <div style={{ fontWeight: 'bold', color: '#0891b2' }}>#{activeReceipt.id}</div>
+                  <div style={{ fontSize: '9pt', color: '#555' }}>{activeReceipt.date}</div>
+                </div>
+              </div>
+              <div style={{ margin: '18px 0', padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div><strong>Bemor:</strong> {activeReceipt.patient} (ID: #{activeReceipt.patientId})</div>
+                  <div><strong>Davolovchi shifokor:</strong> {activeReceipt.doctor}</div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                  <div><strong>To'lov usuli:</strong> {activeReceipt.method}</div>
+                  <div><strong>Holati:</strong> To'langan (Fiskal tasdiqlangan)</div>
+                </div>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', margin: '18px 0' }}>
+                <thead>
+                  <tr style={{ background: '#0891b2', color: '#fff' }}>
+                    <th style={{ padding: '8px', textAlign: 'left' }}>Xizmat / Muolaja nomi</th>
+                    <th style={{ padding: '8px', textAlign: 'left' }}>MXIK Kodi</th>
+                    <th style={{ padding: '8px', textAlign: 'right' }}>Summa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #e2e8f0' }}>{activeReceipt.procedure}</td>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #e2e8f0', fontFamily: 'monospace' }}>08621001001000000</td>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #e2e8f0', textAlign: 'right', fontWeight: 'bold' }}>{formatUZS(activeReceipt.amount)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '2px solid #000', paddingTop: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <ReceiptQRCode size={60} />
+                  <div style={{ fontSize: '8pt', color: '#444' }}>
+                    <strong>SOLIQ QO'MITASI FISKAL TIZIMIDA QAYD ETILGAN</strong><br />
+                    ФМ: {activeReceipt.fmNumber || '001928374'} &bull; ФП: {activeReceipt.fiscalNumber || '482910481239'}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '10pt', color: '#555' }}>JAMI TO'LOV:</div>
+                  <div style={{ fontSize: '16pt', fontWeight: 'bold', color: '#0891b2' }}>{formatUZS(activeReceipt.amount)}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '10px', borderTop: '1px solid #999', fontSize: '9pt' }}>
+                <div>Kassir imzosi: _____________________ (M.O'.)</div>
+                <div>Bemor imzosi: _____________________</div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
