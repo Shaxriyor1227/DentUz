@@ -147,6 +147,38 @@ export default function TreatmentPlan() {
     URL.revokeObjectURL(url);
   };
 
+  const [exportingExcel, setExportingExcel] = useState(false);
+
+  const handleExportExcel = async () => {
+    try {
+      setExportingExcel(true);
+      const { exportTreatmentPlanToExcel } = await import('../../utils/exportTreatmentPlanExcel');
+      await exportTreatmentPlanToExcel({
+        planId: "TR-8821",
+        planTitle: "Kompleks reabilitatsiya va endodontiya",
+        patient: {
+          name: "Anvar Qosimov",
+          id: "P-1042",
+          phone: "+998 90 842 11 00",
+          doctor: "Dr. J. Azimov"
+        },
+        clinic: {
+          name: "Toshkent Dental Clinic",
+          phone: "+998 71 200 44 22"
+        },
+        items,
+        totalAmount,
+        paidAmount,
+        remainingAmount,
+        language: i18n.language
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setExportingExcel(false);
+    }
+  };
+
   const handleAddStep = (e) => {
     e.preventDefault();
     if (!newStep.title) return;
@@ -295,9 +327,14 @@ export default function TreatmentPlan() {
           <span style={{ textAlign: 'right' }}>{t('treatmentPlan.cost')} & {t('treatmentPlan.status')}</span>
         </div>
 
-        {items.map((proc) => (
-          <div key={proc.step} className={styles.stepRow}>
-            <div className={styles.stepNum}>{proc.step}</div>
+        {items.map((proc) => {
+          const isOpen = openDropdownStep === proc.step;
+          return (
+            <div
+              key={proc.step}
+              className={`${styles.stepRow} ${isOpen ? styles.stepRowActiveDropdown : ''}`}
+            >
+              <div className={styles.stepNum}>{proc.step}</div>
             <div className={styles.stepDetails}>
               <div className={styles.stepTitle}>{proc.title}</div>
               <div className={styles.stepDesc}>{proc.desc}</div>
@@ -361,7 +398,8 @@ export default function TreatmentPlan() {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 5. Total calculation summary card */}
@@ -513,6 +551,19 @@ export default function TreatmentPlan() {
                     print
                   </span>
                   <span>{t('treatmentPlan.printOfficialPdf')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.pdfActionBtn} ${styles.pdfJsonBtn}`}
+                  onClick={handleExportExcel}
+                  disabled={exportingExcel}
+                  title={i18n.language === 'en' ? "Download Treatment Plan as Excel (.xlsx)" : "Davolash rejasi smetasini Excel (.xlsx) formatida yuklab olish"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
+                    table_view
+                  </span>
+                  <span>{exportingExcel ? '...' : (i18n.language === 'en' ? 'Export Excel' : 'Excel smeta')}</span>
                 </button>
 
                 <button

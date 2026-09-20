@@ -42,7 +42,8 @@
 
 .tr {
   border-bottom: 1px solid var(--color-border-subtle);
-  transition: background-color var(--transition-fast);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
 .tr:last-child {
@@ -57,6 +58,21 @@
   padding: 14px 16px;
   color: var(--color-text-primary);
   vertical-align: middle;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tr:hover .td:first-child {
+  transform: translateX(4px);
+}
+
+.tr:hover .td:first-child span,
+.tr:hover .td:first-child strong {
+  color: var(--color-cyan) !important;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+}
+
+.tr:hover .td:nth-child(2) div:first-child {
+  color: var(--color-cyan) !important;
 }
 
 .tdRight {

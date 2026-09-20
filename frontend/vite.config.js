@@ -78,6 +78,10 @@ export default defineConfig({
           if (id.includes('node_modules/react-window')) {
             return 'virtualization-vendor';
           }
+          // exceljs - export library
+          if (id.includes('node_modules/exceljs')) {
+            return 'excel-vendor';
+          }
           // All other node_modules
           if (id.includes('node_modules/')) {
             return 'vendor';

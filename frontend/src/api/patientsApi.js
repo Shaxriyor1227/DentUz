@@ -203,13 +203,21 @@ export const patientsApi = {
     const startIndex = (page - 1) * pageSize;
     const items = filtered.slice(startIndex, startIndex + pageSize);
 
+    const counts = {
+      all: fullPatients.length,
+      today: fullPatients.filter((p) => p.status === 'today').length,
+      scheduled: fullPatients.filter((p) => p.status === 'scheduled').length,
+      debtor: fullPatients.filter((p) => p.status === 'debtor' || p.balance > 0).length
+    };
+
     return {
       items,
       total,
       fullFilteredCount: total,
       page,
       pageSize,
-      allTotalCount: fullPatients.length
+      allTotalCount: fullPatients.length,
+      counts
     };
   },
 

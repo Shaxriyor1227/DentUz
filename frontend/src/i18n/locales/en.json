@@ -63,7 +63,7 @@
     "english": "English",
     "notifications": "Notifications",
     "notificationsTitle": "Practice Notifications",
-    "markAllRead": "Mark all as read",
+    "markAllRead": "Mark all read",
     "clearAll": "Clear all",
     "noNotifications": "No unread notifications",
     "profile": "Profile",
@@ -132,6 +132,7 @@
     "filterFinished": "Completed",
     "filterDebtors": "Outstanding Balances",
     "newPatient": "Register New Patient",
+    "exportExcel": "Export (Excel)",
     "exportCsv": "Export (CSV)",
     "table": {
       "patient": "Patient",

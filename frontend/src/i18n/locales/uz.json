@@ -63,7 +63,7 @@
     "english": "English",
     "notifications": "Bildirishnomalar",
     "notificationsTitle": "Bildirishnomalar",
-    "markAllRead": "Barchasini o'qilgan deb belgilash",
+    "markAllRead": "Barchasini o'qish",
     "clearAll": "Tozalash",
     "noNotifications": "Yangi bildirishnomalar mavjud emas",
     "profile": "Profil",
@@ -132,6 +132,7 @@
     "filterFinished": "Davolanganlar",
     "filterDebtors": "Qarzdorlar",
     "newPatient": "Yangi bemor qo'shish",
+    "exportExcel": "Eksport (Excel)",
     "exportCsv": "Eksport (CSV)",
     "table": {
       "patient": "Bemor",

@@ -331,8 +331,12 @@ export default function TopBar() {
                       type="button"
                       className={styles.markReadBtn}
                       onClick={handleMarkAllAsRead}
+                      title={t('topbar.markAllRead')}
                     >
-                      {t('topbar.markAllRead')}
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                        done_all
+                      </span>
+                      <span>{t('topbar.markAllRead')}</span>
                     </button>
                   )}
                 </div>
