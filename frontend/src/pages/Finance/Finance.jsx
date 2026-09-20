@@ -21,6 +21,17 @@ export default function Finance() {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportDropdownRef = useRef(null);
   const [toast, setToast] = useState({ open: false, type: 'success', title: '', message: '' });
+  const [showCollectModal, setShowCollectModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    patient: 'Anvar Qosimov',
+    patientId: '1042',
+    procedure: 'Kompozit restavratsiya',
+    doctor: 'Dr. Azimov',
+    amount: '450000',
+    method: 'Payme',
+    status: 'paid',
+    notes: ''
+  });
 
   // Close export dropdown when clicking outside
   useEffect(() => {
@@ -133,6 +144,65 @@ export default function Finance() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleCollectSubmit = (e) => {
+    e.preventDefault();
+    if (!paymentForm.patient.trim()) {
+      setToast({
+        open: true,
+        type: 'warning',
+        title: i18n.language === 'en' ? 'Missing patient' : 'Bemor tanlanmadi',
+        message: i18n.language === 'en' ? 'Please enter or select a patient.' : 'Iltimos, bemor ismini kiriting.'
+      });
+      return;
+    }
+    const cleanAmount = parseInt(String(paymentForm.amount).replace(/\D/g, ''), 10) || 0;
+    if (cleanAmount <= 0) {
+      setToast({
+        open: true,
+        type: 'warning',
+        title: i18n.language === 'en' ? 'Invalid amount' : 'Noto\'g\'ri summa',
+        message: i18n.language === 'en' ? 'Payment amount must be greater than zero.' : 'To\'lov summasi 0 dan katta bo\'lishi kerak.'
+      });
+      return;
+    }
+
+    const nextIdNum = invoices.length + 1;
+    const newId = `INV-2026-${String(nextIdNum).padStart(3, '0')}`;
+    const now = new Date();
+    const monthsUz = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+    const dateFormatted = `${now.getDate()}-${monthsUz[now.getMonth()]}, ${now.getFullYear()} • ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const created = {
+      id: newId,
+      patient: paymentForm.patient,
+      patientId: paymentForm.patientId || String(Math.floor(1000 + Math.random() * 9000)),
+      procedure: paymentForm.procedure,
+      doctor: paymentForm.doctor,
+      date: dateFormatted,
+      method: paymentForm.method,
+      amount: cleanAmount,
+      status: paymentForm.status
+    };
+
+    setInvoices((prev) => [created, ...prev]);
+
+    if (paymentForm.status === 'paid') {
+      setStats((prev) => prev ? { ...prev, monthlyRevenue: (prev.monthlyRevenue || 0) + cleanAmount } : prev);
+    } else {
+      setStats((prev) => prev ? { ...prev, pendingPayments: (prev.pendingPayments || 0) + cleanAmount, pendingCount: (prev.pendingCount || 0) + 1 } : prev);
+    }
+
+    setShowCollectModal(false);
+    setToast({
+      open: true,
+      type: 'success',
+      title: i18n.language === 'en' ? 'Payment Collected' : 'To\'lov muvaffaqiyatli qabul qilindi',
+      message: i18n.language === 'en'
+        ? `Invoice #${newId} (${formatUZS(cleanAmount)}) has been recorded.`
+        : `${paymentForm.patient} uchun ${formatUZS(cleanAmount)} miqdoridagi to'lov (${paymentForm.method}) qabul qilindi.`
+    });
   };
 
   useEffect(() => {
@@ -466,7 +536,7 @@ export default function Finance() {
           <button
             type="button"
             className={styles.collectBtn}
-            onClick={() => alert(i18n.language === 'en' ? "Collect payment modal" : "Yangi to'lov qabul qilish modal oynasi")}
+            onClick={() => setShowCollectModal(true)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
@@ -481,6 +551,182 @@ export default function Finance() {
         <SkeletonLoader type="table" count={6} />
       ) : (
         <DataTable columns={columns} data={filteredInvoices} />
+      )}
+
+      {/* Collect Payment Modal Dialog */}
+      {showCollectModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowCollectModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div className={styles.modalHeaderInfo}>
+                <div className={styles.modalTitle}>
+                  <span className={`material-symbols-outlined ${styles.modalTitleIcon}`}>
+                    account_balance_wallet
+                  </span>
+                  <span>{i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov qabul qilish'}</span>
+                </div>
+                <div className={styles.modalSub}>
+                  {i18n.language === 'en'
+                    ? 'Register dental procedure payment and generate invoice receipt'
+                    : 'Muolaja to\'lovini qabul qilish va kassa invoysini rasmiylashtirish'}
+                </div>
+              </div>
+              <button
+                type="button"
+                className={styles.modalCloseBtn}
+                onClick={() => setShowCollectModal(false)}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleCollectSubmit} className={styles.modalForm}>
+              {/* Patient */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {i18n.language === 'en' ? 'Patient' : 'Bemor'}
+                </label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  placeholder={i18n.language === 'en' ? 'e.g. Anvar Qosimov' : 'Masalan: Anvar Qosimov'}
+                  value={paymentForm.patient}
+                  onChange={(e) => setPaymentForm((prev) => ({ ...prev, patient: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {/* Procedure & Doctor */}
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    {i18n.language === 'en' ? 'Procedure' : 'Muolaja / Xizmat'}
+                  </label>
+                  <select
+                    className={styles.formSelect}
+                    value={paymentForm.procedure}
+                    onChange={(e) => setPaymentForm((prev) => ({ ...prev, procedure: e.target.value }))}
+                  >
+                    <option value="Kompozit restavratsiya">Kompozit restavratsiya</option>
+                    <option value="Endodontiya & kanal davolash">Endodontiya & kanal davolash</option>
+                    <option value="Tish tozalash & Air-Flow">Tish tozalash & Air-Flow</option>
+                    <option value="Implantatsiya (Straumann)">Implantatsiya (Straumann)</option>
+                    <option value="Breket korreksiyasi">Breket korreksiyasi</option>
+                    <option value="3D CBCT tomografiya">3D CBCT tomografiya</option>
+                    <option value="Dastlabki konsultatsiya">Dastlabki konsultatsiya</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    {i18n.language === 'en' ? 'Doctor' : 'Shifokor'}
+                  </label>
+                  <select
+                    className={styles.formSelect}
+                    value={paymentForm.doctor}
+                    onChange={(e) => setPaymentForm((prev) => ({ ...prev, doctor: e.target.value }))}
+                  >
+                    <option value="Dr. Azimov">Dr. Azimov (Bosh shifokor)</option>
+                    <option value="Dr. Saidova">Dr. Saidova (Ortodont)</option>
+                    <option value="Dr. Karimov">Dr. Karimov (Jarroh-implantolog)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {i18n.language === 'en' ? 'Amount (UZS)' : 'To\'lov summasi (UZS)'}
+                </label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={paymentForm.amount}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    setPaymentForm((prev) => ({ ...prev, amount: raw }));
+                  }}
+                  placeholder="500000"
+                  required
+                />
+                <div className={styles.quickChipsRow}>
+                  {['200000', '450000', '800000', '1500000', '3000000'].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      className={styles.quickChip}
+                      onClick={() => setPaymentForm((prev) => ({ ...prev, amount: amt }))}
+                    >
+                      {formatUZS(Number(amt))}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {i18n.language === 'en' ? 'Payment Method' : 'To\'lov usuli'}
+                </label>
+                <div className={styles.methodsGrid}>
+                  {[
+                    { key: 'Payme', color: '#06B6D4' },
+                    { key: 'Click', color: '#3B82F6' },
+                    { key: 'Naqd', color: '#10B981' },
+                    { key: 'Uzcard', color: '#8B5CF6' },
+                    { key: 'Humo', color: '#F59E0B' }
+                  ].map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      className={`${styles.methodCard} ${paymentForm.method === m.key ? styles.methodCardActive : ''}`}
+                      onClick={() => setPaymentForm((prev) => ({ ...prev, method: m.key }))}
+                    >
+                      <span className={styles.methodDot} style={{ backgroundColor: m.color }} />
+                      <span>{m.key}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment Status */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  {i18n.language === 'en' ? 'Payment Status' : 'To\'lov holati'}
+                </label>
+                <select
+                  className={styles.formSelect}
+                  value={paymentForm.status}
+                  onChange={(e) => setPaymentForm((prev) => ({ ...prev, status: e.target.value }))}
+                >
+                  <option value="paid">{i18n.language === 'en' ? 'Fully Paid' : 'To\'liq to\'langan'}</option>
+                  <option value="pending">{i18n.language === 'en' ? 'Pending' : 'Kutilmoqda'}</option>
+                  <option value="partial">{i18n.language === 'en' ? 'Partial' : 'Qisman to\'langan'}</option>
+                </select>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  className={styles.cancelBtn}
+                  onClick={() => setShowCollectModal(false)}
+                >
+                  {i18n.language === 'en' ? 'Cancel' : 'Bekor qilish'}
+                </button>
+                <button
+                  type="submit"
+                  className={styles.confirmBtn}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                    check
+                  </span>
+                  <span>{i18n.language === 'en' ? 'Confirm Payment' : 'To\'lovni tasdiqlash'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Toast Notification */}

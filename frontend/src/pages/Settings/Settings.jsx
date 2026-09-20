@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { teamApi } from '../../api/teamApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
+import Toast from '../../components/Toast/Toast';
 import styles from './Settings.module.css';
 
 export default function Settings() {
@@ -14,6 +15,7 @@ export default function Settings() {
   const [saveClinicSuccess, setSaveClinicSuccess] = useState(false);
   const [saveSecuritySuccess, setSaveSecuritySuccess] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
+  const [toast, setToast] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // Clinic Profile State
   const [clinicData, setClinicData] = useState({
@@ -94,7 +96,12 @@ export default function Settings() {
   const handleSaveSecurity = (e) => {
     e.preventDefault();
     if (passwords.newPass && passwords.newPass !== passwords.confirm) {
-      alert(i18n.language === 'en' ? 'New passwords do not match!' : "Yangi parollar bir-biriga mos kelmadi!");
+      setToast({
+        open: true,
+        type: 'error',
+        title: i18n.language === 'en' ? 'Password Mismatch' : 'Parol xatosi',
+        message: i18n.language === 'en' ? 'New passwords do not match!' : 'Yangi parollar bir-biriga mos kelmadi!'
+      });
       return;
     }
     setSaveSecuritySuccess(true);
@@ -277,7 +284,14 @@ export default function Settings() {
                       <button
                         type="button"
                         className={styles.permBtn}
-                        onClick={() => alert(`${member.name} permissions`)}
+                        onClick={() => setToast({
+                          open: true,
+                          type: 'info',
+                          title: `${member.name} (${member.role})`,
+                          message: i18n.language === 'en'
+                            ? `Permissions: Standard clinical, appointments, and patient electronic health records access.`
+                            : `Huquqlar: Bemorlar kartochkasi, taqvim qabullari va muolajalar rejasiga to'liq kirish ruxsat etilgan.`
+                        })}
                       >
                         {t('settings.team.permissions')}
                       </button>
@@ -477,7 +491,14 @@ export default function Settings() {
                 <button
                   type="button"
                   style={{ marginTop: '12px', padding: '6px 12px', borderRadius: '6px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', cursor: 'pointer' }}
-                  onClick={() => alert(i18n.language === 'en' ? 'SMS Top-up: 1,000 SMS — 150,000 UZS' : "SMS to'ldirish oynasi: 1000 ta SMS — 150 000 UZS")}
+                  onClick={() => setToast({
+                    open: true,
+                    type: 'success',
+                    title: i18n.language === 'en' ? 'SMS Package Activated' : 'SMS Paketi Faollashtirildi',
+                    message: i18n.language === 'en'
+                      ? '1,000 SMS notification package (150,000 UZS) successfully added to practice balance.'
+                      : '1 000 ta SMS paketi (150 000 UZS) klinika balansiga muvaffaqiyatli qo\'shildi.'
+                  })}
                 >
                   {t('settings.billing.buyPackage')}
                 </button>
@@ -639,8 +660,15 @@ export default function Settings() {
                 </div>
                 <button
                   type="button"
-                  style={{ fontSize: '11px', color: 'var(--color-danger)', fontWeight: 600 }}
-                  onClick={() => alert(i18n.language === 'en' ? 'Session terminated' : "Sessiya to'xtatildi")}
+                  style={{ fontSize: '11px', color: 'var(--color-danger)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+                  onClick={() => setToast({
+                    open: true,
+                    type: 'success',
+                    title: i18n.language === 'en' ? 'Session Revoked' : 'Sessiya yakunlandi',
+                    message: i18n.language === 'en'
+                      ? 'iPhone 15 Pro session has been terminated successfully.'
+                      : 'iPhone 15 Pro qurilmasidagi sessiya muvaffaqiyatli to\'xtatildi.'
+                  })}
                 >
                   {t('settings.security.terminate')}
                 </button>
@@ -771,6 +799,14 @@ export default function Settings() {
           </div>
         </div>
       )}
+      {/* Toast Notification */}
+      <Toast
+        open={toast.open}
+        title={toast.title}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

@@ -189,13 +189,10 @@ export function exportPatientsToPDF(patients = [], options = {}) {
     `;
   }).join('');
 
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert(isEn ? 'Please allow popups to open the print dialog.' : 'Iltimos, chop etish oynasini ochish uchun brauzerda pop-up ruxsatini bering.');
-    return;
-  }
+  const debtorCount = debtorsCount;
+  const scheduledCount = patients.filter(p => p.nextVisit).length;
 
-  printWindow.document.write(`
+  const htmlDoc = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -208,44 +205,63 @@ export function exportPatientsToPDF(patients = [], options = {}) {
         .brand { font-size: 18px; font-weight: 800; color: #0f766e; }
         .doc-title { font-size: 13px; font-weight: 700; color: #334155; }
         .meta-strip { display: flex; gap: 20px; font-size: 11px; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        th { background: #0f766e; color: #fff; padding: 7px 8px; text-align: left; font-weight: 700; border: 1px solid #0f766e; }
-        td { border: 1px solid #e2e8f0; }
-        .footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; padding-top: 15px; border-top: 1px solid #cbd5e1; page-break-inside: avoid; }
-        @media print {
-          body { padding: 0; }
-          .no-print { display: none !important; }
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+        .stat-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; background: #ffffff; }
+        .stat-num { font-size: 16px; font-weight: bold; color: #0f766e; }
+        .stat-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 10px; }
+        th { background: #0f766e; color: #ffffff; padding: 7px 8px; text-align: left; font-weight: 600; border: 1px solid #0d9488; }
+        .footer { margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 12px; }
       </style>
     </head>
     <body>
       <div class="header">
         <div>
-          <div class="brand">${clinicName.toUpperCase()}</div>
-          <div style="font-size: 10px; color: #64748b;">Dental Clinic Operating System</div>
+          <div class="brand">🏥 ${clinicName}</div>
+          <div style="color: #64748b; font-size: 10px;">${isEn ? 'Official Dental Clinical Records' : 'Rasmiy Bemorlar Ro\'yxati va Balans Kitobi'}</div>
         </div>
         <div style="text-align: right;">
-          <div class="doc-title">${isEn ? 'OFFICIAL PATIENT DIRECTORY' : 'RASMIY BEMORLAR HISOBOTI'}</div>
-          <div style="font-size: 10px; color: #64748b;">${dateStr} ${timeStr}</div>
+          <div class="doc-title">${isEn ? 'PATIENT REPERTOIRE REPORT' : 'BEMORLAR REESTRI HISOBOTI'}</div>
+          <div style="color: #64748b; font-size: 10px;">${isEn ? 'Date' : 'Sana'}: ${todayDate}</div>
         </div>
       </div>
 
       <div class="meta-strip">
-        <div>${isEn ? 'Filter' : 'Filtr'}: <strong>${activeFilterText}</strong></div>
-        <div>${isEn ? 'Total Patients' : 'Jami bemorlar'}: <strong>${patients.length} ta</strong></div>
-        <div>${isEn ? 'Outstanding Debtors' : 'Qarzdorlar'}: <strong>${debtorsCount} ta</strong> (${totalDebt.toLocaleString()} so'm)</div>
+        <div>${isEn ? 'Active Patients' : 'Faol bemorlar'}: <strong>${patients.length} ta</strong></div>
+        <div>${isEn ? 'Filter Scope' : 'Hisobot qamrovi'}: <strong>${filterTab === 'today' ? 'Bugungi qabullar' : filterTab === 'debts' ? 'Qarzdorlar' : 'Barchasi'}</strong></div>
+        <div>${isEn ? 'System' : 'Tizim'}: <strong>DentUz Clinical OS</strong></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">${isEn ? 'Total Patients' : 'Jami bemorlar'}</div>
+          <div class="stat-num">${patients.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">${isEn ? 'Debtor Patients' : 'Qarzdor bemorlar'}</div>
+          <div class="stat-num" style="color: #dc2626;">${debtorCount} ta</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">${isEn ? 'Total Debt Due' : 'Jami qarz summasi'}</div>
+          <div class="stat-num" style="color: #dc2626;">${Math.abs(totalDebt).toLocaleString()} so'm</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">${isEn ? 'Scheduled Today' : 'Bugun rejalashtirilgan'}</div>
+          <div class="stat-num" style="color: #0284c7;">${scheduledCount} ta</div>
+        </div>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th style="text-align: center; width: 7%;">ID</th>
-            <th style="width: 25%;">${isEn ? 'Patient Full Name' : 'Bemor F.I.SH'}</th>
-            <th style="text-align: center; width: 15%;">${isEn ? 'Phone' : 'Telefon'}</th>
-            <th style="width: 23%;">${isEn ? 'Last Visit / Procedure' : 'Oxirgi tashrif va muolaja'}</th>
-            <th style="text-align: center; width: 14%;">${isEn ? 'Next Visit' : 'Keyingi qabul'}</th>
-            <th style="text-align: right; width: 16%;">${isEn ? 'Balance' : 'Balans'}</th>
-            <th style="text-align: center; width: 10%;">${isEn ? 'Status' : 'Holat'}</th>
+            <th style="width: 35px; text-align: center;">#</th>
+            <th>${isEn ? 'Patient Name' : 'Bemor F.I.Sh.'}</th>
+            <th style="width: 70px; text-align: center;">${isEn ? 'Card #' : 'Karta ID'}</th>
+            <th style="width: 125px;">${isEn ? 'Phone' : 'Telefon'}</th>
+            <th style="width: 130px;">${isEn ? 'Last Visit' : 'Oxirgi qabul'}</th>
+            <th style="width: 135px; text-align: center;">${isEn ? 'Next Visit' : 'Keyingi qabul'}</th>
+            <th style="width: 110px; text-align: right;">${isEn ? 'Balance' : 'Balans / Qarz'}</th>
+            <th style="width: 80px; text-align: center;">${isEn ? 'Status' : 'Holat'}</th>
           </tr>
         </thead>
         <tbody>
@@ -257,16 +273,36 @@ export function exportPatientsToPDF(patients = [], options = {}) {
         <div>${isEn ? 'Responsible Physician' : 'Mas\'ul shifokor'}: <strong>Dr. J. Azimov</strong> __________________</div>
         <div>${isEn ? 'Clinic Stamp & Seal (M.P.)' : 'Klinika muhri (M.P.)'} __________________</div>
       </div>
-
-      <script>
-        window.onload = function() {
-          setTimeout(function() {
-            window.print();
-          }, 300);
-        };
-      </script>
     </body>
     </html>
-  `);
-  printWindow.document.close();
+  `;
+
+  try {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlDoc);
+      printWindow.document.close();
+      return;
+    }
+  } catch (e) {
+    // Popup blocked, fallback to iframe
+  }
+
+  // Fallback: Invisible iframe to trigger print without popup blocker
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+  iframe.contentWindow.document.open();
+  iframe.contentWindow.document.write(htmlDoc);
+  iframe.contentWindow.document.close();
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    iframe.contentWindow.print();
+    setTimeout(() => document.body.removeChild(iframe), 1500);
+  }, 400);
 }

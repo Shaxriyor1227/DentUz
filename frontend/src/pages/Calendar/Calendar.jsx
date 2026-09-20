@@ -150,6 +150,7 @@ export default function Calendar() {
   // Drag & Drop
   const [dragOverSlot, setDragOverSlot] = useState(null);
   const [optimisticNotice, setOptimisticNotice] = useState(null);
+  const [toastConfig, setToastConfig] = useState({ type: 'success', title: '' });
 
   // Modal State - Simplified, High-Speed
   const [showModal, setShowModal] = useState(false);
@@ -470,7 +471,8 @@ export default function Calendar() {
       });
     } catch (err) {
       setAppointments(previousState);
-      alert("Xatolik yuz berdi: Qabul ko'chirilishi bekor qilindi!");
+      setToastConfig({ type: 'error', title: 'Qabul ko\'chirilmadi' });
+      setOptimisticNotice("Xatolik yuz berdi: Qabul ko'chirilishi bekor qilindi!");
     }
   };
 
@@ -478,7 +480,8 @@ export default function Calendar() {
   const handleCreateAppointment = async (e) => {
     e.preventDefault();
     if (!newApt.patientName.trim()) {
-      alert('Iltimos, bemor ismini kiriting');
+      setToastConfig({ type: 'warning', title: 'Bemor ismi kiritilmadi' });
+      setOptimisticNotice('Iltimos, yangi qabul uchun bemor ismini kiriting.');
       return;
     }
 
@@ -492,6 +495,7 @@ export default function Calendar() {
       setAppointments((prev) => [...prev, created]);
       setShowModal(false);
 
+      setToastConfig({ type: 'success', title: t('calendar.scheduleUpdated') });
       setOptimisticNotice(
         `Yangi qabul (${newApt.patientName} - ${newApt.time}) muvaffaqiyatli saqlandi!`
       );
@@ -508,7 +512,8 @@ export default function Calendar() {
         time: '12:00'
       });
     } catch (err) {
-      alert('Xatolik: ' + err.message);
+      setToastConfig({ type: 'error', title: 'Saqlashda xatolik' });
+      setOptimisticNotice(err.message || 'Xatolik yuz berdi');
     }
   };
 
@@ -769,10 +774,14 @@ export default function Calendar() {
       {/* Floating Side Toast Notification */}
       <Toast
         open={Boolean(optimisticNotice)}
-        title={t('calendar.scheduleUpdated')}
+        title={toastConfig.title || t('calendar.scheduleUpdated')}
         message={optimisticNotice}
+        type={toastConfig.type || 'success'}
         duration={3500}
-        onClose={() => setOptimisticNotice(null)}
+        onClose={() => {
+          setOptimisticNotice(null);
+          setToastConfig({ type: 'success', title: '' });
+        }}
       />
 
       {/* Main Calendar Card */}

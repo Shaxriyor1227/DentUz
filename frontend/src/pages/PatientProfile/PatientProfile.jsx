@@ -6,6 +6,7 @@ import { odontogramApi } from '../../api/odontogramApi';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
+import Toast from '../../components/Toast/Toast';
 import { formatUZS } from '../../utils/formatters';
 import styles from './PatientProfile.module.css';
 
@@ -150,6 +151,7 @@ export default function PatientProfile() {
 
   // Clinical Dossier (Form 043/h) modal
   const [showDossierModal, setShowDossierModal] = useState(false);
+  const [toast, setToast] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // X-Ray viewer lightbox states (Apple Pro Dark Room)
   const [selectedXray, setSelectedXray] = useState(null);
@@ -223,7 +225,12 @@ export default function PatientProfile() {
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
     } catch (err) {
-      alert('Xatolik: ' + err.message);
+      setToast({
+        open: true,
+        type: 'error',
+        title: 'Xatolik',
+        message: err.message || 'Tish holatini saqlab bo\'lmadi'
+      });
     }
   };
 
@@ -870,7 +877,14 @@ export default function PatientProfile() {
             <button
               type="button"
               className={styles.btnSecondary}
-              onClick={() => alert(i18n.language === 'en' ? "Direct PACS / DICOM integration is active." : "Rentgen apparati (DICOM server) bilan to'g'ridan-to'g'ri integratsiya faol.")}
+              onClick={() => setToast({
+                open: true,
+                type: 'success',
+                title: i18n.language === 'en' ? 'DICOM / PACS Integration Active' : 'DICOM / PACS Integratsiyasi Faol',
+                message: i18n.language === 'en'
+                  ? 'Direct modality sync (Port 104, AET: DENTUZ_PACS) is connected and listening.'
+                  : 'Rentgen apparati va 3D tomograf (Port 104, AET: DENTUZ_PACS) ulangan. Suratlar avtomatik qabul qilinadi.'
+              })}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 cloud_upload
@@ -1521,6 +1535,14 @@ export default function PatientProfile() {
           </div>
         </div>
       )}
+      {/* Toast Notification */}
+      <Toast
+        open={toast.open}
+        title={toast.title}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }
