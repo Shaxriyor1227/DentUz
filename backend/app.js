@@ -1,8 +1,8 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const compression = require('compression');
 
 dotenv.config();
@@ -12,15 +12,21 @@ const { errorHandler } = require('./middleware/errorHandler');
 const db = require('./models');
 
 // ─── Route imports ────────────────────────────────────────────────────────────
-const authRoutes       = require('./routes/authRoutes');
-const clinicRoutes     = require('./routes/clinicRoutes');
-const patientRoutes = require('./routes/patientRoutes');
-const appointmentRoutes = require('./routes/appointmentRoutes');
-const financeRoutes = require('./routes/financeRoutes');
-const odontogramRoutes = require('./routes/odontogramRoutes');
-const teamRoutes = require('./routes/teamRoutes');
-const userRoutes = require('./routes/userRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
+const authRoutes          = require('./routes/authRoutes');
+const clinicRoutes        = require('./routes/clinicRoutes');
+const patientRoutes       = require('./routes/patientRoutes');
+const appointmentRoutes   = require('./routes/appointmentRoutes');
+const financeRoutes       = require('./routes/financeRoutes');
+const odontogramRoutes    = require('./routes/odontogramRoutes');
+const teamRoutes          = require('./routes/teamRoutes');
+const userRoutes          = require('./routes/userRoutes');
+const notificationRoutes  = require('./routes/notificationRoutes');
+const serviceRoutes       = require('./routes/serviceRoutes');
+const treatmentPlanRoutes = require('./routes/treatmentPlanRoutes');
+const paymentRoutes       = require('./routes/paymentRoutes');
+const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
+const labOrderRoutes      = require('./routes/labOrderRoutes');
+const inventoryRoutes     = require('./routes/inventoryRoutes');
 
 const app = express();
 
@@ -35,9 +41,7 @@ app.use(
 );
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('dev'));
-}
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Swagger Docs ─────────────────────────────────────────────────────────────
 setupSwagger(app);
@@ -49,14 +53,20 @@ app.get('/api/health', (req, res) => {
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth',          authRoutes);
-app.use('/api/clinics',       clinicRoutes);
-app.use('/api/patients', patientRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/finance', financeRoutes);
-app.use('/api/odontogram', odontogramRoutes);
-app.use('/api/team', teamRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api',               clinicRoutes);
+app.use('/api',               patientRoutes);
+app.use('/api',               appointmentRoutes);
+app.use('/api',               financeRoutes);
+app.use('/api',               odontogramRoutes);
+app.use('/api',               teamRoutes);
+app.use('/api',               userRoutes);
+app.use('/api',               notificationRoutes);
+app.use('/api',               serviceRoutes);
+app.use('/api',               treatmentPlanRoutes);
+app.use('/api',               paymentRoutes);
+app.use('/api',               medicalRecordRoutes);
+app.use('/api',               labOrderRoutes);
+app.use('/api',               inventoryRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {

@@ -1,7 +1,7 @@
 'use strict';
 
-const { Patient, Clinic, Appointment, Invoice, Odontogram } = require('../models');
-const { validatePatient } = require('../validations/patientValidation');
+const { Service } = require('../models');
+const { validateService } = require('../validations/serviceValidation');
 const { Op } = require('sequelize');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -11,46 +11,40 @@ const getPagination = (page = 1, limit = 20) => ({
 });
 
 // ─── CREATE ───────────────────────────────────────────────────────────────────
-exports.createPatient = async (req, res) => {
-  const { error } = validatePatient(req.body);
+exports.createService = async (req, res) => {
+  const { error } = validateService(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const patient = await Patient.create(req.body);
-    res.status(201).json({ success: true, data: patient });
+    const service = await Service.create(req.body);
+    res.status(201).json({ success: true, data: service });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ─── GET ALL ──────────────────────────────────────────────────────────────────
-exports.getPatients = async (req, res) => {
+exports.getServices = async (req, res) => {
   try {
-    const { search, status, page, limit } = req.query;
+    const { category, isActive, search, page, limit } = req.query;
     const where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
-    if (status && status !== 'all') {
-      where.status = status;
-    }
+    if (category) where.category = category;
+    if (isActive !== undefined) where.isActive = isActive === 'true';
 
     if (search && search.trim()) {
       const q = search.trim();
       where[Op.or] = [
-        { name:          { [Op.iLike]: `%${q}%` } },
-        { phone:         { [Op.iLike]: `%${q}%` } },
-        { id:            { [Op.iLike]: `%${q}%` } },
-        { lastProcedure: { [Op.iLike]: `%${q}%` } },
+        { name:        { [Op.iLike]: `%${q}%` } },
+        { code:        { [Op.iLike]: `%${q}%` } },
+        { description: { [Op.iLike]: `%${q}%` } },
       ];
     }
 
-    const { count, rows } = await Patient.findAndCountAll({
+    const { count, rows } = await Service.findAndCountAll({
       where,
-      include: [
-        { model: Appointment, as: 'appointments' },
-        { model: Odontogram,  as: 'odontogram'  },
-      ],
-      order: [['createdAt', 'DESC']],
+      order: [['category', 'ASC'], ['name', 'ASC']],
       limit: lim,
       offset,
     });
@@ -68,79 +62,63 @@ exports.getPatients = async (req, res) => {
 };
 
 // ─── GET BY ID ────────────────────────────────────────────────────────────────
-exports.getPatientById = async (req, res) => {
+exports.getServiceById = async (req, res) => {
   try {
-    const patient = await Patient.findByPk(req.params.id, {
-      include: [
-        { model: Appointment, as: 'appointments' },
-        { model: Invoice,     as: 'invoices'     },
-        { model: Odontogram,  as: 'odontogram'   },
-      ],
-    });
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
-    res.status(200).json({ success: true, data: patient });
+    const service = await Service.findByPk(req.params.id);
+    if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
+    res.status(200).json({ success: true, data: service });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ─── UPDATE ───────────────────────────────────────────────────────────────────
-exports.updatePatient = async (req, res) => {
-  const { error } = validatePatient(req.body);
+exports.updateService = async (req, res) => {
+  const { error } = validateService(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const patient = await Patient.findByPk(req.params.id);
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
+    const service = await Service.findByPk(req.params.id);
+    if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
 
-    await patient.update(req.body);
-    res.status(200).json({ success: true, data: patient });
+    await service.update(req.body);
+    res.status(200).json({ success: true, data: service });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ─── DELETE ───────────────────────────────────────────────────────────────────
-exports.deletePatient = async (req, res) => {
+exports.deleteService = async (req, res) => {
   try {
-    const patient = await Patient.findByPk(req.params.id);
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
+    const service = await Service.findByPk(req.params.id);
+    if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
 
-    const data = patient.toJSON();
-    await patient.destroy();
-    res.status(200).json({ success: true, data });
+    await service.destroy();
+    res.status(200).json({ success: true, message: 'Xizmat o\'chirildi' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ─── SEARCH ───────────────────────────────────────────────────────────────────
-exports.searchPatient = async (req, res) => {
+exports.searchServices = async (req, res) => {
   try {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
-    const patients = await Patient.findAll({
+    const services = await Service.findAll({
       where: {
         [Op.or]: [
-          { name:  { [Op.iLike]: `%${query}%` } },
-          { phone: { [Op.iLike]: `%${query}%` } },
-          { id:    { [Op.iLike]: `%${query}%` } },
+          { name: { [Op.iLike]: `%${query}%` } },
+          { code: { [Op.iLike]: `%${query}%` } },
         ],
       },
       limit: 50,
     });
 
-    res.status(200).json({ success: true, data: patients });
+    res.status(200).json({ success: true, data: services });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// ─── Aliases ──────────────────────────────────────────────────────────────────
-exports.getAll  = exports.getPatients;
-exports.getById = exports.getPatientById;
-exports.create  = exports.createPatient;
-exports.update  = exports.updatePatient;
-exports.remove  = exports.deletePatient;
-exports.search  = exports.searchPatient;

@@ -1,7 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const rateLimit = require("express-rate-limit");
 const authController = require("../controller/authController");
 const { authenticate } = require("../middleware/auth");
+
+// ─── Rate limiter: login/register ─────────────────────────────────────────────
+// Max 10 attempt per 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Juda ko\'p urinish. 15 daqiqadan keyin qayta urinib ko\'ring.' },
+});
 
 /**
  * @swagger
@@ -48,7 +59,7 @@ const { authenticate } = require("../middleware/auth");
  *       500:
  *         description: Server error
  */
-router.post("/register", authController.register);
+router.post("/register", authLimiter, authController.register);
 
 /**
  * @swagger
@@ -80,7 +91,7 @@ router.post("/register", authController.register);
  *       500:
  *         description: Server error
  */
-router.post("/login", authController.login);
+router.post("/login", authLimiter, authController.login);
 
 /**
  * @swagger

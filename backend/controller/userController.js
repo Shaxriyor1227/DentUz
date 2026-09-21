@@ -1,96 +1,102 @@
-const { User, Doctor, Clinic } = require("../models");
-const { validateUser } = require("../validations/userValidation");
-const { Op } = require("sequelize");
+'use strict';
 
+const { User, Doctor, Clinic } = require('../models');
+const { validateUser } = require('../validations/userValidation');
+const { Op } = require('sequelize');
+
+// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createUser = async (req, res) => {
-    const { error } = validateUser(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validateUser(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    try {
-        const user = await User.create(req.body);
-        res.status(201).send(user);
-    } catch (error) {
-        res.status(500).send(error.message || error);
-    }
+  try {
+    const user = await User.create(req.body);
+    res.status(201).json({ success: true, data: user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getUsers = async (req, res) => {
-    try {
-        const users = await User.findAll({
-            include: [
-                { model: Doctor, as: "doctorProfile" },
-                { model: Clinic, as: "clinic" }
-            ],
-        });
-        res.status(200).send(users);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const users = await User.findAll({
+      include: [
+        { model: Doctor, as: 'doctorProfile' },
+        { model: Clinic, as: 'clinic'        },
+      ],
+    });
+    res.status(200).json({ success: true, data: users });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getUserById = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id, {
-            include: [
-                { model: Doctor, as: "doctorProfile" },
-                { model: Clinic, as: "clinic" }
-            ],
-        });
-        if (!user) return res.status(404).send("User not found");
-        res.status(200).send(user);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const user = await User.findByPk(req.params.id, {
+      include: [
+        { model: Doctor, as: 'doctorProfile' },
+        { model: Clinic, as: 'clinic'        },
+      ],
+    });
+    if (!user) return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    res.status(200).json({ success: true, data: user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateUser = async (req, res) => {
-    const { error } = validateUser(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-    try {
-        const user = await User.findByPk(req.params.id);
-        if (!user) return res.status(404).send("User not found");
-        await user.update(req.body);
-        res.status(200).send(user);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  const { error } = validateUser(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+
+    await user.update(req.body);
+    res.status(200).json({ success: true, data: user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteUser = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if (!user) return res.status(404).send("User not found");
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
 
-        const userData = user.toJSON();
-
-        await user.destroy();
-        res.status(200).send(userData);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    const data = user.toJSON();
+    await user.destroy();
+    res.status(200).json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchUser = async (req, res) => {
-    try {
-        console.log("Query received:", req.query.query);
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
-        const { query } = req.query;
-        if (!query) {
-            return res.status(400).send("Search query is required");
-        }
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { name:  { [Op.iLike]: `%${query}%` } },
+          { email: { [Op.iLike]: `%${query}%` } },
+          { phone: { [Op.iLike]: `%${query}%` } },
+        ],
+      },
+      limit: 50,
+    });
 
-        const users = await User.findAll({
-            where: {
-                [Op.or]: [
-                    { name: { [Op.iLike]: `%${query}%` } },
-                    { email: { [Op.iLike]: `%${query}%` } },
-                    { phone: { [Op.iLike]: `%${query}%` } },
-                ],
-            },
-        });
-
-        res.status(200).send(users);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    res.status(200).json({ success: true, data: users });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

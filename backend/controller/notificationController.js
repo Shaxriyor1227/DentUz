@@ -1,99 +1,101 @@
-const { Notification, Clinic } = require("../models");
-const { validateNotification } = require("../validations/notificationValidation");
-const { Op } = require("sequelize");
+'use strict';
 
-// GET /api/notifications?clinicId=...&recipientId=...
+const { Notification, Clinic } = require('../models');
+const { validateNotification } = require('../validations/notificationValidation');
+const { Op } = require('sequelize');
+
+// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getNotifications = async (req, res) => {
-    try {
-        const { clinicId, recipientId, status, channel } = req.query;
+  try {
+    const { clinicId, recipientId, status, channel } = req.query;
+    const where = {};
 
-        const where = {};
-        if (clinicId)     where.clinicId     = clinicId;
-        if (recipientId)  where.recipientId  = recipientId;
-        if (status)       where.status       = status;
-        if (channel)      where.channel      = channel;
+    if (clinicId)    where.clinicId    = clinicId;
+    if (recipientId) where.recipientId = recipientId;
+    if (status)      where.status      = status;
+    if (channel)     where.channel     = channel;
 
-        const notifications = await Notification.findAll({
-            where,
-            include: [{ model: Clinic, as: "clinic", attributes: ["id", "name"] }],
-            order: [["createdAt", "DESC"]],
-        });
+    const notifications = await Notification.findAll({
+      where,
+      include: [{ model: Clinic, as: 'clinic', attributes: ['id', 'name'] }],
+      order: [['createdAt', 'DESC']],
+    });
 
-        res.status(200).send(notifications);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    res.status(200).json({ success: true, data: notifications });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// GET /api/notifications/:id
+// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getNotificationById = async (req, res) => {
-    try {
-        const notification = await Notification.findByPk(req.params.id, {
-            include: [{ model: Clinic, as: "clinic", attributes: ["id", "name"] }],
-        });
-        if (!notification) return res.status(404).send("Notification not found");
-        res.status(200).send(notification);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const notification = await Notification.findByPk(req.params.id, {
+      include: [{ model: Clinic, as: 'clinic', attributes: ['id', 'name'] }],
+    });
+    if (!notification) return res.status(404).json({ success: false, message: 'Bildirishnoma topilmadi' });
+    res.status(200).json({ success: true, data: notification });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// POST /api/notifications
+// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createNotification = async (req, res) => {
-    const { error } = validateNotification(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validateNotification(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    try {
-        const notification = await Notification.create(req.body);
-        res.status(201).send(notification);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const notification = await Notification.create(req.body);
+    res.status(201).json({ success: true, data: notification });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// PUT /api/notifications/:id/read  — bitta bildirishnomani o'qildi deb belgilash
+// ─── MARK AS READ ─────────────────────────────────────────────────────────────
 exports.markAsRead = async (req, res) => {
-    try {
-        const notification = await Notification.findByPk(req.params.id);
-        if (!notification) return res.status(404).send("Notification not found");
+  try {
+    const notification = await Notification.findByPk(req.params.id);
+    if (!notification) return res.status(404).json({ success: false, message: 'Bildirishnoma topilmadi' });
 
-        await notification.update({ status: "read", sentAt: new Date() });
-        res.status(200).send(notification);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    await notification.update({ status: 'read', sentAt: new Date() });
+    res.status(200).json({ success: true, data: notification });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// PUT /api/notifications/read-all  — berilgan recipientId uchun hammasini o'qildi
+// ─── MARK ALL AS READ ─────────────────────────────────────────────────────────
 exports.markAllAsRead = async (req, res) => {
-    try {
-        const { recipientId, clinicId } = req.body;
+  try {
+    const { recipientId, clinicId } = req.body;
+    const where = { status: { [Op.ne]: 'read' } };
 
-        const where = { status: { [Op.ne]: "read" } };
-        if (recipientId) where.recipientId = recipientId;
-        if (clinicId)    where.clinicId    = clinicId;
+    if (recipientId) where.recipientId = recipientId;
+    if (clinicId)    where.clinicId    = clinicId;
 
-        const [count] = await Notification.update(
-            { status: "read", sentAt: new Date() },
-            { where }
-        );
+    const [count] = await Notification.update(
+      { status: 'read', sentAt: new Date() },
+      { where }
+    );
 
-        res.status(200).send({ updated: count });
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    res.status(200).json({ success: true, data: { updated: count } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// DELETE /api/notifications/:id
+// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteNotification = async (req, res) => {
-    try {
-        const notification = await Notification.findByPk(req.params.id);
-        if (!notification) return res.status(404).send("Notification not found");
+  try {
+    const notification = await Notification.findByPk(req.params.id);
+    if (!notification) return res.status(404).json({ success: false, message: 'Bildirishnoma topilmadi' });
 
-        const data = notification.toJSON();
-        await notification.destroy();
-        res.status(200).send(data);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    const data = notification.toJSON();
+    await notification.destroy();
+    res.status(200).json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

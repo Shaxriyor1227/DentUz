@@ -1,93 +1,94 @@
-const { Clinic, User, Doctor, Patient, Appointment, Invoice } = require("../models");
-const { validateClinic } = require("../validations/clinicValidation");
+'use strict';
 
-// GET /api/clinics
+const { Clinic, User, Doctor, Patient, Appointment, Invoice } = require('../models');
+const { validateClinic } = require('../validations/clinicValidation');
+
+// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getClinics = async (req, res) => {
-    try {
-        const clinics = await Clinic.findAll();
-        res.status(200).send(clinics);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const clinics = await Clinic.findAll();
+    res.status(200).json({ success: true, data: clinics });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// GET /api/clinics/:id
+// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getClinicById = async (req, res) => {
-    try {
-        const clinic = await Clinic.findByPk(req.params.id, {
-            include: [
-                { model: User,   as: "users",   attributes: ["id", "name", "role", "email"] },
-                { model: Doctor, as: "doctors", attributes: ["id", "userId", "specialization", "cabinetNumber"] },
-            ],
-        });
-        if (!clinic) return res.status(404).send("Clinic not found");
-        res.status(200).send(clinic);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const clinic = await Clinic.findByPk(req.params.id, {
+      include: [
+        { model: User,   as: 'users',   attributes: ['id', 'name', 'role', 'email'] },
+        { model: Doctor, as: 'doctors', attributes: ['id', 'userId', 'specialization', 'cabinetNumber'] },
+      ],
+    });
+    if (!clinic) return res.status(404).json({ success: false, message: 'Klinika topilmadi' });
+    res.status(200).json({ success: true, data: clinic });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// POST /api/clinics
+// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createClinic = async (req, res) => {
-    const { error } = validateClinic(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validateClinic(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    try {
-        const clinic = await Clinic.create(req.body);
-        res.status(201).send(clinic);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const clinic = await Clinic.create(req.body);
+    res.status(201).json({ success: true, data: clinic });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// PUT /api/clinics/:id
+// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateClinic = async (req, res) => {
-    const { error } = validateClinic(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validateClinic(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    try {
-        const clinic = await Clinic.findByPk(req.params.id);
-        if (!clinic) return res.status(404).send("Clinic not found");
-        await clinic.update(req.body);
-        res.status(200).send(clinic);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const clinic = await Clinic.findByPk(req.params.id);
+    if (!clinic) return res.status(404).json({ success: false, message: 'Klinika topilmadi' });
+
+    await clinic.update(req.body);
+    res.status(200).json({ success: true, data: clinic });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// DELETE /api/clinics/:id
+// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteClinic = async (req, res) => {
-    try {
-        const clinic = await Clinic.findByPk(req.params.id);
-        if (!clinic) return res.status(404).send("Clinic not found");
-        const data = clinic.toJSON();
-        await clinic.destroy();
-        res.status(200).send(data);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const clinic = await Clinic.findByPk(req.params.id);
+    if (!clinic) return res.status(404).json({ success: false, message: 'Klinika topilmadi' });
+
+    const data = clinic.toJSON();
+    await clinic.destroy();
+    res.status(200).json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// GET /api/clinics/:id/stats — klinika statistikasi
+// ─── STATS ────────────────────────────────────────────────────────────────────
 exports.getClinicStats = async (req, res) => {
-    try {
-        const clinicId = req.params.id;
+  try {
+    const { id: clinicId } = req.params;
 
-        const [usersCount, patientsCount, appointmentsCount, invoicesCount] = await Promise.all([
-            User.count({ where: { clinicId } }),
-            Patient.count({ where: { clinicId } }),
-            Appointment.count({ where: { clinicId } }),
-            Invoice.count({ where: { clinicId } }),
-        ]);
+    const [usersCount, patientsCount, appointmentsCount, invoicesCount] = await Promise.all([
+      User.count({ where: { clinicId } }),
+      Patient.count({ where: { clinicId } }),
+      Appointment.count({ where: { clinicId } }),
+      Invoice.count({ where: { clinicId } }),
+    ]);
 
-        res.status(200).send({
-            clinicId,
-            usersCount,
-            patientsCount,
-            appointmentsCount,
-            invoicesCount,
-        });
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+    res.status(200).json({
+      success: true,
+      data: { clinicId, usersCount, patientsCount, appointmentsCount, invoicesCount },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

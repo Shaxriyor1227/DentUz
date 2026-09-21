@@ -29,13 +29,18 @@ const options = {
       { name: 'Patients', description: 'Patient management' },
       { name: 'Appointments', description: 'Calendar & scheduling' },
       { name: 'Finance', description: 'Invoices & stats' },
+      { name: 'Payments', description: 'Payments and transactions' },
+      { name: 'Services', description: 'Price list and services' },
+      { name: 'TreatmentPlans', description: 'Treatment plans' },
+      { name: 'MedicalRecords', description: 'EHR and medical records' },
+      { name: 'LabOrders', description: 'Dental lab orders' },
+      { name: 'Inventory', description: 'Clinic inventory' },
       { name: 'Odontogram', description: 'Dental chart' },
       { name: 'Team', description: 'Staff management' },
       { name: 'Users', description: 'User management' },
     ],
   },
   apis: [
-    './routes/*.js',
     path.join(__dirname, '../routes/*.js').replace(/\\/g, '/'),
   ],
 };
@@ -44,7 +49,6 @@ const swaggerSpec = swaggerJsDoc(options);
 
 const setupSwagger = (app) => {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
 
 module.exports = { setupSwagger, swaggerSpec };

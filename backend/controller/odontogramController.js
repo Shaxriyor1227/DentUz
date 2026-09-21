@@ -1,83 +1,90 @@
-const { Odontogram, OdontogramHistory, Patient, User } = require("../models");
-const { validateOdontogramUpdate } = require("../validations/odontogramValidation");
+'use strict';
 
+const { Odontogram, OdontogramHistory, Patient, User } = require('../models');
+const { validateOdontogramUpdate } = require('../validations/odontogramValidation');
+
+// ─── GET ODONTOGRAM BY PATIENT ────────────────────────────────────────────────
 exports.getOdontogramByPatient = async (req, res) => {
-    try {
-        let odontogram = await Odontogram.findOne({
-            where: { patientId: req.params.patientId },
-            include: [
-                { model: OdontogramHistory, as: "history", limit: 20 },
-                { model: Patient, as: "patient" },
-            ],
-        });
+  try {
+    let odontogram = await Odontogram.findOne({
+      where: { patientId: req.params.patientId },
+      include: [
+        { model: OdontogramHistory, as: 'history', limit: 20, order: [['createdAt', 'DESC']] },
+        { model: Patient,           as: 'patient' },
+      ],
+    });
 
-        if (!odontogram) {
-            odontogram = await Odontogram.create({
-                patientId: req.params.patientId,
-                teeth: {},
-            });
-        }
-
-        res.status(200).send(odontogram);
-    } catch (error) {
-        res.status(500).send(error.message);
+    // Auto-create empty odontogram if patient has none
+    if (!odontogram) {
+      odontogram = await Odontogram.create({
+        patientId: req.params.patientId,
+        teeth: {},
+      });
     }
+
+    res.status(200).json({ success: true, data: odontogram });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── SAVE / UPDATE ODONTOGRAM ─────────────────────────────────────────────────
 exports.saveOdontogram = async (req, res) => {
-    const { error } = validateOdontogramUpdate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validateOdontogramUpdate(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    try {
-        const { teeth, changedTooth, previousCondition, newCondition, notes } = req.body;
-        const userId = req.user?.id || null;
+  try {
+    const { teeth, changedTooth, previousCondition, newCondition, notes } = req.body;
+    const userId = req.user?.id || null;
 
-        let odontogram = await Odontogram.findOne({
-            where: { patientId: req.params.patientId },
-        });
+    let odontogram = await Odontogram.findOne({
+      where: { patientId: req.params.patientId },
+    });
 
-        if (!odontogram) {
-            odontogram = await Odontogram.create({
-                patientId: req.params.patientId,
-                teeth,
-                lastUpdatedBy: userId,
-            });
-        } else {
-            await odontogram.update({ teeth, lastUpdatedBy: userId });
-        }
-
-        // Add history entry
-        await OdontogramHistory.create({
-            odontogramId: odontogram.id,
-            patientId: req.params.patientId,
-            snapshot: teeth,
-            changedTooth,
-            previousCondition,
-            newCondition,
-            notes,
-            savedBy: userId,
-        });
-
-        res.status(200).send(odontogram);
-    } catch (error) {
-        res.status(500).send(error.message);
+    if (!odontogram) {
+      odontogram = await Odontogram.create({
+        patientId: req.params.patientId,
+        teeth,
+        lastUpdatedBy: userId,
+      });
+    } else {
+      await odontogram.update({ teeth, lastUpdatedBy: userId });
     }
+
+    // Save history snapshot
+    await OdontogramHistory.create({
+      odontogramId:      odontogram.id,
+      patientId:         req.params.patientId,
+      snapshot:          teeth,
+      changedTooth,
+      previousCondition,
+      newCondition,
+      notes,
+      savedBy:           userId,
+    });
+
+    res.status(200).json({ success: true, data: odontogram });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// ─── GET HISTORY ──────────────────────────────────────────────────────────────
 exports.getOdontogramHistory = async (req, res) => {
-    try {
-        const history = await OdontogramHistory.findAll({
-            where: { patientId: req.params.patientId },
-            include: [{ model: User, as: "author" }],
-            order: [["createdAt", "DESC"]],
-        });
-        res.status(200).send(history);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+  try {
+    const history = await OdontogramHistory.findAll({
+      where: { patientId: req.params.patientId },
+      include: [{ model: User, as: 'author' }],
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    });
+    res.status(200).json({ success: true, data: history });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
-// Aliases
+// ─── Aliases ──────────────────────────────────────────────────────────────────
 exports.getByPatient = exports.getOdontogramByPatient;
-exports.save = exports.saveOdontogram;
-exports.getHistory = exports.getOdontogramHistory;
+exports.save         = exports.saveOdontogram;
+exports.getHistory   = exports.getOdontogramHistory;
