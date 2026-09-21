@@ -1,6 +1,7 @@
 /**
  * Mock Patients API with pagination and search
  */
+import apiClient from './client';
 
 const basePatients = [
   {
@@ -177,6 +178,15 @@ for (let i = fullPatients.length; i < 342; i++) {
 
 export const patientsApi = {
   async getAll({ search = '', filter = 'all', page = 1, pageSize = 30 } = {}) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const queryParams = new URLSearchParams({ page, pageSize, filter, search });
+        return await apiClient.get(`/patients?${queryParams.toString()}`);
+      } catch (err) {
+        console.warn('Backend API unreachable, using local storage dataset:', err);
+      }
+    }
+
     await new Promise((r) => setTimeout(r, 180));
     let filtered = fullPatients;
 

@@ -109,16 +109,16 @@ export default function PublicLayout() {
 
           <nav className={styles.navLinks} aria-label="Asosiy navigatsiya">
             <NavLink
+              to="/about"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+            >
+              {t('homepage.nav.about')}
+            </NavLink>
+            <NavLink
               to="/features"
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
             >
               {t('homepage.nav.features')}
-            </NavLink>
-            <NavLink
-              to="/advantages"
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
-            >
-              {t('homepage.nav.benefits')}
             </NavLink>
             <NavLink
               to="/pricing"
@@ -139,11 +139,19 @@ export default function PublicLayout() {
             <div className={styles.langSegment} role="group" aria-label="Language selector">
               <button
                 type="button"
-                className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
+                className={`${styles.langOption} ${i18n.language?.startsWith('uz') ? styles.langOptionActive : ''}`}
                 onClick={() => changeLanguage('uz')}
                 title="O'zbekcha"
               >
                 UZB
+              </button>
+              <button
+                type="button"
+                className={`${styles.langOption} ${i18n.language?.startsWith('ru') ? styles.langOptionActive : ''}`}
+                onClick={() => changeLanguage('ru')}
+                title="Русский"
+              >
+                РУС
               </button>
               <button
                 type="button"
@@ -271,11 +279,7 @@ export default function PublicLayout() {
                 <li><Link to="/pricing" className={styles.footerLink}>{t('homepage.nav.pricing')}</Link></li>
                 <li><Link to="/pricing" className={styles.footerLink}>{t('homepage.footer.comparePlans')}</Link></li>
                 <li><Link to="/features" className={styles.footerLink}>{t('homepage.footer.fdiOdontogram')}</Link></li>
-                <li>
-                  <Link to="/dashboard" className={`${styles.footerLink} ${styles.demoLink}`}>
-                    {t('homepage.footer.liveDemo')}
-                  </Link>
-                </li>
+                <li><Link to="/docs" className={styles.footerLink}>{t('homepage.footer.docs')}</Link></li>
               </ul>
             </div>
 
@@ -283,7 +287,7 @@ export default function PublicLayout() {
             <div className={styles.footerCol}>
               <h4 className={styles.colHeading}>{t('homepage.footer.company')}</h4>
               <ul className={styles.linkList}>
-                <li><Link to="/advantages" className={styles.footerLink}>{t('homepage.footer.aboutUs')}</Link></li>
+                <li><Link to="/about" className={styles.footerLink}>{t('homepage.footer.aboutUs')}</Link></li>
                 <li>
                   <Link to="/advantages" className={styles.footerLink}>
                     Blog

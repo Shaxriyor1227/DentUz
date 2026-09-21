@@ -649,9 +649,11 @@
   },
   "homepage": {
     "nav": {
+      "about": "Biz haqimizda",
       "features": "Imkoniyatlar",
       "benefits": "Afzalliklar",
       "pricing": "Tariflar",
+      "docs": "Qo'llanma",
       "contact": "Bog'lanish",
       "login": "Kirish",
       "getStarted": "Boshlash"
@@ -794,7 +796,7 @@
       "officialResident": "RASMIY REZIDENT",
       "comparePlans": "Rejalarni taqqoslash",
       "fdiOdontogram": "FDI Odontogramma",
-      "liveDemo": "Namoyish (Demo)",
+      "docs": "Qo'llanma (Docs)",
       "aboutUs": "Biz haqimizda",
       "clinicNetwork": "Klinikalar tarmog'i",
       "careers": "Karyera",

@@ -649,9 +649,11 @@
   },
   "homepage": {
     "nav": {
+      "about": "About Us",
       "features": "Features",
       "benefits": "Advantages",
       "pricing": "Pricing",
+      "docs": "Docs",
       "contact": "Contact",
       "login": "Sign In",
       "getStarted": "Get Started"
@@ -794,7 +796,7 @@
       "officialResident": "OFFICIAL RESIDENT",
       "comparePlans": "Compare Plans",
       "fdiOdontogram": "FDI Odontogram",
-      "liveDemo": "Live Demo",
+      "docs": "Documentation & Guides",
       "aboutUs": "About Us",
       "clinicNetwork": "Clinic Network",
       "careers": "Careers",

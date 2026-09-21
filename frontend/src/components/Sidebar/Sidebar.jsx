@@ -8,18 +8,20 @@ import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
   const { t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, canAccess } = useAuth();
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
 
-  const navLinks = [
-    { to: '/dashboard', label: t('nav.dashboard'), icon: 'grid_view' },
-    { to: '/patients', label: t('nav.patients'), icon: 'person_search' },
-    { to: '/calendar', label: t('nav.calendar'), icon: 'calendar_month' },
-    { to: '/treatment-plan', label: t('nav.treatmentPlan'), icon: 'assignment' },
-    { to: '/finance', label: t('nav.finance'), icon: 'payments' },
-    { to: '/settings', label: t('nav.settings'), icon: 'settings' },
+  const allNavLinks = [
+    { to: '/dashboard', label: t('nav.dashboard'), icon: 'grid_view', module: 'dashboard' },
+    { to: '/patients', label: t('nav.patients'), icon: 'person_search', module: 'patients' },
+    { to: '/calendar', label: t('nav.calendar'), icon: 'calendar_month', module: 'calendar' },
+    { to: '/treatment-plan', label: t('nav.treatmentPlan'), icon: 'assignment', module: 'treatment' },
+    { to: '/finance', label: t('nav.finance'), icon: 'payments', module: 'finance' },
+    { to: '/settings', label: t('nav.settings'), icon: 'settings', module: 'settings' },
   ];
+
+  const navLinks = allNavLinks.filter(item => !item.module || canAccess(item.module));
 
   const handleLogout = () => {
     logout();

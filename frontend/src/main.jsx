@@ -28,8 +28,12 @@ skipLink.className = 'skip-to-main';
 skipLink.textContent = "Asosiy kontentga o'tish";
 document.body.insertBefore(skipLink, container);
 
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+
 ReactDOM.createRoot(container).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 );
