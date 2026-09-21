@@ -262,19 +262,11 @@ export default function TopBar() {
           <div className={styles.langSegment} role="group" aria-label="Language selector">
             <button
               type="button"
-              className={`${styles.langOption} ${i18n.language?.startsWith('uz') ? styles.langOptionActive : ''}`}
+              className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
               onClick={() => changeLanguage('uz')}
               title="O'zbekcha"
             >
               UZB
-            </button>
-            <button
-              type="button"
-              className={`${styles.langOption} ${i18n.language?.startsWith('ru') ? styles.langOptionActive : ''}`}
-              onClick={() => changeLanguage('ru')}
-              title="Русский"
-            >
-              РУС
             </button>
             <button
               type="button"
