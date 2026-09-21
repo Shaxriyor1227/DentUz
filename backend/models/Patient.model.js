@@ -1,22 +1,17 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Patient = sequelize.define(
     'Patient',
     {
       id: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         primaryKey: true,
-        comment: 'Human-readable ID, e.g. "P-1042"',
       },
       name: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       phone: {
-        type: DataTypes.STRING(25),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       birthdate: {
@@ -26,14 +21,13 @@ module.exports = (sequelize) => {
       age: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        comment: 'Computed/cached age; recalculate from birthdate when needed',
       },
       lastVisit: {
         type: DataTypes.DATEONLY,
         allowNull: true,
       },
       lastProcedure: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       nextVisit: {
@@ -55,7 +49,6 @@ module.exports = (sequelize) => {
       balance: {
         type: DataTypes.BIGINT,
         defaultValue: 0,
-        comment: 'Outstanding balance in UZS (sum)',
       },
       clinicId: {
         type: DataTypes.UUID,
@@ -73,6 +66,10 @@ module.exports = (sequelize) => {
     Patient.hasMany(models.Appointment, { foreignKey: 'patientId', as: 'appointments' });
     Patient.hasMany(models.Invoice, { foreignKey: 'patientId', as: 'invoices' });
     Patient.hasOne(models.Odontogram, { foreignKey: 'patientId', as: 'odontogram' });
+    Patient.hasMany(models.TreatmentPlan, { foreignKey: 'patientId', as: 'treatmentPlans' });
+    Patient.hasMany(models.MedicalRecord, { foreignKey: 'patientId', as: 'medicalRecords' });
+    Patient.hasMany(models.LabOrder, { foreignKey: 'patientId', as: 'labOrders' });
+    Patient.hasMany(models.Payment, { foreignKey: 'patientId', as: 'payments' });
   };
 
   return Patient;

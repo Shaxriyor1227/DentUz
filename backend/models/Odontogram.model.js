@@ -1,14 +1,4 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-/**
- * Odontogram — stores per-patient tooth state map.
- * `teeth` is a JSON object keyed by tooth number (1-32 / UNS notation)
- * Value shape per tooth:
- *   { condition: 'healthy'|'treated'|'caries'|'missing'|'implant'|'crown', notes: string }
- */
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Odontogram = sequelize.define(
     'Odontogram',
     {
@@ -18,7 +8,7 @@ module.exports = (sequelize) => {
         primaryKey: true,
       },
       patientId: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         references: { model: 'patients', key: 'id' },
@@ -26,7 +16,6 @@ module.exports = (sequelize) => {
       teeth: {
         type: DataTypes.JSONB,
         defaultValue: {},
-        comment: 'Map of tooth_number -> { condition, notes }',
       },
       lastUpdatedBy: {
         type: DataTypes.UUID,
@@ -42,10 +31,7 @@ module.exports = (sequelize) => {
   Odontogram.associate = (models) => {
     Odontogram.belongsTo(models.Patient, { foreignKey: 'patientId', as: 'patient' });
     Odontogram.belongsTo(models.User, { foreignKey: 'lastUpdatedBy', as: 'updatedBy' });
-    Odontogram.hasMany(models.OdontogramHistory, {
-      foreignKey: 'odontogramId',
-      as: 'history',
-    });
+    Odontogram.hasMany(models.OdontogramHistory, { foreignKey: 'odontogramId', as: 'history' });
   };
 
   return Odontogram;

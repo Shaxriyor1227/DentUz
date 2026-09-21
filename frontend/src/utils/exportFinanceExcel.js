@@ -1,11 +1,12 @@
-import ExcelJS from 'exceljs';
-
 /**
  * Exports financial invoices and summary to a professionally styled Excel (.xlsx) file
  * @param {Array} invoices - List of invoice objects
  * @param {Object} options - Filter, stats, and language options
  */
 export async function exportFinanceToExcel(invoices = [], options = {}) {
+  const ExcelJSModule = await import('exceljs');
+  const ExcelJS = ExcelJSModule.default || ExcelJSModule;
+
   const {
     activeTab = 'all',
     dateRange = 'this_month',

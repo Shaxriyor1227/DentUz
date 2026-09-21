@@ -1,12 +1,4 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-/**
- * OdontogramHistory — immutable snapshot appended each time the odontogram
- * is saved.  Enables full audit trail of dental status changes over time.
- */
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const OdontogramHistory = sequelize.define(
     'OdontogramHistory',
     {
@@ -21,25 +13,23 @@ module.exports = (sequelize) => {
         references: { model: 'odontograms', key: 'id' },
       },
       patientId: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       snapshot: {
         type: DataTypes.JSONB,
         allowNull: false,
-        comment: 'Full teeth state at the time of save',
       },
       changedTooth: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        comment: 'Which tooth number changed in this snapshot',
       },
       previousCondition: {
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       newCondition: {
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       notes: {
@@ -54,15 +44,12 @@ module.exports = (sequelize) => {
     },
     {
       tableName: 'odontogram_history',
-      updatedAt: false, // history is append-only; no updates
+      updatedAt: false,
     }
   );
 
   OdontogramHistory.associate = (models) => {
-    OdontogramHistory.belongsTo(models.Odontogram, {
-      foreignKey: 'odontogramId',
-      as: 'odontogram',
-    });
+    OdontogramHistory.belongsTo(models.Odontogram, { foreignKey: 'odontogramId', as: 'odontogram' });
     OdontogramHistory.belongsTo(models.User, { foreignKey: 'savedBy', as: 'author' });
   };
 

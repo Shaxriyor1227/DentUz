@@ -1,109 +1,106 @@
-'use strict';
+const { Patient, Clinic, Appointment, Invoice, Odontogram } = require("../models");
+const { validatePatient } = require("../validations/patientValidation");
+const { Op } = require("sequelize");
 
-const { Op } = require('sequelize');
-const { Patient } = require('../models');
+exports.createPatient = async (req, res) => {
+    const { error } = validatePatient(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-/**
- * GET /api/patients
- * Query: { search, filter, page, pageSize }
- * Returns paginated list matching frontend patientsApi shape
- */
-exports.getAll = async (req, res, next) => {
-  try {
-    const { search = '', filter = 'all', page = 1, pageSize = 30 } = req.query;
-    const limit = parseInt(pageSize, 10) || 30;
-    const offset = (parseInt(page, 10) - 1) * limit;
-
-    const where = { clinicId: req.user.clinicId };
-
-    if (search.trim()) {
-      where[Op.or] = [
-        { name: { [Op.iLike]: `%${search}%` } },
-        { phone: { [Op.iLike]: `%${search}%` } },
-        { id: { [Op.iLike]: `%${search}%` } },
-        { lastProcedure: { [Op.iLike]: `%${search}%` } },
-      ];
+    try {
+        const patient = await Patient.create(req.body);
+        res.status(201).send(patient);
+    } catch (error) {
+        res.status(500).send(error.message || error);
     }
+};
 
-    if (filter === 'today') where.status = 'today';
-    else if (filter === 'scheduled') where.status = 'scheduled';
-    else if (filter === 'debtor') {
-      where[Op.or] = [{ status: 'debtor' }, { balance: { [Op.gt]: 0 } }];
+exports.getPatients = async (req, res) => {
+    try {
+        const patients = await Patient.findAll({
+            include: [
+                { model: Appointment, as: "appointments" },
+                { model: Odontogram, as: "odontogram" },
+            ],
+            order: [["createdAt", "DESC"]],
+        });
+        res.status(200).send(patients);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
-
-    const { count, rows } = await Patient.findAndCountAll({ where, limit, offset, order: [['createdAt', 'DESC']] });
-
-    // Count badges (match frontend counts shape)
-    const [allCount, todayCount, scheduledCount, debtorCount] = await Promise.all([
-      Patient.count({ where: { clinicId: req.user.clinicId } }),
-      Patient.count({ where: { clinicId: req.user.clinicId, status: 'today' } }),
-      Patient.count({ where: { clinicId: req.user.clinicId, status: 'scheduled' } }),
-      Patient.count({ where: { clinicId: req.user.clinicId, balance: { [Op.gt]: 0 } } }),
-    ]);
-
-    res.json({
-      success: true,
-      items: rows,
-      total: count,
-      fullFilteredCount: count,
-      page: parseInt(page, 10),
-      pageSize: limit,
-      allTotalCount: allCount,
-      counts: { all: allCount, today: todayCount, scheduled: scheduledCount, debtor: debtorCount },
-    });
-  } catch (err) {
-    next(err);
-  }
 };
 
-/** GET /api/patients/:id */
-exports.getById = async (req, res, next) => {
-  try {
-    const patient = await Patient.findOne({
-      where: { id: req.params.id, clinicId: req.user.clinicId },
-    });
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
-    res.json({ success: true, patient });
-  } catch (err) {
-    next(err);
-  }
+exports.getPatientById = async (req, res) => {
+    try {
+        const patient = await Patient.findByPk(req.params.id, {
+            include: [
+                { model: Appointment, as: "appointments" },
+                { model: Invoice, as: "invoices" },
+                { model: Odontogram, as: "odontogram" },
+            ],
+        });
+        if (!patient) return res.status(404).send("Patient not found");
+        res.status(200).send(patient);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 };
 
-/** POST /api/patients */
-exports.create = async (req, res, next) => {
-  try {
-    const data = { ...req.body, clinicId: req.user.clinicId };
-    const patient = await Patient.create(data);
-    res.status(201).json({ success: true, patient });
-  } catch (err) {
-    next(err);
-  }
+exports.updatePatient = async (req, res) => {
+    const { error } = validatePatient(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    try {
+        const patient = await Patient.findByPk(req.params.id);
+        if (!patient) return res.status(404).send("Patient not found");
+
+        await patient.update(req.body);
+        res.status(200).send(patient);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 };
 
-/** PUT /api/patients/:id */
-exports.update = async (req, res, next) => {
-  try {
-    const patient = await Patient.findOne({
-      where: { id: req.params.id, clinicId: req.user.clinicId },
-    });
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
-    await patient.update(req.body);
-    res.json({ success: true, patient });
-  } catch (err) {
-    next(err);
-  }
+exports.deletePatient = async (req, res) => {
+    try {
+        const patient = await Patient.findByPk(req.params.id);
+        if (!patient) return res.status(404).send("Patient not found");
+
+        const patientData = patient.toJSON();
+        await patient.destroy();
+        res.status(200).send(patientData);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 };
 
-/** DELETE /api/patients/:id */
-exports.remove = async (req, res, next) => {
-  try {
-    const patient = await Patient.findOne({
-      where: { id: req.params.id, clinicId: req.user.clinicId },
-    });
-    if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
-    await patient.destroy();
-    res.json({ success: true, message: 'Bemor o\'chirildi' });
-  } catch (err) {
-    next(err);
-  }
+exports.searchPatient = async (req, res) => {
+    try {
+        console.log("Query received:", req.query.query);
+        const { query } = req.query;
+        if (!query) {
+            return res.status(400).send("Search query is required");
+        }
+
+        const patients = await Patient.findAll({
+            where: {
+                [Op.or]: [
+                    { name: { [Op.iLike]: `%${query}%` } },
+                    { phone: { [Op.iLike]: `%${query}%` } },
+                    { id: { [Op.iLike]: `%${query}%` } },
+                ],
+            },
+        });
+
+        res.status(200).send(patients);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 };
+
+// Aliases for compatibility
+exports.getAll = exports.getPatients;
+exports.getById = exports.getPatientById;
+exports.create = exports.createPatient;
+exports.update = exports.updatePatient;
+exports.remove = exports.deletePatient;
+exports.search = exports.searchPatient;

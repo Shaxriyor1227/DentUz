@@ -1,9 +1,6 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
     {
@@ -13,21 +10,19 @@ module.exports = (sequelize) => {
         primaryKey: true,
       },
       name: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       shortName: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'e.g. "Dr. Azimov" — shown in calendar cards',
       },
       title: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'e.g. "Bosh shifokor • Implantolog"',
       },
       email: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         validate: { isEmail: true },
@@ -40,8 +35,6 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM('owner', 'doctor', 'receptionist', 'nurse'),
         allowNull: false,
         defaultValue: 'receptionist',
-        comment:
-          '"admin" in frontend mock maps to "receptionist"; "assistant" is a title-only label under nurse',
       },
       clinicId: {
         type: DataTypes.UUID,
@@ -49,7 +42,7 @@ module.exports = (sequelize) => {
         references: { model: 'clinics', key: 'id' },
       },
       phone: {
-        type: DataTypes.STRING(25),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       avatarUrl: {
@@ -67,9 +60,7 @@ module.exports = (sequelize) => {
         attributes: { exclude: ['password', 'refreshToken'] },
       },
       scopes: {
-        withSecrets: {
-          attributes: {},
-        },
+        withSecrets: { attributes: {} },
       },
     }
   );
@@ -79,7 +70,7 @@ module.exports = (sequelize) => {
     if (user.changed('password')) {
       const salt = await bcrypt.genSalt(12);
       user.password = await bcrypt.hash(user.password, salt);
-    }
+    } 
   };
   User.beforeCreate(hashPassword);
   User.beforeUpdate(hashPassword);

@@ -1,12 +1,4 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-/**
- * Notification — tracks sent and pending notifications.
- * Supports SMS (Eskiz), Telegram Bot, and in-app channels.
- */
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Notification = sequelize.define(
     'Notification',
     {
@@ -21,22 +13,19 @@ module.exports = (sequelize) => {
         references: { model: 'clinics', key: 'id' },
       },
       recipientId: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Patient ID (P-xxxx) or null for staff-only notifications',
       },
       channel: {
         type: DataTypes.ENUM('sms', 'telegram', 'in_app'),
         defaultValue: 'in_app',
       },
       type: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING,
         allowNull: false,
-        comment:
-          'e.g. "appointment_reminder", "payment_due", "appointment_created"',
       },
       title: {
-        type: DataTypes.STRING(200),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       body: {
@@ -54,7 +43,6 @@ module.exports = (sequelize) => {
       metadata: {
         type: DataTypes.JSONB,
         defaultValue: {},
-        comment: 'Extra data, e.g. appointmentId, messageId from Eskiz',
       },
     },
     {

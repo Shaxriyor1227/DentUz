@@ -1,85 +1,98 @@
-'use strict';
+const { User, Doctor, Clinic } = require("../models");
+const { validateUser } = require("../validations/userValidation");
+const { Op } = require("sequelize");
 
-const { User, Doctor } = require('../models');
-
-/** GET /api/team — list all clinic team members */
-exports.getTeam = async (req, res, next) => {
-  try {
-    const users = await User.findAll({
-      where: { clinicId: req.user.clinicId },
-      include: [{ model: Doctor, as: 'doctorProfile' }],
-    });
-
-    // Map to frontend teamApi shape
-    const team = users.map((u) => ({
-      id: u.id,
-      name: u.name,
-      initials: u.name
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase(),
-      role: mapRoleLabel(u.role),
-      roleType: u.role,
-      title: u.title,
-      email: u.email,
-      phone: u.phone,
-      avatarUrl: u.avatarUrl,
-      branch: 'Markaziy Klinika',
-      status: 'offline',
-    }));
-
-    res.json({ success: true, team });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/** POST /api/team — add team member */
-exports.addMember = async (req, res, next) => {
-  try {
-    const user = await User.create({ ...req.body, clinicId: req.user.clinicId });
-    res.status(201).json({ success: true, user });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/** PUT /api/team/:id — update team member */
-exports.updateMember = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ where: { id: req.params.id, clinicId: req.user.clinicId } });
-    if (!user) return res.status(404).json({ success: false, message: 'Xodim topilmadi' });
-    await user.update(req.body);
-    res.json({ success: true, user });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/** DELETE /api/team/:id */
-exports.removeMember = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ where: { id: req.params.id, clinicId: req.user.clinicId } });
-    if (!user) return res.status(404).json({ success: false, message: 'Xodim topilmadi' });
-    if (user.role === 'owner') {
-      return res.status(403).json({ success: false, message: 'Egasini o\'chirish mumkin emas' });
+exports.getTeam = async (req, res) => {
+    try {
+        const team = await User.findAll({
+            include: [
+                { model: Doctor, as: "doctorProfile" },
+                { model: Clinic, as: "clinic" },
+            ],
+            order: [["createdAt", "ASC"]],
+        });
+        res.status(200).send(team);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
-    await user.destroy();
-    res.json({ success: true, message: 'Xodim o\'chirildi' });
-  } catch (err) {
-    next(err);
-  }
 };
 
-// Map DB role to Uzbek display label (matches frontend teamApi)
-function mapRoleLabel(role) {
-  const labels = {
-    owner: 'Egasi',
-    doctor: 'Shifokor',
-    receptionist: 'Administrator',
-    nurse: 'Hamshira',
-  };
-  return labels[role] || role;
-}
+exports.getMemberById = async (req, res) => {
+    try {
+        const member = await User.findByPk(req.params.id, {
+            include: [{ model: Doctor, as: "doctorProfile" }],
+        });
+        if (!member) return res.status(404).send("Member not found");
+        res.status(200).send(member);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+exports.addMember = async (req, res) => {
+    const { error } = validateUser(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    try {
+        const user = await User.create(req.body);
+        res.status(201).send(user);
+    } catch (error) {
+        res.status(500).send(error.message || error);
+    }
+};
+
+exports.updateMember = async (req, res) => {
+    const { error } = validateUser(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).send("Member not found");
+
+        await user.update(req.body);
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+exports.removeMember = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).send("Member not found");
+
+        if (user.role === "owner") {
+            return res.status(403).send("Owner cannot be deleted");
+        }
+
+        const userData = user.toJSON();
+        await user.destroy();
+        res.status(200).send(userData);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+exports.searchMember = async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query) {
+            return res.status(400).send("Search query is required");
+        }
+
+        const members = await User.findAll({
+            where: {
+                [Op.or]: [
+                    { name: { [Op.iLike]: `%${query}%` } },
+                    { email: { [Op.iLike]: `%${query}%` } },
+                    { phone: { [Op.iLike]: `%${query}%` } },
+                ],
+            },
+            include: [{ model: Doctor, as: "doctorProfile" }],
+        });
+
+        res.status(200).send(members);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};

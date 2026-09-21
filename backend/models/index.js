@@ -1,33 +1,47 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
+const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const db = {};
+// ─── Import all models ────────────────────────────────────────────────────────
+const Clinic           = require('./Clinic.model')(sequelize, DataTypes);
+const User             = require('./User.model')(sequelize, DataTypes);
+const Doctor           = require('./Doctor.model')(sequelize, DataTypes);
+const Patient          = require('./Patient.model')(sequelize, DataTypes);
+const Appointment      = require('./Appointment.model')(sequelize, DataTypes);
+const Invoice          = require('./Invoice.model')(sequelize, DataTypes);
+const Odontogram       = require('./Odontogram.model')(sequelize, DataTypes);
+const OdontogramHistory = require('./OdontogramHistory.model')(sequelize, DataTypes);
+const Notification     = require('./Notification.model')(sequelize, DataTypes);
+const Service          = require('./Service.model')(sequelize, DataTypes);
+const TreatmentPlan    = require('./TreatmentPlan.model')(sequelize, DataTypes);
+const Payment          = require('./Payment.model')(sequelize, DataTypes);
+const MedicalRecord    = require('./MedicalRecord.model')(sequelize, DataTypes);
+const LabOrder         = require('./LabOrder.model')(sequelize, DataTypes);
+const Inventory        = require('./Inventory.model')(sequelize, DataTypes);
 
-// Dynamically load all model files in this directory
-fs.readdirSync(__dirname)
-  .filter((file) => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== path.basename(__filename) &&
-      file.slice(-3) === '.js'
-    );
-  })
-  .forEach((file) => {
-    const model = require(path.join(__dirname, file))(sequelize);
-    db[model.name] = model;
-  });
+// ─── Bundle all models ────────────────────────────────────────────────────────
+const models = {
+  Clinic,
+  User,
+  Doctor,
+  Patient,
+  Appointment,
+  Invoice,
+  Odontogram,
+  OdontogramHistory,
+  Notification,
+  Service,
+  TreatmentPlan,
+  Payment,
+  MedicalRecord,
+  LabOrder,
+  Inventory,
+};
 
-// Run all associations
-Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
+// ─── Run associations ─────────────────────────────────────────────────────────
+Object.values(models).forEach((model) => {
+  if (model.associate) {
+    model.associate(models);
   }
 });
 
-db.sequelize = sequelize;
-db.Sequelize = require('sequelize').Sequelize;
-
-module.exports = db;
+module.exports = { sequelize, Sequelize, ...models };

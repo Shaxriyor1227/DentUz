@@ -29,6 +29,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globIgnores: ['**/excel-vendor-*.js'],
+        maximumFileSizeToCacheInBytes: 3000000,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -61,30 +63,16 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     cssMinify: true,
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
-        // Manual chunk splitting for optimal caching
+        // Manual chunk splitting for isolated heavy libraries
         manualChunks: (id) => {
-          // React core - smallest, most cached chunk
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'react-vendor';
-          }
-          // Router - separate chunk
-          if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router/')) {
-            return 'router-vendor';
-          }
-          // react-window (virtualization) - only used in some pages
-          if (id.includes('node_modules/react-window')) {
-            return 'virtualization-vendor';
-          }
-          // exceljs - export library
           if (id.includes('node_modules/exceljs')) {
             return 'excel-vendor';
           }
-          // All other node_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor';
+          if (id.includes('node_modules/react-window')) {
+            return 'virtualization-vendor';
           }
         },
         // Consistent file naming with content hash

@@ -1,11 +1,12 @@
-import ExcelJS from 'exceljs';
-
 /**
  * Exports patients list to a professionally styled Excel (.xlsx) file
  * @param {Array} patients - List of patient objects
  * @param {Object} options - Filter and language options
  */
 export async function exportPatientsToExcel(patients = [], options = {}) {
+  const ExcelJSModule = await import('exceljs');
+  const ExcelJS = ExcelJSModule.default || ExcelJSModule;
+
   const {
     filter = 'all',
     language = 'uz',

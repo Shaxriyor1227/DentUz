@@ -1,24 +1,26 @@
-'use strict';
-
-require('dotenv').config();
 const express = require('express');
+const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
-const swaggerUi = require('swagger-ui-express');
 
-const swaggerSpec = require('./swagger/swaggerConfig');
+dotenv.config();
+
+const { setupSwagger } = require('./swagger/swaggerConfig');
 const { errorHandler } = require('./middleware/errorHandler');
 const db = require('./models');
 
 // ─── Route imports ────────────────────────────────────────────────────────────
-const authRoutes = require('./routes/authRoutes');
+const authRoutes       = require('./routes/authRoutes');
+const clinicRoutes     = require('./routes/clinicRoutes');
 const patientRoutes = require('./routes/patientRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const odontogramRoutes = require('./routes/odontogramRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -38,7 +40,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // ─── Swagger Docs ─────────────────────────────────────────────────────────────
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+setupSwagger(app);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -46,12 +48,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
+app.use('/api/auth',          authRoutes);
+app.use('/api/clinics',       clinicRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/odontogram', odontogramRoutes);
 app.use('/api/team', teamRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {
@@ -67,18 +72,18 @@ const PORT = process.env.PORT || 5000;
 const start = async () => {
   try {
     await db.sequelize.authenticate();
-    console.log('✅ PostgreSQL ulanish muvaffaqiyatli');
+    console.log('PostgreSQL ulanish muvaffaqiyatli');
 
     // alter:true — safe schema sync without dropping tables
     await db.sequelize.sync({ alter: true });
-    console.log('✅ Barcha modellar sinxronlashtirildi');
+    console.log('Barcha modellar sinxronlashtirildi');
 
     app.listen(PORT, () => {
-      console.log(`🚀 DentUz API http://localhost:${PORT} portida ishlamoqda`);
-      console.log(`📖 Swagger docs: http://localhost:${PORT}/api/docs`);
+      console.log(`DentUz API http://localhost:${PORT} portida ishlamoqda`);
+      console.log(`Swagger docs: http://localhost:${PORT}/api/docs`);
     });
   } catch (err) {
-    console.error('❌ Server ishga tushmadi:', err);
+    console.error('Server ishga tushmadi:', err);
     process.exit(1);
   }
 };

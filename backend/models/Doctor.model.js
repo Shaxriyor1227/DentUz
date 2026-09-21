@@ -1,8 +1,4 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Doctor = sequelize.define(
     'Doctor',
     {
@@ -17,18 +13,16 @@ module.exports = (sequelize) => {
         references: { model: 'users', key: 'id' },
       },
       specialization: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'e.g. "Ortodont", "Implantolog", "Terapevt-Stomatolog"',
       },
       cabinetNumber: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
       workingHours: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'e.g. "09:00-18:00"',
       },
       clinicId: {
         type: DataTypes.UUID,
@@ -45,6 +39,9 @@ module.exports = (sequelize) => {
     Doctor.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
     Doctor.belongsTo(models.Clinic, { foreignKey: 'clinicId', as: 'clinic' });
     Doctor.hasMany(models.Appointment, { foreignKey: 'doctorId', as: 'appointments' });
+    Doctor.hasMany(models.TreatmentPlan, { foreignKey: 'doctorId', as: 'treatmentPlans' });
+    Doctor.hasMany(models.MedicalRecord, { foreignKey: 'doctorId', as: 'medicalRecords' });
+    Doctor.hasMany(models.LabOrder, { foreignKey: 'doctorId', as: 'labOrders' });
   };
 
   return Doctor;

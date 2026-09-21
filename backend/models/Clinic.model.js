@@ -1,8 +1,4 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Clinic = sequelize.define(
     'Clinic',
     {
@@ -12,7 +8,7 @@ module.exports = (sequelize) => {
         primaryKey: true,
       },
       name: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       address: {
@@ -20,13 +16,12 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       phone: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       workingHours: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'e.g. "09:00 - 20:00, Dushanba-Shanba"',
       },
       subscriptionPlan: {
         type: DataTypes.ENUM('free', 'starter', 'pro', 'enterprise'),

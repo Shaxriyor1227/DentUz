@@ -1,34 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const teamController = require("../controller/teamController");
+const userController = require("../controller/userController");
 
 /**
  * @swagger
  * tags:
- *   name: Team
- *   description: Staff and doctor management
+ *   name: Users
+ *   description: User management
  */
 
 /**
  * @swagger
- * /api/team:
- *   get:
- *     tags: [Team]
- *     summary: Get all team members
- *     responses:
- *       200:
- *         description: List of team members
- *       500:
- *         description: Server error
- */
-router.get("/team", teamController.getTeam);
-
-/**
- * @swagger
- * /api/team:
+ * /api/users:
  *   post:
- *     tags: [Team]
- *     summary: Add a new team member
+ *     tags: [Users]
+ *     summary: Create a new user
  *     requestBody:
  *       required: true
  *       content:
@@ -38,14 +24,13 @@ router.get("/team", teamController.getTeam);
  *             required:
  *               - name
  *               - email
- *               - password
  *             properties:
  *               name:
  *                 type: string
- *                 example: Dr. Malika Saidova
+ *                 example: Dr. Jasur Azimov
  *               email:
  *                 type: string
- *                 example: m.saidova@dentuz.uz
+ *                 example: j.azimov@dentuz.uz
  *               password:
  *                 type: string
  *                 example: Password123!
@@ -53,51 +38,65 @@ router.get("/team", teamController.getTeam);
  *                 type: string
  *                 enum: [owner, doctor, receptionist, nurse]
  *                 example: doctor
+ *               phone:
+ *                 type: string
+ *                 example: +998 90 123 45 67
  *               title:
  *                 type: string
  *                 example: Ortodont
- *               phone:
- *                 type: string
- *                 example: +998 93 319 44 28
  *     responses:
  *       201:
- *         description: Team member created
+ *         description: User created
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.post("/team", teamController.addMember);
+router.post("/users", userController.createUser);
 
 /**
  * @swagger
- * /api/team/search:
+ * /api/users:
  *   get:
- *     tags: [Team]
- *     summary: Search team members by name or email
+ *     tags: [Users]
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       500:
+ *         description: Server error
+ */
+router.get("/users", userController.getUsers);
+
+/**
+ * @swagger
+ * /api/users/search:
+ *   get:
+ *     tags: [Users]
+ *     summary: Search users by name or email
  *     parameters:
  *       - in: query
  *         name: query
  *         schema:
  *           type: string
  *         required: true
- *         description: Search query
+ *         description: Search query for user name or email
  *     responses:
  *       200:
- *         description: List of matching members
+ *         description: List of users matching the search query
  *       400:
  *         description: Search query is required
  *       500:
  *         description: Server error
  */
-router.get("/team/search", teamController.searchMember);
+router.get("/users/search", userController.searchUser);
 
 /**
  * @swagger
- * /api/team/{id}:
+ * /api/users/{id}:
  *   get:
- *     tags: [Team]
- *     summary: Get team member by ID
+ *     tags: [Users]
+ *     summary: Get user by ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -107,20 +106,20 @@ router.get("/team/search", teamController.searchMember);
  *         description: User ID
  *     responses:
  *       200:
- *         description: Member details
+ *         description: User details
  *       404:
- *         description: Member not found
+ *         description: User not found
  *       500:
  *         description: Server error
  */
-router.get("/team/:id", teamController.getMemberById);
+router.get("/users/:id", userController.getUserById);
 
 /**
  * @swagger
- * /api/team/{id}:
+ * /api/users/{id}:
  *   put:
- *     tags: [Team]
- *     summary: Update team member by ID
+ *     tags: [Users]
+ *     summary: Update user by ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,30 +136,32 @@ router.get("/team/:id", teamController.getMemberById);
  *             properties:
  *               name:
  *                 type: string
- *               title:
+ *               email:
  *                 type: string
  *               role:
  *                 type: string
  *               phone:
  *                 type: string
+ *               title:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Member updated
+ *         description: User updated
  *       400:
  *         description: Invalid input
  *       404:
- *         description: Member not found
+ *         description: User not found
  *       500:
  *         description: Server error
  */
-router.put("/team/:id", teamController.updateMember);
+router.put("/users/:id", userController.updateUser);
 
 /**
  * @swagger
- * /api/team/{id}:
+ * /api/users/{id}:
  *   delete:
- *     tags: [Team]
- *     summary: Delete team member by ID
+ *     tags: [Users]
+ *     summary: Delete user by ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -170,14 +171,12 @@ router.put("/team/:id", teamController.updateMember);
  *         description: User ID
  *     responses:
  *       200:
- *         description: Member deleted
- *       403:
- *         description: Cannot delete clinic owner
+ *         description: User deleted
  *       404:
- *         description: Member not found
+ *         description: User not found
  *       500:
  *         description: Server error
  */
-router.delete("/team/:id", teamController.removeMember);
+router.delete("/users/:id", userController.deleteUser);
 
 module.exports = router;

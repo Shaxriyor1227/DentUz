@@ -1,15 +1,15 @@
-'use strict';
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
-const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'DentUz API',
+      title: 'DentUz API with Swagger',
       version: '1.0.0',
       description: 'DentUz Dental Clinic Management System — REST API documentation',
-      contact: { name: 'DentUz Dev Team', email: 'dev@dentuz.uz' },
     },
     servers: [
       { url: 'http://localhost:5000', description: 'Development server' },
@@ -31,10 +31,20 @@ const options = {
       { name: 'Finance', description: 'Invoices & stats' },
       { name: 'Odontogram', description: 'Dental chart' },
       { name: 'Team', description: 'Staff management' },
+      { name: 'Users', description: 'User management' },
     ],
   },
-  apis: ['./routes/*.js', './controller/*.js'],
+  apis: [
+    './routes/*.js',
+    path.join(__dirname, '../routes/*.js').replace(/\\/g, '/'),
+  ],
 };
 
-const swaggerSpec = swaggerJsdoc(options);
-module.exports = swaggerSpec;
+const swaggerSpec = swaggerJsDoc(options);
+
+const setupSwagger = (app) => {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+};
+
+module.exports = { setupSwagger, swaggerSpec };

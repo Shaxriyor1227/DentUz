@@ -1,9 +1,10 @@
-import ExcelJS from 'exceljs';
-
 /**
  * Exports clinical treatment plan estimation to a styled Excel (.xlsx) file
  */
 export async function exportTreatmentPlanToExcel(planData = {}) {
+  const ExcelJSModule = await import('exceljs');
+  const ExcelJS = ExcelJSModule.default || ExcelJSModule;
+
   const {
     planId = 'TR-8821',
     planTitle = 'Kompleks reabilitatsiya va endodontiya',

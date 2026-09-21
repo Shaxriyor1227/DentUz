@@ -39,3 +39,9 @@ lerna-debug.log*
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Local database installers & archives
+PostSQL/
+PostSQLzip/
+PostSQLzip_extracted/
+*.zip

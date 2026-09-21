@@ -1,39 +1,31 @@
-'use strict';
-
-const { DataTypes } = require('sequelize');
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Appointment = sequelize.define(
     'Appointment',
     {
       id: {
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING,
         primaryKey: true,
-        comment: 'Human-readable ID, e.g. "apt-1"',
       },
       time: {
-        type: DataTypes.STRING(5),
+        type: DataTypes.STRING,
         allowNull: false,
-        comment: 'Start time in "HH:MM" format',
       },
       duration: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 30,
-        comment: 'Duration in minutes',
       },
       patientId: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING,
         allowNull: false,
         references: { model: 'patients', key: 'id' },
       },
       patientName: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Denormalized for quick calendar render',
       },
       procedure: {
-        type: DataTypes.STRING(200),
+        type: DataTypes.STRING,
         allowNull: true,
       },
       doctorId: {
@@ -42,23 +34,20 @@ module.exports = (sequelize) => {
         references: { model: 'doctors', key: 'id' },
       },
       doctorSlug: {
-        type: DataTypes.STRING(80),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Slug key used in frontend mock, e.g. "azimov"',
       },
       doctorName: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Denormalized for quick calendar render',
       },
       status: {
         type: DataTypes.ENUM('pending', 'in_progress', 'completed', 'cancelled'),
         defaultValue: 'pending',
       },
       day: {
-        type: DataTypes.STRING(3),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Day abbreviation: mon, tue, wed, thu, fri, sat, sun',
       },
       date: {
         type: DataTypes.DATEONLY,
@@ -69,9 +58,8 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       color: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Hex color for calendar card',
       },
       clinicId: {
         type: DataTypes.UUID,
