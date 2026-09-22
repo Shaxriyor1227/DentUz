@@ -4,13 +4,11 @@ const { Invoice, Patient, Clinic } = require('../models');
 const { validateInvoice } = require('../validations/invoiceValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createInvoice = async (req, res) => {
   const { error } = validateInvoice(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createInvoice = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getInvoices = async (req, res) => {
   try {
     const { status, patientId, search, page, limit } = req.query;
@@ -62,7 +59,6 @@ exports.getInvoices = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getInvoiceById = async (req, res) => {
   try {
     const invoice = await Invoice.findByPk(req.params.id, {
@@ -78,7 +74,6 @@ exports.getInvoiceById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateInvoice = async (req, res) => {
   const { error } = validateInvoice(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -94,7 +89,6 @@ exports.updateInvoice = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteInvoice = async (req, res) => {
   try {
     const invoice = await Invoice.findByPk(req.params.id);
@@ -108,7 +102,6 @@ exports.deleteInvoice = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchInvoice = async (req, res) => {
   try {
     const { query } = req.query;
@@ -132,7 +125,6 @@ exports.searchInvoice = async (req, res) => {
   }
 };
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
 exports.getStats = async (req, res) => {
   try {
     const { period = 'this_month' } = req.query;
@@ -174,7 +166,6 @@ exports.getStats = async (req, res) => {
   }
 };
 
-// ─── UPDATE STATUS ────────────────────────────────────────────────────────────
 exports.updateStatus = async (req, res) => {
   try {
     const inv = await Invoice.findByPk(req.params.id);

@@ -4,13 +4,11 @@ const { Service } = require('../models');
 const { validateService } = require('../validations/serviceValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createService = async (req, res) => {
   const { error } = validateService(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createService = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getServices = async (req, res) => {
   try {
     const { category, isActive, search, page, limit } = req.query;
@@ -61,7 +58,6 @@ exports.getServices = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getServiceById = async (req, res) => {
   try {
     const service = await Service.findByPk(req.params.id);
@@ -72,7 +68,6 @@ exports.getServiceById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateService = async (req, res) => {
   const { error } = validateService(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -88,7 +83,6 @@ exports.updateService = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteService = async (req, res) => {
   try {
     const service = await Service.findByPk(req.params.id);
@@ -101,7 +95,6 @@ exports.deleteService = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchServices = async (req, res) => {
   try {
     const { query } = req.query;

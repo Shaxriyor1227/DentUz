@@ -4,13 +4,11 @@ const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── GET ALL TEAM ─────────────────────────────────────────────────────────────
 exports.getTeam = async (req, res) => {
   try {
     const { search, role, page, limit } = req.query;
@@ -51,7 +49,6 @@ exports.getTeam = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getMemberById = async (req, res) => {
   try {
     const member = await User.findByPk(req.params.id, {
@@ -64,7 +61,6 @@ exports.getMemberById = async (req, res) => {
   }
 };
 
-// ─── ADD MEMBER ───────────────────────────────────────────────────────────────
 exports.addMember = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -77,7 +73,6 @@ exports.addMember = async (req, res) => {
   }
 };
 
-// ─── UPDATE MEMBER ────────────────────────────────────────────────────────────
 exports.updateMember = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -93,7 +88,6 @@ exports.updateMember = async (req, res) => {
   }
 };
 
-// ─── REMOVE MEMBER ────────────────────────────────────────────────────────────
 exports.removeMember = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -111,7 +105,6 @@ exports.removeMember = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchMember = async (req, res) => {
   try {
     const { query } = req.query;

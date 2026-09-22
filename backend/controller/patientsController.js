@@ -1,16 +1,14 @@
 'use strict';
 
-const { Patient, Clinic, Appointment, Invoice, Odontogram } = require('../models');
+const { Patient, Appointment, Invoice, Odontogram } = require('../models');
 const { validatePatient } = require('../validations/patientValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createPatient = async (req, res) => {
   const { error } = validatePatient(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createPatient = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getPatients = async (req, res) => {
   try {
     const { search, status, page, limit } = req.query;
@@ -37,9 +34,9 @@ exports.getPatients = async (req, res) => {
     if (search && search.trim()) {
       const q = search.trim();
       where[Op.or] = [
-        { name:          { [Op.iLike]: `%${q}%` } },
-        { phone:         { [Op.iLike]: `%${q}%` } },
-        { id:            { [Op.iLike]: `%${q}%` } },
+        { name: { [Op.iLike]: `%${q}%` } },
+        { phone: { [Op.iLike]: `%${q}%` } },
+        { id: { [Op.iLike]: `%${q}%` } },
         { lastProcedure: { [Op.iLike]: `%${q}%` } },
       ];
     }
@@ -48,7 +45,7 @@ exports.getPatients = async (req, res) => {
       where,
       include: [
         { model: Appointment, as: 'appointments' },
-        { model: Odontogram,  as: 'odontogram'  },
+        { model: Odontogram, as: 'odontogram' },
       ],
       order: [['createdAt', 'DESC']],
       limit: lim,
@@ -67,14 +64,13 @@ exports.getPatients = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getPatientById = async (req, res) => {
   try {
     const patient = await Patient.findByPk(req.params.id, {
       include: [
         { model: Appointment, as: 'appointments' },
-        { model: Invoice,     as: 'invoices'     },
-        { model: Odontogram,  as: 'odontogram'   },
+        { model: Invoice, as: 'invoices' },
+        { model: Odontogram, as: 'odontogram' },
       ],
     });
     if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
@@ -84,7 +80,6 @@ exports.getPatientById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updatePatient = async (req, res) => {
   const { error } = validatePatient(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -100,7 +95,6 @@ exports.updatePatient = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deletePatient = async (req, res) => {
   try {
     const patient = await Patient.findByPk(req.params.id);
@@ -114,7 +108,6 @@ exports.deletePatient = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchPatient = async (req, res) => {
   try {
     const { query } = req.query;
@@ -123,9 +116,9 @@ exports.searchPatient = async (req, res) => {
     const patients = await Patient.findAll({
       where: {
         [Op.or]: [
-          { name:  { [Op.iLike]: `%${query}%` } },
+          { name: { [Op.iLike]: `%${query}%` } },
           { phone: { [Op.iLike]: `%${query}%` } },
-          { id:    { [Op.iLike]: `%${query}%` } },
+          { id: { [Op.iLike]: `%${query}%` } },
         ],
       },
       limit: 50,
@@ -136,11 +129,3 @@ exports.searchPatient = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// ─── Aliases ──────────────────────────────────────────────────────────────────
-exports.getAll  = exports.getPatients;
-exports.getById = exports.getPatientById;
-exports.create  = exports.createPatient;
-exports.update  = exports.updatePatient;
-exports.remove  = exports.deletePatient;
-exports.search  = exports.searchPatient;

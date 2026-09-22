@@ -4,13 +4,11 @@ const { Inventory } = require('../models');
 const { validateInventory } = require('../validations/inventoryValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createInventory = async (req, res) => {
   const { error } = validateInventory(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createInventory = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getInventories = async (req, res) => {
   try {
     const { category, lowStock, search, page, limit } = req.query;
@@ -48,7 +45,6 @@ exports.getInventories = async (req, res) => {
       offset,
     });
 
-    // Apply lowStock filter after fetching (in-memory — quantity field based)
     const data = lowStock === 'true'
       ? rows.filter((item) => item.quantity <= item.minQuantity)
       : rows;
@@ -65,7 +61,6 @@ exports.getInventories = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getInventoryById = async (req, res) => {
   try {
     const item = await Inventory.findByPk(req.params.id);
@@ -76,7 +71,6 @@ exports.getInventoryById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateInventory = async (req, res) => {
   const { error } = validateInventory(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -92,7 +86,6 @@ exports.updateInventory = async (req, res) => {
   }
 };
 
-// ─── ADJUST QUANTITY ─────────────────────────────────────────────────────────
 exports.adjustQuantity = async (req, res) => {
   try {
     const { delta } = req.body;
@@ -112,7 +105,6 @@ exports.adjustQuantity = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteInventory = async (req, res) => {
   try {
     const item = await Inventory.findByPk(req.params.id);

@@ -4,13 +4,11 @@ const { LabOrder, Patient, Doctor } = require('../models');
 const { validateLabOrder } = require('../validations/labOrderValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createLabOrder = async (req, res) => {
   const { error } = validateLabOrder(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createLabOrder = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getLabOrders = async (req, res) => {
   try {
     const { patientId, doctorId, status, search, page, limit } = req.query;
@@ -67,7 +64,6 @@ exports.getLabOrders = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getLabOrderById = async (req, res) => {
   try {
     const order = await LabOrder.findByPk(req.params.id, {
@@ -83,7 +79,6 @@ exports.getLabOrderById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateLabOrder = async (req, res) => {
   const { error } = validateLabOrder(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -99,7 +94,6 @@ exports.updateLabOrder = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteLabOrder = async (req, res) => {
   try {
     const order = await LabOrder.findByPk(req.params.id);

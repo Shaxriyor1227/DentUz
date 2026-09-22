@@ -6,7 +6,6 @@ const { validateMedicalRecord } = require('../validations/medicalRecordValidatio
 const { Op } = require('sequelize');
 const multer = require('multer');
 
-// ─── Multer (File Upload) Setup ───────────────────────────────────────────────
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '../uploads/medical'));
@@ -26,16 +25,14 @@ const fileFilter = (req, file, cb) => {
 exports.upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 10 * 1024 * 1024 },
 }).array('attachments', 10);
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createMedicalRecord = async (req, res) => {
   const { error } = validateMedicalRecord(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -58,7 +55,6 @@ exports.createMedicalRecord = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getMedicalRecords = async (req, res) => {
   try {
     const { patientId, doctorId, search, page, limit } = req.query;
@@ -102,7 +98,6 @@ exports.getMedicalRecords = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getMedicalRecordById = async (req, res) => {
   try {
     const record = await MedicalRecord.findByPk(req.params.id, {
@@ -119,7 +114,6 @@ exports.getMedicalRecordById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateMedicalRecord = async (req, res) => {
   const { error } = validateMedicalRecord(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -145,7 +139,6 @@ exports.updateMedicalRecord = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteMedicalRecord = async (req, res) => {
   try {
     const record = await MedicalRecord.findByPk(req.params.id);

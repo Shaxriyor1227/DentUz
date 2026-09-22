@@ -4,13 +4,11 @@ const { TreatmentPlan, Patient, Doctor } = require('../models');
 const { validateTreatmentPlan } = require('../validations/treatmentPlanValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createTreatmentPlan = async (req, res) => {
   const { error } = validateTreatmentPlan(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -24,7 +22,6 @@ exports.createTreatmentPlan = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getTreatmentPlans = async (req, res) => {
   try {
     const { patientId, doctorId, status, search, page, limit } = req.query;
@@ -67,7 +64,6 @@ exports.getTreatmentPlans = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getTreatmentPlanById = async (req, res) => {
   try {
     const plan = await TreatmentPlan.findByPk(req.params.id, {
@@ -83,7 +79,6 @@ exports.getTreatmentPlanById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateTreatmentPlan = async (req, res) => {
   const { error } = validateTreatmentPlan(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -99,7 +94,6 @@ exports.updateTreatmentPlan = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteTreatmentPlan = async (req, res) => {
   try {
     const plan = await TreatmentPlan.findByPk(req.params.id);

@@ -14,12 +14,8 @@ import {
 } from '../../utils/exportFinanceReceipt';
 import styles from './Finance.module.css';
 
-// ─────────────────────────────────────────────────────────────
-// AUTHENTIC BRANDED PAYMENT LOGOS (Payme, Click, Uzcard, Humo, Cash)
-// ─────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────
-// COMPACT LOGO BADGES (Used in DataTable Chips & Notifications)
-// ─────────────────────────────────────────────────────────────
+// Payment logos (Payme, Click, Uzcard, Humo, Cash)
+
 function PaymeLogo({ size = 20, className = '' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={{ flexShrink: 0 }}>
@@ -85,9 +81,8 @@ function CashLogo({ size = 20, className = '' }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// FULL OFFICIAL BRAND LOGOS (Used in Checkout Card Tiles)
-// ─────────────────────────────────────────────────────────────
+// Brand logos for checkout cards
+
 function PaymeBrandLogo() {
   return (
     <svg width="112" height="30" viewBox="0 0 115 32" fill="none" xmlns="http://www.w3.org/2000/svg">

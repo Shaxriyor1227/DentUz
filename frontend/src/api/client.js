@@ -1,10 +1,5 @@
-/**
- * DentUz Universal API Client
- * Enterprise-grade HTTP Client with Interceptors, JWT Handling, and Mock Support
- */
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'; // defaults to mock until backend is live
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
 export const TOKEN_STORAGE_KEY = 'dentuz_auth_token';
 export const USER_STORAGE_KEY = 'dentuz_auth_user';
@@ -18,9 +13,6 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Core Request Dispatcher with Interceptors
- */
 async function request(endpoint, options = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   

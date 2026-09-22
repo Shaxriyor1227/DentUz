@@ -5,9 +5,8 @@ import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import styles from './Settings.module.css';
 
-// ─── Mock Data ──────────────────────────────────────────────────────────────
-
 const MOCK_SERVICES = [
+
   { id: 1, category: 'Diagnostika', name: 'Dastlabki konsultatsiya', duration: 30, price: 50000 },
   { id: 2, category: 'Diagnostika', name: 'Panoramik rentgen', duration: 15, price: 120000 },
   { id: 3, category: 'Davolash', name: 'Karies davolash (1 sirt)', duration: 60, price: 250000 },
@@ -69,13 +68,9 @@ const PERM_LABELS = {
 
 const SERVICE_CATEGORIES = ['Diagnostika', 'Davolash', 'Jarrohlik', 'Estetika', 'Protezlash'];
 
-// ─── Helper ──────────────────────────────────────────────────────────────────
-
 function formatPrice(n) {
   return n.toLocaleString('uz-UZ') + ' so\'m';
 }
-
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -151,8 +146,6 @@ export default function Settings() {
 
   const showToast = (type, title, message) => setToast({ open: true, type, title, message });
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!newMember.name) return;
@@ -226,7 +219,6 @@ export default function Settings() {
     return matchCat && matchSearch;
   });
 
-  // ── Nav tabs ──────────────────────────────────────────────────────────────
   const tabs = [
     { id: 'clinic',    icon: 'business',       label: 'Klinika' },
     { id: 'team',      icon: 'group',           label: 'Jamoa' },
@@ -236,10 +228,8 @@ export default function Settings() {
     { id: 'backup',    icon: 'backup',          label: 'Backup' },
   ];
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className={styles.pageContainer}>
-      {/* ── Page Header ─── */}
       <div className={styles.pageHeader}>
         <div>
           <div className={styles.headerMeta}>
@@ -254,7 +244,6 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* ── Sidebar + Content layout ─── */}
       <div className={styles.settingsLayout}>
 
         {/* Left sidebar nav */}

@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const { User, Clinic } = require('../models');
 const { validateLogin, validateUser } = require('../validations/userValidation');
 
-// ─── Token Generator ──────────────────────────────────────────────────────────
 const signTokens = (userId) => {
   const access = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
@@ -15,7 +14,6 @@ const signTokens = (userId) => {
   return { access, refresh };
 };
 
-// ─── REGISTER ─────────────────────────────────────────────────────────────────
 exports.register = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -34,7 +32,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
 exports.login = async (req, res) => {
   const { error } = validateLogin(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -55,15 +52,15 @@ exports.login = async (req, res) => {
     await user.update({ refreshToken: refresh });
 
     const userPayload = {
-      id:        user.id,
-      name:      user.name,
+      id: user.id,
+      name: user.name,
       shortName: user.shortName,
-      title:     user.title,
-      email:     user.email,
-      role:      user.role,
-      clinicId:  user.clinicId,
-      clinic:    user.clinic,
-      phone:     user.phone,
+      title: user.title,
+      email: user.email,
+      role: user.role,
+      clinicId: user.clinicId,
+      clinic: user.clinic,
+      phone: user.phone,
       avatarUrl: user.avatarUrl,
     };
 
@@ -73,7 +70,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// ─── REFRESH TOKEN ────────────────────────────────────────────────────────────
 exports.refresh = async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -95,7 +91,6 @@ exports.refresh = async (req, res) => {
   }
 };
 
-// ─── LOGOUT ───────────────────────────────────────────────────────────────────
 exports.logout = async (req, res) => {
   try {
     if (req.user?.id) {
@@ -108,7 +103,6 @@ exports.logout = async (req, res) => {
   }
 };
 
-// ─── ME ───────────────────────────────────────────────────────────────────────
 exports.me = (req, res) => {
   res.status(200).json({ success: true, data: req.user });
 };

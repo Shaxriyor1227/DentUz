@@ -2,7 +2,6 @@
    PUBLIC LAYOUT — Apple-style Premium Footer CSS
    ═══════════════════════════════════════════════ */
 
-/* ─── Container ─── */
 .publicContainer {
   min-height: 100vh;
   display: flex;
@@ -12,7 +11,6 @@
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-/* ─── Sticky Header ─── */
 .stickyHeader {
   position: fixed;
   top: 0;

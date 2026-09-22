@@ -3,7 +3,6 @@
 const { Odontogram, OdontogramHistory, Patient, User } = require('../models');
 const { validateOdontogramUpdate } = require('../validations/odontogramValidation');
 
-// ─── GET ODONTOGRAM BY PATIENT ────────────────────────────────────────────────
 exports.getOdontogramByPatient = async (req, res) => {
   try {
     let odontogram = await Odontogram.findOne({
@@ -14,7 +13,6 @@ exports.getOdontogramByPatient = async (req, res) => {
       ],
     });
 
-    // Auto-create empty odontogram if patient has none
     if (!odontogram) {
       odontogram = await Odontogram.create({
         patientId: req.params.patientId,
@@ -28,7 +26,6 @@ exports.getOdontogramByPatient = async (req, res) => {
   }
 };
 
-// ─── SAVE / UPDATE ODONTOGRAM ─────────────────────────────────────────────────
 exports.saveOdontogram = async (req, res) => {
   const { error } = validateOdontogramUpdate(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -51,7 +48,6 @@ exports.saveOdontogram = async (req, res) => {
       await odontogram.update({ teeth, lastUpdatedBy: userId });
     }
 
-    // Save history snapshot
     await OdontogramHistory.create({
       odontogramId:      odontogram.id,
       patientId:         req.params.patientId,
@@ -69,7 +65,6 @@ exports.saveOdontogram = async (req, res) => {
   }
 };
 
-// ─── GET HISTORY ──────────────────────────────────────────────────────────────
 exports.getOdontogramHistory = async (req, res) => {
   try {
     const history = await OdontogramHistory.findAll({
@@ -83,8 +78,3 @@ exports.getOdontogramHistory = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// ─── Aliases ──────────────────────────────────────────────────────────────────
-exports.getByPatient = exports.getOdontogramByPatient;
-exports.save         = exports.saveOdontogram;
-exports.getHistory   = exports.getOdontogramHistory;

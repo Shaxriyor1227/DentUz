@@ -4,13 +4,11 @@ const { Appointment, Patient, Doctor, Clinic } = require('../models');
 const { validateAppointment } = require('../validations/appointmentValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createAppointment = async (req, res) => {
   const { error } = validateAppointment(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -23,7 +21,6 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getAppointments = async (req, res) => {
   try {
     const { status, doctorId, patientId, date, page, limit } = req.query;
@@ -58,7 +55,6 @@ exports.getAppointments = async (req, res) => {
   }
 };
 
-// ─── GET TODAY ────────────────────────────────────────────────────────────────
 exports.getTodayAppointments = async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -76,7 +72,6 @@ exports.getTodayAppointments = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getAppointmentById = async (req, res) => {
   try {
     const appointment = await Appointment.findByPk(req.params.id, {
@@ -93,7 +88,6 @@ exports.getAppointmentById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateAppointment = async (req, res) => {
   const { error } = validateAppointment(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -109,7 +103,6 @@ exports.updateAppointment = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findByPk(req.params.id);
@@ -123,7 +116,6 @@ exports.deleteAppointment = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchAppointment = async (req, res) => {
   try {
     const { query } = req.query;
@@ -149,12 +141,3 @@ exports.searchAppointment = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// ─── Aliases ──────────────────────────────────────────────────────────────────
-exports.getAll   = exports.getAppointments;
-exports.getToday = exports.getTodayAppointments;
-exports.getById  = exports.getAppointmentById;
-exports.create   = exports.createAppointment;
-exports.update   = exports.updateAppointment;
-exports.remove   = exports.deleteAppointment;
-exports.search   = exports.searchAppointment;

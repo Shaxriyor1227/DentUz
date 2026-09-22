@@ -4,13 +4,11 @@ const { Payment, Invoice, Patient, User } = require('../models');
 const { validatePayment } = require('../validations/paymentValidation');
 const { Op } = require('sequelize');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const getPagination = (page = 1, limit = 20) => ({
   limit: Math.min(parseInt(limit) || 20, 100),
   offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
 });
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createPayment = async (req, res) => {
   const { error } = validatePayment(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -18,7 +16,6 @@ exports.createPayment = async (req, res) => {
   try {
     const payment = await Payment.create(req.body);
 
-    // If linked to invoice, auto-update invoice status
     if (payment.invoiceId) {
       const invoice = await Invoice.findByPk(payment.invoiceId);
       if (invoice) {
@@ -37,7 +34,6 @@ exports.createPayment = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getPayments = async (req, res) => {
   try {
     const { patientId, invoiceId, method, search, page, limit } = req.query;
@@ -80,7 +76,6 @@ exports.getPayments = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getPaymentById = async (req, res) => {
   try {
     const payment = await Payment.findByPk(req.params.id, {
@@ -97,7 +92,6 @@ exports.getPaymentById = async (req, res) => {
   }
 };
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
 exports.getPaymentStats = async (req, res) => {
   try {
     const { period = 'this_month' } = req.query;
@@ -128,7 +122,6 @@ exports.getPaymentStats = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deletePayment = async (req, res) => {
   try {
     const payment = await Payment.findByPk(req.params.id);

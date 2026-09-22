@@ -6,7 +6,6 @@ import styles from './PublicLayout.module.css';
 import Icon from '../../components/Icon/Icon';
 import Logo from '../../components/Logo/Logo';
 
-/* ─── Scroll-reveal hook ─── */
 function useReveal(threshold = 0.08) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);

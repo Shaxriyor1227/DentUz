@@ -3,7 +3,6 @@
 const { Clinic, User, Doctor, Patient, Appointment, Invoice } = require('../models');
 const { validateClinic } = require('../validations/clinicValidation');
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getClinics = async (req, res) => {
   try {
     const clinics = await Clinic.findAll();
@@ -13,12 +12,11 @@ exports.getClinics = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getClinicById = async (req, res) => {
   try {
     const clinic = await Clinic.findByPk(req.params.id, {
       include: [
-        { model: User,   as: 'users',   attributes: ['id', 'name', 'role', 'email'] },
+        { model: User, as: 'users', attributes: ['id', 'name', 'role', 'email'] },
         { model: Doctor, as: 'doctors', attributes: ['id', 'userId', 'specialization', 'cabinetNumber'] },
       ],
     });
@@ -29,7 +27,6 @@ exports.getClinicById = async (req, res) => {
   }
 };
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createClinic = async (req, res) => {
   const { error } = validateClinic(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -42,7 +39,6 @@ exports.createClinic = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateClinic = async (req, res) => {
   const { error } = validateClinic(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -58,7 +54,6 @@ exports.updateClinic = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteClinic = async (req, res) => {
   try {
     const clinic = await Clinic.findByPk(req.params.id);
@@ -72,7 +67,6 @@ exports.deleteClinic = async (req, res) => {
   }
 };
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
 exports.getClinicStats = async (req, res) => {
   try {
     const { id: clinicId } = req.params;

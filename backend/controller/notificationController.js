@@ -4,7 +4,6 @@ const { Notification, Clinic } = require('../models');
 const { validateNotification } = require('../validations/notificationValidation');
 const { Op } = require('sequelize');
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getNotifications = async (req, res) => {
   try {
     const { clinicId, recipientId, status, channel } = req.query;
@@ -27,7 +26,6 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getNotificationById = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id, {
@@ -40,7 +38,6 @@ exports.getNotificationById = async (req, res) => {
   }
 };
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createNotification = async (req, res) => {
   const { error } = validateNotification(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -53,7 +50,6 @@ exports.createNotification = async (req, res) => {
   }
 };
 
-// ─── MARK AS READ ─────────────────────────────────────────────────────────────
 exports.markAsRead = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id);
@@ -66,7 +62,6 @@ exports.markAsRead = async (req, res) => {
   }
 };
 
-// ─── MARK ALL AS READ ─────────────────────────────────────────────────────────
 exports.markAllAsRead = async (req, res) => {
   try {
     const { recipientId, clinicId } = req.body;
@@ -86,7 +81,6 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteNotification = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id);

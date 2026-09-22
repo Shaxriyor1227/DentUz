@@ -4,10 +4,9 @@ const rateLimit = require("express-rate-limit");
 const authController = require("../controller/authController");
 const { authenticate } = require("../middleware/auth");
 
-// ─── Rate limiter: login/register ─────────────────────────────────────────────
-// Max 10 attempt per 15 minutes per IP
+// Rate limiter: max 10 requests per 15 minutes per IP
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,

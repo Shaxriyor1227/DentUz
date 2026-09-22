@@ -60,7 +60,7 @@
    THEME STYLES (Dark & Light)
    ═════════════════════════════════════════════════════════════════════════════ */
 
-/* ─── SUCCESS ─── */
+/* Success */
 .toastWrapper.success {
   background: radial-gradient(circle at 75% -20%, rgba(6, 182, 212, 0.22) 0%, transparent 65%),
               linear-gradient(135deg, rgba(13, 27, 46, 0.95) 0%, rgba(10, 18, 32, 0.96) 100%);
@@ -82,7 +82,7 @@
   background: linear-gradient(90deg, #06B6D4, #38BDF8, #34D399);
 }
 
-/* ─── INFO ─── */
+/* Info */
 .toastWrapper.info {
   background: radial-gradient(circle at 75% -20%, rgba(59, 130, 246, 0.25) 0%, transparent 65%),
               linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 18, 35, 0.96) 100%);
@@ -104,7 +104,7 @@
   background: linear-gradient(90deg, #3B82F6, #60A5FA, #06B6D4);
 }
 
-/* ─── WARNING ─── */
+/* Warning */
 .toastWrapper.warning {
   background: radial-gradient(circle at 75% -20%, rgba(245, 158, 11, 0.24) 0%, transparent 65%),
               linear-gradient(135deg, rgba(28, 20, 12, 0.95) 0%, rgba(18, 13, 8, 0.96) 100%);
@@ -126,7 +126,7 @@
   background: linear-gradient(90deg, #F59E0B, #FBBF24, #F97316);
 }
 
-/* ─── ERROR ─── */
+/* Error */
 .toastWrapper.error {
   background: radial-gradient(circle at 75% -20%, rgba(239, 68, 68, 0.24) 0%, transparent 65%),
               linear-gradient(135deg, rgba(30, 15, 18, 0.95) 0%, rgba(20, 10, 12, 0.96) 100%);

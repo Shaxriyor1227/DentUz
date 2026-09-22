@@ -11,26 +11,24 @@ const { setupSwagger } = require('./swagger/swaggerConfig');
 const { errorHandler } = require('./middleware/errorHandler');
 const db = require('./models');
 
-// ─── Route imports ────────────────────────────────────────────────────────────
-const authRoutes          = require('./routes/authRoutes');
-const clinicRoutes        = require('./routes/clinicRoutes');
-const patientRoutes       = require('./routes/patientRoutes');
-const appointmentRoutes   = require('./routes/appointmentRoutes');
-const financeRoutes       = require('./routes/financeRoutes');
-const odontogramRoutes    = require('./routes/odontogramRoutes');
-const teamRoutes          = require('./routes/teamRoutes');
-const userRoutes          = require('./routes/userRoutes');
-const notificationRoutes  = require('./routes/notificationRoutes');
-const serviceRoutes       = require('./routes/serviceRoutes');
+const authRoutes = require('./routes/authRoutes');
+const clinicRoutes = require('./routes/clinicRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const financeRoutes = require('./routes/financeRoutes');
+const odontogramRoutes = require('./routes/odontogramRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
 const treatmentPlanRoutes = require('./routes/treatmentPlanRoutes');
-const paymentRoutes       = require('./routes/paymentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
-const labOrderRoutes      = require('./routes/labOrderRoutes');
-const inventoryRoutes     = require('./routes/inventoryRoutes');
+const labOrderRoutes = require('./routes/labOrderRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const app = express();
 
-// ─── Security & Utilities ─────────────────────────────────────────────────────
 app.use(helmet());
 app.use(compression());
 app.use(
@@ -43,40 +41,34 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ─── Swagger Docs ─────────────────────────────────────────────────────────────
 setupSwagger(app);
 
-// ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
 
-// ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',          authRoutes);
-app.use('/api',               clinicRoutes);
-app.use('/api',               patientRoutes);
-app.use('/api',               appointmentRoutes);
-app.use('/api',               financeRoutes);
-app.use('/api',               odontogramRoutes);
-app.use('/api',               teamRoutes);
-app.use('/api',               userRoutes);
-app.use('/api',               notificationRoutes);
-app.use('/api',               serviceRoutes);
-app.use('/api',               treatmentPlanRoutes);
-app.use('/api',               paymentRoutes);
-app.use('/api',               medicalRecordRoutes);
-app.use('/api',               labOrderRoutes);
-app.use('/api',               inventoryRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api', clinicRoutes);
+app.use('/api', patientRoutes);
+app.use('/api', appointmentRoutes);
+app.use('/api', financeRoutes);
+app.use('/api', odontogramRoutes);
+app.use('/api', teamRoutes);
+app.use('/api', userRoutes);
+app.use('/api', notificationRoutes);
+app.use('/api', serviceRoutes);
+app.use('/api', treatmentPlanRoutes);
+app.use('/api', paymentRoutes);
+app.use('/api', medicalRecordRoutes);
+app.use('/api', labOrderRoutes);
+app.use('/api', inventoryRoutes);
 
-// ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route topilmadi: ${req.method} ${req.originalUrl}` });
 });
 
-// ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use(errorHandler);
 
-// ─── Bootstrap ───────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 const start = async () => {
@@ -84,7 +76,6 @@ const start = async () => {
     await db.sequelize.authenticate();
     console.log('PostgreSQL ulanish muvaffaqiyatli');
 
-    // alter:true — safe schema sync without dropping tables
     await db.sequelize.sync({ alter: true });
     console.log('Barcha modellar sinxronlashtirildi');
 

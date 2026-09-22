@@ -4,7 +4,6 @@ const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
 
-// ─── CREATE ───────────────────────────────────────────────────────────────────
 exports.createUser = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -17,7 +16,6 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// ─── GET ALL ──────────────────────────────────────────────────────────────────
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -32,7 +30,6 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// ─── GET BY ID ────────────────────────────────────────────────────────────────
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
@@ -48,7 +45,6 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
 exports.updateUser = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
@@ -64,7 +60,6 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -78,7 +73,6 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
 exports.searchUser = async (req, res) => {
   try {
     const { query } = req.query;
