@@ -9,7 +9,7 @@ import styles from './Sidebar.module.css';
 export default function Sidebar() {
   const { t } = useTranslation();
   const { logout, canAccess } = useAuth();
-  const { collapsed, toggleSidebar } = useSidebar();
+  const { collapsed, toggleSidebar, mobileOpen, closeMobileSidebar } = useSidebar();
   const navigate = useNavigate();
 
   const allNavLinks = [
@@ -24,13 +24,14 @@ export default function Sidebar() {
   const navLinks = allNavLinks.filter(item => !item.module || canAccess(item.module));
 
   const handleLogout = () => {
+    closeMobileSidebar();
     logout();
     navigate('/login');
   };
 
   return (
     <aside
-      className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}
+      className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''} ${mobileOpen ? styles.mobileOpen : ''}`}
       aria-label="Asosiy navigatsiya paneli"
     >
       <div className={styles.topSection}>
@@ -40,6 +41,7 @@ export default function Sidebar() {
             to="/"
             className={styles.brandHeader}
             title={collapsed ? 'DentUz - Bosh sahifa' : undefined}
+            onClick={closeMobileSidebar}
           >
             <Logo
               size={collapsed ? 32 : 36}
@@ -49,6 +51,7 @@ export default function Sidebar() {
             />
           </Link>
 
+          {/* Desktop collapse toggle */}
           <button
             type="button"
             className={styles.collapseToggleBtn}
@@ -59,6 +62,16 @@ export default function Sidebar() {
             <span className="material-symbols-outlined">
               {collapsed ? 'chevron_right' : 'chevron_left'}
             </span>
+          </button>
+
+          {/* Mobile drawer close button */}
+          <button
+            type="button"
+            className={styles.mobileCloseBtn}
+            onClick={closeMobileSidebar}
+            aria-label="Panelni yopish"
+          >
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -80,6 +93,7 @@ export default function Sidebar() {
                       : styles.navItem
                   }
                   title={collapsed ? item.label : undefined}
+                  onClick={closeMobileSidebar}
                 >
                   <span className={`material-symbols-outlined ${styles.navIcon}`}>
                     {item.icon}
@@ -101,6 +115,7 @@ export default function Sidebar() {
           className={styles.bottomLink}
           title={collapsed ? 'Landing' : undefined}
           aria-label="DentUz bosh sahifasiga o'tish"
+          onClick={closeMobileSidebar}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>home</span>
           {!collapsed && <span>DentUz.uz</span>}

@@ -2,6 +2,8 @@
   min-height: 100vh;
   background-color: var(--color-bg);
   display: flex;
+  position: relative;
+  width: 100%;
 }
 
 .appContainer.sidebarCollapsed {
@@ -16,6 +18,7 @@
   display: flex;
   flex-direction: column;
   transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
 }
 
 .mainContent {
@@ -24,4 +27,44 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
+}
+
+/* Mobile Overlay Backdrop */
+.mobileBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1100;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Tablet & Mobile Responsiveness (< 1024px) */
+@media (max-width: 1023px) {
+  .contentWrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .mainContent {
+    padding: var(--space-md) var(--space-sm);
+  }
+}
+
+/* Phone Format (< 768px): Extra room for bottom nav */
+@media (max-width: 767px) {
+  .mainContent {
+    padding: 14px 10px;
+    padding-bottom: 84px; /* Ensure bottom nav doesn't overlap last element */
+  }
 }

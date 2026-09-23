@@ -341,3 +341,65 @@
   padding: 10px 0;
   border-radius: 10px;
 }
+
+.mobileCloseBtn {
+  display: none;
+}
+
+/* Mobile & Tablet Drawer Mode (< 1024px) */
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px !important;
+    max-width: 85vw;
+    z-index: 1200;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: none;
+  }
+
+  .mobileOpen {
+    transform: translateX(0) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.65) !important;
+  }
+
+  .collapseToggleBtn {
+    display: none !important;
+  }
+
+  .mobileCloseBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #CBD5E1;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+  }
+
+  .mobileCloseBtn:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+    color: #FFFFFF;
+  }
+
+  .bottomToggleBtn {
+    display: none !important;
+  }
+
+  /* Ensure labels are always visible in mobile drawer */
+  .navLabel {
+    display: inline-block !important;
+  }
+
+  .floatingTooltip {
+    display: none !important;
+  }
+}

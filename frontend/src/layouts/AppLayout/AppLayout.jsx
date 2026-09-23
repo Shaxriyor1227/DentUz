@@ -30,13 +30,25 @@ function InnerPageFallback() {
   );
 }
 
+import MobileBottomNav from '../../components/MobileBottomNav/MobileBottomNav';
+
 export default function AppLayout() {
   useMaterialSymbols();
-  const { collapsed } = useSidebar();
+  const { collapsed, mobileOpen, closeMobileSidebar } = useSidebar();
 
   return (
     <div className={`${styles.appContainer} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {mobileOpen && (
+        <div
+          className={styles.mobileBackdrop}
+          onClick={closeMobileSidebar}
+          aria-hidden="true"
+        />
+      )}
+
       <Sidebar />
+
       <div className={styles.contentWrapper}>
         <TopBar />
         <main className={styles.mainContent}>
@@ -45,6 +57,9 @@ export default function AppLayout() {
           </Suspense>
         </main>
       </div>
+
+      {/* Thumb-friendly mobile bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

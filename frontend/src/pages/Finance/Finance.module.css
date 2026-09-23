@@ -1551,7 +1551,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 639px) {
   .title {
     font-size: 20px;
   }
@@ -1563,6 +1563,55 @@
   .badge {
     font-size: 10px;
     padding: 2px 6px;
+  }
+
+  .dateFilterGroup {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dateFilterBtn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 6px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .tableToolbar {
+    gap: 10px;
+  }
+
+  .searchBox {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .toolbarActions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .exportGroup {
+    flex: 1;
+  }
+
+  .exportBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .newPaymentBtn {
+    flex: 1;
+    justify-content: center;
   }
 
   .appleModalHeader {
@@ -1587,5 +1636,6 @@
     width: 100%;
   }
 }
+
 
 
