@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '../../hooks/useApi';
 import { appointmentsApi } from '../../api/appointmentsApi';
+import { financeApi } from '../../api/financeApi';
 import StatCard from '../../components/StatCard/StatCard';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
@@ -55,6 +56,7 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data: appointments, loading } = useApi(appointmentsApi.getToday, []);
+  const { data: financeStats } = useApi(financeApi.getStats, null);
 
   const today = new Date();
   const locale = i18n.language === 'uz' ? 'uz-UZ' : 'en-US';
@@ -68,11 +70,42 @@ export default function Dashboard() {
   const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
 
   const chairs = [
-    { id: 1, label: `${t('dashboard.chair')} #1`, status: 'active',   statusText: i18n.language === 'uz' ? 'Band — 15 daq qoldi' : 'In treatment — 15 min left' },
-    { id: 2, label: `${t('dashboard.chair')} #2`, status: 'idle',     statusText: t('dashboard.chairIdle') },
-    { id: 3, label: `${t('dashboard.chair')} #3`, status: 'active',   statusText: i18n.language === 'uz' ? 'Band — 25 daq qoldi' : 'In treatment — 25 min left' },
-    { id: 4, label: `${t('dashboard.chair')} #4`, status: 'cleaning', statusText: t('dashboard.chairCleaning') }
+    {
+      id: 1,
+      label: `${t('dashboard.chair')} #1`,
+      status: appointments?.some(a => a.chair === 1 && a.status === 'in_progress') ? 'active' : 'idle',
+      statusText: appointments?.some(a => a.chair === 1 && a.status === 'in_progress')
+        ? (i18n.language === 'uz' ? 'Band — Dr. Azimov' : 'In treatment — Dr. Azimov')
+        : t('dashboard.chairIdle')
+    },
+    {
+      id: 2,
+      label: `${t('dashboard.chair')} #2`,
+      status: appointments?.some(a => a.chair === 2) ? 'active' : 'idle',
+      statusText: appointments?.some(a => a.chair === 2)
+        ? (i18n.language === 'uz' ? 'Navbatda — Dr. Saidova (10:15)' : 'Next — Dr. Saidova (10:15)')
+        : t('dashboard.chairIdle')
+    },
+    {
+      id: 3,
+      label: `${t('dashboard.chair')} #3`,
+      status: appointments?.some(a => a.chair === 3) ? 'active' : 'idle',
+      statusText: appointments?.some(a => a.chair === 3)
+        ? (i18n.language === 'uz' ? 'Navbatda — Dr. Karimov (11:30)' : 'Next — Dr. Karimov (11:30)')
+        : t('dashboard.chairIdle')
+    },
+    {
+      id: 4,
+      label: `${t('dashboard.chair')} #4`,
+      status: 'idle',
+      statusText: t('dashboard.chairIdle')
+    }
   ];
+
+  const todayCount = appointments?.length || 0;
+  const inProgressCount = appointments?.filter(a => a.status === 'in_progress').length || 0;
+  const pendingCount = appointments?.filter(a => a.status === 'pending').length || 0;
+  const completedCount = appointments?.filter(a => a.status === 'completed').length || 0;
 
   return (
     <div className={styles.pageContainer}>
@@ -81,7 +114,7 @@ export default function Dashboard() {
         <div>
           <h1 className={styles.greetingTitle}>{i18n.language === 'uz' ? 'Xayrli tong, Dr. Azimov' : 'Good day, Dr. Azimov'}</h1>
           <p className={styles.greetingSubtext}>
-            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span> {i18n.language === 'uz' ? `Bugun ${appointments?.length || 8} ta qabul rejalashtirilgan` : `${appointments?.length || 8} appointments scheduled for today`}
+            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span> {i18n.language === 'uz' ? `Bugun ${todayCount} ta qabul rejalashtirilgan` : `${todayCount} appointments scheduled for today`}
           </p>
         </div>
       </section>
@@ -255,23 +288,27 @@ export default function Dashboard() {
             <>
               <StatCard
                 label={t('dashboard.todayStats')}
-                value="8"
-                subtext={i18n.language === 'uz' ? "5 ta qabul yakunlandi, 3 ta kutilmoqda" : "5 completed, 3 waiting"}
+                value={String(todayCount)}
+                subtext={
+                  i18n.language === 'uz'
+                    ? `${inProgressCount} ta jarayonda, ${pendingCount} ta navbatda`
+                    : `${inProgressCount} in progress, ${pendingCount} waiting`
+                }
                 icon="groups"
               />
               <StatCard
                 label={t('dashboard.expectedRevenue')}
-                value="4 850 000"
+                value={financeStats?.monthlyRevenue ? Number(financeStats.monthlyRevenue).toLocaleString() : '550 000'}
                 unit={t('common.som')}
-                subtext={i18n.language === 'uz' ? "Payme, Click va naqd to'lovlar" : "Payme, Click & Cash receipts"}
+                subtext={i18n.language === 'uz' ? "Kassaga tushgan to'lovlar" : "Received patient payments"}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
                 label={t('finance.stats.expectedPayments')}
-                value="1 200 000"
+                value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '3 500 000'}
                 unit={t('common.som')}
-                subtext={i18n.language === 'uz' ? "2 ta muolaja bo'yicha qoldiq" : "Balance due on 2 procedures"}
+                subtext={i18n.language === 'uz' ? `${financeStats?.pendingCount || 1} ta muolaja bo'yicha qoldiq` : "Balance due on active procedures"}
                 isMono={true}
                 icon="pending"
               />

@@ -25,37 +25,37 @@ export const DEMO_USERS = {
     title: 'Bosh shifokor & Klinika rahbari',
     role: ROLES.OWNER,
     email: 'j.azimov@dentuz.uz',
-    clinic: 'Toshkent Dental Clinic',
+    clinic: 'DentUz Markaziy Klinika',
     avatar: null
   },
   doctor: {
     id: 'usr-2',
-    name: 'Dr. Madina Rustamova',
-    shortName: 'Dr. Rustamova',
+    name: 'Dr. Malika Saidova',
+    shortName: 'Dr. Saidova',
     title: 'Ortodont-Stomatolog',
     role: ROLES.DOCTOR,
-    email: 'm.rustamova@dentuz.uz',
-    clinic: 'Toshkent Dental Clinic',
+    email: 'm.saidova@dentuz.uz',
+    clinic: 'DentUz Markaziy Klinika',
     avatar: null
   },
   receptionist: {
     id: 'usr-3',
-    name: 'Ziyoda Karimova',
-    shortName: 'Ziyoda K.',
+    name: 'Bobur Mirzayev',
+    shortName: 'B. Mirzayev',
     title: 'Bosh Administrator',
     role: ROLES.RECEPTIONIST,
-    email: 'reception@dentuz.uz',
-    clinic: 'Toshkent Dental Clinic',
+    email: 'admin@dentuz.uz',
+    clinic: 'DentUz Markaziy Klinika',
     avatar: null
   },
   nurse: {
     id: 'usr-4',
-    name: 'Shahlo Qosimova',
-    shortName: 'Shahlo Q.',
-    title: 'Katta hamshira',
+    name: 'Nilufar Rahimova',
+    shortName: 'N. Rahimova',
+    title: 'Bosh assistent • Hamshira',
     role: ROLES.NURSE,
-    email: 'nurse@dentuz.uz',
-    clinic: 'Toshkent Dental Clinic',
+    email: 'n.rahimova@dentuz.uz',
+    clinic: 'DentUz Markaziy Klinika',
     avatar: null
   }
 };
@@ -66,7 +66,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem(USER_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEMO_USERS.owner;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.clinic === 'Toshkent Dental Clinic' || !parsed.clinic) {
+          parsed.clinic = 'DentUz Markaziy Klinika';
+        }
+        return parsed;
+      }
+      return DEMO_USERS.owner;
     } catch {
       return DEMO_USERS.owner;
     }

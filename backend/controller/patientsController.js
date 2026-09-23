@@ -18,12 +18,20 @@ exports.createPatient = async (req, res) => {
 
 exports.getPatients = async (req, res) => {
   try {
-    const { search, status, page, limit } = req.query;
+    const { search, status, filter, page, limit } = req.query;
+    const activeFilter = filter || status;
     const where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
-    if (status && status !== 'all') {
-      where.status = status;
+    if (activeFilter && activeFilter !== 'all') {
+      if (activeFilter === 'debtor') {
+        where[Op.or] = [
+          { status: 'debtor' },
+          { balance: { [Op.lt]: 0 } },
+        ];
+      } else {
+        where.status = activeFilter;
+      }
     }
 
     if (search && search.trim()) {
@@ -35,6 +43,20 @@ exports.getPatients = async (req, res) => {
         { lastProcedure: { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    const [allCount, todayCount, scheduledCount, debtorCount] = await Promise.all([
+      Patient.count(),
+      Patient.count({ where: { status: 'today' } }),
+      Patient.count({ where: { status: 'scheduled' } }),
+      Patient.count({
+        where: {
+          [Op.or]: [
+            { status: 'debtor' },
+            { balance: { [Op.lt]: 0 } },
+          ],
+        },
+      }),
+    ]);
 
     const { count, rows } = await Patient.findAndCountAll({
       where,
@@ -51,6 +73,14 @@ exports.getPatients = async (req, res) => {
     res.status(200).json({
       success: true,
       ...paging,
+      counts: {
+        all: allCount,
+        today: todayCount,
+        scheduled: scheduledCount,
+        debtor: debtorCount,
+      },
+      allTotalCount: allCount,
+      items: rows,
       data: rows,
     });
   } catch (err) {

@@ -239,7 +239,7 @@ export default function TopBar() {
             </span>
           </button>
           <span className={styles.clinicTitle}>
-            {user?.clinic || 'Toshkent Dental Clinic'}
+            {user?.clinic || 'DentUz Markaziy Klinika'}
           </span>
         </div>
 
@@ -467,7 +467,7 @@ export default function TopBar() {
                     <div className={styles.popDoctorMeta}>
                       <div className={styles.popDoctorName}>{user?.name || 'Dr. Jasur Azimov'}</div>
                       <div className={styles.popDoctorRole}>{user?.title || 'Bosh shifokor • Stomatolog'}</div>
-                      <div className={styles.popDoctorClinic}>🏥 {user?.clinic || 'Toshkent Dental Clinic'}</div>
+                      <div className={styles.popDoctorClinic}>🏥 {user?.clinic || 'DentUz Markaziy Klinika'}</div>
                     </div>
                   </div>
 

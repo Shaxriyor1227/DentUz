@@ -12,12 +12,12 @@ export default function Patients() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
-  const [totalCount, setTotalCount] = useState(342);
+  const [totalCount, setTotalCount] = useState(0);
   const [counts, setCounts] = useState({
-    all: 342,
-    today: 49,
-    scheduled: 79,
-    debtor: 27
+    all: 0,
+    today: 0,
+    scheduled: 0,
+    debtor: 0
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -240,7 +240,17 @@ export default function Patients() {
           .toUpperCase()
       : 'P';
 
-    const isUnscheduled = !p.nextVisit || p.nextVisit === 'Rejalashtirilmagan';
+    const rawNext = p.nextVisit;
+    const hasNextFromApt = p.appointments && p.appointments.length > 0;
+    const firstApt = hasNextFromApt ? p.appointments[0] : null;
+    const displayNext = (rawNext && rawNext !== 'Rejalashtirilmagan')
+      ? rawNext
+      : (firstApt ? `${firstApt.date || ''} • ${firstApt.time || ''}`.trim() : null);
+
+    const isUnscheduled = !displayNext || displayNext === 'Rejalashtirilmagan';
+
+    const balNum = Number(p.balance) || 0;
+    const isDebt = balNum < 0 || (p.status === 'debtor' && balNum !== 0);
 
     return (
       <div
@@ -276,7 +286,7 @@ export default function Patients() {
           {!isUnscheduled ? (
             <div className={styles.nextVisitBadge}>
               <span className={styles.nextVisitDot} />
-              <span>{p.nextVisit}</span>
+              <span>{displayNext}</span>
             </div>
           ) : (
             <span className={styles.noVisitText}>
@@ -286,10 +296,14 @@ export default function Patients() {
         </div>
 
         <div className={styles.balanceCell}>
-          {p.balance > 0 ? (
+          {isDebt ? (
             <span className={styles.debtBadge}>
               <span className={styles.debtBadgeDot} />
-              <span>-{p.balance.toLocaleString()} {t('common.som')}</span>
+              <span>-{Math.abs(balNum).toLocaleString()} {t('common.som')}</span>
+            </span>
+          ) : balNum > 0 ? (
+            <span className={styles.paidBadge} style={{ color: 'var(--color-cyan)', borderColor: 'rgba(6, 182, 212, 0.3)' }}>
+              <span>+{balNum.toLocaleString()} {t('common.som')}</span>
             </span>
           ) : (
             <span className={styles.paidBadge}>

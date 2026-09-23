@@ -180,8 +180,26 @@ export const patientsApi = {
   async getAll({ search = '', filter = 'all', page = 1, pageSize = 30 } = {}) {
     if (!apiClient.isMockEnabled()) {
       try {
-        const queryParams = new URLSearchParams({ page, pageSize, filter, search });
-        return await apiClient.get(`/patients?${queryParams.toString()}`);
+        const queryParams = new URLSearchParams({ page, limit: pageSize, pageSize, filter, search });
+        const res = await apiClient.get(`/patients?${queryParams.toString()}`);
+        if (res && (res.items || res.data)) {
+          const items = res.items || res.data || [];
+          return {
+            items,
+            data: items,
+            total: res.total || items.length,
+            fullFilteredCount: res.total || items.length,
+            page: res.page || page,
+            pageSize: res.limit || pageSize,
+            allTotalCount: res.allTotalCount || res.total || items.length,
+            counts: res.counts || {
+              all: res.total || items.length,
+              today: items.filter((p) => p.status === 'today').length,
+              scheduled: items.filter((p) => p.status === 'scheduled').length,
+              debtor: items.filter((p) => p.status === 'debtor' || Number(p.balance) < 0).length
+            }
+          };
+        }
       } catch (err) {
         console.warn('Backend API unreachable, using local storage dataset:', err);
       }
