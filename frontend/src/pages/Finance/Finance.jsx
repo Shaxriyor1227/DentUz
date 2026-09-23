@@ -910,11 +910,88 @@ export default function Finance() {
         </div>
       </div>
 
-      {/* 5. Invoices Data Table */}
+      {/* 5. Invoices Table (Desktop) & Mobile Cards (Phone) */}
       {loading ? (
         <SkeletonLoader type="table" count={6} />
       ) : (
-        <DataTable columns={columns} data={filteredInvoices} />
+        <>
+          {/* Desktop Table View */}
+          <div className={styles.desktopTableView}>
+            <DataTable columns={columns} data={filteredInvoices} />
+          </div>
+
+          {/* Mobile Card List View (Thumb-Friendly Progressive Disclosure) */}
+          <div className={styles.mobileCardList}>
+            {filteredInvoices.length === 0 ? (
+              <div className={styles.mobileEmptyState}>
+                {i18n.language === 'en' ? 'No invoices found' : 'Hisob-fakturalar topilmadi'}
+              </div>
+            ) : (
+              filteredInvoices.map((inv) => (
+                <div key={inv.id} className={styles.mobileInvoiceCard}>
+                  <div className={styles.mobileCardHeader}>
+                    <div className={styles.mobilePatientNameGroup}>
+                      <span className={styles.mobilePatientName}>{inv.patient}</span>
+                      <span className={styles.mobileInvoiceId}>#{inv.id}</span>
+                    </div>
+                    <StatusPill
+                      status={inv.status}
+                      label={inv.status === 'paid' ? (i18n.language === 'en' ? 'Paid' : 'To\'langan') : (i18n.language === 'en' ? 'Pending' : 'Kutilmoqda')}
+                    />
+                  </div>
+
+                  <div className={styles.mobileCardBody}>
+                    <div className={styles.mobileProcedureLine}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'var(--color-cyan)' }}>
+                        medical_services
+                      </span>
+                      <span>{inv.procedure}</span>
+                      {inv.doctor && <span className={styles.mobileDoctorText}>• {inv.doctor}</span>}
+                    </div>
+                    <div className={styles.mobileDateLine}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                        schedule
+                      </span>
+                      <span>{formatFinanceDate(inv.date, i18n.language)}</span>
+                      <span className={styles.mobilePaymentMethod}>
+                        {getPaymentLogo(inv.method, 14)}
+                        <span>{inv.method}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.mobileCardFooter}>
+                    <div className={styles.mobileAmount}>
+                      {formatUZS(inv.amount)}
+                    </div>
+                    <div className={styles.mobileActions}>
+                      <button
+                        type="button"
+                        className={styles.mobileReceiptBtn}
+                        onClick={() => handleDirectThermalPrint(inv)}
+                        title="Chek chiqarish"
+                        aria-label="Chek chiqarish"
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                          receipt_long
+                        </span>
+                      </button>
+                      {inv.status !== 'paid' && (
+                        <button
+                          type="button"
+                          className={styles.mobilePayBtn}
+                          onClick={() => handleOpenCollectModal(inv)}
+                        >
+                          {i18n.language === 'en' ? 'Pay' : 'To\'lash'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
       )}
 
       {/* Apple-Inspired Payment Sheet Dialog */}

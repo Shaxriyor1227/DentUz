@@ -546,54 +546,144 @@ export default function Patients() {
         </div>
       </div>
 
-      {/* Virtualized Table Container with react-window */}
-      <div className={styles.tableCard}>
-        <div className={styles.tableScrollContainer}>
-          <div className={styles.tableInner}>
-            <div className={styles.tableHeader}>
-              <span>{i18n.language === 'en' ? 'Patient & ID' : 'Bemor va ID'}</span>
-              <span>{t('patients.table.phone')}</span>
-              <span>{t('patients.table.lastVisit')}</span>
-              <span>{t('patients.table.nextVisit')}</span>
-              <span>{t('patients.table.balance')}</span>
-              <span className={styles.tableHeaderRight}>{t('patients.table.actions')}</span>
-            </div>
+      {/* Desktop Virtualized Table Container (≥ 768px) */}
+      <div className={styles.desktopTableView}>
+        <div className={styles.tableCard}>
+          <div className={styles.tableScrollContainer}>
+            <div className={styles.tableInner}>
+              <div className={styles.tableHeader}>
+                <span>{i18n.language === 'en' ? 'Patient & ID' : 'Bemor va ID'}</span>
+                <span>{t('patients.table.phone')}</span>
+                <span>{t('patients.table.lastVisit')}</span>
+                <span>{t('patients.table.nextVisit')}</span>
+                <span>{t('patients.table.balance')}</span>
+                <span className={styles.tableHeaderRight}>{t('patients.table.actions')}</span>
+              </div>
 
-            {loading ? (
-              <div style={{ padding: '20px' }}>
-                <SkeletonLoader type="table" count={8} />
-              </div>
-            ) : patients.length === 0 ? (
-              <div className={styles.emptyState}>
-                <span className="material-symbols-outlined" style={{ fontSize: '42px', color: 'var(--color-outline)' }}>
-                  person_search
-                </span>
-                <p style={{ margin: 0, fontWeight: 500 }}>{t('patients.table.noPatientsFound')}</p>
-                {(search || filter !== 'all') && (
-                  <button
-                    type="button"
-                    className={styles.clearFilterBtn}
-                    onClick={() => {
-                      setSearch('');
-                      setFilter('all');
-                    }}
-                  >
-                    Filtrlarni tozalash
-                  </button>
-                )}
-              </div>
-            ) : (
-              <List
-                height={Math.min(Math.max(patients.length * 64, 192), 520)}
-                itemCount={patients.length}
-                itemSize={64}
-                width="100%"
-              >
-                {Row}
-              </List>
-            )}
+              {loading ? (
+                <div style={{ padding: '20px' }}>
+                  <SkeletonLoader type="table" count={8} />
+                </div>
+              ) : patients.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '42px', color: 'var(--color-outline)' }}>
+                    person_search
+                  </span>
+                  <p style={{ margin: 0, fontWeight: 500 }}>{t('patients.table.noPatientsFound')}</p>
+                  {(search || filter !== 'all') && (
+                    <button
+                      type="button"
+                      className={styles.clearFilterBtn}
+                      onClick={() => {
+                        setSearch('');
+                        setFilter('all');
+                      }}
+                    >
+                      Filtrlarni tozalash
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <List
+                  height={Math.min(Math.max(patients.length * 64, 192), 520)}
+                  itemCount={patients.length}
+                  itemSize={64}
+                  width="100%"
+                >
+                  {Row}
+                </List>
+              )}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Streamlined Cards (< 768px) */}
+      <div className={styles.mobileCardList}>
+        {loading ? (
+          <div style={{ padding: '10px 0' }}>
+            <SkeletonLoader type="table" count={4} />
+          </div>
+        ) : patients.length === 0 ? (
+          <div className={styles.emptyState}>
+            <span className="material-symbols-outlined" style={{ fontSize: '38px', color: 'var(--color-outline)' }}>
+              person_search
+            </span>
+            <p style={{ margin: 0, fontWeight: 500 }}>{t('patients.table.noPatientsFound')}</p>
+            {(search || filter !== 'all') && (
+              <button
+                type="button"
+                className={styles.clearFilterBtn}
+                onClick={() => {
+                  setSearch('');
+                  setFilter('all');
+                }}
+              >
+                Filtrlarni tozalash
+              </button>
+            )}
+          </div>
+        ) : (
+          patients.map((p) => {
+            const initials = p.name
+              ? p.name.split(' ').map((n) => n[0]).join('').toUpperCase()
+              : 'P';
+            const balNum = Number(p.balance) || 0;
+            const isDebt = balNum < 0 || (p.status === 'debtor' && balNum !== 0);
+
+            return (
+              <div
+                key={p.id}
+                className={styles.mobilePatientCard}
+                onClick={() => handleRowClick(p)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className={styles.mobilePatientLeft}>
+                  <div className={styles.avatarBox}>{initials}</div>
+                  <div className={styles.mobilePatientInfo}>
+                    <div className={styles.mobilePatientNameRow}>
+                      <span className={styles.mobilePatientName}>{p.name}</span>
+                      <span className={styles.patientIdBadge}>{p.id}</span>
+                    </div>
+                    <div className={styles.mobilePatientSub}>
+                      {p.phone ? (
+                        <a
+                          href={`tel:${p.phone.replace(/\s+/g, '')}`}
+                          className={styles.mobilePhoneLink}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>call</span>
+                          <span>{p.phone}</span>
+                        </a>
+                      ) : (
+                        <span style={{ color: 'var(--color-text-muted)' }}>Telefon yo'q</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.mobilePatientRight}>
+                  {isDebt ? (
+                    <span className={styles.debtBadge}>
+                      <span className={styles.debtBadgeDot} />
+                      <span>-{Math.abs(balNum).toLocaleString()}</span>
+                    </span>
+                  ) : balNum > 0 ? (
+                    <span className={styles.paidBadge} style={{ color: 'var(--color-cyan)', borderColor: 'rgba(6, 182, 212, 0.3)' }}>
+                      +{balNum.toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className={styles.paidBadge}>0 so'm</span>
+                  )}
+                  <span className={`material-symbols-outlined ${styles.mobileChevron}`}>
+                    chevron_right
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Modernized New Patient Modal */}

@@ -850,3 +850,86 @@
     color: #000000 !important;
   }
 }
+
+/* =========================================================
+   Mobile Responsiveness for Treatment Plan (< 768px)
+   ========================================================= */
+@media (max-width: 767px) {
+  .pageContainer {
+    gap: 14px;
+  }
+
+  .headerCard {
+    padding: 16px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+
+  .headerActions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .headerActions button,
+  .printBtn,
+  .addProcBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ledgerHeader {
+    display: none !important;
+  }
+
+  .ledgerCard {
+    border: none;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stepRow {
+    display: flex !important;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 14px;
+    gap: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  }
+
+  .stepRow:hover {
+    transform: none;
+  }
+
+  .stepDetails {
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .toothTag {
+    margin-top: 4px;
+  }
+
+  .stepDate {
+    font-size: 11px;
+    color: var(--color-text-muted);
+  }
+
+  .stepPriceCol {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px dashed var(--color-border-subtle);
+  }
+
+  .totalSummaryCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+}
