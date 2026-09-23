@@ -259,41 +259,42 @@ export default function TopBar() {
         </div>
 
         <div className={styles.rightSection}>
-          {/* Premium Pro Segmented Language Switcher */}
-          <div className={styles.langSegment} role="group" aria-label="Language selector">
+          {/* Language & Theme — hidden on mobile, accessible via Settings */}
+          <div className={styles.desktopControls}>
+            <div className={styles.langSegment} role="group" aria-label="Language selector">
+              <button
+                type="button"
+                className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
+                onClick={() => changeLanguage('uz')}
+                title="O'zbekcha"
+              >
+                UZB
+              </button>
+              <button
+                type="button"
+                className={`${styles.langOption} ${i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
+                onClick={() => changeLanguage('en')}
+                title="English"
+              >
+                ENG
+              </button>
+            </div>
+
             <button
+              className={styles.themeToggleBtn}
+              onClick={toggleTheme}
+              title={theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
               type="button"
-              className={`${styles.langOption} ${!i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
-              onClick={() => changeLanguage('uz')}
-              title="O'zbekcha"
+              aria-label="Toggle dark/light theme"
             >
-              UZB
-            </button>
-            <button
-              type="button"
-              className={`${styles.langOption} ${i18n.language?.startsWith('en') ? styles.langOptionActive : ''}`}
-              onClick={() => changeLanguage('en')}
-              title="English"
-            >
-              ENG
+              <span className="material-symbols-outlined">
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+              <span className={styles.themeLabelText}>
+                {theme === 'dark' ? t('topbar.lightMode') : t('topbar.darkMode')}
+              </span>
             </button>
           </div>
-
-          {/* Theme Toggle */}
-          <button
-            className={styles.themeToggleBtn}
-            onClick={toggleTheme}
-            title={theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
-            type="button"
-            aria-label="Toggle dark/light theme"
-          >
-            <span className="material-symbols-outlined">
-              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-            <span className={styles.themeLabelText}>
-              {theme === 'dark' ? t('topbar.lightMode') : t('topbar.darkMode')}
-            </span>
-          </button>
 
           {/* Notifications Trigger & Dropdown */}
           <div className={styles.notifWrapper} ref={notifRef}>
@@ -450,6 +451,9 @@ export default function TopBar() {
                   <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
                   <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
                 </div>
+                <span className={`material-symbols-outlined ${styles.profileChevronMobile}`}>
+                  expand_more
+                </span>
                 <span className={`material-symbols-outlined ${styles.profileChevron} ${profileOpen ? styles.profileChevronOpen : ''}`}>
                   expand_more
                 </span>

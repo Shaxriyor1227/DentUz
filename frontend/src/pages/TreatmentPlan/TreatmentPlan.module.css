@@ -859,23 +859,42 @@
     gap: 14px;
   }
 
+  .breadcrumbRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .backLink {
+    font-size: 12px;
+  }
+
   .headerCard {
     padding: 16px;
     border-radius: 16px;
     gap: 14px;
   }
 
+  .planTitle {
+    font-size: 20px;
+  }
+
   .headerActions {
     width: 100%;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
   .headerActions button,
   .printBtn,
   .addProcBtn {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     justify-content: center;
+    font-size: 11.5px;
+    padding: 0 10px;
+    height: 36px;
   }
 
   .ledgerHeader {
@@ -899,7 +918,7 @@
     border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 14px;
-    gap: 10px;
+    gap: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   }
 
@@ -907,13 +926,37 @@
     transform: none;
   }
 
+  /* Step number becomes inline badge */
+  .stepNum {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    color: var(--color-cyan);
+  }
+
   .stepDetails {
     padding-left: 0;
     width: 100%;
   }
 
+  .stepTitle {
+    font-size: 13.5px;
+    padding-right: 32px;
+  }
+
+  .stepDesc {
+    font-size: 11px;
+    color: var(--color-text-muted);
+  }
+
   .toothTag {
-    margin-top: 4px;
+    margin-top: 2px;
+    font-size: 10px;
   }
 
   .stepDate {
@@ -924,12 +967,40 @@
   .stepPriceCol {
     width: 100%;
     justify-content: space-between;
-    padding-top: 8px;
+    padding-top: 10px;
     border-top: 1px dashed var(--color-border-subtle);
+  }
+
+  .priceAmount {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .statusDropdownContainer {
+    z-index: 90;
+  }
+
+  .statusPopover {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 80px;
+    width: auto;
+    border-radius: 14px;
+    z-index: 200;
   }
 
   .totalSummaryCard {
     padding: 16px;
     border-radius: 16px;
+  }
+
+  .summaryRow {
+    font-size: 13px;
+  }
+
+  .summaryTotalRow {
+    font-size: 15px;
   }
 }

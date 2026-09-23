@@ -1242,6 +1242,22 @@
 /* =========================================================
    Responsive Breakpoints for TopBar (Tablet & Phone)
    ========================================================= */
+
+/* Desktop controls wrapper — shows lang switcher & theme toggle */
+.desktopControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.profileChevronMobile {
+  display: none;
+}
+
+.clinicTitleShort {
+  display: none;
+}
+
 @media (max-width: 1023px) {
   .topbar {
     left: 0 !important;
@@ -1269,34 +1285,86 @@
   .searchShortcut {
     display: none;
   }
+
+  /* Hide language/theme on mobile — accessible via Settings page */
+  .desktopControls {
+    display: none !important;
+  }
+
+  /* Compact notification badge */
+  .badgePip {
+    font-size: 9px;
+    min-width: 16px;
+    height: 16px;
+    top: 2px;
+    right: 2px;
+  }
+
+  /* Hide full profile info text — just show avatar */
+  .userInfo {
+    display: none;
+  }
+
+  .profileChevron {
+    display: none !important;
+  }
+
+  .profileChevronMobile {
+    display: inline-flex;
+    font-size: 16px;
+    color: var(--color-text-muted);
+  }
+
+  /* Compact right section */
+  .rightSection {
+    gap: 6px;
+  }
+
+  .iconBtn {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* Compact profile button */
+  .userProfile {
+    padding: 3px;
+    gap: 0;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .avatar span {
+    font-size: 17px !important;
+  }
+
+  /* Notification popover full-width on mobile */
+  .notifPopover {
+    position: fixed;
+    top: var(--topbar-height);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: calc(100dvh - var(--topbar-height) - 80px);
+    border-radius: 16px;
+  }
+
+  /* Profile popover full-width on mobile */
+  .profilePopover {
+    position: fixed;
+    top: var(--topbar-height);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    border-radius: 16px;
+  }
 }
 
 @media (max-width: 560px) {
-  .clinicTitle {
-    font-size: 13px;
-    max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .clinicTitleShort {
-    display: none;
-  }
-
   .searchSection {
     display: none;
-  }
-
-  .langOption {
-    padding: 3px 6px;
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 420px) {
-  .topbar {
-    padding: 0 10px;
   }
 
   .clinicTitleFull {
@@ -1311,6 +1379,13 @@
     color: var(--color-cyan);
     letter-spacing: -0.02em;
   }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    padding: 0 8px;
+    height: 48px;
+  }
 
   .rightSection {
     gap: 4px;
@@ -1321,14 +1396,12 @@
     height: 32px;
   }
 
-  .themeToggleBtn {
-    width: 32px;
-    height: 32px;
+  .sidebarToggleBtn {
+    width: 30px;
+    height: 30px;
   }
 
-  .langOption {
-    padding: 2px 5px;
-    font-size: 10px;
+  .sidebarToggleBtn span {
+    font-size: 18px;
   }
 }
-

@@ -465,3 +465,40 @@
   line-height: 1.55;
   max-width: 440px;
 }
+
+/* =========================================================
+   Mobile Responsiveness for Auth Layout (< 768px)
+   ========================================================= */
+@media (max-width: 767px) {
+  .rightColumn {
+    display: none !important;
+  }
+
+  .leftColumn {
+    padding: 20px 16px;
+    min-height: 100vh;
+    border-right: none;
+  }
+
+  .topBar {
+    margin-bottom: 8px;
+  }
+
+  .topBackLink span {
+    display: none;
+  }
+
+  .themeToggleBtn span:last-child {
+    display: none;
+  }
+
+  .themeToggleBtn {
+    padding: 6px 8px;
+  }
+
+  .bottomTrust {
+    font-size: 10.5px;
+    gap: 10px;
+    margin-top: 16px;
+  }
+}
