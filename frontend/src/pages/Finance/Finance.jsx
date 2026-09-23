@@ -6,13 +6,13 @@ import StatusPill from '../../components/StatusPill/StatusPill';
 import DataTable from '../../components/DataTable/DataTable';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
-import { formatUZS } from '../../utils/formatters';
+import { formatUZS, formatFinanceDate } from '../../utils/formatters';
 import {
   printThermalReceipt,
   printOfficialInvoiceA4,
   ReceiptBarcode
 } from '../../utils/exportFinanceReceipt';
-import { formatFinanceDate } from '../../utils/exportFinanceExcel';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Finance.module.css';
 
 // Payment logos (Payme, Click, Uzcard, Humo, Cash)
@@ -194,6 +194,7 @@ function getPaymentLogo(methodName, size = 18) {
 
 export default function Finance() {
   const { t, i18n } = useTranslation();
+  usePageMeta(t('finance.title') || 'Moliya va Hisob-kitob', "DentUz klinika moliya bo'limi: tushumlar, xarajatlar, invoyslar va to'lovlar hisoboti.");
   const [stats, setStats] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -7,10 +7,12 @@ import { useDebounce } from '../../hooks/useDebounce';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import { downloadText } from '../../utils/downloadHelper';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Patients.module.css';
 
 export default function Patients() {
   const { t, i18n } = useTranslation();
+  usePageMeta(t('nav.patients') || 'Bemorlar Bazasi', "DentUz elektron ambulatoriya kartochkalari va stomatologik bemorlar bazasi.");
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -84,6 +86,21 @@ export default function Patients() {
     navigate(`/patients/${cleanId}`);
   };
 
+  // Fetch the full list of matching patients for full exports (up to all 1,250 records)
+  const fetchAllForExport = async () => {
+    try {
+      const res = await patientsApi.getAll({
+        search: debouncedSearch,
+        filter,
+        page: 1,
+        pageSize: 10000 // Get all matching patients without virtual pagination slice
+      });
+      return (res && res.items && res.items.length > 0) ? res.items : patients;
+    } catch {
+      return patients;
+    }
+  };
+
   const handleExportExcel = async () => {
     if (!patients || patients.length === 0) {
       setToast({
@@ -98,8 +115,9 @@ export default function Patients() {
     try {
       setExporting(true);
       setShowExportMenu(false);
+      const allPatients = await fetchAllForExport();
       const { exportPatientsToExcel } = await import('../../utils/exportPatientsExcel');
-      await exportPatientsToExcel(patients, {
+      await exportPatientsToExcel(allPatients, {
         filter,
         language: i18n.language,
         clinicName: 'DentUz Stomatologiya Klinikasi'
@@ -109,8 +127,8 @@ export default function Patients() {
         type: 'success',
         title: isEn ? 'Excel Export Successful' : 'Excel (.xlsx) yuklab olindi',
         message: isEn
-          ? `${patients.length} patient records exported with full styles and formatting.`
-          : `${patients.length} ta bemor ma'lumotlari chiroyli Excel (.xlsx) jadvaliga yuklandi.`
+          ? `${allPatients.length} patient records exported with full styles and formatting.`
+          : `${allPatients.length} ta bemor ma'lumotlari to'liq Excel (.xlsx) jadvaliga yuklandi.`
       });
     } catch (err) {
       console.error('Export Excel error:', err);
@@ -125,7 +143,7 @@ export default function Patients() {
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
     if (!patients || patients.length === 0) {
       setToast({
         open: true,
@@ -136,11 +154,13 @@ export default function Patients() {
       return;
     }
     const isEn = i18n.language === 'en';
+    setShowExportMenu(false);
+    const allPatients = await fetchAllForExport();
     const headers = isEn
       ? ['ID', 'Patient Name', 'Phone', 'Last Visit', 'Next Appointment', 'Balance (UZS)', 'Status']
       : ['ID', 'Bemor F.I.SH', 'Telefon', 'Oxirgi Tashrif', 'Keyingi Qabul', 'Balans (UZS)', 'Holati'];
 
-    const rows = patients.map((p) => {
+    const rows = allPatients.map((p) => {
       const balanceNum = p.balance ? -Math.abs(Number(p.balance)) : 0;
       const statusText = balanceNum < 0
         ? (isEn ? 'Has Debt' : 'Qarzdorlik bor')
@@ -156,19 +176,17 @@ export default function Patients() {
       ];
     });
 
-    // Added sep=, header for standard MS Excel & WPS Office auto-column parsing
     const csvContent = '\uFEFFsep=,\r\n' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
     const filterSuffix = filter !== 'all' ? `_${filter}` : '';
     downloadText(csvContent, `DentUz_Bemorlar${filterSuffix}_${new Date().toISOString().slice(0, 10)}.csv`);
-    setShowExportMenu(false);
 
     setToast({
       open: true,
       type: 'success',
       title: isEn ? 'Export completed' : 'Eksport muvaffaqiyatli yakunlandi',
       message: isEn
-        ? `${patients.length} patient records exported to CSV.`
-        : `${patients.length} ta bemor ma'lumotlari CSV fayliga yuklab olindi.`
+        ? `${allPatients.length} patient records exported to CSV.`
+        : `${allPatients.length} ta bemor ma'lumotlari CSV fayliga yuklab olindi.`
     });
   };
 
@@ -176,8 +194,9 @@ export default function Patients() {
     if (!patients || patients.length === 0) return;
     try {
       setShowExportMenu(false);
+      const allPatients = await fetchAllForExport();
       const { exportPatientsToPDF } = await import('../../utils/exportPatientsDocuments');
-      exportPatientsToPDF(patients, { filter, language: i18n.language });
+      exportPatientsToPDF(allPatients, { filter, language: i18n.language });
     } catch (err) {
       console.error(err);
     }
@@ -187,13 +206,14 @@ export default function Patients() {
     if (!patients || patients.length === 0) return;
     try {
       setShowExportMenu(false);
+      const allPatients = await fetchAllForExport();
       const { exportPatientsToWord } = await import('../../utils/exportPatientsDocuments');
-      exportPatientsToWord(patients, { filter, language: i18n.language });
+      exportPatientsToWord(allPatients, { filter, language: i18n.language });
       setToast({
         open: true,
         type: 'success',
         title: i18n.language === 'en' ? 'Word Document Downloaded' : 'Word (.doc) fayli yuklandi',
-        message: i18n.language === 'en' ? `${patients.length} patient records saved as Word document.` : `${patients.length} ta bemor ro'yxati Word hujjatiga yuklandi.`
+        message: i18n.language === 'en' ? `${allPatients.length} patient records saved as Word document.` : `${allPatients.length} ta bemor ro'yxati Word hujjatiga yuklandi.`
       });
     } catch (err) {
       console.error(err);

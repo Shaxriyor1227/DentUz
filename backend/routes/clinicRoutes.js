@@ -176,4 +176,9 @@ router.put("/clinics/:id", validate(validateClinic), clinicController.updateClin
  */
 router.delete("/clinics/:id", clinicController.deleteClinic);
 
+/**
+  * Public application route for new clinics from website
+  */
+router.post("/clinics/apply", clinicController.submitApplication);
+
 module.exports = router;

@@ -821,3 +821,101 @@
   border-color: var(--color-cyan);
   box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
 }
+
+/* ════════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE OPTIMIZATIONS (Tablet & Phone)
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .pageContainer {
+    gap: var(--space-md);
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .actionGroup {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .exportGroup {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .exportMainBtn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .addPatientBtn {
+    flex: 1 1 auto;
+    justify-content: center;
+    width: auto;
+  }
+
+  .filterTabs {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .filterTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabItem {
+    flex-shrink: 0;
+  }
+
+  .virtualTableCard {
+    border-radius: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tableGridHeader,
+  .rowGrid {
+    min-width: 700px;
+  }
+
+  .modalCard {
+    width: calc(100% - 24px);
+    max-width: 100%;
+    margin: 12px auto;
+    max-height: calc(100dvh - 24px);
+    border-radius: 18px;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cancelBtn,
+  .saveBtn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+

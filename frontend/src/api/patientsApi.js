@@ -146,33 +146,104 @@ const basePatients = [
   }
 ];
 
-// Generate 342 total records for realistic virtualization and search
-const firstNames = ['Aziz', 'Bekzod', 'Gulnoza', 'Diyor', 'Jasur', 'Lola', 'Madina', 'Nodir', 'Olim', 'Rustam', 'Sanjar', 'Umida', 'Farrux', 'Hilola', 'Shavkat', 'Zilola', 'Sherzod', 'Kamola', 'Muzaffar', 'Nilufar'];
-const lastNames = ['Karimov', 'Azimov', 'Tursunov', 'Ahmedov', 'Yusupov', 'Sobirov', 'Nazarov', 'Ismoilov', 'Abdullayev', 'Murodov', 'Rahimov', 'Qodirov', 'Xoliqov', 'Ergashev', 'G\'ofurov'];
-const procedures = ['Karies davolash', 'Plomba o\'rnatish', 'Tish tozalash (Air-Flow)', 'Endodontiya', 'Breket ko\'rik', 'Implantatsiya', 'Tish sug\'urish', 'Rentgen', 'Toj o\'rnatish', 'Flyuorizatsiya'];
+// Generate 1,250 total records for realistic virtualization and deep testing
+const maleFirstNames = ['Aziz', 'Bekzod', 'Diyor', 'Jasur', 'Nodir', 'Olim', 'Rustam', 'Sanjar', 'Farrux', 'Shavkat', 'Sherzod', 'Muzaffar', 'Bobur', 'Otabek', 'Sardor', 'Javohir', 'Shohruh', 'Elyor', 'Doniyor', 'Alisher', 'Temur', 'Eldor', 'Abbos', 'Anvar', 'Davron', 'Jahongir', 'Xurshid', 'Umid', 'Ilhom', 'Akmal'];
+const femaleFirstNames = ['Gulnoza', 'Lola', 'Madina', 'Umida', 'Hilola', 'Zilola', 'Kamola', 'Nilufar', 'Shahlo', 'Shahnoza', 'Dildora', 'Nargiza', 'Mohira', 'Sevara', 'Feruza', 'Dilfuza', 'Nigora', 'Rayhon', 'Ziyoda', 'Yulduz', 'Nozima', 'Munisa', 'Go\'zal', 'Zarnigor', 'Sabina', 'Malika', 'Zulayho', 'Ozoda'];
+const lastNamesRoots = ['Karim', 'Azim', 'Tursun', 'Ahmed', 'Yusup', 'Sobir', 'Nazar', 'Ismoil', 'Abdullay', 'Murod', 'Rahim', 'Qodir', 'Xoliq', 'Ergash', 'G\'ofur', 'Aliy', 'Said', 'Umar', 'Soliy', 'Rashid', 'Mahmud', 'Sharip', 'Jalil', 'Toir', 'Yoqub', 'Boboy', 'Vohid', 'Mirzay', 'Normat', 'Jo\'ray'];
+
+const procedures = [
+  'Karies davolash va kompozit plomba',
+  'Tish tozalash (Air-Flow va ultratovush)',
+  'Endodontik davolash (ildiz kanallari)',
+  'Metallokeramika toj o\'rnatish',
+  'Tsirkoniy oksidi estetik koronka',
+  'Damon Q breket korreksiyasi',
+  'Straumann implantatsiyasi',
+  'Tish oqartirish (Zoom 4 texnologiyasi)',
+  'Aql tishini jarrohlik yo\'li bilan olish',
+  'E-max keramika vinirlar konsultatsiyasi',
+  'Bolalar tish profilaktikasi va silantlash',
+  'Flyuorizatsiya va remoterapiya',
+  'Sinus-lifting va suyak plastikasi',
+  'Byugel protez tekshiruvi va korreksiyasi',
+  'Gingivit va parodontit muolajasi',
+  'Tish sezuvchanligini pasaytirish (Desensitayzer)'
+];
+
+const allergyList = ['Yo\'q', 'Yo\'q', 'Yo\'q', 'Yo\'q', 'Penitsillin', 'Lidokain', 'Lateks', 'Aspirin', 'Novokain'];
+
+const notesList = [
+  'Doimiy bemor, profilaktik ko\'rik rejalashtirilgan',
+  'Sezuvchanlik yuqori, og\'riqsizlantirish talab etiladi',
+  'Davolash rejasi tuzilgan va tasdiqlangan',
+  'Rentgen suratlari arxivlangan, yaxshi dinamika',
+  'Ortodontik muolaja bosqichi davom etmoqda',
+  'Klinik karta faol, gigiyenik tavsiyalar berilgan',
+  'Plomba kafolati doirasida nazorat ko\'rigi',
+  'Implantatsiya muvaffaqiyatli integratsiya jarayonida'
+];
 
 const fullPatients = [...basePatients];
-for (let i = fullPatients.length; i < 342; i++) {
-  const fn = firstNames[i % firstNames.length];
-  const ln = lastNames[Math.floor(i / firstNames.length) % lastNames.length];
+for (let i = fullPatients.length; i < 1250; i++) {
+  const isMale = i % 2 === 0;
+  const fn = isMale
+    ? maleFirstNames[i % maleFirstNames.length]
+    : femaleFirstNames[i % femaleFirstNames.length];
+  const rootLn = lastNamesRoots[(i + Math.floor(i / maleFirstNames.length)) % lastNamesRoots.length];
+  const ln = isMale ? `${rootLn}ov` : `${rootLn}ova`;
   const pId = `P-${1042 + i}`;
   const proc = procedures[i % procedures.length];
-  const hasDebt = i % 15 === 0;
-  const isScheduled = i % 3 === 0;
   
+  // Status distributions:
+  // ~12% today, ~45% scheduled, ~18% debtor, remainder all
+  const statusMod = i % 20;
+  let status = 'all';
+  let balance = 0;
+  let nextVisit = 'Rejalashtirilmagan';
+
+  if (statusMod === 0 || statusMod === 7 || statusMod === 14) {
+    status = 'today';
+    const hours = ['09:00', '10:15', '11:30', '14:00', '15:15', '16:30', '17:45', '18:30'];
+    nextVisit = `Bugun • ${hours[i % hours.length]}`;
+  } else if (statusMod === 3 || statusMod === 8 || statusMod === 13 || statusMod === 17) {
+    status = 'debtor';
+    const debts = [150000, 280000, 450000, 750000, 1200000, 1850000, 2400000, 3600000];
+    balance = debts[i % debts.length];
+    nextVisit = `${((i % 25) + 1)}-Oktabr, 2026 • 11:00`;
+  } else if (statusMod % 2 === 0) {
+    status = 'scheduled';
+    const days = (i % 28) + 1;
+    const hour = 9 + (i % 8);
+    nextVisit = `${days}-Oktabr, 2026 • ${hour < 10 ? '0' : ''}${hour}:00`;
+  }
+
+  const birthYear = 1965 + (i % 42);
+  const birthMonth = ((i % 12) + 1).toString().padStart(2, '0');
+  const birthDay = ((i % 28) + 1).toString().padStart(2, '0');
+  const age = 2026 - birthYear;
+
+  const phonePrefixes = ['90', '91', '93', '94', '95', '97', '98', '99', '88', '77', '33'];
+  const pfx = phonePrefixes[i % phonePrefixes.length];
+  const p1 = Math.floor(100 + (Math.sin(i * 13) * 0.5 + 0.5) * 899);
+  const p2 = Math.floor(10 + (Math.cos(i * 17) * 0.5 + 0.5) * 89);
+  const p3 = Math.floor(10 + (Math.sin(i * 23) * 0.5 + 0.5) * 89);
+  const phone = `+998 ${pfx} ${p1} ${p2} ${p3}`;
+
+  const lastVisitDay = ((i % 22) + 1);
+
   fullPatients.push({
     id: pId,
     name: `${fn} ${ln}`,
-    phone: `+998 9${(i % 5) + 0} ${Math.floor(100 + Math.random() * 899)} ${Math.floor(10 + Math.random() * 89)} ${Math.floor(10 + Math.random() * 89)}`,
-    birthdate: `${(i % 28) + 1}.0${(i % 9) + 1}.${1970 + (i % 35)}`,
-    age: 18 + (i % 55),
-    lastVisit: `${(i % 25) + 1}-may, 2024`,
+    phone,
+    birthdate: `${birthDay}.${birthMonth}.${birthYear}`,
+    age,
+    lastVisit: `${lastVisitDay}-Sentabr, 2026`,
     lastProcedure: proc,
-    nextVisit: isScheduled ? `${((i + 3) % 28) + 1}-iyun, 2024 • ${10 + (i % 8)}:00` : 'Rejalashtirilmagan',
-    status: hasDebt ? 'debtor' : (i % 7 === 0 ? 'today' : (isScheduled ? 'scheduled' : 'all')),
-    allergies: i % 10 === 0 ? 'Penitsillin' : 'Yo\'q',
-    notes: 'Klinik karta faol',
-    balance: hasDebt ? (i * 120000) % 1500000 : 0
+    nextVisit,
+    status,
+    allergies: allergyList[i % allergyList.length],
+    notes: notesList[i % notesList.length],
+    balance
   });
 }
 

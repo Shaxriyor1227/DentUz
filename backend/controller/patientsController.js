@@ -90,7 +90,13 @@ exports.getPatients = async (req, res) => {
 
 exports.getPatientById = async (req, res) => {
   try {
-    const patient = await Patient.findByPk(req.params.id, {
+    const rawId = req.params.id;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    const patient = await Patient.findOne({
+      where: {
+        id: { [Op.in]: possibleIds }
+      },
       include: [
         { model: Appointment, as: 'appointments' },
         { model: Invoice, as: 'invoices' },

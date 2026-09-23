@@ -36,3 +36,29 @@ export function getInitials(name) {
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
+
+/**
+ * Format date for financial transactions and invoice lists
+ * @param {string|Date} val
+ * @param {string} lang
+ * @returns {string}
+ */
+export function formatFinanceDate(val, lang = 'uz') {
+  if (!val) return '—';
+  if (typeof val === 'string' && val.includes('-') && !val.includes('T')) return val;
+  try {
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return val;
+    const isEn = lang === 'en';
+    const day = d.getDate();
+    const monthsUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = (isEn ? monthsEn : monthsUz)[d.getMonth()];
+    const year = d.getFullYear();
+    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `${day}-${month}, ${year}${time !== '00:00' ? ` • ${time}` : ''}`;
+  } catch {
+    return val;
+  }
+}
+

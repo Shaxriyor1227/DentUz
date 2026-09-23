@@ -3,6 +3,9 @@ const router = express.Router();
 const financeController = require("../controller/financeController");
 const { validate } = require("../middleware/validate");
 const { validateInvoice } = require("../validations/invoiceValidation");
+const { authenticate } = require("../middleware/auth");
+
+router.use(authenticate);
 
 /**
  * @swagger

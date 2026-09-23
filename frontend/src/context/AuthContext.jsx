@@ -108,17 +108,58 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('dentuz:auth:unauthorized', handleUnauthorized);
   }, []);
 
-  const login = (email, password, role = ROLES.OWNER) => {
-    const matchedUser = Object.values(DEMO_USERS).find(u => u.email === email) || {
-      ...DEMO_USERS[role] || DEMO_USERS.owner,
-      email: email || DEMO_USERS.owner.email
+  const login = async (credentials, passwordParam, role = ROLES.OWNER) => {
+    const email = (typeof credentials === 'object' && credentials?.email) ? credentials.email : credentials;
+    const password = (typeof credentials === 'object' && credentials?.password) ? credentials.password : (passwordParam || 'Password123!');
+    const targetRole = (typeof credentials === 'object' && credentials?.role) ? credentials.role : role;
+
+    // 1. Try real backend authentication
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email?.trim(), password })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.token) {
+          const userPayload = {
+            id: data.data?.id || 'usr-real',
+            name: data.data?.name || data.data?.shortName || email,
+            shortName: data.data?.shortName || data.data?.name || 'Foydalanuvchi',
+            title: data.data?.title || 'Stomatolog',
+            role: data.data?.role || ROLES.OWNER,
+            email: data.data?.email || email,
+            clinic: data.data?.clinic?.name || data.data?.clinic || 'DentUz Markaziy Klinika',
+            phone: data.data?.phone || '',
+            avatar: data.data?.avatarUrl || null
+          };
+
+          setToken(data.token);
+          setUser(userPayload);
+          setIsAuthenticated(true);
+          return { success: true, data: userPayload };
+        }
+      }
+    } catch (err) {
+      console.warn('Real backend auth not reachable, applying local fallback:', err.message);
+    }
+
+    // 2. Graceful fallback for offline demo or standalone frontend mode
+    const matchedUser = Object.values(DEMO_USERS).find((u) => u.email === email) || {
+      ...(DEMO_USERS[targetRole] || DEMO_USERS.owner),
+      email: email || DEMO_USERS.owner.email,
+      name: (typeof credentials === 'object' && credentials?.name) || DEMO_USERS.owner.name,
+      clinic: (typeof credentials === 'object' && credentials?.clinic) || DEMO_USERS.owner.clinic
     };
-    
+
     const mockJwt = `jwt_${Date.now()}_${btoa(email || 'user')}`;
     setToken(mockJwt);
     setUser(matchedUser);
     setIsAuthenticated(true);
-    return true;
+    return { success: true, data: matchedUser };
   };
 
   const switchRole = (roleKey) => {

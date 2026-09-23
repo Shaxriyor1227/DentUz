@@ -22,21 +22,30 @@ const EyeOffIcon = () => (
 export default function Login() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('j.azimov@dentuz.uz');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('Password123!');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login({
-      email: email || 'j.azimov@dentuz.uz',
-      name: 'Dr. Jasur Azimov',
-      clinic: 'Toshkent Dental Clinic',
-      role: 'Bosh shifokor',
-    });
-    navigate('/dashboard');
+    setLoading(true);
+    try {
+      await login({
+        email: email || 'j.azimov@dentuz.uz',
+        password: password || 'Password123!',
+        name: 'Dr. Jasur Azimov',
+        clinic: 'DentUz Markaziy Klinika',
+        role: 'owner',
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

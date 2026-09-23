@@ -7,6 +7,7 @@ import { financeApi } from '../../api/financeApi';
 import StatCard from '../../components/StatCard/StatCard';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Dashboard.module.css';
 
 // 7-day revenue & patients inflow metrics dynamically aligned with current week
@@ -54,6 +55,7 @@ function getWeeklyChartData(lang = 'uz') {
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
+  usePageMeta(t('nav.dashboard') || 'Boshqaruv Paneli', "DentUz stomatologiya klinikasi asosiy boshqaruv paneli: kunlik qabullar, tushumlar va kreslolar bandligi.");
   const navigate = useNavigate();
   const { data: appointments, loading } = useApi(appointmentsApi.getToday, []);
   const { data: financeStats } = useApi(financeApi.getStats, null);

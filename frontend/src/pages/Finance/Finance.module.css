@@ -1455,3 +1455,137 @@
   }
 }
 
+/* ════════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE OPTIMIZATIONS (Tablet & Phone)
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .pageContainer {
+    gap: var(--space-md);
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dateFilterGroup {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    padding: 3px;
+    border-radius: 10px;
+  }
+
+  .dateFilterGroup::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dateFilterBtn {
+    flex: 1 0 auto;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 11.5px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .tabsNav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2px;
+  }
+
+  .tabsNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabBtn {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    flex-shrink: 0;
+  }
+
+  .tableToolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .searchBox {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .toolbarActions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .appleModalCard {
+    width: calc(100% - 24px);
+    max-width: 100%;
+    margin: 12px auto;
+    max-height: calc(100dvh - 24px);
+    border-radius: 18px;
+  }
+
+  .thermalModalCard {
+    width: calc(100% - 24px);
+    max-width: 100%;
+    margin: 12px auto;
+    max-height: calc(100dvh - 24px);
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .appleModalHeader {
+    padding: 16px 16px 10px 16px;
+  }
+
+  .appleModalBody {
+    padding: 12px 16px;
+  }
+
+  .appleModalFooter {
+    padding: 12px 16px 16px 16px;
+  }
+
+  .receiptActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .receiptPrintMainBtn,
+  .receiptCloseBtn {
+    width: 100%;
+  }
+}
+
+

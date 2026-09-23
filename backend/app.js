@@ -29,9 +29,15 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const app = express();
 
+app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(compression());
 app.use(cors({
-  origin: '*',
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -77,6 +83,14 @@ const start = async () => {
     app.listen(PORT, () => {
       console.log(`DentUz API http://localhost:${PORT} portida ishlamoqda`);
       console.log(`Swagger docs: http://localhost:${PORT}/api/docs`);
+
+      // 2027-style Interactive Telegram Bot
+      try {
+        const bot = require('./services/telegramBot');
+        bot.startPolling();
+      } catch (botErr) {
+        console.warn('Bot start error:', botErr.message);
+      }
     });
   } catch (err) {
     console.error('Server ishga tushmadi:', err);

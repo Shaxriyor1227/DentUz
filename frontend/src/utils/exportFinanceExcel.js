@@ -1,23 +1,7 @@
 import { downloadBlob, downloadText } from './downloadHelper';
+import { formatFinanceDate } from './formatters';
 
-export function formatFinanceDate(val, lang = 'uz') {
-  if (!val) return '—';
-  if (typeof val === 'string' && val.includes('-') && !val.includes('T')) return val;
-  try {
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    const isEn = lang === 'en';
-    const day = d.getDate();
-    const monthsUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
-    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = (isEn ? monthsEn : monthsUz)[d.getMonth()];
-    const year = d.getFullYear();
-    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return `${day}-${month}, ${year}${time !== '00:00' ? ` • ${time}` : ''}`;
-  } catch {
-    return val;
-  }
-}
+export { formatFinanceDate };
 
 /**
  * Exports financial invoices and summary to a professionally styled Excel (.xlsx) file

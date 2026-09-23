@@ -3,6 +3,9 @@ const router = express.Router();
 const patientController = require("../controller/patientsController");
 const { validate } = require("../middleware/validate");
 const { validatePatient } = require("../validations/patientValidation");
+const { authenticate } = require("../middleware/auth");
+
+router.use(authenticate);
 
 /**
  * @swagger

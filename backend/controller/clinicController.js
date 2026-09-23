@@ -85,3 +85,39 @@ exports.getClinicStats = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+const { sendTelegramMessage } = require('../utils/telegram');
+
+exports.submitApplication = async (req, res) => {
+  try {
+    const { name, clinicName, phone, chairsCount = '1-3', message = '' } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ success: false, message: 'Ism va telefon raqami majburiy' });
+    }
+
+    const now = new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
+
+    const telegramText = 
+`🔔 <b>YANGI KLINIKA MUROJAATI (DentUz)!</b>
+
+🏥 <b>Klinika nomi:</b> ${clinicName || 'Ko\'rsatilmagan'}
+👤 <b>Mas'ul shaxs:</b> ${name}
+📞 <b>Telefon:</b> <a href="tel:${phone}">${phone}</a>
+🪑 <b>Kreslolar soni:</b> ${chairsCount}
+💬 <b>Xabar/Izoh:</b> ${message || 'Yo\'q'}
+⏰ <b>Kelgan vaqti:</b> ${now}`;
+
+    // Telegram bot orqali xabar yuborish
+    sendTelegramMessage(telegramText).catch((err) => {
+      console.warn('Telegram notification failed:', err.message);
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Murojaatingiz muvaffaqiyatli qabul qilindi. Tez orada siz bilan bog\'lanamiz!'
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

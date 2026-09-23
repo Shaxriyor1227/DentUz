@@ -57,7 +57,13 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
-    open: false
+    open: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     target: 'esnext',
@@ -68,8 +74,14 @@ export default defineConfig({
       output: {
         // Manual chunk splitting for isolated heavy libraries
         manualChunks: (id) => {
-          if (id.includes('node_modules/exceljs')) {
+          if (id.includes('node_modules/exceljs') || id.includes('node_modules/file-saver')) {
             return 'excel-vendor';
+          }
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router-dom/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+            return 'i18n-vendor';
           }
           if (id.includes('node_modules/react-window')) {
             return 'virtualization-vendor';

@@ -96,13 +96,29 @@
 }
 
 .brandAccent {
-  color: #0F172A;
+  color: #06B6D4;
   font-weight: 800;
   transition: color 0.2s ease;
 }
 
 [data-theme='dark'] .brandAccent {
-  color: #FFFFFF;
+  color: #22D3EE;
+}
+
+/* Sidebar auto-protection: Sidebar is always dark navy */
+:global([class*="sidebar"]) .pathNavy,
+:global([class*="brandHeader"]) .pathNavy {
+  fill: #FFFFFF !important;
+}
+
+:global([class*="sidebar"]) .brandTitle,
+:global([class*="brandHeader"]) .brandTitle {
+  color: #FFFFFF !important;
+}
+
+:global([class*="sidebar"]) .brandAccent,
+:global([class*="brandHeader"]) .brandAccent {
+  color: #22D3EE !important;
 }
 
 .white .brandTitle,

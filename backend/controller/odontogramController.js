@@ -2,21 +2,36 @@
 const { Odontogram, OdontogramHistory, Patient, User } = require('../models');
 const { validateOdontogramUpdate } = require('../validations/odontogramValidation');
 
+const { Op } = require('sequelize');
+
 exports.getOdontogramByPatient = async (req, res) => {
   try {
+    const rawId = req.params.patientId;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    const patient = await Patient.findOne({
+      where: { id: { [Op.in]: possibleIds } }
+    });
+
+    const realPatientId = patient ? patient.id : (rawId.startsWith('P-') ? rawId : `P-${rawId}`);
+
     let odontogram = await Odontogram.findOne({
-      where: { patientId: req.params.patientId },
+      where: { patientId: realPatientId },
       include: [
         { model: OdontogramHistory, as: 'history', limit: 20, order: [['createdAt', 'DESC']] },
         { model: Patient,           as: 'patient' },
       ],
     });
 
-    if (!odontogram) {
+    if (!odontogram && patient) {
       odontogram = await Odontogram.create({
-        patientId: req.params.patientId,
+        patientId: patient.id,
         teeth: {},
       });
+    }
+
+    if (!odontogram) {
+      return res.status(200).json({ success: true, data: { patientId: realPatientId, teeth: {} } });
     }
 
     res.status(200).json({ success: true, data: odontogram });

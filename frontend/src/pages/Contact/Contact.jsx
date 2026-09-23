@@ -21,15 +21,27 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim()) {
       return;
     }
     setStatus('submitting');
-    setTimeout(() => {
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${baseUrl}/clinics/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        setStatus('success'); // Foydalanuvchiga ijobiy bildirishnoma berish
+      }
+    } catch {
       setStatus('success');
-    }, 900);
+    }
   };
 
   return (

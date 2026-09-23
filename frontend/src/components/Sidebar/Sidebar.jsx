@@ -45,6 +45,7 @@ export default function Sidebar() {
               size={collapsed ? 32 : 36}
               withText={!collapsed}
               subtitle="Dental OS"
+              variant="onDark"
             />
           </Link>
 
@@ -99,6 +100,7 @@ export default function Sidebar() {
           to="/"
           className={styles.bottomLink}
           title={collapsed ? 'Landing' : undefined}
+          aria-label="DentUz bosh sahifasiga o'tish"
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>home</span>
           {!collapsed && <span>DentUz.uz</span>}
@@ -112,6 +114,7 @@ export default function Sidebar() {
           className={styles.logoutBtn}
           type="button"
           title={collapsed ? t('nav.logout') : undefined}
+          aria-label={t('nav.logout') || 'Tizimdan chiqish'}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>logout</span>
           {!collapsed && <span>{t('nav.logout')}</span>}
@@ -126,6 +129,7 @@ export default function Sidebar() {
           className={styles.bottomToggleBtn}
           onClick={toggleSidebar}
           title={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+          aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
         >
           <span className={`material-symbols-outlined ${styles.navIcon}`}>
             {collapsed ? 'last_page' : 'first_page'}
