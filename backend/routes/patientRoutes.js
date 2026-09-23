@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const patientController = require("../controller/patientsController");
+const { validate } = require("../middleware/validate");
+const { validatePatient } = require("../validations/patientValidation");
 
 /**
  * @swagger
@@ -58,7 +60,7 @@ const patientController = require("../controller/patientsController");
  *       500:
  *         description: Server error
  */
-router.post("/patients", patientController.createPatient);
+router.post("/patients", validate(validatePatient), patientController.createPatient);
 
 /**
  * @swagger
@@ -162,7 +164,7 @@ router.get("/patients/:id", patientController.getPatientById);
  *       500:
  *         description: Server error
  */
-router.put("/patients/:id", patientController.updatePatient);
+router.put("/patients/:id", validate(validatePatient), patientController.updatePatient);
 
 /**
  * @swagger

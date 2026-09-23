@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const appointmentController = require("../controller/appointmentsController");
+const { validate } = require("../middleware/validate");
+const { validateAppointment } = require("../validations/appointmentValidation");
 
 /**
  * @swagger
@@ -68,7 +70,7 @@ const appointmentController = require("../controller/appointmentsController");
  *       500:
  *         description: Server error
  */
-router.post("/appointments", appointmentController.createAppointment);
+router.post("/appointments", validate(validateAppointment), appointmentController.createAppointment);
 
 /**
  * @swagger
@@ -184,7 +186,7 @@ router.get("/appointments/:id", appointmentController.getAppointmentById);
  *       500:
  *         description: Server error
  */
-router.put("/appointments/:id", appointmentController.updateAppointment);
+router.put("/appointments/:id", validate(validateAppointment), appointmentController.updateAppointment);
 
 /**
  * @swagger

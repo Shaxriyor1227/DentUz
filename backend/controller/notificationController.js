@@ -1,4 +1,3 @@
-'use strict';
 
 const { Notification, Clinic } = require('../models');
 const { validateNotification } = require('../validations/notificationValidation');

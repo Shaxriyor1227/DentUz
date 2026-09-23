@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const odontogramController = require("../controller/odontogramController");
+const { validate } = require("../middleware/validate");
+const { validateOdontogramUpdate } = require("../validations/odontogramValidation");
 
 /**
  * @swagger
@@ -70,7 +72,7 @@ router.get("/odontogram/:patientId", odontogramController.getOdontogramByPatient
  *       500:
  *         description: Server error
  */
-router.put("/odontogram/:patientId", odontogramController.saveOdontogram);
+router.put("/odontogram/:patientId", validate(validateOdontogramUpdate), odontogramController.saveOdontogram);
 
 /**
  * @swagger

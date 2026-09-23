@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const inventoryController = require('../controller/inventoryController');
+const { validate } = require('../middleware/validate');
+const { validateInventory } = require('../validations/inventoryValidation');
 
 /**
  * @swagger
@@ -65,7 +67,7 @@ const inventoryController = require('../controller/inventoryController');
  *       500:
  *         description: Server error
  */
-router.post('/inventory', inventoryController.createInventory);
+router.post('/inventory', validate(validateInventory), inventoryController.createInventory);
 
 /**
  * @swagger
@@ -92,6 +94,29 @@ router.post('/inventory', inventoryController.createInventory);
  *         description: Server error
  */
 router.get('/inventory', inventoryController.getInventories);
+
+/**
+ * @swagger
+ * /api/inventory/search:
+ *   get:
+ *     tags: [Inventory]
+ *     summary: Search inventory by name, SKU, or supplier
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search query
+ *     responses:
+ *       200:
+ *         description: Matching inventory items
+ *       400:
+ *         description: Search query is required
+ *       500:
+ *         description: Server error
+ */
+router.get('/inventory/search', inventoryController.searchInventory);
 
 /**
  * @swagger
@@ -160,7 +185,7 @@ router.get('/inventory/:id', inventoryController.getInventoryById);
  *       500:
  *         description: Server error
  */
-router.put('/inventory/:id', inventoryController.updateInventory);
+router.put('/inventory/:id', validate(validateInventory), inventoryController.updateInventory);
 
 /**
  * @swagger

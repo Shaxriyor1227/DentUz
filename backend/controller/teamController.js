@@ -1,13 +1,8 @@
-'use strict';
 
 const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
-
-const getPagination = (page = 1, limit = 20) => ({
-  limit: Math.min(parseInt(limit) || 20, 100),
-  offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
-});
+const { getPagination, getPagingData } = require('../utils/pagination');
 
 exports.getTeam = async (req, res) => {
   try {
@@ -37,11 +32,10 @@ exports.getTeam = async (req, res) => {
       offset,
     });
 
+    const paging = getPagingData({ count, rows }, page, lim);
     res.status(200).json({
       success: true,
-      total: count,
-      page: Math.max(parseInt(page) || 1, 1),
-      limit: lim,
+      ...paging,
       data: rows,
     });
   } catch (err) {

@@ -1,4 +1,3 @@
-'use strict';
 
 const { Clinic, User, Doctor, Patient, Appointment, Invoice } = require('../models');
 const { validateClinic } = require('../validations/clinicValidation');

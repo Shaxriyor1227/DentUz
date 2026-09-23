@@ -99,6 +99,29 @@ router.get('/medical-records', medicalRecordController.getMedicalRecords);
 
 /**
  * @swagger
+ * /api/medical-records/search:
+ *   get:
+ *     tags: [MedicalRecords]
+ *     summary: Search medical records by complaints, diagnosis, treatment, or tooth number
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search query
+ *     responses:
+ *       200:
+ *         description: List of matching medical records
+ *       400:
+ *         description: Search query is required
+ *       500:
+ *         description: Server error
+ */
+router.get('/medical-records/search', medicalRecordController.searchMedicalRecord);
+
+/**
+ * @swagger
  * /api/medical-records/{id}:
  *   get:
  *     tags: [MedicalRecords]

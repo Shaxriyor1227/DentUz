@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const serviceController = require('../controller/serviceController');
+const { validate } = require('../middleware/validate');
+const { validateService } = require('../validations/serviceValidation');
 
 /**
  * @swagger
@@ -61,7 +63,7 @@ const serviceController = require('../controller/serviceController');
  *       500:
  *         description: Server error
  */
-router.post('/services', serviceController.createService);
+router.post('/services', validate(validateService), serviceController.createService);
 
 /**
  * @swagger
@@ -162,7 +164,7 @@ router.get('/services/:id', serviceController.getServiceById);
  *       500:
  *         description: Server error
  */
-router.put('/services/:id', serviceController.updateService);
+router.put('/services/:id', validate(validateService), serviceController.updateService);
 
 /**
  * @swagger

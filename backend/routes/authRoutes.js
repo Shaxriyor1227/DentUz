@@ -3,6 +3,8 @@ const router = express.Router();
 const rateLimit = require("express-rate-limit");
 const authController = require("../controller/authController");
 const { authenticate } = require("../middleware/auth");
+const { validate } = require("../middleware/validate");
+const { validateUser, validateLogin } = require("../validations/userValidation");
 
 // Rate limiter: max 10 requests per 15 minutes per IP
 const authLimiter = rateLimit({
@@ -58,7 +60,7 @@ const authLimiter = rateLimit({
  *       500:
  *         description: Server error
  */
-router.post("/register", authLimiter, authController.register);
+router.post("/register", authLimiter, validate(validateUser), authController.register);
 
 /**
  * @swagger
@@ -90,7 +92,7 @@ router.post("/register", authLimiter, authController.register);
  *       500:
  *         description: Server error
  */
-router.post("/login", authLimiter, authController.login);
+router.post("/login", authLimiter, validate(validateLogin), authController.login);
 
 /**
  * @swagger

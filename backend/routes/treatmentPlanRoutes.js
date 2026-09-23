@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const treatmentPlanController = require('../controller/treatmentPlanController');
+const { validate } = require('../middleware/validate');
+const { validateTreatmentPlan } = require('../validations/treatmentPlanValidation');
 
 /**
  * @swagger
@@ -83,7 +85,30 @@ const treatmentPlanController = require('../controller/treatmentPlanController')
  *       500:
  *         description: Server error
  */
-router.post('/treatment-plans', treatmentPlanController.createTreatmentPlan);
+router.post('/treatment-plans', validate(validateTreatmentPlan), treatmentPlanController.createTreatmentPlan);
+
+/**
+ * @swagger
+ * /api/treatment-plans/search:
+ *   get:
+ *     tags: [TreatmentPlans]
+ *     summary: Search treatment plans by title, diagnosis, or notes
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search query
+ *     responses:
+ *       200:
+ *         description: Matching treatment plans
+ *       400:
+ *         description: Search query is required
+ *       500:
+ *         description: Server error
+ */
+router.get('/treatment-plans/search', treatmentPlanController.searchTreatmentPlan);
 
 /**
  * @swagger
@@ -184,7 +209,7 @@ router.get('/treatment-plans/:id', treatmentPlanController.getTreatmentPlanById)
  *       500:
  *         description: Server error
  */
-router.put('/treatment-plans/:id', treatmentPlanController.updateTreatmentPlan);
+router.put('/treatment-plans/:id', validate(validateTreatmentPlan), treatmentPlanController.updateTreatmentPlan);
 
 /**
  * @swagger

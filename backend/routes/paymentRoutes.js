@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controller/paymentController');
+const { validate } = require('../middleware/validate');
+const { validatePayment } = require('../validations/paymentValidation');
 
 /**
  * @swagger
@@ -50,7 +52,7 @@ const paymentController = require('../controller/paymentController');
  *       500:
  *         description: Server error
  */
-router.post('/payments', paymentController.createPayment);
+router.post('/payments', validate(validatePayment), paymentController.createPayment);
 
 /**
  * @swagger
@@ -127,6 +129,44 @@ router.get('/payments/stats', paymentController.getPaymentStats);
  *         description: Server error
  */
 router.get('/payments/:id', paymentController.getPaymentById);
+
+/**
+ * @swagger
+ * /api/payments/{id}:
+ *   put:
+ *     tags: [Payments]
+ *     summary: Update payment by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Payment ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: integer
+ *               method:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Payment updated
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Payment not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/payments/:id', validate(validatePayment), paymentController.updatePayment);
 
 /**
  * @swagger

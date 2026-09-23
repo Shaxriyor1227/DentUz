@@ -1,13 +1,8 @@
-'use strict';
 
 const { Payment, Invoice, Patient, User } = require('../models');
 const { validatePayment } = require('../validations/paymentValidation');
 const { Op } = require('sequelize');
-
-const getPagination = (page = 1, limit = 20) => ({
-  limit: Math.min(parseInt(limit) || 20, 100),
-  offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
-});
+const { getPagination, getPagingData } = require('../utils/pagination');
 
 exports.createPayment = async (req, res) => {
   const { error } = validatePayment(req.body);
@@ -64,11 +59,10 @@ exports.getPayments = async (req, res) => {
       offset,
     });
 
+    const paging = getPagingData({ count, rows }, page, lim);
     res.status(200).json({
       success: true,
-      total: count,
-      page: Math.max(parseInt(page) || 1, 1),
-      limit: lim,
+      ...paging,
       data: rows,
     });
   } catch (err) {
@@ -117,6 +111,21 @@ exports.getPaymentStats = async (req, res) => {
       success: true,
       data: { period, totalCollected: totalCollected || 0 },
     });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updatePayment = async (req, res) => {
+  const { error } = validatePayment(req.body);
+  if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+
+  try {
+    const payment = await Payment.findByPk(req.params.id);
+    if (!payment) return res.status(404).json({ success: false, message: 'To\'lov topilmadi' });
+
+    await payment.update(req.body);
+    res.status(200).json({ success: true, data: payment });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -1,13 +1,8 @@
-'use strict';
 
 const { TreatmentPlan, Patient, Doctor } = require('../models');
 const { validateTreatmentPlan } = require('../validations/treatmentPlanValidation');
 const { Op } = require('sequelize');
-
-const getPagination = (page = 1, limit = 20) => ({
-  limit: Math.min(parseInt(limit) || 20, 100),
-  offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
-});
+const { getPagination, getPagingData } = require('../utils/pagination');
 
 exports.createTreatmentPlan = async (req, res) => {
   const { error } = validateTreatmentPlan(req.body);
@@ -52,11 +47,10 @@ exports.getTreatmentPlans = async (req, res) => {
       offset,
     });
 
+    const paging = getPagingData({ count, rows }, page, lim);
     res.status(200).json({
       success: true,
-      total: count,
-      page: Math.max(parseInt(page) || 1, 1),
-      limit: lim,
+      ...paging,
       data: rows,
     });
   } catch (err) {
@@ -89,6 +83,32 @@ exports.updateTreatmentPlan = async (req, res) => {
 
     await plan.update(req.body);
     res.status(200).json({ success: true, data: plan });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.searchTreatmentPlan = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
+
+    const plans = await TreatmentPlan.findAll({
+      where: {
+        [Op.or]: [
+          { title:     { [Op.iLike]: `%${query}%` } },
+          { diagnosis: { [Op.iLike]: `%${query}%` } },
+          { notes:     { [Op.iLike]: `%${query}%` } },
+        ],
+      },
+      include: [
+        { model: Patient, as: 'patient' },
+        { model: Doctor,  as: 'doctor'  },
+      ],
+      limit: 50,
+    });
+
+    res.status(200).json({ success: true, data: plans });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

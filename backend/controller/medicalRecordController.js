@@ -1,4 +1,3 @@
-'use strict';
 
 const path = require('path');
 const { MedicalRecord, Patient, Doctor, Appointment } = require('../models');
@@ -28,10 +27,7 @@ exports.upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 }).array('attachments', 10);
 
-const getPagination = (page = 1, limit = 20) => ({
-  limit: Math.min(parseInt(limit) || 20, 100),
-  offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
-});
+const { getPagination, getPagingData } = require('../utils/pagination');
 
 exports.createMedicalRecord = async (req, res) => {
   const { error } = validateMedicalRecord(req.body);
@@ -86,11 +82,10 @@ exports.getMedicalRecords = async (req, res) => {
       offset,
     });
 
+    const paging = getPagingData({ count, rows }, page, lim);
     res.status(200).json({
       success: true,
-      total: count,
-      page: Math.max(parseInt(page) || 1, 1),
-      limit: lim,
+      ...paging,
       data: rows,
     });
   } catch (err) {
@@ -134,6 +129,34 @@ exports.updateMedicalRecord = async (req, res) => {
 
     await record.update({ ...req.body, attachments });
     res.status(200).json({ success: true, data: record });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.searchMedicalRecord = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
+
+    const records = await MedicalRecord.findAll({
+      where: {
+        [Op.or]: [
+          { complaints:      { [Op.iLike]: `%${query}%` } },
+          { diagnosis:       { [Op.iLike]: `%${query}%` } },
+          { treatmentDone:   { [Op.iLike]: `%${query}%` } },
+          { toothNumber:     { [Op.iLike]: `%${query}%` } },
+          { recommendations: { [Op.iLike]: `%${query}%` } },
+        ],
+      },
+      include: [
+        { model: Patient, as: 'patient' },
+        { model: Doctor,  as: 'doctor'  },
+      ],
+      limit: 50,
+    });
+
+    res.status(200).json({ success: true, data: records });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

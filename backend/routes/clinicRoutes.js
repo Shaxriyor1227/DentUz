@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const clinicController = require("../controller/clinicController");
+const { validate } = require("../middleware/validate");
+const { validateClinic } = require("../validations/clinicValidation");
 
 /**
  * @swagger
@@ -106,7 +108,7 @@ router.get("/clinics/:id/stats", clinicController.getClinicStats);
  *       500:
  *         description: Server xatosi
  */
-router.post("/clinics", clinicController.createClinic);
+router.post("/clinics", validate(validateClinic), clinicController.createClinic);
 
 /**
  * @swagger
@@ -149,7 +151,7 @@ router.post("/clinics", clinicController.createClinic);
  *       500:
  *         description: Server xatosi
  */
-router.put("/clinics/:id", clinicController.updateClinic);
+router.put("/clinics/:id", validate(validateClinic), clinicController.updateClinic);
 
 /**
  * @swagger

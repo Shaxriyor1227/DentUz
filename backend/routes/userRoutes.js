@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/userController");
+const { validate } = require("../middleware/validate");
+const { validateUser } = require("../validations/userValidation");
 
 /**
  * @swagger
@@ -52,7 +54,7 @@ const userController = require("../controller/userController");
  *       500:
  *         description: Server error
  */
-router.post("/users", userController.createUser);
+router.post("/users", validate(validateUser), userController.createUser);
 
 /**
  * @swagger
@@ -154,7 +156,7 @@ router.get("/users/:id", userController.getUserById);
  *       500:
  *         description: Server error
  */
-router.put("/users/:id", userController.updateUser);
+router.put("/users/:id", validate(validateUser), userController.updateUser);
 
 /**
  * @swagger

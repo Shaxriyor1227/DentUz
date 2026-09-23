@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const notificationController = require("../controller/notificationController");
+const { validate } = require("../middleware/validate");
+const { validateNotification } = require("../validations/notificationValidation");
 
 /**
  * @swagger
@@ -112,7 +114,7 @@ router.get("/notifications/:id", notificationController.getNotificationById);
  *       500:
  *         description: Server xatosi
  */
-router.post("/notifications", notificationController.createNotification);
+router.post("/notifications", validate(validateNotification), notificationController.createNotification);
 
 /**
  * @swagger

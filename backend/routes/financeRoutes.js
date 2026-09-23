@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const financeController = require("../controller/financeController");
+const { validate } = require("../middleware/validate");
+const { validateInvoice } = require("../validations/invoiceValidation");
 
 /**
  * @swagger
@@ -93,7 +95,7 @@ router.get("/finance/invoices", financeController.getInvoices);
  *       500:
  *         description: Server error
  */
-router.post("/finance/invoices", financeController.createInvoice);
+router.post("/finance/invoices", validate(validateInvoice), financeController.createInvoice);
 
 /**
  * @swagger
@@ -177,7 +179,7 @@ router.get("/finance/invoices/:id", financeController.getInvoiceById);
  *       500:
  *         description: Server error
  */
-router.put("/finance/invoices/:id", financeController.updateInvoice);
+router.put("/finance/invoices/:id", validate(validateInvoice), financeController.updateInvoice);
 
 /**
  * @swagger

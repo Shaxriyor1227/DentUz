@@ -1,4 +1,3 @@
-'use strict';
 
 // One-time script to drop & recreate all tables (dev only)
 require('dotenv').config();

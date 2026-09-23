@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const labOrderController = require('../controller/labOrderController');
+const { validate } = require('../middleware/validate');
+const { validateLabOrder } = require('../validations/labOrderValidation');
 
 /**
  * @swagger
@@ -76,7 +78,30 @@ const labOrderController = require('../controller/labOrderController');
  *       500:
  *         description: Server error
  */
-router.post('/lab-orders', labOrderController.createLabOrder);
+router.post('/lab-orders', validate(validateLabOrder), labOrderController.createLabOrder);
+
+/**
+ * @swagger
+ * /api/lab-orders/search:
+ *   get:
+ *     tags: [LabOrders]
+ *     summary: Search lab orders by number, technician, or notes
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search query
+ *     responses:
+ *       200:
+ *         description: Matching lab orders
+ *       400:
+ *         description: Search query is required
+ *       500:
+ *         description: Server error
+ */
+router.get('/lab-orders/search', labOrderController.searchLabOrder);
 
 /**
  * @swagger
@@ -178,7 +203,7 @@ router.get('/lab-orders/:id', labOrderController.getLabOrderById);
  *       500:
  *         description: Server error
  */
-router.put('/lab-orders/:id', labOrderController.updateLabOrder);
+router.put('/lab-orders/:id', validate(validateLabOrder), labOrderController.updateLabOrder);
 
 /**
  * @swagger

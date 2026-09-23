@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Global error handler — must be registered LAST in app.js.

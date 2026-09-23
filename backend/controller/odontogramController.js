@@ -1,4 +1,3 @@
-'use strict';
 
 const { Odontogram, OdontogramHistory, Patient, User } = require('../models');
 const { validateOdontogramUpdate } = require('../validations/odontogramValidation');

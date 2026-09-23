@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const teamController = require("../controller/teamController");
+const { validate } = require("../middleware/validate");
+const { validateUser } = require("../validations/userValidation");
 
 /**
  * @swagger
@@ -67,7 +69,7 @@ router.get("/team", teamController.getTeam);
  *       500:
  *         description: Server error
  */
-router.post("/team", teamController.addMember);
+router.post("/team", validate(validateUser), teamController.addMember);
 
 /**
  * @swagger
@@ -153,7 +155,7 @@ router.get("/team/:id", teamController.getMemberById);
  *       500:
  *         description: Server error
  */
-router.put("/team/:id", teamController.updateMember);
+router.put("/team/:id", validate(validateUser), teamController.updateMember);
 
 /**
  * @swagger

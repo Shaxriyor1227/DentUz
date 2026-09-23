@@ -1,13 +1,8 @@
-'use strict';
 
 const { LabOrder, Patient, Doctor } = require('../models');
 const { validateLabOrder } = require('../validations/labOrderValidation');
 const { Op } = require('sequelize');
-
-const getPagination = (page = 1, limit = 20) => ({
-  limit: Math.min(parseInt(limit) || 20, 100),
-  offset: (Math.max(parseInt(page) || 1, 1) - 1) * Math.min(parseInt(limit) || 20, 100),
-});
+const { getPagination, getPagingData } = require('../utils/pagination');
 
 exports.createLabOrder = async (req, res) => {
   const { error } = validateLabOrder(req.body);
@@ -52,11 +47,10 @@ exports.getLabOrders = async (req, res) => {
       offset,
     });
 
+    const paging = getPagingData({ count, rows }, page, lim);
     res.status(200).json({
       success: true,
-      total: count,
-      page: Math.max(parseInt(page) || 1, 1),
-      limit: lim,
+      ...paging,
       data: rows,
     });
   } catch (err) {
@@ -89,6 +83,32 @@ exports.updateLabOrder = async (req, res) => {
 
     await order.update(req.body);
     res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.searchLabOrder = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
+
+    const orders = await LabOrder.findAll({
+      where: {
+        [Op.or]: [
+          { orderNumber:    { [Op.iLike]: `%${query}%` } },
+          { technicianName: { [Op.iLike]: `%${query}%` } },
+          { notes:          { [Op.iLike]: `%${query}%` } },
+        ],
+      },
+      include: [
+        { model: Patient, as: 'patient' },
+        { model: Doctor,  as: 'doctor'  },
+      ],
+      limit: 50,
+    });
+
+    res.status(200).json({ success: true, data: orders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
