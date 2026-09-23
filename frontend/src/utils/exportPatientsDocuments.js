@@ -207,9 +207,23 @@ export function exportPatientsToPDF(patients = [], options = {}) {
         table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 10px; }
         th { background: #0f766e; color: #ffffff; padding: 7px 8px; text-align: left; font-weight: 600; border: 1px solid #0d9488; }
         .footer { margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 12px; }
+        @media print { .no-print { display: none !important; } }
       </style>
     </head>
     <body>
+      <div class="no-print" style="position: sticky; top: 0; background: #0f172a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; margin: -15px -15px 15px -15px;">
+        <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+          <span>📄</span> <span>DentUz Dental OS &mdash; Bemorlar Hisoboti (PDF)</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="window.print()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            🖨️ Chop etish / PDF saqlash
+          </button>
+          <button onclick="window.close()" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px; font-weight: 500; cursor: pointer;">
+            ✕ Yopish
+          </button>
+        </div>
+      </div>
       <div class="header">
         <div>
           <div class="brand">🏥 ${clinicName}</div>
@@ -217,13 +231,13 @@ export function exportPatientsToPDF(patients = [], options = {}) {
         </div>
         <div style="text-align: right;">
           <div class="doc-title">${isEn ? 'PATIENT REPERTOIRE REPORT' : 'BEMORLAR REESTRI HISOBOTI'}</div>
-          <div style="color: #64748b; font-size: 10px;">${isEn ? 'Date' : 'Sana'}: ${todayDate}</div>
+          <div style="color: #64748b; font-size: 10px;">${isEn ? 'Date' : 'Sana'}: ${dateStr} ${timeStr}</div>
         </div>
       </div>
 
       <div class="meta-strip">
         <div>${isEn ? 'Active Patients' : 'Faol bemorlar'}: <strong>${patients.length} ta</strong></div>
-        <div>${isEn ? 'Filter Scope' : 'Hisobot qamrovi'}: <strong>${filterTab === 'today' ? 'Bugungi qabullar' : filterTab === 'debts' ? 'Qarzdorlar' : 'Barchasi'}</strong></div>
+        <div>${isEn ? 'Filter Scope' : 'Hisobot qamrovi'}: <strong>${activeFilterText}</strong></div>
         <div>${isEn ? 'System' : 'Tizim'}: <strong>DentUz Clinical OS</strong></div>
       </div>
 
@@ -275,8 +289,17 @@ export function exportPatientsToPDF(patients = [], options = {}) {
   try {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
+      printWindow.document.open();
       printWindow.document.write(htmlDoc);
       printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        try {
+          printWindow.print();
+        } catch (e) {
+          console.warn('Auto-print dialog blocked, user can print manually:', e);
+        }
+      }, 500);
       return;
     }
   } catch (e) {

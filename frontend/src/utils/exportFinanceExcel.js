@@ -540,10 +540,23 @@ export function exportFinanceToPDF(invoices = [], options = {}) {
         th { background: #0f766e; color: #fff; padding: 7px 8px; text-align: left; font-weight: 700; border: 1px solid #0f766e; }
         td { border: 1px solid #e2e8f0; }
         .footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; padding-top: 15px; border-top: 1px solid #cbd5e1; page-break-inside: avoid; }
-        @media print { body { padding: 0; } }
+        @media print { body { padding: 0; } .no-print { display: none !important; } }
       </style>
     </head>
     <body>
+      <div class="no-print" style="position: sticky; top: 0; background: #0f172a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; margin: -15px -15px 15px -15px;">
+        <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+          <span>💰</span> <span>DentUz Dental OS &mdash; Rasmiy Moliya Hisoboti (PDF)</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="window.print()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            🖨️ Chop etish / PDF saqlash
+          </button>
+          <button onclick="window.close()" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px; font-weight: 500; cursor: pointer;">
+            ✕ Yopish
+          </button>
+        </div>
+      </div>
       <div class="header">
         <div>
           <div class="brand">${clinicName.toUpperCase()}</div>
@@ -583,12 +596,6 @@ export function exportFinanceToPDF(invoices = [], options = {}) {
         <div>Bosh hisobchi: _______________________ (F.I.SH)</div>
         <div>Bosh shifokor: _______________________ (Dr. J. Azimov) &nbsp;&nbsp;&nbsp; Muhr o'rni (M.P.)</div>
       </div>
-
-      <script>
-        window.onload = function() {
-          setTimeout(function() { window.print(); }, 300);
-        };
-      </script>
     </body>
     </html>
   `;
@@ -596,8 +603,17 @@ export function exportFinanceToPDF(invoices = [], options = {}) {
   try {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
+      printWindow.document.open();
       printWindow.document.write(htmlDoc);
       printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        try {
+          printWindow.print();
+        } catch (e) {
+          console.warn('Auto-print blocked, user can print via button:', e);
+        }
+      }, 500);
       return;
     }
   } catch (e) {

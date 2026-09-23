@@ -1,32 +1,34 @@
 /**
- * Safely triggers browser file downloads from Blob or text content.
- * Prevents premature URL.revokeObjectURL race condition in Chrome/Chromium.
+ * Bulletproof file downloader for modern browsers (Chrome, Edge, Firefox, Safari).
+ * 
+ * CRITICAL FIX FOR CHROMIUM:
+ * In modern Chromium, anchor tags MUST be attached to `document.body` (`a.isConnected === true`)
+ * before triggering `.click()`. Otherwise, Chromium ignores the `download` attribute for Blob URLs
+ * and saves the file with an internal UUID name (e.g. 50a72cf2-6de1-4999...) without an extension!
  */
-export function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.setAttribute('download', filename);
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
 
-  // Safely delay revocation so the browser download manager can finish reading the stream
+export function downloadBlob(blob, filename) {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = filename;
+  
+  // Attach to DOM so Chrome treats the download attribute as trusted and respects filename
+  document.body.appendChild(a);
+  a.click();
+  
+  // Cleanup after browser has scheduled the download
   setTimeout(() => {
-    try {
-      if (document.body.contains(link)) {
-        document.body.removeChild(link);
-      }
-      URL.revokeObjectURL(url);
-    } catch {
-      // Ignore cleanup error
+    if (a.parentNode) {
+      document.body.removeChild(a);
     }
-  }, 4000);
+    window.URL.revokeObjectURL(url);
+  }, 2500);
 }
 
 /**
- * Downloads plain text or CSV content with UTF-8 BOM
+ * Downloads text, HTML or CSV content with UTF-8 BOM
  */
 export function downloadText(content, filename, mimeType = 'text/csv;charset=utf-8;') {
   const blob = new Blob([content], { type: mimeType });
