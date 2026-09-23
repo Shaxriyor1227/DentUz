@@ -1,3 +1,24 @@
+import { downloadBlob, downloadText } from './downloadHelper';
+
+export function formatFinanceDate(val, lang = 'uz') {
+  if (!val) return '—';
+  if (typeof val === 'string' && val.includes('-') && !val.includes('T')) return val;
+  try {
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return val;
+    const isEn = lang === 'en';
+    const day = d.getDate();
+    const monthsUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = (isEn ? monthsEn : monthsUz)[d.getMonth()];
+    const year = d.getFullYear();
+    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `${day}-${month}, ${year}${time !== '00:00' ? ` • ${time}` : ''}`;
+  } catch {
+    return val;
+  }
+}
+
 /**
  * Exports financial invoices and summary to a professionally styled Excel (.xlsx) file
  * @param {Array} invoices - List of invoice objects
@@ -195,7 +216,7 @@ export async function exportFinanceToExcel(invoices = [], options = {}) {
       item.patientId ? `P-${item.patientId}` : '',
       item.procedure || '',
       item.doctor || '',
-      item.date || '',
+      formatFinanceDate(item.date, language),
       item.method || '',
       amountNum,
       statusText
@@ -349,16 +370,9 @@ export async function exportFinanceToExcel(invoices = [], options = {}) {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   });
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
   const suffix = activeTab !== 'all' ? `_${activeTab}` : '';
   const dateFormatted = now.toISOString().slice(0, 10);
-  link.setAttribute('download', `DentUz_Moliya${suffix}_${dateFormatted}.xlsx`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `DentUz_Moliya${suffix}_${dateFormatted}.xlsx`);
 }
 
 /**
@@ -378,24 +392,16 @@ export function exportFinanceToCSV(invoices = [], options = {}) {
     `"${inv.patientId ? 'P-' + inv.patientId : ''}"`,
     `"${(inv.procedure || '').replace(/"/g, '""')}"`,
     `"${(inv.doctor || '').replace(/"/g, '""')}"`,
-    `"${inv.date || ''}"`,
+    `"${formatFinanceDate(inv.date, language)}"`,
     `"${inv.method || ''}"`,
     Number(inv.amount) || 0,
     `"${inv.status === 'paid' ? (isEn ? 'Paid' : 'To\'langan') : (isEn ? 'Pending' : 'Kutilmoqda')}"`
   ]);
 
   const csvContent = '\uFEFFsep=,\r\n' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
   const suffix = activeTab !== 'all' ? `_${activeTab}` : '';
   const dateFormatted = new Date().toISOString().slice(0, 10);
-  link.setAttribute('download', `DentUz_Moliya${suffix}_${dateFormatted}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadText(csvContent, `DentUz_Moliya${suffix}_${dateFormatted}.csv`);
 }
 
 /**
@@ -478,16 +484,9 @@ export function exportFinanceToWord(invoices = [], options = {}) {
   `;
 
   const blob = new Blob(['\uFEFF' + docHtml], { type: 'application/msword;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
   const suffix = activeTab !== 'all' ? `_${activeTab}` : '';
   const dateFormatted = now.toISOString().slice(0, 10);
-  link.setAttribute('download', `DentUz_Moliya${suffix}_${dateFormatted}.doc`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `DentUz_Moliya${suffix}_${dateFormatted}.doc`);
 }
 
 /**

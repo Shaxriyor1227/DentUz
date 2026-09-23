@@ -1,3 +1,5 @@
+import { downloadBlob } from './downloadHelper';
+
 /**
  * Exports patients list to a professionally styled Excel (.xlsx) file
  * @param {Array} patients - List of patient objects
@@ -293,14 +295,7 @@ export async function exportPatientsToExcel(patients = [], options = {}) {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   });
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
   const filterSuffix = filter !== 'all' ? `_${filter}` : '';
   const dateFormatted = now.toISOString().slice(0, 10);
-  link.setAttribute('download', `DentUz_Bemorlar${filterSuffix}_${dateFormatted}.xlsx`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `DentUz_Bemorlar${filterSuffix}_${dateFormatted}.xlsx`);
 }

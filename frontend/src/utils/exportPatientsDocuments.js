@@ -1,3 +1,5 @@
+import { downloadBlob } from './downloadHelper';
+
 /**
  * Utilities for exporting Patients list to Word (.doc) and printable PDF
  */
@@ -119,16 +121,9 @@ export function exportPatientsToWord(patients = [], options = {}) {
   `;
 
   const blob = new Blob(['\uFEFF' + docHtml], { type: 'application/msword;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
   const filterSuffix = filter !== 'all' ? `_${filter}` : '';
   const dateFormatted = now.toISOString().slice(0, 10);
-  link.setAttribute('download', `DentUz_Bemorlar${filterSuffix}_${dateFormatted}.doc`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `DentUz_Bemorlar${filterSuffix}_${dateFormatted}.doc`);
 }
 
 /**

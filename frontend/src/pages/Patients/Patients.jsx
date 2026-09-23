@@ -6,6 +6,7 @@ import { patientsApi } from '../../api/patientsApi';
 import { useDebounce } from '../../hooks/useDebounce';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
+import { downloadText } from '../../utils/downloadHelper';
 import styles from './Patients.module.css';
 
 export default function Patients() {
@@ -157,16 +158,8 @@ export default function Patients() {
 
     // Added sep=, header for standard MS Excel & WPS Office auto-column parsing
     const csvContent = '\uFEFFsep=,\r\n' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
     const filterSuffix = filter !== 'all' ? `_${filter}` : '';
-    link.setAttribute('download', `DentUz_Bemorlar${filterSuffix}_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadText(csvContent, `DentUz_Bemorlar${filterSuffix}_${new Date().toISOString().slice(0, 10)}.csv`);
     setShowExportMenu(false);
 
     setToast({

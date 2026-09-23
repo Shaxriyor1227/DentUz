@@ -1,7 +1,11 @@
+import { downloadBlob } from './downloadHelper';
+
 /**
- * Exports clinical treatment plan estimation to a styled Excel (.xlsx) file
+ * Exports treatment plan to styled Excel (.xlsx) file
+ * @param {Object} plan - Treatment plan data with stages & items
+ * @param {Object} options - Clinic and language options
  */
-export async function exportTreatmentPlanToExcel(planData = {}) {
+export async function exportTreatmentPlanToExcel(plan, options = {}) {
   const ExcelJSModule = await import('exceljs');
   const ExcelJS = ExcelJSModule.default || ExcelJSModule;
 
@@ -195,12 +199,5 @@ export async function exportTreatmentPlanToExcel(planData = {}) {
   // Write & trigger download
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `DentUz_Davolash_Rejasi_${planId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `DentUz_Davolash_Rejasi_${planId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
