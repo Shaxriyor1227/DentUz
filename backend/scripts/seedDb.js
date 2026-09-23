@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const db = require('../models');
 
@@ -12,7 +11,7 @@ const seed = async () => {
     await db.sequelize.sync({ force: true });
     console.log('✅ Jadvallar yaratildi.');
 
-    // 1. Clinic
+    // 1. Asosiy Klinika (Multi-tenant Tenant 1)
     const clinic = await db.Clinic.create({
       name: 'DentUz Markaziy Klinika',
       address: 'Toshkent sh., Amir Temur shox ko\'chasi 15-uy',
@@ -22,7 +21,7 @@ const seed = async () => {
     });
     console.log(`✅ Klinika yaratildi: ${clinic.name}`);
 
-    // 2. Users (Password: Password123!)
+    // 2. Foydalanuvchilar (Xodimlar)
     const usersData = [
       {
         name: 'Dr. Jasur Azimov',
@@ -70,7 +69,7 @@ const seed = async () => {
       {
         name: 'Bobur Mirzayev',
         shortName: 'B. Mirzayev',
-        title: 'Administrator',
+        title: 'Administrator / Qabulxona',
         email: 'admin@dentuz.uz',
         password: 'Password123!',
         role: 'receptionist',
@@ -82,7 +81,7 @@ const seed = async () => {
     const users = await Promise.all(usersData.map((u) => db.User.create(u)));
     console.log(`✅ ${users.length} ta foydalanuvchi yaratildi (parol: Password123!)`);
 
-    // 3. Doctors profiles
+    // 3. Shifokorlar profili
     const doctors = await Promise.all([
       db.Doctor.create({
         userId: users[0].id,
@@ -108,61 +107,89 @@ const seed = async () => {
     ]);
     console.log(`✅ ${doctors.length} ta shifokor profili yaratildi`);
 
-    // 4. Patients
+    // 4. Bemorlar (Patients)
     const patientsData = [
       {
-        id: 'P-1001',
-        name: 'Alisher Usmonov',
-        phone: '+998 90 123 45 67',
-        birthdate: '1988-04-12',
-        age: 38,
-        lastVisit: '2026-03-10',
+        id: 'P-1042',
+        name: 'Anvar Qosimov',
+        phone: '+998 90 842 11 00',
+        birthdate: '1989-08-14',
+        age: 35,
+        lastVisit: '2026-03-18',
         lastProcedure: 'Karies davolash',
         status: 'today',
         allergies: 'Penitsillin',
-        notes: 'Yuqori sezgirlik bor',
+        notes: 'Doimiy bemor, og\'riq sezuvchanligi past',
         balance: 0,
         clinicId: clinic.id,
       },
       {
-        id: 'P-1002',
-        name: 'Zilola Karimova',
-        phone: '+998 93 987 65 43',
-        birthdate: '1995-09-20',
-        age: 31,
-        lastVisit: '2026-02-15',
-        lastProcedure: 'Breket o\'rnatish',
+        id: 'P-1043',
+        name: 'Malika Saidova',
+        phone: '+998 93 319 44 28',
+        birthdate: '1995-11-22',
+        age: 29,
+        lastVisit: '2026-03-18',
+        lastProcedure: 'Ortodontik ko\'rik',
         status: 'scheduled',
         allergies: 'Yo\'q',
-        notes: 'Navbatdagi tekshiruv har oy',
-        balance: 1500000,
+        notes: 'Elastik tortqichlar almashtirildi',
+        balance: 240000,
         clinicId: clinic.id,
       },
       {
-        id: 'P-1003',
-        name: 'Olimjon Tohirov',
-        phone: '+998 97 555 12 34',
-        birthdate: '1982-11-05',
-        age: 44,
-        lastVisit: '2026-01-22',
-        lastProcedure: 'Implantatsiya 1-bosqich',
+        id: 'P-1044',
+        name: 'Jamshid Karimov',
+        phone: '+998 97 711 09 85',
+        birthdate: '1982-04-03',
+        age: 43,
+        lastVisit: '2026-03-18',
+        lastProcedure: 'Tish tozalash',
+        status: 'today',
+        allergies: 'Lidokain (ehtiyotkorlik)',
+        notes: 'Profilaktik tozalash har 6 oyda',
+        balance: 0,
+        clinicId: clinic.id,
+      },
+      {
+        id: 'P-1045',
+        name: 'Nilufar Rahimova',
+        phone: '+998 91 445 22 19',
+        birthdate: '1991-06-19',
+        age: 33,
+        lastVisit: '2026-03-18',
+        lastProcedure: 'Tish oqartirish',
+        status: 'today',
+        allergies: 'Yo\'q',
+        notes: 'Zoom 4 kursi o\'tkazildi',
+        balance: 0,
+        clinicId: clinic.id,
+      },
+      {
+        id: 'P-1046',
+        name: 'Farrux Zokirov',
+        phone: '+998 90 912 34 56',
+        birthdate: '1976-12-08',
+        age: 48,
+        lastVisit: '2026-03-15',
+        lastProcedure: 'Implantatsiya',
         status: 'debtor',
         allergies: 'Yo\'q',
-        notes: 'Qarz to\'lovi kutilmoqda',
-        balance: -2800000,
+        notes: 'Ikkinchi bosqich to\'lovi qolgan',
+        balance: -1800000,
         clinicId: clinic.id,
       },
       {
-        id: 'P-1004',
-        name: 'Madina Ahmedova',
-        phone: '+998 91 777 88 99',
-        birthdate: '2001-03-14',
-        age: 25,
-        lastVisit: '2026-03-15',
-        lastProcedure: 'Tish tozalash (Air-flow)',
-        status: 'today',
-        allergies: 'Lidokain',
-        notes: 'Ultratovush tozalash tavsiya etilgan',
+        id: 'P-1047',
+        name: 'Shahlo Umarova',
+        phone: '+998 94 654 32 10',
+        birthdate: '1998-02-27',
+        age: 26,
+        lastVisit: '2026-03-10',
+        lastProcedure: 'Retinirlangan tish olish',
+        status: 'scheduled',
+        allergies: 'Aspirin',
+        notes: 'Tiklanish davri nazoratda',
         balance: 0,
         clinicId: clinic.id,
       },
@@ -171,7 +198,8 @@ const seed = async () => {
     const patients = await Promise.all(patientsData.map((p) => db.Patient.create(p)));
     console.log(`✅ ${patients.length} ta bemor yaratildi`);
 
-    // 5. Appointments
+    // 5. Qabullar (Appointments)
+    const today = new Date().toISOString().split('T')[0];
     const appointmentsData = [
       {
         id: 'apt-1',
@@ -185,34 +213,139 @@ const seed = async () => {
         doctorName: 'Dr. Jasur Azimov',
         status: 'in_progress',
         day: 'mon',
-        date: new Date().toISOString().split('T')[0],
+        date: today,
         chair: 1,
         color: 'emerald',
         clinicId: clinic.id,
       },
       {
         id: 'apt-2',
-        time: '11:00',
+        time: '10:15',
         duration: 60,
-        patientId: patients[3].id,
-        patientName: patients[3].name,
-        procedure: 'Tish tozalash',
+        patientId: patients[1].id,
+        patientName: patients[1].name,
+        procedure: 'Breket korreksiyasi',
         doctorId: doctors[1].id,
         doctorSlug: 'saidova',
         doctorName: 'Dr. Malika Saidova',
         status: 'pending',
         day: 'mon',
-        date: new Date().toISOString().split('T')[0],
+        date: today,
         chair: 2,
         color: 'cyan',
+        clinicId: clinic.id,
+      },
+      {
+        id: 'apt-3',
+        time: '11:30',
+        duration: 45,
+        patientId: patients[2].id,
+        patientName: patients[2].name,
+        procedure: 'Tish tozalash',
+        doctorId: doctors[2].id,
+        doctorSlug: 'karimov',
+        doctorName: 'Dr. Jamshid Karimov',
+        status: 'pending',
+        day: 'mon',
+        date: today,
+        chair: 3,
+        color: 'amber',
         clinicId: clinic.id,
       },
     ];
 
     const appointments = await Promise.all(appointmentsData.map((a) => db.Appointment.create(a)));
-    console.log(`✅ ${appointments.length} ta qabul (appointment) yaratildi`);
+    console.log(`✅ ${appointments.length} ta qabul yaratildi`);
 
-    // 6. Invoices
+    // 6. Xizmatlar preyskuranti (Services)
+    const servicesData = [
+      {
+        name: 'Tish plombalash (Fotopolimer)',
+        category: 'therapy',
+        code: 'TH-01',
+        price: 250000,
+        duration: 45,
+        description: 'Kariesni tozalash va fotopolimer kompozit plomba',
+        isActive: true,
+        clinicId: clinic.id,
+      },
+      {
+        name: 'Professional gigiyenik tozalash (Air-Flow)',
+        category: 'hygiene',
+        code: 'HY-01',
+        price: 350000,
+        duration: 60,
+        description: 'Tish toshlari va dog\'larni ultratovush orqali tozalash',
+        isActive: true,
+        clinicId: clinic.id,
+      },
+      {
+        name: 'Tish implantatsiyasi (Osstem, Koreya)',
+        category: 'surgery',
+        code: 'SG-01',
+        price: 3500000,
+        duration: 90,
+        description: 'Titanium implant va dastlabki suyak integratsiyasi',
+        isActive: true,
+        clinicId: clinic.id,
+      },
+      {
+        name: 'Metall breket tizimi (ikkala jag\')',
+        category: 'orthodontics',
+        code: 'OR-01',
+        price: 6000000,
+        duration: 120,
+        description: 'Klassik metall breketlar va o\'rnatish',
+        isActive: true,
+        clinicId: clinic.id,
+      },
+    ];
+    await Promise.all(servicesData.map((s) => db.Service.create(s)));
+    console.log(`✅ ${servicesData.length} ta xizmat yaratildi`);
+
+    // 7. Ombor mollari (Inventory)
+    const inventoryData = [
+      {
+        name: 'Septanest 1:100000 (Anesteziya)',
+        category: 'medication',
+        sku: 'MED-SEPT-01',
+        unit: 'quti',
+        quantity: 35,
+        minQuantity: 10,
+        costPrice: 180000,
+        supplier: 'DentMarket Tashkent',
+        expiryDate: '2027-12-31',
+        clinicId: clinic.id,
+      },
+      {
+        name: 'Filtek Z250 Universal Kompozit Plomba',
+        category: 'consumable',
+        sku: 'CON-FILT-01',
+        unit: 'dona',
+        quantity: 18,
+        minQuantity: 5,
+        costPrice: 220000,
+        supplier: 'Dental Trade LLC',
+        expiryDate: '2026-11-30',
+        clinicId: clinic.id,
+      },
+      {
+        name: 'Osstem TS III SA Implant (4.0 x 10mm)',
+        category: 'implant',
+        sku: 'IMP-OSST-01',
+        unit: 'dona',
+        quantity: 12,
+        minQuantity: 3,
+        costPrice: 1200000,
+        supplier: 'Osstem Uzbekistan',
+        expiryDate: '2029-06-30',
+        clinicId: clinic.id,
+      },
+    ];
+    await Promise.all(inventoryData.map((inv) => db.Inventory.create(inv)));
+    console.log(`✅ ${inventoryData.length} ta ombor mahsuloti yaratildi`);
+
+    // 8. Hisob-fakturalar (Invoices)
     const invoicesData = [
       {
         id: 'INV-2026-001',
@@ -220,37 +353,50 @@ const seed = async () => {
         patient: patients[0].name,
         doctor: 'Dr. Jasur Azimov',
         procedure: 'Karies davolash',
+        date: today,
         method: 'Payme',
-        amount: 450000,
+        amount: 250000,
         status: 'paid',
         clinicId: clinic.id,
       },
       {
         id: 'INV-2026-002',
-        patientId: patients[2].id,
-        patient: patients[2].name,
+        patientId: patients[1].id,
+        patient: patients[1].name,
+        doctor: 'Dr. Malika Saidova',
+        procedure: 'Breket korreksiyasi',
+        date: today,
+        method: 'Click',
+        amount: 300000,
+        status: 'paid',
+        clinicId: clinic.id,
+      },
+      {
+        id: 'INV-2026-003',
+        patientId: patients[4].id,
+        patient: patients[4].name,
         doctor: 'Dr. Jasur Azimov',
         procedure: 'Implantatsiya',
+        date: today,
         method: 'Naqd',
-        amount: 3200000,
+        amount: 3500000,
         status: 'partial',
         clinicId: clinic.id,
       },
     ];
+    await Promise.all(invoicesData.map((inv) => db.Invoice.create(inv)));
+    console.log(`✅ ${invoicesData.length} ta hisob-faktura yaratildi`);
 
-    const invoices = await Promise.all(invoicesData.map((inv) => db.Invoice.create(inv)));
-    console.log(`✅ ${invoices.length} ta hisob-faktura (invoice) yaratildi`);
-
-    // 7. Odontogram for Patient 1
-    const odontogram = await db.Odontogram.create({
+    // 9. Odontogramma
+    await db.Odontogram.create({
       patientId: patients[0].id,
       teeth: {
-        '16': { condition: 'caries', notes: 'Okluzal karies chuqur' },
+        '16': { condition: 'caries', notes: 'Okluzal karies' },
         '11': { condition: 'healthy', notes: '' },
         '21': { condition: 'healthy', notes: '' },
-        '26': { condition: 'filled', notes: 'Fotopolimer plomba 2024' },
-        '36': { condition: 'missing', notes: '2023-yilda olingan' },
-        '46': { condition: 'crown', notes: 'Tsirkoniy qoplama' },
+        '26': { condition: 'filled', notes: 'Fotopolimer plomba' },
+        '36': { condition: 'missing', notes: 'Olingan tish' },
+        '46': { condition: 'crown', notes: 'Tsirkoniy toji' },
       },
       lastUpdatedBy: users[0].id,
     });
@@ -261,7 +407,7 @@ const seed = async () => {
     console.log('Klinika: DentUz Markaziy Klinika');
     console.log('Login: j.azimov@dentuz.uz (Owner)');
     console.log('Login: m.saidova@dentuz.uz (Doctor)');
-    console.log('Login: admin@dentuz.uz (Admin)');
+    console.log('Login: admin@dentuz.uz (Receptionist)');
     console.log('Parol: Password123!');
     console.log('-------------------------------------------');
 

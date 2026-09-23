@@ -101,13 +101,41 @@ const teamMembers = [
   }
 ];
 
+import apiClient from './client';
+
 export const teamApi = {
   async getTeam() {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get('/team');
+        if (res && res.data) {
+          return res.data.map((m) => ({
+            ...m,
+            initials: m.name
+              ? m.name.split(' ').map((p) => p[0]).join('').substring(0, 2).toUpperCase()
+              : 'DR',
+            roleType: m.role,
+            status: 'online',
+            branch: m.clinic?.name || 'Markaziy Klinika',
+          }));
+        }
+      } catch (e) {
+        console.warn('Real Team API getTeam failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 150));
     return [...teamMembers];
   },
 
   async addMember(member) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.post('/team', member);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real Team API addMember failed:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 250));
     const created = {
       ...member,

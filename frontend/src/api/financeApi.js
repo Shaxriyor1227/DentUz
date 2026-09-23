@@ -212,14 +212,44 @@ const INVOICES_BY_PERIOD = {
   ]
 };
 
+import apiClient from './client';
+
 export const financeApi = {
   async getStats(period = 'this_month') {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get(`/finance/stats?period=${period}`);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real Finance API getStats failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 150));
     return { ...(STATS_BY_PERIOD[period] || STATS_BY_PERIOD.this_month) };
   },
 
   async getInvoices(period = 'this_month') {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get('/finance/invoices');
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real Finance API getInvoices failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 200));
     return [...(INVOICES_BY_PERIOD[period] || INVOICES_BY_PERIOD.this_month)];
+  },
+
+  async createInvoice(invoiceData) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.post('/finance/invoices', invoiceData);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real Finance API createInvoice failed:', e.message);
+      }
+    }
+    return { id: `INV-${Date.now()}`, ...invoiceData, status: 'paid' };
   }
 };

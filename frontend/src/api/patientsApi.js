@@ -232,12 +232,28 @@ export const patientsApi = {
   },
 
   async getById(id) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get(`/patients/${id}`);
+        if (res && res.data) return res.data;
+      } catch (err) {
+        console.warn('Real Patient API getById failed, fallback to local:', err.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 150));
     const patient = fullPatients.find((p) => p.id === id || p.id === `P-${id}`);
     return patient || fullPatients[0];
   },
 
   async create(newPatient) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.post('/patients', newPatient);
+        if (res && res.data) return res.data;
+      } catch (err) {
+        console.warn('Real Patient API create failed, fallback to local:', err.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 300));
     const created = {
       ...newPatient,

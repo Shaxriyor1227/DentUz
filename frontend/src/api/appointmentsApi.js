@@ -199,13 +199,31 @@ let appointments = [
   }
 ];
 
+import apiClient from './client';
+
 export const appointmentsApi = {
   async getAll() {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get('/appointments');
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real API failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 200));
     return [...appointments];
   },
 
   async getToday() {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get('/appointments/today');
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real API failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 150));
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -213,6 +231,14 @@ export const appointmentsApi = {
   },
 
   async update(id, updates) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.put(`/appointments/${id}`, updates);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real API update failed:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 300));
     const idx = appointments.findIndex((a) => a.id === id);
     if (idx === -1) throw new Error('Appointment not found');
@@ -221,6 +247,14 @@ export const appointmentsApi = {
   },
 
   async create(newApt) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.post('/appointments', newApt);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        console.warn('Real API create failed:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 300));
     const created = {
       ...newApt,
@@ -230,5 +264,18 @@ export const appointmentsApi = {
     };
     appointments.push(created);
     return created;
+  },
+
+  async delete(id) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        await apiClient.delete(`/appointments/${id}`);
+        return { success: true };
+      } catch (e) {
+        console.warn('Real API delete failed:', e.message);
+      }
+    }
+    appointments = appointments.filter((a) => a.id !== id);
+    return { success: true };
   }
 };

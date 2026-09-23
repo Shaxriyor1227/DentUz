@@ -212,13 +212,50 @@ initialChart['36'] = {
 
 let userChart = { ...initialChart };
 
+import apiClient from './client';
+
 export const odontogramApi = {
-  async getChart(patientId) {
+  async getChart(patientId = 'P-1042') {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.get(`/odontogram/${patientId}`);
+        if (res && res.data && res.data.teeth && Object.keys(res.data.teeth).length > 0) {
+          const merged = { ...userChart };
+          Object.keys(res.data.teeth).forEach((tid) => {
+            if (merged[tid]) {
+              merged[tid] = { ...merged[tid], ...res.data.teeth[tid] };
+            }
+          });
+          return merged;
+        }
+      } catch (e) {
+        console.warn('Real Odontogram API getChart failed, fallback to local data:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 120));
     return { ...userChart };
   },
 
-  async updateTooth(toothId, updates) {
+  async updateTooth(toothId, updates, patientId = 'P-1042') {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const current = userChart[toothId] || {};
+        const newTeeth = {
+          [toothId]: {
+            ...current,
+            ...updates,
+          },
+        };
+        await apiClient.put(`/odontogram/${patientId}`, {
+          teeth: newTeeth,
+          changedTooth: parseInt(toothId, 10) || null,
+          newCondition: updates.status || null,
+          notes: updates.note || null,
+        });
+      } catch (e) {
+        console.warn('Real Odontogram API updateTooth failed:', e.message);
+      }
+    }
     await new Promise((r) => setTimeout(r, 200));
     const current = userChart[toothId] || {};
     userChart[toothId] = {
