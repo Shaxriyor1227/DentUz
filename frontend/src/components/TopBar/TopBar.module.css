@@ -1274,10 +1274,14 @@
 @media (max-width: 560px) {
   .clinicTitle {
     font-size: 13px;
-    max-width: 125px;
+    max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .clinicTitleShort {
+    display: none;
   }
 
   .searchSection {
@@ -1289,3 +1293,42 @@
     font-size: 11px;
   }
 }
+
+@media (max-width: 420px) {
+  .topbar {
+    padding: 0 10px;
+  }
+
+  .clinicTitleFull {
+    display: none !important;
+  }
+
+  .clinicTitleShort {
+    display: inline-block !important;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--color-cyan);
+    letter-spacing: -0.02em;
+  }
+
+  .rightSection {
+    gap: 4px;
+  }
+
+  .iconBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .themeToggleBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .langOption {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+}
+

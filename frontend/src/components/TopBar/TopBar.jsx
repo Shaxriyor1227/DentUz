@@ -239,7 +239,8 @@ export default function TopBar() {
             </span>
           </button>
           <span className={styles.clinicTitle}>
-            {user?.clinic || 'DentUz Markaziy Klinika'}
+            <span className={styles.clinicTitleFull}>{user?.clinic || 'DentUz Markaziy Klinika'}</span>
+            <span className={styles.clinicTitleShort}>DentUz</span>
           </span>
         </div>
 
