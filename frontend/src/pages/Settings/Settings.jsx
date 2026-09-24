@@ -428,7 +428,17 @@ export default function Settings() {
                         <tr key={member.id}>
                           <td>
                             <div className={styles.memberCell}>
-                              <div className={styles.avatar}>{member.initials}</div>
+                              <div className={styles.avatar} style={{ overflow: 'hidden', padding: 0 }}>
+                                {member.avatar ? (
+                                  <img
+                                    src={member.avatar}
+                                    alt={member.name}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  />
+                                ) : (
+                                  member.initials
+                                )}
+                              </div>
                               <div>
                                 <div className={styles.memberName}>{member.name}</div>
                                 <div className={styles.memberTitle}>{member.title}</div>

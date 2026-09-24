@@ -443,8 +443,12 @@ export default function TopBar() {
                 aria-expanded={profileOpen}
                 aria-label="Doctor Profile"
               >
-                <div className={styles.avatar}>
-                  <span className="material-symbols-outlined">person</span>
+                <div className={styles.avatar} style={{ overflow: 'hidden', padding: 0 }}>
+                  <img
+                    src="/images/doctor-azimov.jpg"
+                    alt={user?.name || 'Dr. Jasur Azimov'}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
+                  />
                   <span className={styles.onlineBadge} />
                 </div>
                 <div className={styles.userInfo}>
@@ -466,8 +470,12 @@ export default function TopBar() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className={styles.profilePopHeader}>
-                    <div className={styles.popAvatarLarge}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 32 }}>person</span>
+                    <div className={styles.popAvatarLarge} style={{ overflow: 'hidden', padding: 0 }}>
+                      <img
+                        src="/images/doctor-azimov.jpg"
+                        alt={user?.name || 'Dr. Jasur Azimov'}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
+                      />
                     </div>
                     <div className={styles.popDoctorMeta}>
                       <div className={styles.popDoctorName}>{user?.name || 'Dr. Jasur Azimov'}</div>

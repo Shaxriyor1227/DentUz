@@ -81,7 +81,7 @@ const XRAY_GALLERY = [
     doctor: 'Dr. M. Saidova',
     region: "Yuqori va pastki jag'",
     desc: "Barcha tishlar ildiz tizimi va suyak to'qimasi balandligi holati ko'rinishi.",
-    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80"
+    img: "/images/opg-panoramic.jpg"
   },
   {
     id: 'xr-2',
@@ -91,7 +91,7 @@ const XRAY_GALLERY = [
     doctor: 'Dr. J. Azimov',
     region: "16-tish oziq tish apeksi",
     desc: "MB2 qo'shimcha ildiz kanalini aniqlash va gaymor bo'shlig'i tubi munosabati.",
-    img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80"
+    img: "/images/cbct-3d-scan.jpg"
   },
   {
     id: 'xr-3',
@@ -101,7 +101,7 @@ const XRAY_GALLERY = [
     doctor: 'Dr. J. Azimov',
     region: "16-tish",
     desc: "Ishchi uzunlikni o'lchash (Working Length) nazorat rentgen tasviri.",
-    img: "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1200&q=80"
+    img: "/images/periapical-xray.jpg"
   },
   {
     id: 'xr-4',
@@ -111,7 +111,7 @@ const XRAY_GALLERY = [
     doctor: 'Dr. M. Saidova',
     region: "Pastki chap molyarlar",
     desc: "Yashirin kontakt karies profilaktik nazorati, patologiya aniqlanmadi.",
-    img: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80"
+    img: "/images/bitewing-xray.jpg"
   }
 ];
 
@@ -320,7 +320,11 @@ export default function PatientProfile() {
       <div className={styles.summaryCard}>
         <div className={styles.patientIdentity}>
           <div className={styles.avatarWrapper}>
-            <span>{initials}</span>
+            <img
+              src="/images/patient-anvar.jpg"
+              alt={patient?.name || 'Anvar Qosimov'}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
+            />
             <span className={styles.onlineIndicator} />
           </div>
 

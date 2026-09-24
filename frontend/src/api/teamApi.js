@@ -7,6 +7,7 @@ const teamMembers = [
     id: 'usr-1',
     name: 'Dr. Jasur Azimov',
     initials: 'JA',
+    avatar: '/images/doctor-azimov.jpg',
     role: 'Egasi',
     roleType: 'owner',
     title: 'Bosh shifokor • Implantolog',
