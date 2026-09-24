@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "bot": "node -r dotenv/config -e \"require('./services/telegramBot').startPolling()\"",
+    "bot": "node scripts/runBot.js",
     "db:sync": "node scripts/syncDb.js",
     "db:seed": "node scripts/seedDb.js"
   },

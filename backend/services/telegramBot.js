@@ -1,3 +1,4 @@
+require('dotenv').config();
 const https = require('https');
 
 class DentUzTelegramBot {
@@ -9,26 +10,31 @@ class DentUzTelegramBot {
     this.userSessions = new Map(); // chat_id -> { step, data }
   }
 
-  // Telegram API so'rov yuborish metodi
-  async api(method, params = {}) {
-    if (!this.token) return null;
+  // Telegram API so'rov yuborish metodi (IPv4 + timeout himoyasi bilan)
+  async api(method, params = {}, timeoutMs = 30000) {
+    const token = this.token || process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) return null;
+
     return new Promise((resolve) => {
       const payload = JSON.stringify(params);
       const options = {
         hostname: 'api.telegram.org',
         port: 443,
-        path: `/bot${this.token}/${method}`,
+        path: `/bot${token}/${method}`,
         method: 'POST',
+        family: 4, // IPv4 afzal ko'riladi (Windows / ISP kechikishlarini oldini oladi)
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(payload),
         },
       };
 
+      let timer = null;
       const req = https.request(options, (res) => {
         let body = '';
         res.on('data', (chunk) => (body += chunk));
         res.on('end', () => {
+          if (timer) clearTimeout(timer);
           try {
             const data = JSON.parse(body);
             resolve(data);
@@ -38,7 +44,18 @@ class DentUzTelegramBot {
         });
       });
 
-      req.on('error', () => resolve(null));
+      timer = setTimeout(() => {
+        try {
+          req.destroy(new Error('Telegram API timeout'));
+        } catch {}
+        resolve(null);
+      }, timeoutMs);
+
+      req.on('error', (err) => {
+        if (timer) clearTimeout(timer);
+        resolve(null);
+      });
+
       req.write(payload);
       req.end();
     });
@@ -310,11 +327,16 @@ Tez orada DentUz yetakchi mutaxassisi siz bilan bog'lanib, bepul sinov kabinetin
 
   // Callback tugmachalarini boshqarish
   async handleCallbackQuery(cb) {
-    const chatId = cb.message.chat.id;
+    if (!cb) return;
+    const chatId = cb.message?.chat?.id || cb.from?.id;
     const data = cb.data;
-    const user = cb.from;
+    const user = cb.from || {};
 
-    await this.api('answerCallbackQuery', { callback_query_id: cb.id });
+    if (cb.id) {
+      await this.api('answerCallbackQuery', { callback_query_id: cb.id });
+    }
+
+    if (!chatId) return;
 
     if (data === 'action_menu') {
       return this.sendWelcome(chatId, user.first_name);
@@ -335,7 +357,7 @@ Tez orada DentUz yetakchi mutaxassisi siz bilan bog'lanib, bepul sinov kabinetin
       this.userSessions.delete(chatId);
       return this.sendWelcome(chatId, user.first_name);
     }
-    if (data.startsWith('chairs_')) {
+    if (data && data.startsWith('chairs_')) {
       const chairsMap = {
         chairs_1: '1 ta',
         chairs_2_3: '2-3 ta',
@@ -350,53 +372,119 @@ Tez orada DentUz yetakchi mutaxassisi siz bilan bog'lanib, bepul sinov kabinetin
     }
   }
 
+  // Xabarlarni xavfsiz boshqarish
+  async handleMessage(msg) {
+    if (!msg || !msg.chat) return;
+    const chatId = msg.chat.id;
+    const from = msg.from || {};
+    const text = (msg.text || '').trim();
+
+    if (text.startsWith('/start')) {
+      this.userSessions.delete(chatId);
+      return this.sendWelcome(chatId, from.first_name);
+    }
+    if (text.startsWith('/demo')) {
+      return this.startDemoFlow(chatId);
+    }
+    if (text.startsWith('/pricing') || text.startsWith('/tarif')) {
+      return this.sendPricing(chatId);
+    }
+    if (text.startsWith('/contact') || text.startsWith('/aloqa')) {
+      return this.sendContact(chatId);
+    }
+    if (text.startsWith('/help') || text.startsWith('/yordam')) {
+      return this.sendFeatures(chatId);
+    }
+
+    // Telefon raqami kontakt shaklida yuborilgan bo'lsa
+    if (msg.contact && msg.contact.phone_number) {
+      return this.handleUserText(chatId, msg.contact.phone_number, from);
+    }
+
+    // Matnli xabar
+    if (text) {
+      return this.handleUserText(chatId, text, from);
+    }
+
+    // Har qanday boshqa format (rasm, stiker, ovozli xabar)
+    const session = this.userSessions.get(chatId);
+    if (!session) {
+      return this.sendWelcome(chatId, from.first_name);
+    }
+  }
+
   // Long Polling xizmati
   async startPolling() {
     if (this.isRunning) return;
+    this.token = this.token || process.env.TELEGRAM_BOT_TOKEN;
+    this.adminChatId = this.adminChatId || process.env.TELEGRAM_ADMIN_CHAT_ID;
+
+    if (!this.token) {
+      console.warn('⚠️ DentUz Telegram Bot: TELEGRAM_BOT_TOKEN sozlanmagan, bot ishga tushmadi.');
+      return;
+    }
+
     this.isRunning = true;
     console.log('🤖 DentUz Telegram Bot faollashtirildi (@dentuz_bot)...');
 
+    let consecutiveErrors = 0;
+
     const poll = async () => {
       if (!this.isRunning) return;
+
+      let nextDelay = 1000;
+
       try {
+        // 20s Telegram long-polling, 28s network socket timeout
         const res = await this.api('getUpdates', {
           offset: this.lastOffset + 1,
           timeout: 20
-        });
+        }, 28000);
 
         if (res && res.ok && Array.isArray(res.result)) {
+          consecutiveErrors = 0;
           for (const update of res.result) {
             this.lastOffset = update.update_id;
 
-            if (update.callback_query) {
-              await this.handleCallbackQuery(update.callback_query);
-            } else if (update.message) {
-              const msg = update.message;
-              const chatId = msg.chat.id;
-              const text = msg.text || '';
-              const from = msg.from || {};
-
-              if (text.startsWith('/start')) {
-                this.userSessions.delete(chatId);
-                await this.sendWelcome(chatId, from.first_name);
-              } else if (text.startsWith('/demo')) {
-                await this.startDemoFlow(chatId);
-              } else if (text.startsWith('/contact')) {
-                await this.sendContact(chatId);
-              } else if (text.startsWith('/help')) {
-                await this.sendFeatures(chatId);
-              } else {
-                await this.handleUserText(chatId, text, from);
+            try {
+              if (update.callback_query) {
+                await this.handleCallbackQuery(update.callback_query);
+              } else if (update.message) {
+                await this.handleMessage(update.message);
               }
+            } catch (updateErr) {
+              console.error('Telegram bot update xatosi:', updateErr.message);
             }
+          }
+        } else if (res && !res.ok) {
+          consecutiveErrors++;
+          console.warn(`Telegram API bildirishnomasi [${res.error_code}]: ${res.description}`);
+
+          if (res.error_code === 409) {
+            // Parallel getUpdates ishlamoqda, 5 soniya kutish
+            nextDelay = 5000;
+          } else if (res.error_code === 429) {
+            // Telegram rate limit
+            const retryAfter = (res.parameters && res.parameters.retry_after) || 10;
+            nextDelay = retryAfter * 1000;
+          } else {
+            nextDelay = Math.min(30000, 2000 * Math.pow(1.5, consecutiveErrors));
+          }
+        } else {
+          // Tarmoq uzilishi yoki timeout (null)
+          consecutiveErrors++;
+          if (consecutiveErrors > 3) {
+            nextDelay = Math.min(15000, 1000 * consecutiveErrors);
           }
         }
       } catch (err) {
-        // Tarmoq xatosida qisqa tanaffus
+        consecutiveErrors++;
+        console.warn('Telegram bot polling tarmoq xatosi:', err.message);
+        nextDelay = Math.min(15000, 2000 * consecutiveErrors);
       }
 
       if (this.isRunning) {
-        setTimeout(poll, 1000);
+        setTimeout(poll, nextDelay);
       }
     };
 
@@ -405,6 +493,7 @@ Tez orada DentUz yetakchi mutaxassisi siz bilan bog'lanib, bepul sinov kabinetin
 
   stopPolling() {
     this.isRunning = false;
+    console.log('🛑 DentUz Telegram Bot to\'xtatildi.');
   }
 }
 

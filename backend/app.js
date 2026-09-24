@@ -99,3 +99,14 @@ const start = async () => {
 };
 
 start();
+
+const gracefulShutdown = () => {
+  try {
+    const bot = require('./services/telegramBot');
+    bot.stopPolling();
+  } catch {}
+  process.exit(0);
+};
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);

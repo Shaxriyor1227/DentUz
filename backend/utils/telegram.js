@@ -13,7 +13,7 @@ const sendTelegramMessage = async (text, customChatId = null) => {
   if (!chatId) {
     try {
       chatId = await new Promise((resolve) => {
-        https.get(`https://api.telegram.org/bot${token}/getUpdates`, (res) => {
+        const getReq = https.get(`https://api.telegram.org/bot${token}/getUpdates`, { family: 4 }, (res) => {
           let data = '';
           res.on('data', chunk => data += chunk);
           res.on('end', () => {
@@ -30,7 +30,12 @@ const sendTelegramMessage = async (text, customChatId = null) => {
               resolve(null);
             }
           });
-        }).on('error', () => resolve(null));
+        });
+        getReq.setTimeout(10000, () => {
+          try { getReq.destroy(); } catch {}
+          resolve(null);
+        });
+        getReq.on('error', () => resolve(null));
       });
     } catch (e) {
       console.warn('Telegram updates olishda xato:', e.message);
@@ -54,26 +59,35 @@ const sendTelegramMessage = async (text, customChatId = null) => {
       port: 443,
       path: `/bot${token}/sendMessage`,
       method: 'POST',
+      family: 4,
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload)
       }
     };
 
+    let timer = null;
     const req = https.request(options, (res) => {
       let responseBody = '';
       res.on('data', chunk => responseBody += chunk);
       res.on('end', () => {
+        if (timer) clearTimeout(timer);
         try {
           const json = JSON.parse(responseBody);
-          resolve(json.ok);
+          resolve(!!json.ok);
         } catch {
           resolve(false);
         }
       });
     });
 
+    timer = setTimeout(() => {
+      try { req.destroy(new Error('Telegram request timeout')); } catch {}
+      resolve(false);
+    }, 10000);
+
     req.on('error', (err) => {
+      if (timer) clearTimeout(timer);
       console.error('Telegram xabar yuborishda xato:', err.message);
       resolve(false);
     });
