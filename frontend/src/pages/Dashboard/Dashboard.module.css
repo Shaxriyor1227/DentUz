@@ -312,15 +312,15 @@
 }
 
 .quickActionBtn:hover {
-  border-color: var(--color-cyan);
+  border-color: var(--btn-accent, var(--color-cyan));
   background-color: var(--color-surface-container-low);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.15);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--btn-accent, var(--color-cyan)) 20%, transparent);
 }
 
 .quickActionIconBox {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
   background-color: var(--color-surface-container-low);
   color: var(--color-cyan-hover);
@@ -329,12 +329,11 @@
   justify-content: center;
   flex-shrink: 0;
   transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  border: 1px solid var(--color-border-subtle);
 }
 
 .quickActionBtn:hover .quickActionIconBox {
-  transform: scale(1.1);
-  color: var(--color-cyan);
-  background-color: rgba(0, 180, 216, 0.15);
+  transform: scale(1.12);
 }
 
 .quickActionTextGroup {

@@ -152,6 +152,13 @@ export default function Calendar() {
   const [optimisticNotice, setOptimisticNotice] = useState(null);
   const [toastConfig, setToastConfig] = useState({ type: 'success', title: '' });
 
+  // Current time tracker for the red time-indicator line
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  useEffect(() => {
+    const tick = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(tick);
+  }, []);
+
   // Modal State - Simplified, High-Speed
   const [showModal, setShowModal] = useState(false);
   const [newApt, setNewApt] = useState(() => {
@@ -834,7 +841,7 @@ export default function Calendar() {
                       return (
                         <div
                           key={day.key}
-                          className={`${styles.slotCell} ${isDragTarget ? styles.slotCellDragOver : ''}`}
+                          className={`${styles.slotCell} ${isDragTarget ? styles.slotCellDragOver : ''} ${day.isToday ? styles.slotCellToday : ''}`}
                           onDragOver={(e) => handleDragOver(e, day.key, slotTime)}
                           onDragLeave={handleDragLeave}
                           onDrop={(e) => handleDrop(e, day.key, day.date, slotTime)}
@@ -844,6 +851,20 @@ export default function Calendar() {
                             }
                           }}
                         >
+                          {/* Current-time indicator line inside today's column */}
+                          {day.isToday && (() => {
+                            const slotHour = parseInt(slotTime.split(':')[0], 10);
+                            const nowHour = currentTime.getHours();
+                            const nowMin = currentTime.getMinutes();
+                            const showLine = nowHour === slotHour;
+                            if (!showLine) return null;
+                            const pct = (nowMin / 60) * 100;
+                            return (
+                              <div className={styles.timeIndicatorLine} style={{ top: `${pct}%` }}>
+                                <div className={styles.timeIndicatorDot} />
+                              </div>
+                            );
+                          })()}
                           {slotAppointments.length === 0 && (
                             <div
                               className={styles.slotAddHint}

@@ -1587,3 +1587,36 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   TODAY COLUMN HIGHLIGHT
+   ═══════════════════════════════════════════════════════════════════════ */
+.slotCellToday {
+  background: rgba(14, 165, 233, 0.04);
+  border-left: 1.5px solid rgba(14, 165, 233, 0.18) !important;
+  border-right: 1.5px solid rgba(14, 165, 233, 0.18) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CURRENT-TIME INDICATOR LINE  (red Google Calendar-style)
+   ═══════════════════════════════════════════════════════════════════════ */
+.timeIndicatorLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #EF4444 0%, rgba(239, 68, 68, 0.3) 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.timeIndicatorDot {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #EF4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}

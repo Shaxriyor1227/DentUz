@@ -709,7 +709,7 @@ export default function Finance() {
           <StatCard
             label={t('finance.stats.totalRevenue')}
             value={stats ? formatUZS(stats.monthlyRevenue, false) : '—'}
-            unit="UZS"
+            unit="so'm"
             trend={stats?.revenueGrowth !== undefined ? `+${stats.revenueGrowth}%` : '+14.2%'}
             subtext={
               stats?.label && stats.label !== 'this_month'
@@ -722,7 +722,7 @@ export default function Finance() {
           <StatCard
             label={t('finance.stats.expectedPayments')}
             value={stats ? formatUZS(stats.pendingPayments, false) : '—'}
-            unit="UZS"
+            unit="so'm"
             subtext={stats ? `${stats.pendingCount || 0} ta kutilayotgan invoys` : ''}
             isMono={true}
             icon="pending_actions"
@@ -730,8 +730,10 @@ export default function Finance() {
           <StatCard
             label={i18n.language === 'en' ? 'Expenses' : 'Xarajatlar'}
             value={stats ? formatUZS(stats.expenses || 0, false) : '—'}
-            unit="UZS"
-            trend={stats?.expensesGrowth !== undefined ? `${stats.expensesGrowth > 0 ? '+' : ''}${stats.expensesGrowth}%` : '+3.1%'}
+            unit="so'm"
+            trend={(stats?.expenses && stats.expenses > 0 && stats?.expensesGrowth !== undefined)
+              ? `${stats.expensesGrowth > 0 ? '+' : ''}${stats.expensesGrowth}%`
+              : undefined}
             trendPositive={stats?.expensesGrowth !== undefined ? stats.expensesGrowth < 0 : false}
             subtext={i18n.language === 'en' ? 'vs previous period' : "o'tgan oyga nisbatan"}
             isMono={true}
@@ -740,7 +742,7 @@ export default function Finance() {
           <StatCard
             label={i18n.language === 'en' ? 'Net Profit' : 'Sof foyda'}
             value={stats ? formatUZS(stats.netProfit || stats.monthlyRevenue, false) : '—'}
-            unit="UZS"
+            unit="so'm"
             trend={stats?.netProfitGrowth !== undefined ? `+${stats.netProfitGrowth}%` : '+18.4%'}
             subtext={i18n.language === 'en' ? 'net margin' : 'sof rentabellik'}
             isMono={true}

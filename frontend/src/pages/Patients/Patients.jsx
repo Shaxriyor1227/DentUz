@@ -283,7 +283,10 @@ export default function Patients() {
               <span className={styles.patientIdBadge}>{p.id}</span>
             </div>
             <span className={styles.patientSubDetail}>
-              {p.allergies ? `⚠️ ${p.allergies}` : (i18n.language === 'en' ? 'Dental Patient' : 'Klinika bemori')}
+              {p.allergies
+                ? <span style={{ color: 'var(--color-warning, #F59E0B)', fontWeight: 500 }}>⚠️ {p.allergies}</span>
+                : <span style={{ color: 'var(--color-text-muted)' }}>{i18n.language === 'en' ? 'No allergies' : 'Allergiya yo\'q'}</span>
+              }
             </span>
           </div>
         </div>
@@ -326,19 +329,6 @@ export default function Patients() {
         </div>
 
         <div className={styles.actionsCell}>
-          <button
-            type="button"
-            className={styles.actionIconBtn}
-            title={t('common.details')}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleRowClick(p);
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              folder_open
-            </span>
-          </button>
           <button
             type="button"
             className={styles.actionIconBtn}

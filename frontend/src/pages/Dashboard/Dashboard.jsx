@@ -61,13 +61,18 @@ export default function Dashboard() {
   const { data: financeStats } = useApi(financeApi.getStats, null);
 
   const today = new Date();
-  const locale = i18n.language === 'uz' ? 'uz-UZ' : 'en-US';
-  const formattedToday = today.toLocaleDateString(locale, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+
+  // Manual Uzbek date format (uz-UZ locale outputs "M09" bug in some browsers)
+  const formatDateUz = (d) => {
+    const months = [
+      'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+      'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'
+    ];
+    const days = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
+    return `${d.getDate()}-${months[d.getMonth()]}, ${d.getFullYear()} — ${days[d.getDay()]}`;
+  };
+  const formatDateEn = (d) => d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const formattedToday = i18n.language === 'uz' ? formatDateUz(today) : formatDateEn(today);
 
   const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
 
@@ -125,12 +130,12 @@ export default function Dashboard() {
       <section className={styles.quickActionsRow}>
         <div
           className={styles.quickActionBtn}
-          style={{ '--btn-idx': 0 }}
+          style={{ '--btn-idx': 0, '--btn-accent': '#10B981', '--btn-accent-bg': 'rgba(16,185,129,0.12)' }}
           onClick={() => navigate('/patients')}
           role="button"
           tabIndex={0}
         >
-          <div className={styles.quickActionIconBox}>
+          <div className={styles.quickActionIconBox} style={{ color: '#10B981', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>
             <span className="material-symbols-outlined">person_add</span>
           </div>
           <div className={styles.quickActionTextGroup}>
@@ -141,12 +146,12 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
-          style={{ '--btn-idx': 1 }}
+          style={{ '--btn-idx': 1, '--btn-accent': '#3B82F6', '--btn-accent-bg': 'rgba(59,130,246,0.12)' }}
           onClick={() => navigate('/calendar')}
           role="button"
           tabIndex={0}
         >
-          <div className={styles.quickActionIconBox}>
+          <div className={styles.quickActionIconBox} style={{ color: '#3B82F6', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}>
             <span className="material-symbols-outlined">calendar_today</span>
           </div>
           <div className={styles.quickActionTextGroup}>
@@ -157,12 +162,12 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
-          style={{ '--btn-idx': 2 }}
+          style={{ '--btn-idx': 2, '--btn-accent': '#F59E0B', '--btn-accent-bg': 'rgba(245,158,11,0.12)' }}
           onClick={() => navigate('/finance')}
           role="button"
           tabIndex={0}
         >
-          <div className={styles.quickActionIconBox}>
+          <div className={styles.quickActionIconBox} style={{ color: '#F59E0B', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
             <span className="material-symbols-outlined">receipt_long</span>
           </div>
           <div className={styles.quickActionTextGroup}>
@@ -173,12 +178,12 @@ export default function Dashboard() {
 
         <div
           className={styles.quickActionBtn}
-          style={{ '--btn-idx': 3 }}
+          style={{ '--btn-idx': 3, '--btn-accent': '#8B5CF6', '--btn-accent-bg': 'rgba(139,92,246,0.12)' }}
           onClick={() => navigate('/patients/1042')}
           role="button"
           tabIndex={0}
         >
-          <div className={styles.quickActionIconBox}>
+          <div className={styles.quickActionIconBox} style={{ color: '#8B5CF6', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)' }}>
             <span className="material-symbols-outlined">dentistry</span>
           </div>
           <div className={styles.quickActionTextGroup}>
