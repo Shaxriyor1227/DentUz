@@ -1,256 +1,348 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   DentUz Premium Toast  —  ui-ux-pro-max / Glassmorphism
+   Plus Jakarta Sans · Dark-glass · Spring-physics animations
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ─── Container ─────────────────────────────────────────────────────── */
 .toastWrapper {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 20px;
+  right: 20px;
   z-index: 99999;
   width: calc(100vw - 32px);
-  max-width: 420px;
+  max-width: 400px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 14px 14px 16px 14px;
   border-radius: 20px;
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  user-select: none;
   overflow: hidden;
   box-sizing: border-box;
-  box-shadow: 
-    0 24px 48px -12px rgba(0, 0, 0, 0.7),
-    0 8px 24px -4px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  will-change: transform, opacity;
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
 }
 
-/* Entering and closing transitions */
+/* ─── Shimmer sweep ──────────────────────────────────────────────────── */
+.toastWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    108deg,
+    rgba(255,255,255,0.00) 0%,
+    rgba(255,255,255,0.07) 40%,
+    rgba(255,255,255,0.13) 50%,
+    rgba(255,255,255,0.07) 60%,
+    rgba(255,255,255,0.00) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* keep content above shimmer */
+.iconCircle,
+.toastBody,
+.closeBtn {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Entry / Exit ──────────────────────────────────────────────────── */
 .toastEntering {
-  animation: toastSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: toastIn 0.44s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .toastClosing {
-  animation: toastSlideOut 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: toastOut 0.22s cubic-bezier(0.55, 0, 1, 0.45) forwards;
 }
 
-@keyframes toastSlideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-16px) scale(0.94);
-    filter: blur(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
-  }
+@keyframes toastIn {
+  0%   { opacity: 0; transform: translateY(-20px) scale(0.88); filter: blur(10px); }
+  55%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0); }
 }
 
-@keyframes toastSlideOut {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-16px) scale(0.94);
-    filter: blur(6px);
-  }
+@keyframes toastOut {
+  0%   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.93); filter: blur(6px); }
 }
 
-/* ═════════════════════════════════════════════════════════════════════════════
-   THEME STYLES (Dark & Light)
-   ═════════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   VARIANTS
+   ═══════════════════════════════════════════════════════════════════════ */
 
-/* Success */
+/* ── SUCCESS ─────────────────────────────────────────────────────────── */
 .toastWrapper.success {
-  background: radial-gradient(circle at 75% -20%, rgba(6, 182, 212, 0.22) 0%, transparent 65%),
-              linear-gradient(135deg, rgba(13, 27, 46, 0.95) 0%, rgba(10, 18, 32, 0.96) 100%);
-  border: 1px solid rgba(6, 182, 212, 0.28);
-  box-shadow: 
-    0 24px 50px -10px rgba(0, 0, 0, 0.75),
-    0 0 28px rgba(6, 182, 212, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background:
+    radial-gradient(ellipse 90% 80% at 85% -10%, rgba(16,185,129,0.28) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(8,20,36,0.97) 0%, rgba(6,14,26,0.98) 100%);
+  border: 1px solid rgba(16,185,129,0.32);
+  box-shadow:
+    0 0 0 1px rgba(16,185,129,0.10),
+    0 4px 8px -2px rgba(0,0,0,0.55),
+    0 22px 52px -8px rgba(0,0,0,0.72),
+    0 0 40px -6px rgba(16,185,129,0.24);
 }
 
 .toastWrapper.success .iconCircle {
-  background: rgba(6, 182, 212, 0.15);
-  color: #38BDF8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  background: linear-gradient(135deg, rgba(16,185,129,0.26) 0%, rgba(5,150,105,0.18) 100%);
+  border: 1.5px solid rgba(16,185,129,0.42);
+  color: #34D399;
+  box-shadow: 0 0 20px rgba(16,185,129,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .toastWrapper.success .progressBar {
-  background: linear-gradient(90deg, #06B6D4, #38BDF8, #34D399);
+  background: linear-gradient(90deg, #059669, #34D399, #6EE7B7);
+  box-shadow: 0 0 12px rgba(52,211,153,0.55);
 }
 
-/* Info */
+/* ── INFO ────────────────────────────────────────────────────────────── */
 .toastWrapper.info {
-  background: radial-gradient(circle at 75% -20%, rgba(59, 130, 246, 0.25) 0%, transparent 65%),
-              linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 18, 35, 0.96) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  box-shadow: 
-    0 24px 50px -10px rgba(0, 0, 0, 0.75),
-    0 0 28px rgba(59, 130, 246, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background:
+    radial-gradient(ellipse 90% 80% at 85% -10%, rgba(37,99,235,0.30) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(9,18,42,0.97) 0%, rgba(6,14,34,0.98) 100%);
+  border: 1px solid rgba(37,99,235,0.34);
+  box-shadow:
+    0 0 0 1px rgba(37,99,235,0.10),
+    0 4px 8px -2px rgba(0,0,0,0.55),
+    0 22px 52px -8px rgba(0,0,0,0.72),
+    0 0 40px -6px rgba(37,99,235,0.26);
 }
 
 .toastWrapper.info .iconCircle {
-  background: rgba(59, 130, 246, 0.16);
+  background: linear-gradient(135deg, rgba(37,99,235,0.26) 0%, rgba(29,78,216,0.18) 100%);
+  border: 1.5px solid rgba(37,99,235,0.42);
   color: #60A5FA;
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  box-shadow: 0 0 16px rgba(96, 165, 250, 0.25);
+  box-shadow: 0 0 20px rgba(59,130,246,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .toastWrapper.info .progressBar {
-  background: linear-gradient(90deg, #3B82F6, #60A5FA, #06B6D4);
+  background: linear-gradient(90deg, #1D4ED8, #3B82F6, #60A5FA);
+  box-shadow: 0 0 12px rgba(96,165,250,0.55);
 }
 
-/* Warning */
+/* ── WARNING ─────────────────────────────────────────────────────────── */
 .toastWrapper.warning {
-  background: radial-gradient(circle at 75% -20%, rgba(245, 158, 11, 0.24) 0%, transparent 65%),
-              linear-gradient(135deg, rgba(28, 20, 12, 0.95) 0%, rgba(18, 13, 8, 0.96) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  box-shadow: 
-    0 24px 50px -10px rgba(0, 0, 0, 0.75),
-    0 0 28px rgba(245, 158, 11, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background:
+    radial-gradient(ellipse 90% 80% at 85% -10%, rgba(217,119,6,0.28) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(24,16,6,0.97) 0%, rgba(16,10,4,0.98) 100%);
+  border: 1px solid rgba(217,119,6,0.34);
+  box-shadow:
+    0 0 0 1px rgba(217,119,6,0.10),
+    0 4px 8px -2px rgba(0,0,0,0.55),
+    0 22px 52px -8px rgba(0,0,0,0.72),
+    0 0 40px -6px rgba(217,119,6,0.24);
 }
 
 .toastWrapper.warning .iconCircle {
-  background: rgba(245, 158, 11, 0.16);
+  background: linear-gradient(135deg, rgba(217,119,6,0.26) 0%, rgba(180,83,9,0.18) 100%);
+  border: 1.5px solid rgba(245,158,11,0.42);
   color: #FBBF24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 20px rgba(245,158,11,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .toastWrapper.warning .progressBar {
-  background: linear-gradient(90deg, #F59E0B, #FBBF24, #F97316);
+  background: linear-gradient(90deg, #B45309, #F59E0B, #FBBF24);
+  box-shadow: 0 0 12px rgba(251,191,36,0.55);
 }
 
-/* Error */
+/* ── ERROR ───────────────────────────────────────────────────────────── */
 .toastWrapper.error {
-  background: radial-gradient(circle at 75% -20%, rgba(239, 68, 68, 0.24) 0%, transparent 65%),
-              linear-gradient(135deg, rgba(30, 15, 18, 0.95) 0%, rgba(20, 10, 12, 0.96) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  box-shadow: 
-    0 24px 50px -10px rgba(0, 0, 0, 0.75),
-    0 0 28px rgba(239, 68, 68, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background:
+    radial-gradient(ellipse 90% 80% at 85% -10%, rgba(220,38,38,0.28) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(26,8,10,0.97) 0%, rgba(18,5,7,0.98) 100%);
+  border: 1px solid rgba(220,38,38,0.34);
+  box-shadow:
+    0 0 0 1px rgba(220,38,38,0.10),
+    0 4px 8px -2px rgba(0,0,0,0.55),
+    0 22px 52px -8px rgba(0,0,0,0.72),
+    0 0 40px -6px rgba(220,38,38,0.26);
 }
 
 .toastWrapper.error .iconCircle {
-  background: rgba(239, 68, 68, 0.16);
-  color: #F87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+  background: linear-gradient(135deg, rgba(220,38,38,0.26) 0%, rgba(185,28,28,0.18) 100%);
+  border: 1.5px solid rgba(239,68,68,0.42);
+  color: #FCA5A5;
+  box-shadow: 0 0 20px rgba(239,68,68,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .toastWrapper.error .progressBar {
-  background: linear-gradient(90deg, #EF4444, #F87171, #FB7185);
+  background: linear-gradient(90deg, #B91C1C, #EF4444, #FCA5A5);
+  box-shadow: 0 0 12px rgba(239,68,68,0.55);
 }
 
-/* ═════════════════════════════════════════════════════════════════════════════
-   COMMON ELEMENTS
-   ═════════════════════════════════════════════════════════════════════════════ */
-
-/* Icon circle */
+/* ═══════════════════════════════════════════════════════════════════════
+   ICON CIRCLE
+   ═══════════════════════════════════════════════════════════════════════ */
 .iconCircle {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-.iconCircle span,
+/* ambient glow ring */
+.iconCircle::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 17px;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  opacity: 0.18;
+  animation: iconGlow 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes iconGlow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50%       { opacity: 0.35; transform: scale(1.10); }
+}
+
+/* icon pop-in */
 .iconCircle svg {
-  display: block;
-  flex-shrink: 0;
+  animation: iconBounce 0.52s cubic-bezier(0.34,1.56,0.64,1) 0.08s both;
+}
+
+@keyframes iconBounce {
+  0%   { opacity: 0; transform: scale(0.35) rotate(-18deg); }
+  60%  { opacity: 1; transform: scale(1.18) rotate(5deg); }
+  100% { opacity: 1; transform: scale(1)    rotate(0deg); }
 }
 
 .iconCircle span {
-  font-size: 22px;
+  font-size: 21px;
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  display: block;
 }
 
-/* Body */
+/* ═══════════════════════════════════════════════════════════════════════
+   BODY TEXT
+   ═══════════════════════════════════════════════════════════════════════ */
 .toastBody {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding-top: 1px;
+  padding-top: 2px;
 }
 
 .toastTitle {
-  font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', var(--font-display, sans-serif);
-  font-size: 14.5px;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.25;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.014em;
   color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toastMessage {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', var(--font-body, sans-serif);
-  font-size: 13px;
-  line-height: 1.45;
-  color: rgba(226, 232, 240, 0.9);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(203, 213, 225, 0.92);
   word-break: break-word;
 }
 
-/* Close button */
+/* ═══════════════════════════════════════════════════════════════════════
+   CLOSE BUTTON
+   ═══════════════════════════════════════════════════════════════════════ */
 .closeBtn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.6);
-  width: 28px;
-  height: 28px;
+  color: rgba(255,255,255,0.52);
+  width: 26px;
+  height: 26px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
   margin-right: -2px;
 }
 
 .closeBtn span {
-  font-size: 16px;
+  font-size: 15px;
   font-variation-settings: 'wght' 500;
+  line-height: 1;
 }
 
 .closeBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.17);
+  border-color: rgba(255,255,255,0.22);
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
+  transform: scale(1.10) rotate(90deg);
 }
 
 .closeBtn:active {
-  transform: scale(0.95);
+  transform: scale(0.90);
 }
 
-/* Progress bar */
+/* ═══════════════════════════════════════════════════════════════════════
+   PROGRESS BAR
+   ═══════════════════════════════════════════════════════════════════════ */
 .progressBar {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 3px;
+  height: 2.5px;
   width: 100%;
+  border-radius: 0 0 20px 20px;
   animation: shrinkProgress linear forwards;
 }
 
 @keyframes shrinkProgress {
-  0% {
-    width: 100%;
-  }
-  100% {
-    width: 0%;
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .toastEntering       { animation: none; opacity: 1; transform: none; }
+  .toastClosing        { animation: none; opacity: 0; }
+  .toastWrapper::after { animation: none; }
+  .iconCircle::before  { animation: none; }
+  .iconCircle svg      { animation: none; }
+  .closeBtn:hover      { transform: scale(1.05); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .toastWrapper {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-width: none;
+    border-radius: 18px;
   }
 }
