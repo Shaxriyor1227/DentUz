@@ -110,6 +110,42 @@ export default function TopBar() {
   // Doctor Profile Popover State
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const [customAvatar, setCustomAvatar] = useState(() => {
+    return localStorage.getItem('dentuz_custom_avatar') || '/images/doctor-azimov.jpg';
+  });
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(i18n.language === 'uz' ? 'Rasm hajmi 5MB dan oshmasligi kerak' : 'Image size must be under 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result;
+        if (typeof base64 === 'string') {
+          setCustomAvatar(base64);
+          try {
+            localStorage.setItem('dentuz_custom_avatar', base64);
+          } catch (err) {
+            console.warn('LocalStorage avatar save error:', err);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetAvatar = (e) => {
+    e.stopPropagation();
+    setCustomAvatar('/images/doctor-azimov.jpg');
+    try {
+      localStorage.removeItem('dentuz_custom_avatar');
+    } catch {}
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -434,34 +470,53 @@ export default function TopBar() {
             )}
           </div>
 
+            {/* Hidden file input for Telegram-style avatar upload */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarUpload}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
+
             {/* Doctor Profile Trigger & Dropdown Popover */}
             <div className={styles.profileWrapper} ref={profileRef}>
-              <button
-                type="button"
+              <div
                 className={`${styles.userProfile} ${profileOpen ? styles.userProfileActive : ''}`}
                 onClick={() => setProfileOpen((prev) => !prev)}
+                role="button"
+                tabIndex={0}
                 aria-expanded={profileOpen}
                 aria-label="Doctor Profile"
               >
-                <div className={styles.avatar} style={{ overflow: 'hidden', padding: 0 }}>
+                <div
+                  className={styles.avatar}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  title={i18n.language === 'uz' ? "Rasm qo'yish / o'zgartirish (+)" : "Upload / change photo (+)"}
+                  style={{ overflow: 'hidden', padding: 0 }}
+                >
                   <img
-                    src="/images/doctor-azimov.jpg"
+                    src={customAvatar}
                     alt={user?.name || 'Dr. Jasur Azimov'}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
                   />
+                  {/* Telegram-style hover overlay with + */}
+                  <div className={styles.avatarHoverOverlay}>
+                    <span className={styles.avatarPlusIcon}>+</span>
+                  </div>
                   <span className={styles.onlineBadge} />
                 </div>
                 <div className={styles.userInfo}>
                   <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
                   <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
                 </div>
-                <span className={`material-symbols-outlined ${styles.profileChevronMobile}`}>
-                  expand_more
-                </span>
                 <span className={`material-symbols-outlined ${styles.profileChevron} ${profileOpen ? styles.profileChevronOpen : ''}`}>
                   expand_more
                 </span>
-              </button>
+              </div>
 
               {/* Doctor Profile Popover Dropdown */}
               {profileOpen && (
@@ -470,16 +525,43 @@ export default function TopBar() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className={styles.profilePopHeader}>
-                    <div className={styles.popAvatarLarge} style={{ overflow: 'hidden', padding: 0 }}>
+                    <div
+                      className={styles.popAvatarLarge}
+                      onClick={() => fileInputRef.current?.click()}
+                      title={i18n.language === 'uz' ? "Rasm yuklash uchun bosing" : "Click to change photo"}
+                    >
                       <img
-                        src="/images/doctor-azimov.jpg"
+                        src={customAvatar}
                         alt={user?.name || 'Dr. Jasur Azimov'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
+                      <div className={styles.popAvatarHoverOverlay}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>photo_camera</span>
+                      </div>
                     </div>
                     <div className={styles.popDoctorMeta}>
                       <div className={styles.popDoctorName}>{user?.name || 'Dr. Jasur Azimov'}</div>
                       <div className={styles.popDoctorRole}>{user?.title || 'Bosh shifokor • Stomatolog'}</div>
+                      <div className={styles.avatarActionsRow}>
+                        <button
+                          type="button"
+                          className={styles.changeAvatarBtn}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: 13 }}>photo_camera</span>
+                          <span>{i18n.language === 'uz' ? "Rasm qo'yish" : 'Upload photo'}</span>
+                        </button>
+                        {customAvatar !== '/images/doctor-azimov.jpg' && (
+                          <button
+                            type="button"
+                            className={styles.resetAvatarBtn}
+                            onClick={handleResetAvatar}
+                            title={i18n.language === 'uz' ? "Asliga qaytarish" : 'Reset to default'}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>
+                          </button>
+                        )}
+                      </div>
                       <div className={styles.popDoctorClinic}>🏥 {user?.clinic || 'DentUz Markaziy Klinika'}</div>
                     </div>
                   </div>

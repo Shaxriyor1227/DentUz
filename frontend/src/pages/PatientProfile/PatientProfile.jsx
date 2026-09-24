@@ -320,11 +320,7 @@ export default function PatientProfile() {
       <div className={styles.summaryCard}>
         <div className={styles.patientIdentity}>
           <div className={styles.avatarWrapper}>
-            <img
-              src="/images/patient-anvar.jpg"
-              alt={patient?.name || 'Anvar Qosimov'}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
-            />
+            <span>{initials}</span>
             <span className={styles.onlineIndicator} />
           </div>
 
