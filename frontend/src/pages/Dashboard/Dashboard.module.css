@@ -388,20 +388,8 @@
 
 .chairsGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: var(--space-md);
-}
-
-@media (min-width: 640px) {
-  .chairsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .chairsGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .chairCard {
@@ -431,7 +419,7 @@
 
 .chairNum {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -441,6 +429,7 @@
   font-size: 12px;
   color: var(--color-text-secondary);
   margin-top: 2px;
+  line-height: 1.4;
 }
 
 .chairPulseDot {
@@ -468,11 +457,15 @@
 }
 
 .pulseIdle {
-  background-color: var(--color-info);
+  background-color: #64748B;
 }
 
 .pulseCleaning {
-  background-color: var(--color-warning);
+  background-color: #F59E0B;
+}
+
+.pulseReserved {
+  background-color: #0EA5E9;
 }
 
 .chairDoctor {

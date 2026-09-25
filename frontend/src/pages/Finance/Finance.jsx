@@ -1000,28 +1000,36 @@ export default function Finance() {
       {showCollectModal && (
         <div className={styles.modalOverlay} onClick={() => { setShowCollectModal(false); setSelectedInvoice(null); }}>
           <div className={styles.appleModalCard} onClick={(e) => e.stopPropagation()}>
-            {/* Header */}
+            {/* Apple Modal Header */}
             <div className={styles.appleModalHeader}>
-              <div className={styles.appleModalTitleGroup}>
-                <div className={styles.appleModalTitle}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '22px' }}>
+              <div className={styles.appleModalHeaderLeft}>
+                <div className={styles.appleIconSquircle}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                     account_balance_wallet
                   </span>
-                  <span>
-                    {selectedInvoice
-                      ? (i18n.language === 'en' ? 'Settle Payment' : 'To\'lovni qabul qilish')
-                      : (i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov')}
-                  </span>
-                  {selectedInvoice && (
-                    <span className={styles.appleInvoiceBadge}>
-                      #{selectedInvoice.id}
-                    </span>
-                  )}
                 </div>
-                <div className={styles.appleModalSub}>
-                  {selectedInvoice
-                    ? `${selectedInvoice.patient} hisobi bo'yicha to'lovni tasdiqlash`
-                    : 'Muolaja to\'lovini qabul qilish va kassa invoysini yaratish'}
+                <div className={styles.appleModalTitleGroup}>
+                  <div className={styles.appleModalTitle}>
+                    <span>
+                      {selectedInvoice
+                        ? (i18n.language === 'en' ? 'Settle Payment' : 'To\'lovni tasdiqlash')
+                        : (i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov')}
+                    </span>
+                    {selectedInvoice && (
+                      <span className={styles.appleInvoiceBadge}>
+                        #{selectedInvoice.id}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.appleModalSub}>
+                    {selectedInvoice
+                      ? (i18n.language === 'en'
+                          ? `Confirm settlement for ${selectedInvoice.patient}`
+                          : `${selectedInvoice.patient} hisobi bo'yicha to'lovni tasdiqlash`)
+                      : (i18n.language === 'en'
+                          ? 'Collect procedure payment & create invoice'
+                          : 'Muolaja to\'lovini qabul qilish va kassa invoysini yaratish')}
+                  </div>
                 </div>
               </div>
               <button
@@ -1043,11 +1051,16 @@ export default function Finance() {
                   </div>
                   <div className={styles.applePatientInfo}>
                     <div className={styles.applePatientName}>
-                      {paymentForm.patient}
+                      <span>{paymentForm.patient}</span>
                       <span className={styles.applePatientId}>ID: #{paymentForm.patientId}</span>
                     </div>
                     <div className={styles.applePatientMeta}>
-                      {paymentForm.procedure} • {paymentForm.doctor}
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'text-bottom' }}>
+                        dentistry
+                      </span>
+                      <span>{paymentForm.procedure}</span>
+                      <span className={styles.appleMetaDivider}>•</span>
+                      <span>{paymentForm.doctor}</span>
                     </div>
                   </div>
                 </div>
@@ -1108,8 +1121,8 @@ export default function Finance() {
                   <span className={styles.appleAmountLabel}>
                     {i18n.language === 'en' ? 'Amount to pay' : 'To\'lov summasi'}
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                    {formatUZS(Number(paymentForm.amount) || 0)}
+                  <span className={styles.appleAmountHeaderTotal}>
+                    {selectedInvoice ? formatUZS(selectedInvoice.amount) : formatUZS(Number(paymentForm.amount) || 0)}
                   </span>
                 </div>
 
@@ -1128,41 +1141,66 @@ export default function Finance() {
                   <span className={styles.appleCurrencyTag}>UZS</span>
                 </div>
 
+                {/* Smart Proportional Apple Chips */}
                 <div className={styles.appleChipsRow}>
-                  {selectedInvoice && (
-                    <button
-                      type="button"
-                      className={`${styles.appleChip} ${paymentForm.amount === String(selectedInvoice.amount) ? styles.appleChipActive : ''}`}
-                      onClick={() => setPaymentForm((prev) => ({ ...prev, amount: String(selectedInvoice.amount) }))}
-                    >
-                      To'liq ({formatUZS(selectedInvoice.amount)})
-                    </button>
+                  {selectedInvoice ? (
+                    [
+                      {
+                        key: 'full',
+                        percent: '100%',
+                        label: i18n.language === 'en' ? 'Full' : 'To\'liq',
+                        amount: String(selectedInvoice.amount)
+                      },
+                      {
+                        key: 'half',
+                        percent: '50%',
+                        label: i18n.language === 'en' ? 'Half' : 'Yarmi',
+                        amount: String(Math.round(selectedInvoice.amount * 0.5))
+                      },
+                      {
+                        key: 'advance',
+                        percent: '30%',
+                        label: i18n.language === 'en' ? 'Advance' : 'Avans',
+                        amount: String(Math.round(selectedInvoice.amount * 0.3))
+                      }
+                    ].map((chip) => (
+                      <button
+                        key={chip.key}
+                        type="button"
+                        className={`${styles.appleChip} ${paymentForm.amount === chip.amount ? styles.appleChipActive : ''}`}
+                        onClick={() => setPaymentForm((prev) => ({ ...prev, amount: chip.amount }))}
+                      >
+                        <strong className={styles.appleChipPercent}>{chip.percent}</strong>
+                        <span className={styles.appleChipLabel}>{chip.label}</span>
+                      </button>
+                    ))
+                  ) : (
+                    ['300000', '500000', '1000000', '2000000'].map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        className={`${styles.appleChip} ${paymentForm.amount === amt ? styles.appleChipActive : ''}`}
+                        onClick={() => setPaymentForm((prev) => ({ ...prev, amount: amt }))}
+                      >
+                        {formatUZS(Number(amt))}
+                      </button>
+                    ))
                   )}
-                  {['350000', '800000', '1500000', '3000000'].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      className={`${styles.appleChip} ${paymentForm.amount === amt ? styles.appleChipActive : ''}`}
-                      onClick={() => setPaymentForm((prev) => ({ ...prev, amount: amt }))}
-                    >
-                      {formatUZS(Number(amt))}
-                    </button>
-                  ))}
                 </div>
               </div>
 
               {/* Apple Segmented Payment Method Control */}
               <div className={styles.appleMethodSection}>
                 <div className={styles.appleMethodLabel}>
-                  {i18n.language === 'en' ? 'Select payment method' : 'To\'lov usulini tanlang'}
+                  {i18n.language === 'en' ? 'Payment method' : 'To\'lov usuli'}
                 </div>
                 <div className={styles.appleSegmentGrid}>
                   {[
-                    { key: 'Payme', label: 'Payme', icon: <PaymeLogo size={18} /> },
-                    { key: 'Click', label: 'Click', icon: <ClickLogo size={18} /> },
-                    { key: 'Uzcard', label: 'Uzcard', icon: <UzcardLogo size={18} /> },
-                    { key: 'Humo', label: 'Humo', icon: <HumoLogo size={18} /> },
-                    { key: 'Naqd', label: 'Naqd pul', icon: <CashLogo size={18} /> }
+                    { key: 'Payme', label: 'Payme', icon: <PaymeLogo size={22} /> },
+                    { key: 'Click', label: 'Click', icon: <ClickLogo size={22} /> },
+                    { key: 'Uzcard', label: 'Uzcard', icon: <UzcardLogo size={22} /> },
+                    { key: 'Humo', label: 'Humo', icon: <HumoLogo size={22} /> },
+                    { key: 'Naqd', label: i18n.language === 'en' ? 'Cash' : 'Naqd pul', icon: <CashLogo size={22} /> }
                   ].map((m) => (
                     <button
                       key={m.key}
@@ -1171,47 +1209,66 @@ export default function Finance() {
                       onClick={() => setPaymentForm((prev) => ({ ...prev, method: m.key }))}
                     >
                       {m.icon}
-                      <span>{m.label}</span>
+                      <span className={styles.appleSegmentLabel}>{m.label}</span>
+                      {paymentForm.method === m.key && (
+                        <span className={styles.appleSegmentDot} />
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Compact 1-line Card Transfer Strip (Only for online/card) */}
-              {paymentForm.method !== 'Naqd' && (
+              {/* Digital Pass Card Transfer Strip or Cash Notice */}
+              {paymentForm.method !== 'Naqd' ? (
                 <div className={styles.appleTransferStrip}>
                   <div className={styles.appleTransferLeft}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-cyan-hover)' }}>
-                      credit_card
-                    </span>
-                    <span>
-                      Klinika kartasi: <strong>9860 3501 8844 2200</strong>
-                    </span>
+                    <div className={styles.appleTransferCardIcon}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        contactless
+                      </span>
+                    </div>
+                    <div className={styles.appleTransferCardInfo}>
+                      <span className={styles.appleTransferCardLabel}>
+                        {i18n.language === 'en' ? 'Clinic Card (Aloqabank)' : 'Klinika hisob kartasi (Aloqabank)'}
+                      </span>
+                      <strong className={styles.appleTransferCardNum}>9860 3501 8844 2200</strong>
+                    </div>
                   </div>
                   <div className={styles.appleTransferActions}>
                     <button
                       type="button"
-                      className={styles.appleMiniBtn}
+                      className={`${styles.appleMiniBtn} ${copiedCard ? styles.appleMiniBtnCopied : ''}`}
                       onClick={handleCopyClinicCard}
-                      title="Karta raqamini nusxalash"
+                      title={i18n.language === 'en' ? 'Copy card number' : 'Karta raqamini nusxalash'}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                         {copiedCard ? 'check' : 'content_copy'}
                       </span>
-                      <span>{copiedCard ? 'Nusxalandi' : 'Nusxa'}</span>
+                      <span>{copiedCard ? (i18n.language === 'en' ? 'Copied' : 'Nusxalandi') : (i18n.language === 'en' ? 'Copy' : 'Nusxa')}</span>
                     </button>
                     <button
                       type="button"
                       className={styles.appleMiniBtn}
                       onClick={handleSendPaymentSms}
-                      title="Bemorga SMS havola"
+                      title={i18n.language === 'en' ? 'Send SMS payment link to patient' : 'Bemorga SMS havola yuborish'}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                         sms
                       </span>
                       <span>SMS</span>
                     </button>
                   </div>
+                </div>
+              ) : (
+                <div className={styles.appleCashNoticeStrip}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
+                    point_of_sale
+                  </span>
+                  <span>
+                    {i18n.language === 'en'
+                      ? 'Cash Payment: Registered in till & fiscal receipt issued'
+                      : 'Naqd to\'lov: Kassa apparatiga kirim qilinadi va fiskal chek chop etiladi'}
+                  </span>
                 </div>
               )}
 
@@ -1220,12 +1277,12 @@ export default function Finance() {
                 type="submit"
                 className={styles.applePrimaryBtn}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-                  check_circle
+                <span className="material-symbols-outlined" style={{ fontSize: '19px' }}>
+                  lock
                 </span>
                 <span>
                   {selectedInvoice
-                    ? (i18n.language === 'en' ? 'Confirm Settlement' : 'To\'lovni qabul qilish')
+                    ? (i18n.language === 'en' ? 'Confirm Settlement' : 'To\'lovni tasdiqlash')
                     : (i18n.language === 'en' ? 'Confirm Payment' : 'To\'lovni tasdiqlash')}
                   {' '}• {formatUZS(Number(paymentForm.amount) || 0)}
                 </span>

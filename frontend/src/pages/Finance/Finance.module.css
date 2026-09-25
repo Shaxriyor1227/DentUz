@@ -375,15 +375,15 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(11, 15, 25, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalFadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalFadeIn {
@@ -549,112 +549,217 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   APPLE-INSPIRED PAYMENT SHEET (Minimal, Clean, Zero-Scroll)
+   APPLE PAY SHEET — Masterclass Apple Glassmorphism & UI
    ════════════════════════════════════════════════════════════ */
 .appleModalCard {
   width: 100%;
-  max-width: 480px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 22px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
+  max-width: 476px;
+  border-radius: 26px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  animation: paySheetIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
 }
 
+:root .appleModalCard,
+[data-theme='light'] .appleModalCard {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(50px) saturate(190%);
+  -webkit-backdrop-filter: blur(50px) saturate(190%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 12px 32px -4px rgba(0, 0, 0, 0.08),
+    0 32px 64px -12px rgba(0, 0, 0, 0.16);
+}
+
+[data-theme='dark'] .appleModalCard {
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(50px) saturate(190%);
+  -webkit-backdrop-filter: blur(50px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px -4px rgba(0, 0, 0, 0.4),
+    0 32px 64px -12px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes paySheetIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Apple Modal Header ── */
 .appleModalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 14px 24px;
+  padding: 18px 22px 14px 22px;
+  border-bottom: 1px solid rgba(120, 120, 128, 0.08);
+}
+
+.appleModalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.appleIconSquircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+:root .appleIconSquircle,
+[data-theme='light'] .appleIconSquircle {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.12));
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: #0891b2;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
+}
+
+[data-theme='dark'] .appleIconSquircle {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.22), rgba(59, 130, 246, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  color: #22d3ee;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
 }
 
 .appleModalTitleGroup {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .appleModalTitle {
-  font-family: var(--font-display);
-  font-size: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 16.5px;
   font-weight: 700;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.02em;
 }
 
 .appleInvoiceBadge {
-  font-family: var(--font-mono);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
   font-size: 11px;
   font-weight: 700;
   color: var(--color-cyan-hover);
-  background: rgba(6, 182, 212, 0.12);
-  border: 1px solid rgba(6, 182, 212, 0.25);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.24);
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: 20px;
+  letter-spacing: 0.02em;
 }
 
 .appleModalSub {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
   font-size: 12px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
+  letter-spacing: 0.005em;
 }
 
 .appleCloseBtn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
-  background: var(--color-surface-container);
-  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+:root .appleCloseBtn,
+[data-theme='light'] .appleCloseBtn {
+  background: rgba(120, 120, 128, 0.12);
+  color: rgba(60, 60, 67, 0.7);
+}
+
+[data-theme='dark'] .appleCloseBtn {
+  background: rgba(120, 120, 128, 0.22);
+  color: rgba(235, 235, 245, 0.7);
 }
 
 .appleCloseBtn:hover {
-  background: var(--color-surface-container-high);
-  color: var(--color-text-primary);
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
+:root .appleCloseBtn:hover,
+[data-theme='light'] .appleCloseBtn:hover {
+  background: rgba(120, 120, 128, 0.2);
+  color: var(--color-text-primary);
+}
+
+[data-theme='dark'] .appleCloseBtn:hover {
+  background: rgba(120, 120, 128, 0.32);
+  color: #fff;
+}
+
+.appleCloseBtn:active {
+  transform: scale(0.92);
+}
+
+/* ── Form Container ── */
 .appleForm {
-  padding: 0 24px 22px 24px;
+  padding: 16px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-/* Patient Context Card (Apple Receipt style) */
+/* ── Patient Context Card ── */
 .applePatientCard {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: var(--color-surface-container-low);
-  border: 1px solid var(--color-border-subtle);
+  padding: 11px 14px;
+  border-radius: 16px;
+  transition: background 0.2s ease;
+}
+
+:root .applePatientCard,
+[data-theme='light'] .applePatientCard {
+  background: rgba(120, 120, 128, 0.05);
+  border: 1px solid rgba(120, 120, 128, 0.08);
+}
+
+[data-theme='dark'] .applePatientCard {
+  background: rgba(120, 120, 128, 0.1);
+  border: 1px solid rgba(120, 120, 128, 0.14);
 }
 
 .applePatientAvatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
-  color: var(--color-cyan-hover);
+  background: linear-gradient(135deg, #06B6D4, #3B82F6);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
+  box-shadow: 0 3px 10px rgba(6, 182, 212, 0.25);
   flex-shrink: 0;
-  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
 .applePatientInfo {
@@ -666,38 +771,61 @@
 }
 
 .applePatientName {
-  font-size: 13.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .applePatientId {
-  font-family: var(--font-mono);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
   font-size: 11px;
   color: var(--color-text-muted);
+  background: rgba(120, 120, 128, 0.08);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .applePatientMeta {
-  font-size: 11.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 12px;
   color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Hero Amount Box (Apple Cash style) */
+.appleMetaDivider {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+/* ── Hero Amount Box (Apple Cash style) ── */
 .appleHeroAmountBox {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 14px 12px 14px;
-  border-radius: 16px;
-  background: var(--color-surface-container-low);
-  border: 1px solid var(--color-border);
-  gap: 8px;
+  padding: 15px 14px 13px 14px;
+  border-radius: 18px;
+  gap: 10px;
+}
+
+:root .appleHeroAmountBox,
+[data-theme='light'] .appleHeroAmountBox {
+  background: linear-gradient(180deg, rgba(120, 120, 128, 0.04) 0%, rgba(120, 120, 128, 0.07) 100%);
+  border: 1px solid rgba(120, 120, 128, 0.1);
+}
+
+[data-theme='dark'] .appleHeroAmountBox {
+  background: linear-gradient(180deg, rgba(120, 120, 128, 0.08) 0%, rgba(120, 120, 128, 0.12) 100%);
+  border: 1px solid rgba(120, 120, 128, 0.16);
 }
 
 .appleAmountHeader {
@@ -705,13 +833,22 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  padding: 0 4px;
 }
 
 .appleAmountLabel {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+}
+
+.appleAmountHeaderTotal {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--color-text-secondary);
 }
 
@@ -719,88 +856,134 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
 }
 
 .appleAmountInput {
   background: transparent;
   border: none;
-  font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 800;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 38px;
+  font-weight: 700;
   color: var(--color-text-primary);
   text-align: center;
   outline: none;
   width: 100%;
-  max-width: 320px;
-  letter-spacing: -0.02em;
+  max-width: 290px;
+  letter-spacing: -0.025em;
+  caret-color: var(--color-cyan-hover);
+}
+
+.appleAmountInput::placeholder {
+  color: var(--color-text-muted);
 }
 
 .appleCurrencyTag {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 15px;
+  font-weight: 800;
   color: var(--color-cyan-hover);
+  letter-spacing: 0.02em;
 }
 
+/* ── Proportional Quick Chips ── */
 .appleChipsRow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .appleChip {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 3px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  text-align: center;
+  white-space: nowrap;
+}
+
+:root .appleChip,
+[data-theme='light'] .appleChip {
+  background: rgba(120, 120, 128, 0.08);
+  color: var(--color-text-secondary);
+}
+
+[data-theme='dark'] .appleChip {
+  background: rgba(120, 120, 128, 0.16);
+  color: var(--color-text-secondary);
 }
 
 .appleChip:hover {
-  border-color: var(--color-cyan);
-  color: var(--color-cyan);
-  background: rgba(6, 182, 212, 0.08);
+  border-color: rgba(6, 182, 212, 0.4);
+  color: var(--color-cyan-hover);
+  transform: translateY(-1px);
 }
 
 .appleChipActive {
-  background: rgba(6, 182, 212, 0.15) !important;
-  border-color: var(--color-cyan) !important;
+  background: rgba(6, 182, 212, 0.14) !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
   color: var(--color-cyan-hover) !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.18);
 }
 
-/* Payment Method Segmented Buttons */
+.appleChipPercent {
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11.5px;
+}
+
+.appleChipLabel {
+  opacity: 0.85;
+  font-size: 11.5px;
+}
+
+/* ── Payment Method Segmented Control ── */
 .appleMethodSection {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .appleMethodLabel {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-secondary);
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
 }
 
 .appleSegmentGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-  background: var(--color-surface-container-low);
+  gap: 5px;
   padding: 4px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border-subtle);
+  border-radius: 16px;
+}
+
+:root .appleSegmentGrid,
+[data-theme='light'] .appleSegmentGrid {
+  background: rgba(120, 120, 128, 0.06);
+  border: 1px solid rgba(120, 120, 128, 0.1);
+}
+
+[data-theme='dark'] .appleSegmentGrid {
+  background: rgba(120, 120, 128, 0.1);
+  border: 1px solid rgba(120, 120, 128, 0.14);
 }
 
 .appleSegmentBtn {
@@ -808,55 +991,131 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 7px 4px;
-  border-radius: 9px;
+  gap: 4px;
+  padding: 9px 3px 7px;
+  border-radius: 12px;
   background: transparent;
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: var(--font-body);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  position: relative;
+}
+
+.appleSegmentLabel {
   font-size: 11px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.appleSegmentDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-cyan-hover);
+  position: absolute;
+  bottom: 2px;
 }
 
 .appleSegmentBtn:hover {
-  background: var(--color-surface-container);
   color: var(--color-text-primary);
 }
 
-.appleSegmentBtnActive {
-  background: var(--color-surface) !important;
-  color: var(--color-cyan-hover) !important;
-  border-color: rgba(6, 182, 212, 0.35) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(6, 182, 212, 0.25) !important;
+:root .appleSegmentBtn:hover,
+[data-theme='light'] .appleSegmentBtn:hover {
+  background: rgba(120, 120, 128, 0.08);
 }
 
-/* Quick 1-line Card Transfer Strip */
+[data-theme='dark'] .appleSegmentBtn:hover {
+  background: rgba(120, 120, 128, 0.16);
+}
+
+.appleSegmentBtnActive {
+  color: var(--color-cyan-hover) !important;
+  transform: translateY(-1px);
+}
+
+:root .appleSegmentBtnActive,
+[data-theme='light'] .appleSegmentBtnActive {
+  background: #FFFFFF !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(6, 182, 212, 0.25) !important;
+}
+
+[data-theme='dark'] .appleSegmentBtnActive {
+  background: rgba(44, 44, 46, 0.95) !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(6, 182, 212, 0.3) !important;
+}
+
+/* ── Digital Pass Card Transfer Strip ── */
 .appleTransferStrip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 12px;
-  border-radius: 10px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  gap: 10px;
+  animation: chipSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes chipSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:root .appleTransferStrip,
+[data-theme='light'] .appleTransferStrip {
   background: rgba(6, 182, 212, 0.06);
   border: 1px solid rgba(6, 182, 212, 0.2);
-  gap: 8px;
-  animation: modalFadeIn 0.2s ease;
+}
+
+[data-theme='dark'] .appleTransferStrip {
+  background: rgba(6, 182, 212, 0.09);
+  border: 1px solid rgba(6, 182, 212, 0.25);
 }
 
 .appleTransferLeft {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
-  color: var(--color-text-secondary);
+  gap: 9px;
 }
 
-.appleTransferLeft strong {
-  font-family: var(--font-mono);
+.appleTransferCardIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 182, 212, 0.14);
+  color: var(--color-cyan-hover);
+  flex-shrink: 0;
+}
+
+.appleTransferCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.appleTransferCardLabel {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.appleTransferCardNum {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 12px;
   color: var(--color-text-primary);
+  font-weight: 700;
   letter-spacing: 0.04em;
 }
 
@@ -869,16 +1128,25 @@
 .appleMiniBtn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: var(--color-surface);
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 9px;
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  font-size: 10.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.16s ease;
+}
+
+:root .appleMiniBtn,
+[data-theme='light'] .appleMiniBtn {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme='dark'] .appleMiniBtn {
+  background: rgba(44, 44, 46, 0.7);
 }
 
 .appleMiniBtn:hover {
@@ -886,33 +1154,86 @@
   color: var(--color-cyan);
 }
 
-/* Apple Primary Action Button */
+.appleMiniBtn:active {
+  transform: scale(0.95);
+}
+
+.appleMiniBtnCopied {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #10B981 !important;
+}
+
+/* ── Cash Notice Strip ── */
+.appleCashNoticeStrip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  animation: chipSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root .appleCashNoticeStrip,
+[data-theme='light'] .appleCashNoticeStrip {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #047857;
+}
+
+[data-theme='dark'] .appleCashNoticeStrip {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34D399;
+}
+
+/* ── Primary CTA (Apple Pay-style Button) ── */
 .applePrimaryBtn {
   width: 100%;
-  height: 44px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  border-radius: 15px;
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 55%, #0E7490 100%);
   color: #FFFFFF;
-  font-family: var(--font-body);
-  font-size: 13.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 15px;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 3px 10px rgba(6, 182, 212, 0.35),
+    0 10px 28px rgba(6, 182, 212, 0.22);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.applePrimaryBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+  pointer-events: none;
 }
 
 .applePrimaryBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.45);
+  box-shadow:
+    0 5px 14px rgba(6, 182, 212, 0.4),
+    0 14px 34px rgba(6, 182, 212, 0.28);
 }
 
 .applePrimaryBtn:active {
-  transform: scale(0.99);
+  transform: scale(0.98) translateY(0);
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
 }
 
 .modalFooter {
@@ -1535,11 +1856,11 @@
   }
 
   .appleModalCard {
-    width: calc(100% - 24px);
-    max-width: 100%;
-    margin: 12px auto;
-    max-height: calc(100dvh - 24px);
-    border-radius: 18px;
+    width: 100%;
+    max-width: 440px;
+    margin: 8px auto;
+    max-height: calc(100dvh - 20px);
+    border-radius: 20px;
   }
 
   .thermalModalCard {
@@ -1614,16 +1935,55 @@
     justify-content: center;
   }
 
+  .appleModalCard {
+    border-radius: 20px;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
   .appleModalHeader {
-    padding: 16px 16px 10px 16px;
+    padding: 16px 16px 12px 16px;
   }
 
-  .appleModalBody {
-    padding: 12px 16px;
+  .appleForm {
+    padding: 12px 16px 18px 16px;
+    gap: 12px;
   }
 
-  .appleModalFooter {
-    padding: 12px 16px 16px 16px;
+  .appleAmountInput {
+    font-size: 32px;
+  }
+
+  .appleSegmentGrid {
+    gap: 4px;
+    padding: 3px;
+  }
+
+  .appleSegmentBtn {
+    padding: 8px 2px 6px;
+  }
+
+  .appleSegmentLabel {
+    font-size: 10px;
+  }
+
+  .appleChipsRow {
+    gap: 6px;
+  }
+
+  .appleChip {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .appleTransferStrip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .appleTransferActions {
+    justify-content: flex-end;
   }
 
   .receiptActions {

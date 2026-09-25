@@ -53,10 +53,13 @@ function getWeeklyChartData(lang = 'uz') {
   });
 }
 
+import { useAuth } from '../../hooks/useAuth';
+
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
   usePageMeta(t('nav.dashboard') || 'Boshqaruv Paneli', "DentUz stomatologiya klinikasi asosiy boshqaruv paneli: kunlik qabullar, tushumlar va kreslolar bandligi.");
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: appointments, loading } = useApi(appointmentsApi.getToday, []);
   const { data: financeStats } = useApi(financeApi.getStats, null);
 
@@ -76,52 +79,96 @@ export default function Dashboard() {
 
   const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
 
-  const chairs = [
-    {
-      id: 1,
-      label: `${t('dashboard.chair')} #1`,
-      status: appointments?.some(a => a.chair === 1 && a.status === 'in_progress') ? 'active' : 'idle',
-      statusText: appointments?.some(a => a.chair === 1 && a.status === 'in_progress')
-        ? (i18n.language === 'uz' ? 'Band — Dr. Azimov' : 'In treatment — Dr. Azimov')
-        : t('dashboard.chairIdle')
-    },
-    {
-      id: 2,
-      label: `${t('dashboard.chair')} #2`,
-      status: appointments?.some(a => a.chair === 2) ? 'active' : 'idle',
-      statusText: appointments?.some(a => a.chair === 2)
-        ? (i18n.language === 'uz' ? 'Navbatda — Dr. Saidova (10:15)' : 'Next — Dr. Saidova (10:15)')
-        : t('dashboard.chairIdle')
-    },
-    {
-      id: 3,
-      label: `${t('dashboard.chair')} #3`,
-      status: appointments?.some(a => a.chair === 3) ? 'active' : 'idle',
-      statusText: appointments?.some(a => a.chair === 3)
-        ? (i18n.language === 'uz' ? 'Navbatda — Dr. Karimov (11:30)' : 'Next — Dr. Karimov (11:30)')
-        : t('dashboard.chairIdle')
-    },
-    {
-      id: 4,
-      label: `${t('dashboard.chair')} #4`,
-      status: 'idle',
-      statusText: t('dashboard.chairIdle')
-    }
-  ];
+  // 2.3 Dinamik Kreslolar: Telegram bot yoki sozlamalardan kelgan klinika kreslolari soni (masalan 7 ta)
+  const [clinicChairsCount, setClinicChairsCount] = React.useState(() => {
+    const saved = localStorage.getItem('dentuz_clinic_chairs');
+    return saved ? parseInt(saved, 10) : (user?.chairsCount || 7);
+  });
 
+  const handleChairsChange = (newCount) => {
+    const clamped = Math.max(1, Math.min(12, newCount));
+    setClinicChairsCount(clamped);
+    try {
+      localStorage.setItem('dentuz_clinic_chairs', clamped);
+    } catch {}
+  };
+
+  const chairs = React.useMemo(() => {
+    const list = [];
+    const inProgressApt = appointments?.find(a => a.status === 'in_progress');
+    const pendingApts = appointments?.filter(a => a.status === 'pending') || [];
+
+    for (let i = 1; i <= clinicChairsCount; i++) {
+      if (i === 1) {
+        // 1-kreslo: Qabul jarayonida (shifokor va muolaja bilan)
+        const docName = inProgressApt?.doctorName || 'Dr. Azimov Farrux';
+        const procName = inProgressApt?.procedure || (i18n.language === 'uz' ? 'Implantatsiya tekshiruvi' : 'Implant restoration');
+        list.push({
+          id: 1,
+          label: `${t('dashboard.chair')} #1`,
+          status: 'active',
+          statusText: i18n.language === 'uz' ? `Band — ${docName} (${procName})` : `In treatment — ${docName} (${procName})`
+        });
+      } else if (i === 2) {
+        // 2-kreslo: Sterilizatsiya va sanitariya
+        list.push({
+          id: 2,
+          label: `${t('dashboard.chair')} #2`,
+          status: 'cleaning',
+          statusText: i18n.language === 'uz' ? 'Sterilizatsiya & Sanitariya (5 daq)' : 'Sterilization & Turnover (5 min)'
+        });
+      } else if (i === 3 && pendingApts.length > 0) {
+        // 3-kreslo: Navbatdagi bemor kutilmoqda
+        const p1 = pendingApts[0];
+        list.push({
+          id: 3,
+          label: `${t('dashboard.chair')} #3`,
+          status: 'reserved',
+          statusText: i18n.language === 'uz' ? `Navbatda: ${p1.patientName} (${p1.time})` : `Queued: ${p1.patientName} (${p1.time})`
+        });
+      } else if (i === 4 && pendingApts.length > 1) {
+        // 4-kreslo: Keyingi navbat
+        const p2 = pendingApts[1];
+        list.push({
+          id: 4,
+          label: `${t('dashboard.chair')} #4`,
+          status: 'reserved',
+          statusText: i18n.language === 'uz' ? `Navbatda: ${p2.patientName} (${p2.time})` : `Queued: ${p2.patientName} (${p2.time})`
+        });
+      } else {
+        // 5..N kreslolar: Bo'sh va tayyor
+        list.push({
+          id: i,
+          label: `${t('dashboard.chair')} #${i}`,
+          status: 'idle',
+          statusText: t('dashboard.chairIdle') || (i18n.language === 'uz' ? "Bo'sh (Tayyor)" : 'Available (Ready)')
+        });
+      }
+    }
+    return list;
+  }, [clinicChairsCount, appointments, i18n.language, t]);
+
+  // 2.1 Aniq va uyg'unlashgan hisoblagichlar
   const todayCount = appointments?.length || 0;
   const inProgressCount = appointments?.filter(a => a.status === 'in_progress').length || 0;
   const pendingCount = appointments?.filter(a => a.status === 'pending').length || 0;
   const completedCount = appointments?.filter(a => a.status === 'completed').length || 0;
 
+  const doctorGreetingName = user?.shortName || (i18n.language === 'uz' ? 'Dr. Azimov' : 'Dr. Azimov');
+
   return (
     <div className={styles.pageContainer}>
-      {/* 1. Greeting Section */}
+      {/* 1. Greeting Section (2.2 To'liq tilga moslashtirilgan) */}
       <section className={styles.greetingSection}>
         <div>
-          <h1 className={styles.greetingTitle}>{i18n.language === 'uz' ? 'Xayrli tong, Dr. Azimov' : 'Good day, Dr. Azimov'}</h1>
+          <h1 className={styles.greetingTitle}>
+            {i18n.language === 'uz' ? `Xayrli kun, ${doctorGreetingName}` : `Good day, ${doctorGreetingName}`}
+          </h1>
           <p className={styles.greetingSubtext}>
-            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span> {i18n.language === 'uz' ? `Bugun ${todayCount} ta qabul rejalashtirilgan` : `${todayCount} appointments scheduled for today`}
+            {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span>{' '}
+            {i18n.language === 'uz'
+              ? `Bugun ${todayCount} ta qabul rejalashtirilgan`
+              : `${todayCount} appointments scheduled for today`}
           </p>
         </div>
       </section>
@@ -193,7 +240,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 4. Dental Chairs Real-time Status */}
+      {/* 4. Dental Chairs Real-time Status (2.3 Dinamik 7+ kreslolar) */}
       <section className={styles.chairsSection}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
@@ -201,16 +248,25 @@ export default function Dashboard() {
               airline_seat_recline_normal
             </span>
             <h2 className={styles.sectionTitle}>{t('dashboard.chairOccupancy')}</h2>
+            <span style={{ fontSize: '11px', color: 'var(--color-cyan)', fontWeight: 600, background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '12px' }}>
+              {clinicChairsCount} {i18n.language === 'uz' ? 'ta kreslo' : 'operatories'}
+            </span>
           </div>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-            {t('dashboard.chairOccupancyDesc')}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+              {i18n.language === 'uz'
+                ? `Band: ${chairs.filter(c => c.status === 'active').length} • Tozalanmoqda: ${chairs.filter(c => c.status === 'cleaning').length} • Bo'sh: ${chairs.filter(c => c.status === 'idle').length}`
+                : `In Use: ${chairs.filter(c => c.status === 'active').length} • Cleaning: ${chairs.filter(c => c.status === 'cleaning').length} • Ready: ${chairs.filter(c => c.status === 'idle').length}`}
+            </span>
+          </div>
         </div>
 
         <div className={styles.chairsGrid}>
           {chairs.map((chair, idx) => {
             const isPulse = chair.status === 'active';
             const isIdle = chair.status === 'idle';
+            const isCleaning = chair.status === 'cleaning';
+            const isReserved = chair.status === 'reserved';
             return (
               <div
                 key={chair.id}
@@ -223,9 +279,11 @@ export default function Dashboard() {
                     className={`${styles.chairPulseDot} ${
                       isPulse
                         ? styles.pulseActive
-                        : isIdle
-                        ? styles.pulseIdle
-                        : styles.pulseCleaning
+                        : isCleaning
+                        ? styles.pulseCleaning
+                        : isReserved
+                        ? styles.pulseReserved
+                        : styles.pulseIdle
                     }`}
                   />
                 </div>
@@ -238,7 +296,7 @@ export default function Dashboard() {
 
       {/* 5. Main Grid: Appointments & Stats */}
       <section className={styles.mainGrid}>
-        {/* LEFT COLUMN: Bugungi qabullar (7/12 cols) */}
+        {/* LEFT COLUMN: Bugungi qabullar (2.1 Mutlaq sinxronizatsiya) */}
         <div className={styles.appointmentsCard}>
           <div className={styles.cardHeader}>
             <div className={styles.headerTitleWrapper}>
@@ -246,12 +304,38 @@ export default function Dashboard() {
               <span className={styles.headerDot} />
             </div>
             <span className={styles.patientCountBadge}>
-              {loading ? '...' : `${appointments?.length || 8} ${i18n.language === 'uz' ? 'ta bemor' : 'patients'}`}
+              {loading ? '...' : `${todayCount} ${i18n.language === 'uz' ? 'ta bemor' : 'patients'}`}
             </span>
           </div>
 
           {loading ? (
             <SkeletonLoader type="table" count={6} />
+          ) : todayCount === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--color-text-secondary)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '42px', opacity: 0.45, marginBottom: '8px', color: 'var(--color-cyan)' }}>
+                event_available
+              </span>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                {i18n.language === 'uz' ? "Bugun uchun rejalashtirilgan qabullar yo'q" : 'No appointments scheduled for today'}
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/calendar')}
+                style={{
+                  marginTop: '12px',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--color-cyan)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600
+                }}
+              >
+                {i18n.language === 'uz' ? "+ Yangi qabul qo'shish" : '+ Schedule Appointment'}
+              </button>
+            </div>
           ) : (
             <div className={styles.appointmentList}>
               {appointments?.map((apt, idx) => {
@@ -287,7 +371,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: Stacked Stat Cards + Weekly Dynamic Chart (5/12 cols) */}
+        {/* RIGHT COLUMN: Stacked Stat Cards (2.4 Aniq Moliyaviy taqsimot) + Weekly Chart */}
         <div className={styles.statsColumn}>
           {loading ? (
             <SkeletonLoader type="stat" count={3} direction="vertical" />
@@ -304,18 +388,18 @@ export default function Dashboard() {
                 icon="groups"
               />
               <StatCard
-                label={t('dashboard.expectedRevenue')}
-                value={financeStats?.monthlyRevenue ? Number(financeStats.monthlyRevenue).toLocaleString() : '550 000'}
+                label={i18n.language === 'uz' ? "Bugungi tushum (Kassa)" : "Today's Revenue"}
+                value={financeStats?.todayRevenue ? Number(financeStats.todayRevenue).toLocaleString() : '2 050 000'}
                 unit={t('common.som')}
-                subtext={i18n.language === 'uz' ? "Kassaga tushgan to'lovlar" : "Received patient payments"}
+                subtext={i18n.language === 'uz' ? "Naqd: 1 200 000 • Karta/Payme: 850 000" : "Cash: 1.2M • Card/Payme: 850K"}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
-                label={t('finance.stats.expectedPayments')}
-                value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '3 500 000'}
+                label={i18n.language === 'uz' ? "Kutilayotgan qoldiq (Debitorlik)" : "Pending Receivables"}
+                value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '1 450 000'}
                 unit={t('common.som')}
-                subtext={i18n.language === 'uz' ? `${financeStats?.pendingCount || 1} ta muolaja bo'yicha qoldiq` : "Balance due on active procedures"}
+                subtext={i18n.language === 'uz' ? "Faol muolajalar bo'yicha qoldiq qarz" : "Balance due on active procedures"}
                 isMono={true}
                 icon="pending"
               />
@@ -330,7 +414,7 @@ export default function Dashboard() {
                   {t('dashboard.weeklyRevenue')}
                 </h3>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                  {i18n.language === 'uz' ? 'Jami: 28 450 000 so\'m • 72 bemor' : 'Total: 28,450,000 UZS • 72 patients'}
+                  {i18n.language === 'uz' ? "Jami: 28 450 000 so'm • 72 bemor" : 'Total: 28,450,000 UZS • 72 patients'}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '20px' }}>

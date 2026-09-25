@@ -456,6 +456,11 @@
   border-color: var(--color-mint);
 }
 
+.toothBoxExtracted {
+  opacity: 0.55;
+  border-style: dashed !important;
+}
+
 .toothLabel {
   font-family: var(--font-mono);
   font-size: 10px;

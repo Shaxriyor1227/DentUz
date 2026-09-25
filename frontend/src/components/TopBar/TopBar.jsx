@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useSidebar } from '../../context/SidebarContext';
+import { patientsApi } from '../../api/patientsApi';
 import styles from './TopBar.module.css';
 
 const INITIAL_NOTIFICATIONS = [
@@ -61,26 +62,29 @@ const INITIAL_NOTIFICATIONS = [
 
 const ALL_SEARCH_ITEMS = [
   // Bemorlar
-  { id: 'p-1042', category: 'patients', type: 'Bemor', title: 'Anvar Qosimov', meta: '+998 90 842 11 00', keywords: 'p-1042 terapiya', path: '/patients/1042', icon: 'person' },
-  { id: 'p-1043', category: 'patients', type: 'Bemor', title: 'Malika Saidova', meta: '+998 93 319 44 28', keywords: 'p-1043 ortopediya', path: '/patients', icon: 'person' },
-  { id: 'p-1044', category: 'patients', type: 'Bemor', title: 'Jamshid Karimov', meta: '+998 97 712 33 44', keywords: 'p-1044 jarrohlik', path: '/patients', icon: 'person' },
-  { id: 'p-1045', category: 'patients', type: 'Bemor', title: 'Shahnoza Aliyeva', meta: '+998 91 555 88 99', keywords: 'p-1045 ortodontiya', path: '/patients', icon: 'person' },
-  { id: 'p-1046', category: 'patients', type: 'Bemor', title: 'Rustam Oripov', meta: '+998 90 123 45 67', keywords: 'p-1046 implantatsiya', path: '/patients', icon: 'person' },
-  { id: 'p-1047', category: 'patients', type: 'Bemor', title: 'Nigora Zokirova', meta: '+998 94 888 22 11', keywords: 'p-1047 terapiya', path: '/patients', icon: 'person' },
+  { id: 'p-1042', category: 'patients', type: 'Bemor', title: 'Anvar Qosimov', meta: '+998 90 842 11 00 • Karies davolash', keywords: 'p-1042 terapiya karies anvar', path: '/patients/1042', icon: 'person' },
+  { id: 'p-1043', category: 'patients', type: 'Bemor', title: 'Malika Saidova', meta: '+998 93 319 44 28 • Ortodontik ko\'rik', keywords: 'p-1043 ortopediya ortodontiya malika', path: '/patients/1043', icon: 'person' },
+  { id: 'p-1044', category: 'patients', type: 'Bemor', title: 'Jamshid Karimov', meta: '+998 97 711 09 85 • Tish tozalash', keywords: 'p-1044 jarrohlik tozalash gigiyena jamshid', path: '/patients/1044', icon: 'person' },
+  { id: 'p-1045', category: 'patients', type: 'Bemor', title: 'Nilufar Rahimova', meta: '+998 91 445 22 19 • Zoom 4 oqartirish', keywords: 'p-1045 tish oqartirish zoom nilufar', path: '/patients/1045', icon: 'person' },
+  { id: 'p-1046', category: 'patients', type: 'Bemor', title: 'Shahnoza Aliyeva', meta: '+998 91 555 88 99 • Breket tizimi', keywords: 'p-1046 ortodontiya breket shahnoza', path: '/patients/1046', icon: 'person' },
+  { id: 'p-1047', category: 'patients', type: 'Bemor', title: 'Rustam Oripov', meta: '+998 90 123 45 67 • Straumann implant', keywords: 'p-1047 implantatsiya protez rustam', path: '/patients/1047', icon: 'person' },
+  { id: 'p-1048', category: 'patients', type: 'Bemor', title: 'Nigora Zokirova', meta: '+998 94 888 22 11 • Plomba & Estetika', keywords: 'p-1048 terapiya plomba nigora', path: '/patients/1048', icon: 'person' },
+  { id: 'p-1049', category: 'patients', type: 'Bemor', title: 'Dilshod Normurodov', meta: '+998 93 111 22 33 • Ildiz kanali (Endo)', keywords: 'p-1049 endodontiya ildiz kanal dilshod', path: '/patients/1049', icon: 'person' },
+  { id: 'p-1050', category: 'patients', type: 'Bemor', title: 'Zarina Salimova', meta: '+998 90 777 55 44 • Profilaktik ko\'rik', keywords: 'p-1050 gigiyena tozalash zarina', path: '/patients/1050', icon: 'person' },
 
   // Bo'limlar
-  { id: 'nav-1', category: 'pages', type: "Bo'lim", title: 'Dashboard', meta: 'Statistika va tahlillar', keywords: 'asosiy analitika', path: '/dashboard', icon: 'grid_view' },
-  { id: 'nav-2', category: 'pages', type: "Bo'lim", title: 'Bemorlar Bazasi', meta: "Bemorlar ro'yxati", keywords: 'kartalar ambulatoriya', path: '/patients', icon: 'group' },
-  { id: 'nav-3', category: 'pages', type: "Bo'lim", title: 'Taqvim va Bandlik', meta: 'Qabullar jadvali', keywords: 'grafik navbat', path: '/calendar', icon: 'calendar_today' },
-  { id: 'nav-4', category: 'pages', type: "Bo'lim", title: 'Davolash Rejasi', meta: 'Tish xaritasi va smeta', keywords: '3d reja stomatologiya', path: '/treatment-plan', icon: 'healing' },
-  { id: 'nav-5', category: 'pages', type: "Bo'lim", title: 'Moliya va Hisoblar', meta: "Kassa va to'lovlar", keywords: 'invoys qarz payme', path: '/finance', icon: 'account_balance_wallet' },
-  { id: 'nav-6', category: 'pages', type: "Bo'lim", title: 'Tizim Sozlamalari', meta: 'Klinika parametrlari', keywords: 'xodimlar servis', path: '/settings', icon: 'settings' },
+  { id: 'nav-1', category: 'pages', type: "Bo'lim", title: 'Dashboard', meta: 'Klinika tahlillari va operatsion kreslolar', keywords: 'asosiy analitika monitor kreslo boshqaruv', path: '/dashboard', icon: 'grid_view' },
+  { id: 'nav-2', category: 'pages', type: "Bo'lim", title: 'Bemorlar Bazasi', meta: 'Ambulatoriya kartalari va bemorlar ro\'yxati', keywords: 'kartalar ambulatoriya bemorlar royxat', path: '/patients', icon: 'group' },
+  { id: 'nav-3', category: 'pages', type: "Bo'lim", title: 'Taqvim va Bandlik', meta: 'Operatsion kreslolar va qabullar jadvali', keywords: 'grafik navbat rejalashtirish jadval taqvim', path: '/calendar', icon: 'calendar_today' },
+  { id: 'nav-4', category: 'pages', type: "Bo'lim", title: 'Davolash Rejasi', meta: '3D FDI Odontogramma va muolaja smetasi', keywords: '3d reja stomatologiya odontogramma narx xarita', path: '/treatment-plan', icon: 'healing' },
+  { id: 'nav-5', category: 'pages', type: "Bo'lim", title: 'Moliya va Hisoblar', meta: 'Kassa tushumi, tushumlar va qoldiq qarzlar', keywords: 'invoys qarz kassa hisobot daromad moliya', path: '/finance', icon: 'account_balance_wallet' },
+  { id: 'nav-6', category: 'pages', type: "Bo'lim", title: 'Tizim Sozlamalari', meta: 'Kreslolar soni, xodimlar huquqlari va xizmatlar', keywords: 'xodimlar servis kreslo narxlar jamoa sozlama', path: '/settings', icon: 'settings' },
 
   // Tezkor Amallar
-  { id: 'act-1', category: 'actions', type: 'Amal', title: 'Yangi qabul belgilash', meta: 'Taqvimga kiritish', keywords: 'yozilish bron', path: '/calendar', icon: 'add_alarm' },
-  { id: 'act-2', category: 'actions', type: 'Amal', title: "Yangi bemor ro'yxatga olish", meta: 'Karta ochish', keywords: 'bemor qoshish', path: '/patients', icon: 'person_add' },
-  { id: 'act-3', category: 'actions', type: 'Amal', title: 'Davolash rejasini eksport qilish', meta: 'PDF hisobot', keywords: 'chop etish yuklab olish', path: '/treatment-plan', icon: 'picture_as_pdf' },
-  { id: 'act-4', category: 'actions', type: 'Amal', title: 'Mavzuni almashtirish', meta: "Dark / Light rejim", keywords: 'tungi kunduzgi fon', actionType: 'toggle_theme', icon: 'dark_mode' }
+  { id: 'act-1', category: 'actions', type: 'Amal', title: 'Yangi qabul belgilash', meta: 'Taqvimga tezkor yozish', keywords: 'yozilish bron qabul belgilash', path: '/calendar', icon: 'add_alarm' },
+  { id: 'act-2', category: 'actions', type: 'Amal', title: "Yangi bemor ro'yxatga olish", meta: 'Elektron ambulator karta ochish', keywords: 'bemor qoshish yangi karta royxat', path: '/patients', icon: 'person_add' },
+  { id: 'act-3', category: 'actions', type: 'Amal', title: 'Davolash rejasini eksport qilish', meta: 'PDF hisobot chiqarish', keywords: 'chop etish yuklab olish pdf eksport', path: '/treatment-plan', icon: 'picture_as_pdf' },
+  { id: 'act-4', category: 'actions', type: 'Amal', title: 'Mavzuni almashtirish', meta: "Tungi / Kunduzgi rejim (Dark/Light)", keywords: 'tungi kunduzgi fon mavzu theme dark light', actionType: 'toggle_theme', icon: 'dark_mode' }
 ];
 
 export default function TopBar() {
@@ -100,6 +104,28 @@ export default function TopBar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const itemRefs = useRef({});
+  const isKeyboardNav = useRef(false);
+  const searchInputRef = useRef(null);
+  const resultsContainerRef = useRef(null);
+  const [backendPatients, setBackendPatients] = useState([]);
+
+  // Fetch real backend patients so search is 100% in sync with database
+  useEffect(() => {
+    let active = true;
+    async function fetchClinicPatients() {
+      try {
+        const res = await patientsApi.getAll({ pageSize: 50 });
+        if (active && res?.items && res.items.length > 0) {
+          setBackendPatients(res.items);
+        }
+      } catch (err) {
+        console.warn('Backend patients fetch fallback:', err);
+      }
+    }
+    fetchClinicPatients();
+    return () => { active = false; };
+  }, []);
 
   // Notifications state
   const [notifOpen, setNotifOpen] = useState(false);
@@ -197,39 +223,109 @@ export default function TopBar() {
     }
   };
 
-  // Search Results filtering
-  const flattenedResults = useMemo(() => {
-    if (!searchQuery.trim()) return ALL_SEARCH_ITEMS;
-    const q = searchQuery.toLowerCase().trim();
-    return ALL_SEARCH_ITEMS.filter(
+  // Static items (pages + actions) — always available
+  const STATIC_ITEMS = useMemo(() => {
+    return ALL_SEARCH_ITEMS.filter((item) => item.category !== 'patients');
+  }, []);
+
+  // Search Results filtering — show patients ONLY when user types a query
+  const filteredSearchItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+
+    if (!q) {
+      // No query → show only pages and actions, NOT a huge patient list
+      return STATIC_ITEMS;
+    }
+
+    // Build patient list from backend data (or fallback to static)
+    const patientSource = backendPatients.length > 0
+      ? backendPatients.map((p) => {
+          const cleanId = (p.id || '').replace(/^P-/i, '');
+          return {
+            id: `p-${cleanId || p._id || p.id}`,
+            category: 'patients',
+            title: p.name,
+            meta: `${p.phone || ''}${p.lastProcedure ? ' • ' + p.lastProcedure : ''}`,
+            keywords: `${p.id || ''} ${p.name || ''} ${p.phone || ''} ${p.lastProcedure || ''}`.toLowerCase(),
+            path: `/patients/${cleanId}`,
+            icon: 'person'
+          };
+        })
+      : ALL_SEARCH_ITEMS.filter((item) => item.category === 'patients');
+
+    const allItems = [...patientSource, ...STATIC_ITEMS];
+
+    const filtered = allItems.filter(
       (item) =>
         item.title.toLowerCase().includes(q) ||
         (item.meta && item.meta.toLowerCase().includes(q)) ||
-        (item.keywords && item.keywords.toLowerCase().includes(q)) ||
-        (item.type && item.type.toLowerCase().includes(q))
+        (item.keywords && item.keywords.toLowerCase().includes(q))
     );
-  }, [searchQuery]);
+
+    // Limit patients to max 8 in results so it stays clean
+    const patients = filtered.filter(i => i.category === 'patients').slice(0, 8);
+    const others = filtered.filter(i => i.category !== 'patients');
+    return [...patients, ...others];
+  }, [searchQuery, backendPatients, STATIC_ITEMS]);
 
   const groupedResults = useMemo(() => {
+    const isEn = i18n.language === 'en';
     const categories = [
-      { key: 'patients', label: 'Bemorlar' },
-      { key: 'pages', label: "Bo'limlar" },
-      { key: 'actions', label: 'Tezkor Amallar' }
+      { key: 'patients', label: isEn ? 'Patients' : 'Bemorlar' },
+      { key: 'pages', label: isEn ? 'Pages & Sections' : "Bo'limlar" },
+      { key: 'actions', label: isEn ? 'Quick Actions' : 'Tezkor Amallar' }
     ];
     return categories
       .map((cat) => ({
         category: cat.key,
         categoryLabel: cat.label,
-        items: flattenedResults.filter((item) => item.category === cat.key)
+        items: filteredSearchItems.filter((item) => item.category === cat.key)
       }))
       .filter((group) => group.items.length > 0);
-  }, [flattenedResults]);
+  }, [filteredSearchItems, i18n.language]);
+
+  // Visual flattened results in the EXACT order they are rendered
+  const visualResults = useMemo(() => {
+    return groupedResults.flatMap((group) => group.items);
+  }, [groupedResults]);
+
+  // Pre-compute index map for O(1) lookups — avoid findIndex on every render
+  const indexMap = useMemo(() => {
+    const map = {};
+    visualResults.forEach((item, i) => { map[item.id] = i; });
+    return map;
+  }, [visualResults]);
 
   useEffect(() => {
     if (searchOpen) {
       setSelectedIndex(0);
+      itemRefs.current = {};
+      isKeyboardNav.current = false;
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }, 40);
+      return () => clearTimeout(timer);
     }
-  }, [searchOpen, searchQuery]);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+    isKeyboardNav.current = false;
+  }, [searchQuery]);
+
+  // Keep selected item visible in viewport with smooth auto-scroll
+  useEffect(() => {
+    if (!searchOpen) return;
+    const activeEl = itemRefs.current[selectedIndex];
+    if (activeEl) {
+      activeEl.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+        behavior: isKeyboardNav.current ? 'smooth' : 'auto'
+      });
+    }
+  }, [selectedIndex, searchOpen]);
 
   const handleSelectResult = (item) => {
     if (!item) return;
@@ -243,18 +339,26 @@ export default function TopBar() {
   };
 
   const handleModalKeyDown = (e) => {
-    if (flattenedResults.length === 0) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setSearchOpen(false);
+      return;
+    }
+
+    if (visualResults.length === 0) return;
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % flattenedResults.length);
+      isKeyboardNav.current = true;
+      setSelectedIndex((prev) => (prev + 1 >= visualResults.length ? 0 : prev + 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + flattenedResults.length) % flattenedResults.length);
+      isKeyboardNav.current = true;
+      setSelectedIndex((prev) => (prev - 1 < 0 ? visualResults.length - 1 : prev - 1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (flattenedResults[selectedIndex]) {
-        handleSelectResult(flattenedResults[selectedIndex]);
+      if (visualResults[selectedIndex]) {
+        handleSelectResult(visualResults[selectedIndex]);
       }
     }
   };
@@ -275,7 +379,11 @@ export default function TopBar() {
             </span>
           </button>
           <span className={styles.clinicTitle}>
-            <span className={styles.clinicTitleFull}>{user?.clinic || 'DentUz Markaziy Klinika'}</span>
+            <span className={styles.clinicTitleFull}>
+              {user?.clinic && user.clinic !== 'DentUz Markaziy Klinika'
+                ? user.clinic
+                : (i18n.language === 'uz' ? 'DentUz Markaziy Klinika' : 'DentUz Central Clinic')}
+            </span>
             <span className={styles.clinicTitleShort}>DentUz</span>
           </span>
         </div>
@@ -288,7 +396,6 @@ export default function TopBar() {
               readOnly
               className={styles.searchInput}
               placeholder={t('topbar.searchPlaceholder')}
-              value={searchQuery}
             />
             <span className={styles.searchShortcut}>⌘K</span>
           </div>
@@ -511,7 +618,11 @@ export default function TopBar() {
                 </div>
                 <div className={styles.userInfo}>
                   <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
-                  <span className={styles.userRole}>{user?.title || t('topbar.roleChief')}</span>
+                  <span className={styles.userRole}>
+                    {i18n.language === 'uz'
+                      ? (user?.title || "Bosh shifokor • Implantolog")
+                      : (user?.titleEn || "Chief Physician • Implantologist")}
+                  </span>
                 </div>
                 <span className={`material-symbols-outlined ${styles.profileChevron} ${profileOpen ? styles.profileChevronOpen : ''}`}>
                   expand_more
@@ -645,6 +756,7 @@ export default function TopBar() {
                 search
               </span>
               <input
+                ref={searchInputRef}
                 autoFocus
                 className={styles.spotlightInput}
                 placeholder={t('topbar.searchPlaceholder')}
@@ -655,7 +767,10 @@ export default function TopBar() {
                 <button
                   type="button"
                   className={styles.clearQueryBtn}
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => {
+                    setSearchQuery('');
+                    searchInputRef.current?.focus();
+                  }}
                   title={t('topbar.clearAll')}
                 >
                   <span className="material-symbols-outlined">cancel</span>
@@ -667,8 +782,8 @@ export default function TopBar() {
             </div>
 
             {/* Apple Spotlight Results List */}
-            <div className={styles.spotlightResults}>
-              {flattenedResults.length === 0 ? (
+            <div className={styles.spotlightResults} ref={resultsContainerRef}>
+              {visualResults.length === 0 ? (
                 <div className={styles.emptySpotlight}>
                   <span className="material-symbols-outlined">search_off</span>
                   <p>{t('topbar.searchNoResults')}</p>
@@ -677,20 +792,27 @@ export default function TopBar() {
                 groupedResults.map((group) => (
                   <div key={group.category} className={styles.spotlightGroup}>
                     <div className={styles.spotlightGroupHeader}>
-                      {group.category === 'pages' ? t('topbar.searchGroupPages') :
-                       group.category === 'patients' ? t('topbar.searchGroupPatients') :
-                       group.category === 'actions' ? t('topbar.searchGroupDoctors') :
-                       group.categoryLabel}
+                      {group.categoryLabel}
                     </div>
                     {group.items.map((item) => {
-                      const itemIndex = flattenedResults.findIndex((r) => r.id === item.id);
+                      const itemIndex = indexMap[item.id] ?? -1;
                       const isSelected = itemIndex === selectedIndex;
                       return (
                         <div
                           key={item.id}
+                          ref={(el) => {
+                            if (el) itemRefs.current[itemIndex] = el;
+                          }}
                           className={`${styles.spotlightItem} ${isSelected ? styles.spotlightItemSelected : ''}`}
                           onClick={() => handleSelectResult(item)}
-                          onMouseEnter={() => setSelectedIndex(itemIndex)}
+                          onMouseMove={() => {
+                            if (isKeyboardNav.current) {
+                              isKeyboardNav.current = false;
+                            }
+                            if (selectedIndex !== itemIndex) {
+                              setSelectedIndex(itemIndex);
+                            }
+                          }}
                         >
                           <div className={`${styles.itemIconWrap} ${styles[`icon_${item.category}`]}`}>
                             <span className="material-symbols-outlined">{item.icon}</span>

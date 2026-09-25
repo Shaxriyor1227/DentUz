@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { teamApi } from '../../api/teamApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Settings.module.css';
 
 const MOCK_SERVICES = [
@@ -50,21 +51,133 @@ const MOCK_SMS_TEMPLATES = [
   },
 ];
 
-const ROLE_PERMISSIONS = {
-  Shifokor:      { viewPatients: true, editPatients: true, viewFinance: false, editFinance: false, viewReports: true, manageStaff: false },
-  Hamshira:      { viewPatients: true, editPatients: false, viewFinance: false, editFinance: false, viewReports: false, manageStaff: false },
-  Administrator: { viewPatients: true, editPatients: true, viewFinance: true, editFinance: true, viewReports: true, manageStaff: true },
-  Assistent:     { viewPatients: true, editPatients: false, viewFinance: false, editFinance: false, viewReports: false, manageStaff: false },
+const DEFAULT_PERMISSIONS = {
+  owner: {
+    viewPatients: true,
+    editPatients: true,
+    manageCalendar: true,
+    viewFinance: true,
+    editFinance: true,
+    viewReports: true,
+    manageStaff: true,
+    manageSettings: true,
+  },
+  doctor: {
+    viewPatients: true,
+    editPatients: true,
+    manageCalendar: true,
+    viewFinance: false,
+    editFinance: false,
+    viewReports: true,
+    manageStaff: false,
+    manageSettings: false,
+  },
+  receptionist: {
+    viewPatients: true,
+    editPatients: false,
+    manageCalendar: true,
+    viewFinance: true,
+    editFinance: true,
+    viewReports: false,
+    manageStaff: false,
+    manageSettings: false,
+  },
+  nurse: {
+    viewPatients: true,
+    editPatients: false,
+    manageCalendar: false,
+    viewFinance: false,
+    editFinance: false,
+    viewReports: false,
+    manageStaff: false,
+    manageSettings: false,
+  },
 };
 
-const PERM_LABELS = {
-  viewPatients: 'Bemorlarni ko\'rish',
-  editPatients: 'Bemorlarni tahrirlash',
-  viewFinance: 'Moliyani ko\'rish',
-  editFinance: 'Moliyani tahrirlash',
-  viewReports: 'Hisobotlarni ko\'rish',
-  manageStaff: 'Xodimlarni boshqarish',
+DEFAULT_PERMISSIONS['Egasi'] = DEFAULT_PERMISSIONS['owner'];
+DEFAULT_PERMISSIONS['admin'] = DEFAULT_PERMISSIONS['receptionist'];
+DEFAULT_PERMISSIONS['Shifokor'] = DEFAULT_PERMISSIONS['doctor'];
+DEFAULT_PERMISSIONS['Administrator'] = DEFAULT_PERMISSIONS['receptionist'];
+DEFAULT_PERMISSIONS['Hamshira'] = DEFAULT_PERMISSIONS['nurse'];
+DEFAULT_PERMISSIONS['Assistent'] = DEFAULT_PERMISSIONS['nurse'];
+
+const resolveMemberPermissions = (member) => {
+  if (!member) return {};
+  if (member.permissions) return { ...member.permissions };
+  const r = (member.roleType || member.role || '').toLowerCase();
+  if (r.includes('owner') || r.includes('ega')) return { ...DEFAULT_PERMISSIONS.owner };
+  if (r.includes('doc') || r.includes('shifokor')) return { ...DEFAULT_PERMISSIONS.doctor };
+  if (r.includes('admin') || r.includes('recept')) return { ...DEFAULT_PERMISSIONS.receptionist };
+  if (r.includes('nurse') || r.includes('hamshira') || r.includes('assistent')) return { ...DEFAULT_PERMISSIONS.nurse };
+  return { ...(DEFAULT_PERMISSIONS[member.role] || DEFAULT_PERMISSIONS[member.roleType] || DEFAULT_PERMISSIONS.doctor) };
 };
+
+const PERM_DEFINITIONS = [
+  {
+    key: 'viewPatients',
+    icon: 'folder_shared',
+    labelUz: "Bemorlar kartasi va ambulatoriya",
+    labelEn: 'Patient Health Records',
+    descUz: "Elektron bemorlar bazasi, anamnez va tashriflar tarixini ko'rish",
+    descEn: 'Access electronic patient directory, history, and medical records',
+  },
+  {
+    key: 'editPatients',
+    icon: 'dentistry',
+    labelUz: 'FDI Odontogramma & Davolash rejasi',
+    labelEn: '3D Odontogram & Clinical Plan',
+    descUz: "32-tish anatomik xaritasi, tashxislar qo'yish va rejani tahrirlash",
+    descEn: 'Perform diagnoses, edit 32-tooth chart, and adjust treatment plan',
+  },
+  {
+    key: 'manageCalendar',
+    icon: 'calendar_today',
+    labelUz: 'Taqvim va qabullarni belgilash',
+    labelEn: 'Calendar & Operatory Scheduling',
+    descUz: "Bemorlarni qabulga yozish, vaqt va kreslolarni band qilish",
+    descEn: 'Book appointments, assign operatory chairs, and manage time slots',
+  },
+  {
+    key: 'viewFinance',
+    icon: 'payments',
+    labelUz: 'Kassa tushumi va moliyaviy hisobotlar',
+    labelEn: 'Practice Inflow & Ledgers',
+    descUz: "Klinikaning umumiy daromadi, tushumlar va qoldiq qarzlar",
+    descEn: 'View overall clinic revenue, daily inflow, and receivables',
+  },
+  {
+    key: 'editFinance',
+    icon: 'receipt_long',
+    labelUz: "To'lov qabul qilish va chek chiqarish",
+    labelEn: 'Billing & Payment Processing',
+    descUz: "Bemorlardan naqd va karta to'lovlarini qabul qilish, kvitansiya",
+    descEn: 'Collect payments, generate receipts, and manage billing',
+  },
+  {
+    key: 'viewReports',
+    icon: 'analytics',
+    labelUz: 'Klinik analitika va rentgen arxivi',
+    labelEn: 'Clinical Analytics & Radiographs',
+    descUz: "Muolajalar statistikasi va rentgen (CBCT) arxivi",
+    descEn: 'View clinical performance metrics, X-rays, and treatment stats',
+  },
+  {
+    key: 'manageStaff',
+    icon: 'badge',
+    labelUz: 'Xodimlar va jamoa huquqlari',
+    labelEn: 'Staff & Team Access Control',
+    descUz: "Yangi shifokorlarni taklif qilish va tizim huquqlarini o'zgartirish",
+    descEn: 'Add staff members and configure access permissions',
+  },
+  {
+    key: 'manageSettings',
+    icon: 'tune',
+    labelUz: 'Klinika va operatsion kreslolar',
+    labelEn: 'Clinic Settings & Chairs',
+    descUz: "Operatsion kreslolar sonini boshqarish, ish vaqti va rekvizitlar",
+    descEn: 'Configure practice operatories count, working hours, and clinic setup',
+  },
+];
 
 const SERVICE_CATEGORIES = ['Diagnostika', 'Davolash', 'Jarrohlik', 'Estetika', 'Protezlash'];
 
@@ -74,6 +187,12 @@ function formatPrice(n) {
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
+  const isEn = i18n.language === 'en';
+
+  usePageMeta(
+    isEn ? 'Practice Settings' : 'Klinika Sozlamalari',
+    'DentUz klinika sozlamalari: jamoa huquqlari, operatsion kreslolar soni, xizmatlar va xavfsizlik.'
+  );
 
   // Core state
   const [team, setTeam] = useState([]);
@@ -89,20 +208,24 @@ export default function Settings() {
   const [newMember, setNewMember] = useState({ name: '', title: '', role: 'Shifokor', email: '', phone: '+998 ', branch: 'Markaziy Klinika' });
 
   // Clinic
-  const [clinicData, setClinicData] = useState({
-    name: 'Toshkent Dental Clinic',
-    license: 'MED-UZ-2021-9988',
-    director: 'Dr. Jasur Azimov',
-    phone: '+998 71 200 44 22',
-    extraPhone: '+998 90 842 11 00',
-    email: 'info@dentuz.uz',
-    address: 'Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko\'chasi 42-uy',
-    workingHours: 'Dushanba - Shanba: 08:30 - 20:00',
-    inn: '307 456 789',
-    mfo: '00873',
-    bankAccount: '20208000205174219001',
-    bankName: 'Xalq Banki',
-    chairsCount: 4,
+  const [clinicData, setClinicData] = useState(() => {
+    const savedChairs = localStorage.getItem('dentuz_clinic_chairs');
+    const savedName = localStorage.getItem('dentuz_clinic_name');
+    return {
+      name: savedName || (isEn ? 'DentUz Central Clinic' : 'DentUz Markaziy Klinika'),
+      license: 'MED-UZ-2021-9988',
+      director: 'Dr. Jasur Azimov',
+      phone: '+998 71 200 44 22',
+      extraPhone: '+998 90 842 11 00',
+      email: 'info@dentuz.uz',
+      address: isEn ? 'Bunyodkor Ave 42, Chilanzar district, Tashkent' : "Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko'chasi 42-uy",
+      workingHours: isEn ? 'Monday - Saturday: 08:30 - 20:00' : 'Dushanba - Shanba: 08:30 - 20:00',
+      inn: '307 456 789',
+      mfo: '00873',
+      bankAccount: '20208000205174219001',
+      bankName: 'Xalq Banki',
+      chairsCount: savedChairs ? Number(savedChairs) : 7,
+    };
   });
   const [clinicSaved, setClinicSaved] = useState(false);
 
@@ -146,6 +269,44 @@ export default function Settings() {
 
   const showToast = (type, title, message) => setToast({ open: true, type, title, message });
 
+  const [memberPerms, setMemberPerms] = useState({});
+
+  const handleOpenPermModal = (member) => {
+    setShowPermModal(member);
+    setMemberPerms(resolveMemberPermissions(member));
+  };
+
+  const handleTogglePerm = (key) => {
+    setMemberPerms(prev => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const handleResetPerms = () => {
+    if (!showPermModal) return;
+    const def = resolveMemberPermissions({ ...showPermModal, permissions: null });
+    setMemberPerms(def);
+    showToast(
+      'info',
+      isEn ? 'Reset to Defaults' : 'Standartga qaytarildi',
+      isEn ? 'Permissions reset to role default values.' : 'Huquqlar standart rol holatiga qaytarildi.'
+    );
+  };
+
+  const handleSavePerms = () => {
+    if (!showPermModal) return;
+    setTeam(prev => prev.map(m => m.id === showPermModal.id ? { ...m, permissions: memberPerms } : m));
+    showToast(
+      'success',
+      isEn ? 'Permissions Saved' : 'Huquqlar saqlandi',
+      isEn
+        ? `Permissions updated for ${showPermModal.name}`
+        : `${showPermModal.name} uchun tizim huquqlari muvaffaqiyatli saqlandi.`
+    );
+    setShowPermModal(null);
+  };
+
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!newMember.name) return;
@@ -153,25 +314,35 @@ export default function Settings() {
     setTeam((prev) => [...prev, added]);
     setShowAddModal(false);
     setNewMember({ name: '', title: '', role: 'Shifokor', email: '', phone: '+998 ', branch: 'Markaziy Klinika' });
-    showToast('success', 'Xodim qo\'shildi', `${newMember.name} jamoaga muvaffaqiyatli qo'shildi.`);
+    showToast('success', isEn ? 'Member Added' : 'Xodim qo\'shildi', isEn ? `${newMember.name} joined the practice team.` : `${newMember.name} jamoaga muvaffaqiyatli qo'shildi.`);
   };
 
   const handleSaveClinic = (e) => {
     e.preventDefault();
+    try {
+      localStorage.setItem('dentuz_clinic_chairs', clinicData.chairsCount);
+      localStorage.setItem('dentuz_clinic_name', clinicData.name);
+    } catch {}
     setClinicSaved(true);
-    showToast('success', 'Saqlandi', 'Klinika ma\'lumotlari muvaffaqiyatli yangilandi.');
+    showToast(
+      'success',
+      isEn ? 'Settings Saved' : 'Saqlandi',
+      isEn
+        ? `Practice details and ${clinicData.chairsCount} operatory chairs updated successfully.`
+        : `Klinika ma'lumotlari va ${clinicData.chairsCount} ta operatsion kreslo muvaffaqiyatli saqlandi.`
+    );
     setTimeout(() => setClinicSaved(false), 3000);
   };
 
   const handleSavePassword = (e) => {
     e.preventDefault();
     if (passwords.newPass !== passwords.confirm) {
-      showToast('error', 'Xatolik', 'Yangi parollar mos kelmadi!');
+      showToast('error', isEn ? 'Error' : 'Xatolik', isEn ? 'New passwords do not match!' : 'Yangi parollar mos kelmadi!');
       return;
     }
     setPassSuccess(true);
     setPasswords({ current: '', newPass: '', confirm: '' });
-    showToast('success', 'Parol o\'zgartirildi', 'Yangi parol muvaffaqiyatli saqlandi.');
+    showToast('success', isEn ? 'Password Updated' : 'Parol o\'zgartirildi', isEn ? 'Password has been updated securely.' : 'Yangi parol muvaffaqiyatli saqlandi.');
     setTimeout(() => setPassSuccess(false), 3000);
   };
 
@@ -179,11 +350,11 @@ export default function Settings() {
     e.preventDefault();
     if (editService) {
       setServices(prev => prev.map(s => s.id === editService.id ? { ...editService, ...serviceForm, price: Number(serviceForm.price) } : s));
-      showToast('success', 'Yangilandi', `${serviceForm.name} xizmati yangilandi.`);
+      showToast('success', isEn ? 'Updated' : 'Yangilandi', isEn ? `${serviceForm.name} service updated.` : `${serviceForm.name} xizmati yangilandi.`);
     } else {
       const newSvc = { id: Date.now(), ...serviceForm, price: Number(serviceForm.price) };
       setServices(prev => [...prev, newSvc]);
-      showToast('success', 'Qo\'shildi', `${serviceForm.name} xizmati qo'shildi.`);
+      showToast('success', isEn ? 'Created' : 'Qo\'shildi', isEn ? `${serviceForm.name} service added to catalog.` : `${serviceForm.name} xizmati qo'shildi.`);
     }
     setShowServiceModal(false);
     setEditService(null);
@@ -192,7 +363,7 @@ export default function Settings() {
 
   const handleDeleteService = (id) => {
     setServices(prev => prev.filter(s => s.id !== id));
-    showToast('info', 'O\'chirildi', 'Xizmat ro\'yxatdan olib tashlandi.');
+    showToast('info', isEn ? 'Deleted' : 'O\'chirildi', isEn ? 'Service removed from price list.' : 'Xizmat ro\'yxatdan olib tashlandi.');
   };
 
   const handleToggleSms = (id) => {
@@ -203,7 +374,7 @@ export default function Settings() {
     setBackupLoading(true);
     setTimeout(() => {
       setBackupLoading(false);
-      showToast('success', 'Zaxira nusxa yaratildi', 'Ma\'lumotlar bazasi muvaffaqiyatli eksport qilindi (backup_2025-09-20.zip).');
+      showToast('success', isEn ? 'Backup Created' : 'Zaxira nusxa yaratildi', isEn ? 'Database backup exported securely.' : 'Ma\'lumotlar bazasi muvaffaqiyatli eksport qilindi.');
     }, 2000);
   };
 
@@ -219,13 +390,21 @@ export default function Settings() {
     return matchCat && matchSearch;
   });
 
+  const getRoleLabel = (role) => {
+    if (role === 'owner') return isEn ? 'Chief Physician' : 'Bosh shifokor';
+    if (role === 'doctor') return isEn ? 'Doctor' : 'Shifokor';
+    if (role === 'receptionist') return isEn ? 'Administrator' : 'Administrator';
+    if (role === 'nurse') return isEn ? 'Nurse' : 'Hamshira';
+    return role;
+  };
+
   const tabs = [
-    { id: 'clinic',    icon: 'business',       label: 'Klinika' },
-    { id: 'team',      icon: 'group',           label: 'Jamoa' },
-    { id: 'services',  icon: 'medical_services', label: 'Xizmatlar' },
-    { id: 'sms',       icon: 'sms',             label: 'SMS Shablonlar' },
-    { id: 'security',  icon: 'shield',          label: 'Xavfsizlik' },
-    { id: 'backup',    icon: 'backup',          label: 'Backup' },
+    { id: 'clinic',    icon: 'business',         label: isEn ? 'Practice Info' : 'Klinika' },
+    { id: 'team',      icon: 'group',            label: isEn ? 'Staff & Roles' : 'Jamoa' },
+    { id: 'services',  icon: 'medical_services', label: isEn ? 'Services & Pricing' : 'Xizmatlar' },
+    { id: 'sms',       icon: 'sms',              label: isEn ? 'SMS Templates' : 'SMS Shablonlar' },
+    { id: 'security',  icon: 'shield',           label: isEn ? 'Security & 2FA' : 'Xavfsizlik' },
+    { id: 'backup',    icon: 'backup',           label: isEn ? 'Database Backup' : 'Backup' },
   ];
 
   return (
@@ -233,13 +412,15 @@ export default function Settings() {
       <div className={styles.pageHeader}>
         <div>
           <div className={styles.headerMeta}>
-            <span className={styles.sectionBadge}>Boshqaruv paneli</span>
+            <span className={styles.sectionBadge}>{isEn ? 'PRACTICE OS' : 'Boshqaruv paneli'}</span>
             <span className={styles.dot}>•</span>
-            <span className={styles.metaLabel}>Sozlamalar</span>
+            <span className={styles.metaLabel}>{isEn ? 'Settings' : 'Sozlamalar'}</span>
           </div>
-          <h1 className={styles.pageTitle}>Klinika Sozlamalari</h1>
+          <h1 className={styles.pageTitle}>{isEn ? 'Clinic Settings' : 'Klinika Sozlamalari'}</h1>
           <p className={styles.pageSubtitle}>
-            Klinikangiz profili, xodimlar, xizmatlar va tizim sozlamalarini boshqaring.
+            {isEn
+              ? 'Manage your dental practice profile, operatory chairs, staff access, services catalog, and security.'
+              : 'Klinikangiz profili, kreslolar soni, xodimlar, xizmatlar va tizim sozlamalarini boshqaring.'}
           </p>
         </div>
       </div>
@@ -268,13 +449,15 @@ export default function Settings() {
         <div className={styles.mainContent}>
 
           {/* ══════════════════════════════════════════
-              TAB: KLINIKA MA'LUMOTLARI
+              TAB: KLINIKA MA'LUMOTLARI (PRACTICE INFO)
           ══════════════════════════════════════════ */}
           {activeTab === 'clinic' && (
             <div className={styles.tabContent}>
               <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Klinika Ma'lumotlari</h2>
-                <p className={styles.tabSub}>Rasmiy rekvizitlar va ish vaqtini sozlang</p>
+                <div>
+                  <h2 className={styles.tabTitle}>{isEn ? 'Practice Profile & Credentials' : 'Klinika Ma\'lumotlari'}</h2>
+                  <p className={styles.tabSub}>{isEn ? 'Official clinic credentials, dental operatories, and working hours' : 'Rasmiy rekvizitlar, operatsion kreslolar va ish vaqtini sozlang'}</p>
+                </div>
               </div>
 
               <form onSubmit={handleSaveClinic} className={styles.formStack}>
@@ -282,44 +465,56 @@ export default function Settings() {
                 <div className={styles.card}>
                   <div className={styles.cardSectionTitle}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>info</span>
-                    Asosiy ma'lumotlar
+                    {isEn ? 'General Clinic Details' : 'Asosiy ma\'lumotlar'}
                   </div>
                   <div className={styles.formGrid2}>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Klinika nomi</label>
+                      <label className={styles.formLabel}>{isEn ? 'Clinic Name' : 'Klinika nomi'}</label>
                       <input className={styles.input} value={clinicData.name} onChange={e => setClinicData({ ...clinicData, name: e.target.value })} required />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Litsenziya raqami</label>
+                      <label className={styles.formLabel}>{isEn ? 'Medical License Number' : 'Litsenziya raqami'}</label>
                       <input className={styles.input} value={clinicData.license} onChange={e => setClinicData({ ...clinicData, license: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Rahbar F.I.O</label>
+                      <label className={styles.formLabel}>{isEn ? 'Medical Director (F.I.O)' : 'Rahbar F.I.O'}</label>
                       <input className={styles.input} value={clinicData.director} onChange={e => setClinicData({ ...clinicData, director: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Ish vaqti</label>
+                      <label className={styles.formLabel}>{isEn ? 'Working Hours' : 'Ish vaqti'}</label>
                       <input className={styles.input} value={clinicData.workingHours} onChange={e => setClinicData({ ...clinicData, workingHours: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Asosiy telefon</label>
+                      <label className={styles.formLabel}>{isEn ? 'Primary Phone' : 'Asosiy telefon'}</label>
                       <input className={styles.input} value={clinicData.phone} onChange={e => setClinicData({ ...clinicData, phone: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Qo'shimcha telefon</label>
+                      <label className={styles.formLabel}>{isEn ? 'Secondary Phone' : 'Qo\'shimcha telefon'}</label>
                       <input className={styles.input} value={clinicData.extraPhone} onChange={e => setClinicData({ ...clinicData, extraPhone: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Email</label>
+                      <label className={styles.formLabel}>{isEn ? 'Official Email' : 'Email'}</label>
                       <input className={styles.input} type="email" value={clinicData.email} onChange={e => setClinicData({ ...clinicData, email: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Kreslo soni</label>
-                      <input className={styles.input} type="number" min="1" value={clinicData.chairsCount} onChange={e => setClinicData({ ...clinicData, chairsCount: Number(e.target.value) })} />
+                      <label className={styles.formLabel}>
+                        {isEn ? 'Dental Operatories (Chairs)' : 'Stomatologik kreslolar soni'}
+                        <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--color-cyan)', marginLeft: 6 }}>
+                          ({isEn ? 'Controls Dashboard' : 'Dashboard uchun'})
+                        </span>
+                      </label>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        min="1"
+                        max="16"
+                        value={clinicData.chairsCount}
+                        onChange={e => setClinicData({ ...clinicData, chairsCount: Number(e.target.value) })}
+                      />
                     </div>
                   </div>
                   <div className={styles.formGroup} style={{ marginTop: 4 }}>
-                    <label className={styles.formLabel}>Manzil</label>
+                    <label className={styles.formLabel}>{isEn ? 'Physical Address' : 'Manzil'}</label>
                     <input className={styles.input} value={clinicData.address} onChange={e => setClinicData({ ...clinicData, address: e.target.value })} />
                   </div>
                 </div>
@@ -328,33 +523,33 @@ export default function Settings() {
                 <div className={styles.card}>
                   <div className={styles.cardSectionTitle}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>account_balance</span>
-                    Bank rekvizitlari
+                    {isEn ? 'Banking & Billing Credentials' : 'Bank rekvizitlari'}
                   </div>
                   <div className={styles.formGrid2}>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>INN</label>
+                      <label className={styles.formLabel}>{isEn ? 'Tax ID (INN)' : 'INN'}</label>
                       <input className={styles.input} value={clinicData.inn} onChange={e => setClinicData({ ...clinicData, inn: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>MFO</label>
+                      <label className={styles.formLabel}>{isEn ? 'Bank Code (MFO)' : 'MFO'}</label>
                       <input className={styles.input} value={clinicData.mfo} onChange={e => setClinicData({ ...clinicData, mfo: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Hisob raqami</label>
+                      <label className={styles.formLabel}>{isEn ? 'Settlement Account' : 'Hisob raqami'}</label>
                       <input className={styles.input} value={clinicData.bankAccount} onChange={e => setClinicData({ ...clinicData, bankAccount: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Bank nomi</label>
+                      <label className={styles.formLabel}>{isEn ? 'Bank Name' : 'Bank nomi'}</label>
                       <input className={styles.input} value={clinicData.bankName} onChange={e => setClinicData({ ...clinicData, bankName: e.target.value })} />
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.formActions}>
-                  {clinicSaved && <span className={styles.successLabel}>✓ Muvaffaqiyatli saqlandi</span>}
+                  {clinicSaved && <span className={styles.successLabel}>✓ {isEn ? 'Saved successfully' : 'Muvaffaqiyatli saqlandi'}</span>}
                   <button type="submit" className={styles.btnPrimary}>
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
-                    Saqlash
+                    {isEn ? 'Save Changes' : 'Saqlash'}
                   </button>
                 </div>
               </form>
@@ -362,18 +557,18 @@ export default function Settings() {
           )}
 
           {/* ══════════════════════════════════════════
-              TAB: JAMOA VA HUQUQLAR
+              TAB: JAMOA VA HUQUQLAR (STAFF & ROLES)
           ══════════════════════════════════════════ */}
           {activeTab === 'team' && (
             <div className={styles.tabContent}>
               <div className={styles.tabHeader}>
                 <div>
-                  <h2 className={styles.tabTitle}>Jamoa va Huquqlar</h2>
-                  <p className={styles.tabSub}>Xodimlarni qo'shing va ularning tizim huquqlarini sozlang</p>
+                  <h2 className={styles.tabTitle}>{isEn ? 'Team & Role Permissions' : 'Jamoa va Huquqlar'}</h2>
+                  <p className={styles.tabSub}>{isEn ? 'Add medical team members and configure role-based access' : 'Xodimlarni qo\'shing va ularning tizim huquqlarini sozlang'}</p>
                 </div>
                 <button type="button" className={styles.btnPrimary} onClick={() => setShowAddModal(true)}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
-                  Xodim qo'shish
+                  {isEn ? '+ Add Team Member' : 'Xodim qo\'shish'}
                 </button>
               </div>
 
@@ -384,7 +579,7 @@ export default function Settings() {
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder="Xodim qidirish..."
+                    placeholder={isEn ? "Search staff by name, title, or email..." : "Xodim qidirish..."}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -392,11 +587,11 @@ export default function Settings() {
                 <div className={styles.metaChips}>
                   <div className={styles.chip}>
                     <span className={styles.dotGreen} />
-                    <span>Faol</span>
+                    <span>{isEn ? 'Active' : 'Faol'}</span>
                     <strong>{team.filter(m => m.status === 'online').length}</strong>
                   </div>
                   <div className={styles.chip}>
-                    <span>Jami xodim</span>
+                    <span>{isEn ? 'Total Staff' : 'Jami xodim'}</span>
                     <strong>{team.length} / 10</strong>
                   </div>
                 </div>
@@ -409,18 +604,18 @@ export default function Settings() {
                 ) : filteredTeam.length === 0 ? (
                   <div className={styles.emptyState}>
                     <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>group_off</span>
-                    <p>Xodim topilmadi</p>
+                    <p>{isEn ? 'No staff members found' : 'Xodim topilmadi'}</p>
                   </div>
                 ) : (
                   <table className={styles.staffTable}>
                     <thead>
                       <tr>
-                        <th>Xodim</th>
-                        <th>Rol</th>
-                        <th>Kontakt</th>
-                        <th>Filial</th>
-                        <th>Holat</th>
-                        <th></th>
+                        <th>{isEn ? 'MEMBER' : 'XODIM'}</th>
+                        <th>{isEn ? 'ROLE' : 'ROL'}</th>
+                        <th>{isEn ? 'CONTACT' : 'KONTAKT'}</th>
+                        <th>{isEn ? 'BRANCH' : 'FILIAL'}</th>
+                        <th>{isEn ? 'STATUS' : 'HOLAT'}</th>
+                        <th>{isEn ? 'ACTIONS' : 'AMALLAR'}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -446,7 +641,7 @@ export default function Settings() {
                             </div>
                           </td>
                           <td>
-                            <span className={styles.roleTag}>{member.role}</span>
+                            <span className={styles.roleTag}>{getRoleLabel(member.role)}</span>
                           </td>
                           <td>
                             <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}>
@@ -454,10 +649,14 @@ export default function Settings() {
                               <div style={{ color: 'var(--color-text-secondary)' }}>{member.phone}</div>
                             </div>
                           </td>
-                          <td style={{ fontSize: 12 }}>{member.branch}</td>
+                          <td style={{ fontSize: 12 }}>
+                            {member.branch === 'Markaziy Klinika'
+                              ? (isEn ? 'Central Clinic' : 'Markaziy Klinika')
+                              : member.branch}
+                          </td>
                           <td>
                             <span className={`${styles.statusBadge} ${member.status === 'online' ? styles.statusOnline : styles.statusOffline}`}>
-                              {member.status === 'online' ? 'Faol' : 'Oflayn'}
+                              {member.status === 'online' ? (isEn ? 'Active' : 'Faol') : (isEn ? 'Offline' : 'Oflayn')}
                             </span>
                           </td>
                           <td>
@@ -465,15 +664,15 @@ export default function Settings() {
                               <button
                                 type="button"
                                 className={styles.actionBtn}
-                                title="Huquqlar"
-                                onClick={() => setShowPermModal(member)}
+                                title={isEn ? "Permissions" : "Huquqlar"}
+                                onClick={() => handleOpenPermModal(member)}
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>manage_accounts</span>
                               </button>
                               <button
                                 type="button"
                                 className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                                title="Jamoadan chiqarish"
+                                title={isEn ? "Remove member" : "Jamoadan chiqarish"}
                                 onClick={() => setShowDeleteModal(member)}
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_remove</span>
@@ -1027,37 +1226,132 @@ export default function Settings() {
       )}
 
       {/* ══════════════════════════════════════════
-          MODAL: Huquqlar (Permissions)
+          MODAL: Huquqlar (Apple Minimalist Design)
       ══════════════════════════════════════════ */}
       {showPermModal && (
         <div className={styles.modalOverlay} onClick={() => setShowPermModal(null)}>
-          <div className={styles.modalBox} onClick={e => e.stopPropagation()}>
+          <div className={styles.modalBox} style={{ maxWidth: 460, padding: '20px 22px', gap: 14 }} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div>
-                <h3 className={styles.modalTitle}>Huquqlar: {showPermModal.name}</h3>
-                <p style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>Rol: {showPermModal.role}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'var(--color-surface-container-high)',
+                  color: 'var(--color-text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 600,
+                  fontSize: 13,
+                  border: '1px solid var(--color-border)',
+                }}>
+                  {showPermModal.initials || showPermModal.name?.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className={styles.modalTitle} style={{ fontSize: 15, marginBottom: 1 }}>
+                    {showPermModal.name}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: 'var(--color-text-secondary)' }}>
+                    <span>{showPermModal.title || showPermModal.role}</span>
+                    <span>•</span>
+                    <span style={{ 
+                      textTransform: 'capitalize', 
+                      background: 'var(--color-surface-container)', 
+                      padding: '1px 6px', 
+                      borderRadius: 6, 
+                      fontWeight: 500,
+                    }}>
+                      {showPermModal.role}
+                    </span>
+                  </div>
+                </div>
               </div>
               <button type="button" className={styles.modalClose} onClick={() => setShowPermModal(null)}>
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
               </button>
             </div>
-            <div className={styles.permissionsGrid}>
-              {Object.entries(ROLE_PERMISSIONS[showPermModal.role] || {}).map(([key, val]) => (
-                <div key={key} className={styles.permRow}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{PERM_LABELS[key]}</div>
-                  </div>
-                  <span className={`${styles.permBadge} ${val ? styles.permAllow : styles.permDeny}`}>
-                    {val ? 'Ruxsat bor' : 'Taqiqlangan'}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className={styles.modalFooter}>
-              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                Huquqlar rolga qarab avtomatik belgilanadi
+
+            <div style={{
+              background: 'var(--color-surface-container-low)',
+              border: '1px solid var(--color-border-subtle, rgba(0, 0, 0, 0.06))',
+              borderRadius: 8,
+              padding: '7px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: 12
+            }}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                {isEn ? 'Permissions access:' : 'Tizim huquqlari:'}
               </span>
-              <button type="button" className={styles.btnPrimary} onClick={() => setShowPermModal(null)}>OK</button>
+              <span style={{ fontWeight: 600, color: 'var(--color-cyan, #0891b2)' }}>
+                {Object.values(memberPerms).filter(Boolean).length} / {PERM_DEFINITIONS.length} {isEn ? 'active' : 'faol'}
+              </span>
+            </div>
+
+            <div className={styles.permissionsGrid}>
+              {PERM_DEFINITIONS.map((perm) => {
+                const isAllowed = !!memberPerms[perm.key];
+                return (
+                  <div 
+                    key={perm.key} 
+                    className={styles.permRow}
+                    onClick={() => handleTogglePerm(perm.key)}
+                  >
+                    <span className={`material-symbols-outlined ${styles.permIconBox}`}>
+                      {perm.icon}
+                    </span>
+                    <div className={styles.permInfo}>
+                      <div className={styles.permTitle}>
+                        {isEn ? perm.labelEn : perm.labelUz}
+                      </div>
+                      <div className={styles.permDesc}>
+                        {isEn ? perm.descEn : perm.descUz}
+                      </div>
+                    </div>
+                    {/* Apple iOS Switch Toggle */}
+                    <div 
+                      className={`${styles.appleSwitch} ${isAllowed ? styles.appleSwitchActive : ''}`}
+                      role="switch"
+                      aria-checked={isAllowed}
+                    >
+                      <span className={styles.appleSwitchKnob} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={styles.modalFooter} style={{ justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
+              <button 
+                type="button" 
+                className={styles.btnOutline}
+                style={{ fontSize: 11.5, padding: '6px 10px', border: 'none', background: 'transparent', color: 'var(--color-text-secondary)' }}
+                onClick={handleResetPerms}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>restart_alt</span>
+                {isEn ? 'Reset' : 'Standart'}
+              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button 
+                  type="button" 
+                  className={styles.btnOutline} 
+                  style={{ fontSize: 12, padding: '6px 12px' }}
+                  onClick={() => setShowPermModal(null)}
+                >
+                  {isEn ? 'Cancel' : 'Bekor qilish'}
+                </button>
+                <button 
+                  type="button" 
+                  className={styles.btnPrimary} 
+                  style={{ fontSize: 12, padding: '6px 14px' }}
+                  onClick={handleSavePerms}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>check</span>
+                  {isEn ? 'Save' : 'Saqlash'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

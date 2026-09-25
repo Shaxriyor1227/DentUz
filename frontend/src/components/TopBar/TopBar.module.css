@@ -664,17 +664,19 @@
   max-width: 640px;
   border-radius: 20px;
   overflow: hidden;
-  animation: spotlightScale 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: spotlightScale 0.16s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   outline: none;
+  contain: content;
+  will-change: transform, opacity;
 }
 
 @keyframes spotlightScale {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(-10px);
+    transform: scale(0.97) translateY(-8px);
   }
   to {
     opacity: 1;
@@ -685,20 +687,20 @@
 /* Light mode styling */
 :root .spotlightModal,
 [data-theme='light'] .spotlightModal {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(36px) saturate(190%);
-  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
 }
 
 /* Dark mode styling */
 [data-theme='dark'] .spotlightModal {
-  background: rgba(18, 24, 38, 0.85);
-  backdrop-filter: blur(36px) saturate(190%);
-  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  background: rgba(18, 24, 38, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 }
 
 .spotlightHeader {
@@ -774,10 +776,29 @@
 }
 
 .spotlightResults {
-  max-height: 380px;
+  max-height: 420px;
   overflow-y: auto;
   padding: 10px 8px;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Custom sleek scrollbar */
+.spotlightResults::-webkit-scrollbar {
+  width: 6px;
+}
+
+.spotlightResults::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.spotlightResults::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.25);
+  border-radius: 999px;
+}
+
+.spotlightResults::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyan, #06B6D4);
 }
 
 .spotlightGroup {
@@ -802,12 +823,21 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.08s ease, border-color 0.08s ease;
   margin-bottom: 2px;
   border: 1px solid transparent;
+}
+
+.itemTypeTag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(120, 120, 128, 0.12);
+  color: var(--color-text-secondary);
 }
 
 .spotlightItem:hover {

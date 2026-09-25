@@ -18,37 +18,53 @@ const HERO_LOWER_TEETH = [
 ];
 
 const TOOTH_DESCRIPTIONS = {
-  '11': "11-tish • Yuqori o'ng markaziy kurak: Emal butun, karies yo'q, sog'lom",
-  '12': "12-tish • Yuqori o'ng lateral kurak: Tabiiy holatda, sog'lom",
-  '13': "13-tish • Yuqori o'ng qoziq tish: Sog'lom anatomik shakl",
-  '14': "14-tish • Yuqori o'ng birinchi premolyar: Reabilitatsiya va implantatsiya",
-  '16': "16-tish • Yuqori o'ng birinchi molyar: Karies davolash va sirkoniy toj",
-  '21': "21-tish • Yuqori chap markaziy kurak: Metall-keramika toj",
-  '22': "22-tish • Yuqori chap lateral kurak: Sog'lom holatda",
-  '24': "24-tish • Yuqori chap premolyar: Fissuralar profilaktikasi tavsiya etiladi",
-  '26': "26-tish • Yuqori chap molyar: Fissura germetizatsiyasi muvaffaqiyatli",
-  '31': "31-tish • Pastki chap markaziy kurak: Tish toshlari ultratovushda tozalangan",
-  '36': "36-tish • Pastki chap birinchi molyar: Estetik kompozit plomba",
-  '41': "41-tish • Pastki o'ng markaziy kurak: Sog'lom va mustahkam",
-  '46': "46-tish • Pastki o'ng birinchi molyar: Kompozit restavratsiya barqaror",
-  '48': "48-tish • Aql tishi: Rentgen nazoratida, to'g'ri o'sgan"
+  '11': "11-tish • Yuqori o'ng markaziy kurak: Emal butun, karies yo'q, tabiiy sog'lom holat",
+  '12': "12-tish • Yuqori o'ng lateral kurak: Tabiiy holatda, periapikal o'zgarishlar yo'q",
+  '13': "13-tish • Yuqori o'ng qoziq tish: Sog'lom anatomik shakl, mustahkam ildiz",
+  '14': "14-tish • Yuqori o'ng birinchi premolyar: Reabilitatsiya va titan implant o'rnatilgan",
+  '15': "15-tish • Yuqori o'ng ikkinchi premolyar: O'rta karies (O sirt) — plomba tavsiya etiladi",
+  '16': "16-tish • Yuqori o'ng birinchi molyar: Estetik kompozit plomba, okklyuziya barqaror",
+  '18': "18-tish • Aql tishi: Jarrohlik yo'li bilan olingan (retensiya asoratlari bartaraf etilgan)",
+  '21': "21-tish • Yuqori chap markaziy kurak: Sirkoniy keramik toj (estetik zona restavratsiyasi)",
+  '22': "22-tish • Yuqori chap lateral kurak: Sog'lom holatda, karies alomatlari yo'q",
+  '24': "24-tish • Yuqori chap premolyar: Profilaktik ko'rikdan o'tgan, emal mustahkam",
+  '25': "25-tish • Yuqori chap ikkinchi premolyar: Karies kavagi (MOD sirt), davolash talab etiladi",
+  '26': "26-tish • Yuqori chap birinchi molyar: Fissura germetizatsiyasi va kompozit restavratsiya",
+  '27': "27-tish • Yuqori chap ikkinchi molyar: Pulpit davolangan, ildiz kanallari gutta-percha bilan to'ldirilgan",
+  '28': "28-tish • Yuqori chap aql tishi: Distopik joylashuv sababli ekstraksiya qilingan",
+  '31': "31-tish • Pastki chap markaziy kurak: Tish toshlari ultratovushda tozalangan, sog'lom",
+  '36': "36-tish • Pastki chap birinchi molyar: Qatlamli kompozit plomba (Nano-gibrid)",
+  '38': "38-tish • Pastki chap aql tishi: Jarrohlik ekstraksiyasi o'tkazilgan",
+  '41': "41-tish • Pastki o'ng markaziy kurak: Sog'lom va mustahkam periodontal tayanch",
+  '45': "45-tish • Pastki o'ng ikkinchi premolyar: Integratsiyalashgan dental implant",
+  '46': "46-tish • Pastki o'ng birinchi molyar: Endodontik davolash (3 ta kanal) va tojga tayyorgarlik",
+  '47': "47-tish • Pastki o'ng ikkinchi molyar: Boshlang'ich chuqur karies, davolash rejalashtirilgan",
+  '48': "48-tish • Pastki o'ng aql tishi: Rentgen nazoratida, to'g'ri o'sgan va funksional"
 };
 
 const TOOTH_DESCRIPTIONS_EN = {
-  '11': "Tooth 11 • Maxillary right central incisor: Intact enamel, caries-free, healthy",
-  '12': "Tooth 12 • Maxillary right lateral incisor: Natural presentation, healthy",
-  '13': "Tooth 13 • Maxillary right canine: Sound anatomical crown",
-  '14': "Tooth 14 • Maxillary right first premolar: Implant candidate & restoration",
-  '16': "Tooth 16 • Maxillary right first molar: Caries therapy and zirconia crown",
-  '21': "Tooth 21 • Maxillary left central incisor: PFM crown intact",
-  '22': "Tooth 22 • Maxillary left lateral incisor: Sound periodontal support",
-  '24': "Tooth 24 • Maxillary left premolar: Pit & fissure sealant recommended",
-  '26': "Tooth 26 • Maxillary left molar: Occlusal sealing successful",
+  '11': "Tooth 11 • Maxillary right central incisor: Intact enamel, caries-free, sound tooth",
+  '12': "Tooth 12 • Maxillary right lateral incisor: Natural presentation, intact periodontium",
+  '13': "Tooth 13 • Maxillary right canine: Sound anatomical crown, stable canine guidance",
+  '14': "Tooth 14 • Maxillary right first premolar: Osseointegrated titanium implant restoration",
+  '15': "Tooth 15 • Maxillary right second premolar: Occlusal caries cavity — restoration needed",
+  '16': "Tooth 16 • Maxillary right first molar: Aesthetic composite restoration, stable contact",
+  '18': "Tooth 18 • Maxillary right third molar: Surgically extracted due to impaction",
+  '21': "Tooth 21 • Maxillary left central incisor: Monolithic zirconia aesthetic crown",
+  '22': "Tooth 22 • Maxillary left lateral incisor: Sound periodontal support, vital pulp",
+  '24': "Tooth 24 • Maxillary left premolar: Sound occlusal anatomy, routine prophylaxis",
+  '25': "Tooth 25 • Maxillary left second premolar: Caries lesion on MOD surface",
+  '26': "Tooth 26 • Maxillary left molar: Pit & fissure sealant and light-cure composite",
+  '27': "Tooth 27 • Maxillary left second molar: Endodontically treated, hermetic obturation",
+  '28': "Tooth 28 • Maxillary left third molar: Extracted (ectopic eruption)",
   '31': "Tooth 31 • Mandibular left central incisor: Ultrasonic calculus scaling completed",
-  '36': "Tooth 36 • Mandibular left first molar: Aesthetic composite restoration",
-  '41': "Tooth 41 • Mandibular right central incisor: Healthy and stable",
-  '46': "Tooth 46 • Mandibular right first molar: Composite restoration intact",
-  '48': "Tooth 48 • Third molar (Wisdom): Radiographically monitored, erupted"
+  '36': "Tooth 36 • Mandibular left first molar: Aesthetic composite restoration intact",
+  '38': "Tooth 38 • Mandibular left third molar: Extracted tooth space healed",
+  '41': "Tooth 41 • Mandibular right central incisor: Healthy alveolar bone and intact enamel",
+  '45': "Tooth 45 • Mandibular right second premolar: Precision dental implant with custom abutment",
+  '46': "Tooth 46 • Mandibular right first molar: 3-root canal therapy, provisional restoration",
+  '47': "Tooth 47 • Mandibular right second molar: Deep occlusal fissure caries detected",
+  '48': "Tooth 48 • Mandibular right third molar: Fully erupted and radiographically sound"
 };
 
 export default function Homepage() {
@@ -60,15 +76,37 @@ export default function Homepage() {
   const [statsRef, statsInView] = useInView({ threshold: 0.2, triggerOnce: true });
 
   const getToothStatus = (num) => {
-    if (['16', '36'].includes(num)) return { label: isEn ? 'Caries Treated' : 'Plomba', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' };
-    if (['14'].includes(num)) return { label: isEn ? 'Implant Planned' : 'Implant', color: '#0EA5E9', bg: 'rgba(14, 165, 233, 0.15)' };
-    if (['21'].includes(num)) return { label: isEn ? 'Zirconia Crown' : 'Toj (Koronka)', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' };
-    return { label: isEn ? 'Healthy' : 'Sog\'lom', color: '#64748B', bg: 'rgba(100, 116, 139, 0.1)' };
+    // Caries (Red)
+    if (['15', '25', '47'].includes(num)) {
+      return { label: isEn ? 'Active Caries' : 'Karies', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', isCaries: true };
+    }
+    // Restored / Plomba (Green)
+    if (['16', '26', '36'].includes(num)) {
+      return { label: isEn ? 'Restored (Filling)' : 'Plomba', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', isRestored: true };
+    }
+    // Implant (Cyan / Blue)
+    if (['14', '45'].includes(num)) {
+      return { label: isEn ? 'Dental Implant' : 'Implant', color: '#0EA5E9', bg: 'rgba(14, 165, 233, 0.15)', isImplant: true };
+    }
+    // Crown / Koronka (Amber / Gold)
+    if (['21'].includes(num)) {
+      return { label: isEn ? 'Zirconia Crown' : 'Toj (Koronka)', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)', isCrown: true };
+    }
+    // Root Canal / Endo / Pulpit (Purple)
+    if (['27', '46'].includes(num)) {
+      return { label: isEn ? 'Root Canal (Endo)' : 'Ildiz kanali (Pulpit)', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', isEndo: true };
+    }
+    // Extracted / Missing (Muted / Slate)
+    if (['18', '28', '38'].includes(num)) {
+      return { label: isEn ? 'Extracted' : 'Olingan tish', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.22)', isExtracted: true };
+    }
+    // Healthy (Default)
+    return { label: isEn ? 'Healthy' : "Sog'lom", color: '#64748B', bg: 'rgba(100, 116, 139, 0.08)' };
   };
 
   const currentDesc = isEn
-    ? (TOOTH_DESCRIPTIONS_EN[selectedTooth] || `Tooth ${selectedTooth} • Regular healthy tooth status`)
-    : (TOOTH_DESCRIPTIONS[selectedTooth] || `${selectedTooth}-tish • Sog'lom holatda`);
+    ? (TOOTH_DESCRIPTIONS_EN[selectedTooth] || `Tooth ${selectedTooth} • Sound physiological state, no clinical pathology detected`)
+    : (TOOTH_DESCRIPTIONS[selectedTooth] || `${selectedTooth}-tish • Sog'lom holatda, klinik patologiya aniqlanmadi`);
 
   const currentStatus = getToothStatus(selectedTooth);
 
@@ -138,17 +176,19 @@ export default function Homepage() {
             : 'Bemorlar kartasi, interaktiv odontogramma, kassa va shifokorlar ish jadvali — barchasi bitta qulay bulutli platformada.'}
         </p>
 
+        {/* Action Buttons: 1.1 aniq va tushunarli ajratilgan */}
         <div className={styles.heroActions}>
-          <Link to="/contact" className={styles.primaryCta}>
-            {isEn ? 'Request Live Demo' : "14 kun bepul sinab ko'rish"}
+          <Link to="/signup" className={styles.primaryCta} title={isEn ? 'Start free 14-day trial' : "14 kun bepul sinovni boshlash"}>
+            <Icon name="rocket_launch" size={18} />
+            <span>{isEn ? 'Start 14-Day Free Trial' : "14 kun bepul boshlash"}</span>
           </Link>
-          <Link to="/dashboard" className={styles.secondaryCta}>
-            <Icon name="health_and_safety" size={18} />
-            <span>{isEn ? 'Explore Live Demo' : 'Jonli demo ko\'rish'}</span>
+          <Link to="/dashboard" className={styles.secondaryCta} title={isEn ? 'Try interactive demo' : "Ro'yxatdan o'tmasdan sinab ko'rish"}>
+            <Icon name="play_circle" size={18} />
+            <span>{isEn ? 'Explore Interactive Demo' : "Tizimni sinab ko'rish"}</span>
           </Link>
         </div>
 
-        {/* Hero Dental Arch Interactive Visual */}
+        {/* Hero Dental Arch Interactive Visual (1.3 Kengaytirilgan klinik holatlar) */}
         <div className={styles.heroCanvasWrapper} id="hero-canvas">
           <div className={styles.heroCanvasCard}>
             {/* High-tech holographic scanning beam */}
@@ -160,17 +200,21 @@ export default function Homepage() {
                   {isEn ? 'FDI WORLD DENTAL STANDARD' : 'FDI XALQARO STANDARTI'}
                 </div>
                 <div className={styles.canvasTitle}>
-                  {isEn ? 'Interactive FDI Dental Chart (Live Demonstration)' : 'Interaktiv FDI Odontogramma (Jonli namoyish)'}
+                  {isEn ? 'Interactive FDI Dental Chart (Live Clinical Demo)' : 'Interaktiv FDI Odontogramma (Jonli klinik namoyish)'}
                 </div>
               </div>
-              <div className={styles.canvasLegend}>
+              <div className={styles.canvasLegend} style={{ flexWrap: 'wrap', gap: '12px' }}>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#64748B' }} />
-                  {isEn ? 'Healthy' : 'Sog\'lom'}
+                  {isEn ? 'Healthy' : "Sog'lom"}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#10B981' }} />
                   {isEn ? 'Restored' : 'Plomba'}
+                </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#EF4444' }} />
+                  {isEn ? 'Caries' : 'Karies'}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#0EA5E9' }} />
@@ -180,6 +224,14 @@ export default function Homepage() {
                   <span className={styles.legendDot} style={{ background: '#F59E0B' }} />
                   {isEn ? 'Crown' : 'Koronka'}
                 </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#8B5CF6' }} />
+                  {isEn ? 'Root Canal' : 'Ildiz kanali'}
+                </span>
+                <span className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: '#94A3B8' }} />
+                  {isEn ? 'Extracted' : 'Olingan'}
+                </span>
               </div>
             </div>
 
@@ -188,7 +240,7 @@ export default function Homepage() {
               {/* Upper Arch */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>{isEn ? 'Maxillary Arch (Upper • 18 - 28)' : 'Yuqori jag\' (18 - 28)'}</span>
+                  <span>{isEn ? 'Maxillary Arch (Upper • 18 - 28)' : "Yuqori jag' (18 - 28)"}</span>
                   <span>{isEn ? 'Click any tooth to inspect' : 'Tekshirish uchun ustiga bosing'}</span>
                 </div>
                 <div className={styles.teethGrid}>
@@ -204,10 +256,16 @@ export default function Homepage() {
                         title={`${tooth}-tish • ${status.label}`}
                       >
                         <div
-                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
-                          style={!isSelected && status.customColor ? { borderColor: status.customColor, backgroundColor: status.customBg } : undefined}
+                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isExtracted ? styles.toothBoxExtracted : ''}`}
+                          style={
+                            !isSelected && status.color && status.color !== '#64748B'
+                              ? { borderColor: status.color, backgroundColor: status.bg, boxShadow: `0 0 10px ${status.bg}` }
+                              : undefined
+                          }
                         >
-                          <span className={styles.toothNumber}>{tooth}</span>
+                          <span className={styles.toothNumber} style={!isSelected && status.color && status.color !== '#64748B' ? { color: status.color } : undefined}>
+                            {status.isExtracted ? '✕' : tooth}
+                          </span>
                         </div>
                         <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
                           {tooth}
@@ -221,7 +279,7 @@ export default function Homepage() {
               {/* Lower Arch */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>{isEn ? 'Mandibular Arch (Lower • 48 - 38)' : 'Pastki jag\' (48 - 38)'}</span>
+                  <span>{isEn ? 'Mandibular Arch (Lower • 48 - 38)' : "Pastki jag' (48 - 38)"}</span>
                 </div>
                 <div className={styles.teethGrid}>
                   {HERO_LOWER_TEETH.map((tooth, idx) => {
@@ -236,10 +294,16 @@ export default function Homepage() {
                         title={`${tooth}-tish • ${status.label}`}
                       >
                         <div
-                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isTreated ? styles.toothBoxTreated : ''}`}
-                          style={!isSelected && status.customColor ? { borderColor: status.customColor, backgroundColor: status.customBg } : undefined}
+                          className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isExtracted ? styles.toothBoxExtracted : ''}`}
+                          style={
+                            !isSelected && status.color && status.color !== '#64748B'
+                              ? { borderColor: status.color, backgroundColor: status.bg, boxShadow: `0 0 10px ${status.bg}` }
+                              : undefined
+                          }
                         >
-                          <span className={styles.toothNumber}>{tooth}</span>
+                          <span className={styles.toothNumber} style={!isSelected && status.color && status.color !== '#64748B' ? { color: status.color } : undefined}>
+                            {status.isExtracted ? '✕' : tooth}
+                          </span>
                         </div>
                         <span className={`${styles.toothLabel} ${isSelected ? styles.toothLabelSelected : ''}`}>
                           {tooth}
@@ -262,19 +326,27 @@ export default function Homepage() {
           </div>
         </div>
 
-        {/* Security & Compliance Strip */}
-        <div className={styles.trustBadgeRow}>
-          <div className={styles.trustItem}>
-            <Icon name="lock" size={16} />
-            <span>256-bit SSL Shifrlash</span>
-          </div>
+        {/* 1.4 Kuchaytirilgan Ishonch va Xavfsizlik Nishonlari (Social Proof & Trust Badges) */}
+        <div className={styles.trustBadgeRow} style={{ flexWrap: 'wrap', gap: '14px', justifyContent: 'center' }}>
           <div className={styles.trustItem}>
             <Icon name="verified_user" size={16} />
-            <span>O'zR Qonuni (O'RQ-547)</span>
+            <span>{isEn ? "Uzbekistan Law O'RQ-547 Compliant" : "O'zR Qonuni (O'RQ-547) ga mos"}</span>
+          </div>
+          <div className={styles.trustItem}>
+            <Icon name="domain" size={16} />
+            <span>{isEn ? '350+ Licensed Clinics in UZ' : "O'zbekistondagi 350+ klinikalar ishonchi"}</span>
+          </div>
+          <div className={styles.trustItem}>
+            <Icon name="lock" size={16} />
+            <span>{isEn ? '256-bit Medical Grade SSL' : '256-bit Shifrlash & Xavfsiz Baza'}</span>
+          </div>
+          <div className={styles.trustItem}>
+            <Icon name="cloud_done" size={16} />
+            <span>{isEn ? '99.8% Uptime (Tashkent DC)' : '99.8% Uptime (Toshkent Serverlari)'}</span>
           </div>
           <div className={styles.trustItem}>
             <Icon name="credit_card_off" size={16} />
-            <span>Karta talab qilinmaydi</span>
+            <span>{isEn ? 'No Credit Card Required' : '14 kun bepul • Karta talab qilinmaydi'}</span>
           </div>
         </div>
       </section>

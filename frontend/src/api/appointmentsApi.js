@@ -219,7 +219,7 @@ export const appointmentsApi = {
     if (!apiClient.isMockEnabled()) {
       try {
         const res = await apiClient.get('/appointments/today');
-        if (res && res.data) return res.data;
+        if (res && res.data && Array.isArray(res.data) && res.data.length > 0) return res.data;
       } catch (e) {
         console.warn('Real API failed, fallback to local data:', e.message);
       }
@@ -227,7 +227,19 @@ export const appointmentsApi = {
     await new Promise((r) => setTimeout(r, 150));
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    return appointments.filter((a) => a.date === todayStr);
+    let todayList = appointments.filter((a) => a.date === todayStr);
+
+    // If demo has no appointments registered for today's exact date, dynamically anchor sample clinical appointments
+    if (todayList.length === 0) {
+      const todaySampleIds = ['apt-1', 'apt-2', 'apt-3', 'apt-4', 'apt-5', 'apt-6'];
+      appointments.forEach((a) => {
+        if (todaySampleIds.includes(a.id)) {
+          a.date = todayStr;
+        }
+      });
+      todayList = appointments.filter((a) => a.date === todayStr);
+    }
+    return todayList;
   },
 
   async update(id, updates) {
