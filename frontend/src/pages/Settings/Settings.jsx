@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { teamApi } from '../../api/teamApi';
+import { servicesApi } from '../../api/servicesApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import { usePageMeta } from '../../hooks/usePageMeta';
@@ -256,8 +257,12 @@ export default function Settings() {
     async function load() {
       setLoading(true);
       try {
-        const data = await teamApi.getTeam();
-        setTeam(data);
+        const [teamData, servicesData] = await Promise.all([
+          teamApi.getTeam(),
+          servicesApi.getAll().catch(() => null)
+        ]);
+        if (teamData) setTeam(teamData);
+        if (servicesData && servicesData.length > 0) setServices(servicesData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -346,14 +351,25 @@ export default function Settings() {
     setTimeout(() => setPassSuccess(false), 3000);
   };
 
-  const handleSaveService = (e) => {
+  const handleSaveService = async (e) => {
     e.preventDefault();
     if (editService) {
-      setServices(prev => prev.map(s => s.id === editService.id ? { ...editService, ...serviceForm, price: Number(serviceForm.price) } : s));
+      const updated = { ...editService, ...serviceForm, price: Number(serviceForm.price) };
+      setServices(prev => prev.map(s => s.id === editService.id ? updated : s));
+      try {
+        await servicesApi.update(editService.id, updated);
+      } catch (err) {
+        console.warn('Update service failed:', err);
+      }
       showToast('success', isEn ? 'Updated' : 'Yangilandi', isEn ? `${serviceForm.name} service updated.` : `${serviceForm.name} xizmati yangilandi.`);
     } else {
-      const newSvc = { id: Date.now(), ...serviceForm, price: Number(serviceForm.price) };
-      setServices(prev => [...prev, newSvc]);
+      const newSvc = { ...serviceForm, price: Number(serviceForm.price) };
+      try {
+        const created = await servicesApi.create(newSvc);
+        setServices(prev => [...prev, created || { id: `srv-${Date.now()}`, ...newSvc }]);
+      } catch (err) {
+        setServices(prev => [...prev, { id: `srv-${Date.now()}`, ...newSvc }]);
+      }
       showToast('success', isEn ? 'Created' : 'Qo\'shildi', isEn ? `${serviceForm.name} service added to catalog.` : `${serviceForm.name} xizmati qo'shildi.`);
     }
     setShowServiceModal(false);
@@ -361,8 +377,13 @@ export default function Settings() {
     setServiceForm({ category: 'Davolash', name: '', duration: 30, price: '' });
   };
 
-  const handleDeleteService = (id) => {
+  const handleDeleteService = async (id) => {
     setServices(prev => prev.filter(s => s.id !== id));
+    try {
+      await servicesApi.delete(id);
+    } catch (err) {
+      console.warn('Delete service failed:', err);
+    }
     showToast('info', isEn ? 'Deleted' : 'O\'chirildi', isEn ? 'Service removed from price list.' : 'Xizmat ro\'yxatdan olib tashlandi.');
   };
 

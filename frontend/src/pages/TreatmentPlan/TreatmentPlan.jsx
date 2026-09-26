@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import { odontogramApi } from '../../api/odontogramApi';
+import { treatmentPlanApi } from '../../api/treatmentPlanApi';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import Toast from '../../components/Toast/Toast';
 import Logo from '../../components/Logo/Logo';
@@ -92,17 +93,23 @@ export default function TreatmentPlan() {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadChart() {
+    async function loadPlanAndChart() {
       try {
-        const data = await odontogramApi.getChart('P-1042');
-        if (isMounted && data) {
-          setChartData(data);
+        const [data, plans] = await Promise.all([
+          odontogramApi.getChart('P-1042'),
+          treatmentPlanApi.getAll({ patientId: 'P-1042' }).catch(() => null)
+        ]);
+        if (isMounted) {
+          if (data) setChartData(data);
+          if (plans && Array.isArray(plans) && plans.length > 0 && plans[0].items?.length > 0) {
+            setItems(plans[0].items);
+          }
         }
       } catch (e) {
-        console.warn('Failed to load odontogram chart:', e);
+        console.warn('Failed to load treatment plan or odontogram chart:', e);
       }
     }
-    loadChart();
+    loadPlanAndChart();
     return () => { isMounted = false; };
   }, []);
 
@@ -210,7 +217,7 @@ export default function TreatmentPlan() {
     }
   };
 
-  const handleAddStep = (e) => {
+  const handleAddStep = async (e) => {
     e.preventDefault();
     if (!newStep.title) return;
     const stepNum = String(items.length + 1).padStart(2, '0');
@@ -223,8 +230,20 @@ export default function TreatmentPlan() {
       price: Number(newStep.price) || 500000,
       status: newStep.status
     };
-    setItems((prev) => [...prev, created]);
+    const updatedList = [...items, created];
+    setItems(updatedList);
     setShowAddModal(false);
+    try {
+      await treatmentPlanApi.create({
+        patientId: 'P-1042',
+        title: 'Kompleks davolash rejasi',
+        items: updatedList,
+        totalEstimatedCost: updatedList.reduce((acc, curr) => acc + curr.price, 0),
+        status: 'active'
+      });
+    } catch (err) {
+      console.warn('Sync treatment plan failed:', err);
+    }
     setNewStep({
       title: '',
       desc: '',

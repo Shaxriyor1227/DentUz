@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { patientsApi } from '../../api/patientsApi';
 import { odontogramApi } from '../../api/odontogramApi';
+import { medicalRecordsApi } from '../../api/medicalRecordsApi';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
@@ -168,17 +169,21 @@ export default function PatientProfile() {
   const [paymentMethod, setPaymentMethod] = useState('Payme');
   const [activeReceipt, setActiveReceipt] = useState(null);
 
-  // Load patient & odontogram
+  // Load patient & odontogram & medical records
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const [pat, chart] = await Promise.all([
+        const [pat, chart, recs] = await Promise.all([
           patientsApi.getById(id || '1042'),
-          odontogramApi.getChart(id || '1042')
+          odontogramApi.getChart(id || '1042'),
+          medicalRecordsApi.getByPatient(id || '1042').catch(() => null)
         ]);
         setPatient(pat);
         setChartData(chart);
+        if (recs && recs.length > 0) {
+          setTreatments(recs);
+        }
 
         const initialTooth = chart['16'] || chart[Object.keys(chart)[0]];
         if (initialTooth) {
@@ -235,7 +240,7 @@ export default function PatientProfile() {
   };
 
   // Add treatment to history
-  const handleAddTreatment = (e) => {
+  const handleAddTreatment = async (e) => {
     e.preventDefault();
     if (!newTreatment.title) return;
     const added = {
@@ -251,6 +256,18 @@ export default function PatientProfile() {
     };
     setTreatments((prev) => [added, ...prev]);
     setShowAddTreatmentModal(false);
+    try {
+      await medicalRecordsApi.create({
+        patientId: id || '1042',
+        tooth: added.tooth,
+        complaints: added.title,
+        diagnosis: added.title,
+        treatmentDone: added.note,
+        price: added.price
+      });
+    } catch (err) {
+      console.warn('Sync medical record failed:', err);
+    }
     setNewTreatment({ tooth: '#16', title: '', materials: '', price: '', doctor: 'Dr. J. Azimov' });
   };
 
