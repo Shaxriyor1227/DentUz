@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Odontogram from '../../components/Odontogram/Odontogram';
+import { odontogramApi } from '../../api/odontogramApi';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import Toast from '../../components/Toast/Toast';
 import Logo from '../../components/Logo/Logo';
@@ -71,6 +73,8 @@ const STATUS_OPTIONS = [
   { key: 'cancelled', labelUz: 'Bekor qilingan', labelEn: 'Cancelled', dotColor: '#EF4444' }
 ];
 
+const normalizeTooth = (t) => (t ? String(t).replace('#', '').trim() : t);
+
 export default function TreatmentPlan() {
   const { t, i18n } = useTranslation();
   const [items, setItems] = useState(INITIAL_PROCEDURES);
@@ -79,6 +83,33 @@ export default function TreatmentPlan() {
   const [openDropdownStep, setOpenDropdownStep] = useState(null);
   const [toastNotice, setToastNotice] = useState(null);
   const dropdownRef = useRef(null);
+
+  // Odontogram Integration States
+  const [chartData, setChartData] = useState({});
+  const [selectedToothId, setSelectedToothId] = useState('16');
+  const [showToothSheet, setShowToothSheet] = useState(false);
+  const [filterByTooth, setFilterByTooth] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadChart() {
+      try {
+        const data = await odontogramApi.getChart('P-1042');
+        if (isMounted && data) {
+          setChartData(data);
+        }
+      } catch (e) {
+        console.warn('Failed to load odontogram chart:', e);
+      }
+    }
+    loadChart();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleSelectTooth = (toothId) => {
+    setSelectedToothId(toothId);
+    setShowToothSheet(true);
+  };
 
   const [newStep, setNewStep] = useState({
     title: '',
@@ -317,90 +348,210 @@ export default function TreatmentPlan() {
         </div>
       </div>
 
-      {/* 3. Treatment Procedures Ledger Table */}
-      <div className={styles.ledgerCard}>
-        <div className={styles.ledgerHeader}>
-          <span>#</span>
-          <span>{t('treatmentPlan.procedure')}</span>
-          <span>{t('treatmentPlan.tooth')}</span>
-          <span>{t('treatmentPlan.date')}</span>
-          <span style={{ textAlign: 'right' }}>{t('treatmentPlan.cost')} & {t('treatmentPlan.status')}</span>
-        </div>
-
-        {items.map((proc) => {
-          const isOpen = openDropdownStep === proc.step;
-          return (
-            <div
-              key={proc.step}
-              className={`${styles.stepRow} ${isOpen ? styles.stepRowActiveDropdown : ''}`}
-            >
-              <div className={styles.stepNum}>{proc.step}</div>
-            <div className={styles.stepDetails}>
-              <div className={styles.stepTitle}>{proc.title}</div>
-              <div className={styles.stepDesc}>{proc.desc}</div>
+      {/* 3. FDI Odontogram Interactive Arch Visualizer */}
+      <section className={styles.odontogramSection}>
+        <div className={styles.odontogramSectionHeader}>
+          <div className={styles.odontogramTitleGroup}>
+            <div className={styles.odontogramIconSquircle}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                dentistry
+              </span>
             </div>
             <div>
-              <span className={styles.toothTag}>{proc.tooth}</span>
-            </div>
-            <div className={styles.stepDate}>{proc.date}</div>
-            <div className={styles.stepPriceCol}>
-              <span className={styles.priceAmount}>{formatUZS(proc.price)}</span>
-              
-              <div
-                className={styles.statusDropdownContainer}
-                ref={openDropdownStep === proc.step ? dropdownRef : null}
-              >
-                <button
-                  type="button"
-                  className={styles.statusSelectTrigger}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDropdownStep((prev) => (prev === proc.step ? null : proc.step));
-                  }}
-                  title={t('treatmentPlan.status')}
-                  aria-haspopup="listbox"
-                  aria-expanded={openDropdownStep === proc.step}
-                >
-                  <StatusPill status={proc.status} />
-                  <span className={`material-symbols-outlined ${styles.triggerChevron}`}>
-                    {openDropdownStep === proc.step ? 'expand_less' : 'expand_more'}
-                  </span>
-                </button>
-
-                {openDropdownStep === proc.step && (
-                  <div className={styles.statusPopover} onClick={(e) => e.stopPropagation()}>
-                    {STATUS_OPTIONS.map((opt) => {
-                      const isCurrent = proc.status === opt.key;
-                      return (
-                        <button
-                          key={opt.key}
-                          type="button"
-                          className={`${styles.popoverOption} ${isCurrent ? styles.popoverOptionActive : ''}`}
-                          onClick={() => handleSelectStatus(proc.step, opt.key)}
-                        >
-                          <span
-                            className={styles.optionDot}
-                            style={{ backgroundColor: opt.dotColor }}
-                          />
-                          <span className={styles.optionLabel}>{i18n.language === 'en' ? opt.labelEn : opt.labelUz}</span>
-                          {isCurrent && (
-                            <span
-                              className={`material-symbols-outlined ${styles.optionCheck}`}
-                            >
-                              check
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+              <div className={styles.odontogramSectionTitle}>
+                {t('odontogram.title')} — FDI Raqamli Tish Xaritasi
+              </div>
+              <div className={styles.odontogramSectionSub}>
+                {i18n.language === 'en'
+                  ? 'Click any tooth to inspect clinical diagnosis, plan, and link procedures'
+                  : 'Muolaja va tashxisni ko\'rish uchun tish ustiga bosing'}
               </div>
             </div>
           </div>
-          );
-        })}
-      </div>
+
+          <div className={styles.odontogramFilterPills}>
+            {selectedToothId && (
+              <div
+                className={styles.toothFilterChip}
+                onClick={() => setFilterByTooth(!filterByTooth)}
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                  {filterByTooth ? 'filter_alt' : 'filter_alt_off'}
+                </span>
+                <span>
+                  {filterByTooth
+                    ? (i18n.language === 'en' ? `Filtered: #${selectedToothId}` : `Filtr: #${selectedToothId} tish`)
+                    : (i18n.language === 'en' ? `Selected: #${selectedToothId} (Filter list)` : `Tanlandi: #${selectedToothId}`)}
+                </span>
+                <button
+                  type="button"
+                  className={styles.clearFilterBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedToothId(null);
+                    setFilterByTooth(false);
+                  }}
+                  title="Tozalash"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>close</span>
+                </button>
+              </div>
+            )}
+            {selectedToothId && (
+              <button
+                type="button"
+                className={styles.toothFilterChip}
+                onClick={() => setShowToothSheet(true)}
+                style={{ background: 'var(--color-surface-container)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                  assignment
+                </span>
+                <span>{i18n.language === 'en' ? 'Tooth Sheet' : 'Tish kartasi'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        <Odontogram
+          chartData={chartData}
+          selectedToothId={selectedToothId}
+          onSelectTooth={handleSelectTooth}
+        />
+      </section>
+
+      {/* 4. Apple-style Treatment Procedures Ledger Cards */}
+      {(() => {
+        const displayedItems = filterByTooth && selectedToothId
+          ? items.filter((item) => item.tooth === 'Umumiy' || normalizeTooth(item.tooth) === normalizeTooth(selectedToothId))
+          : items;
+
+        return (
+          <div className={styles.cardsListContainer}>
+            <div className={styles.appleCardHeaderRow}>
+              <div className={styles.appleCardListTitle}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '18px' }}>
+                  list_alt
+                </span>
+                <span>{t('treatmentPlan.proceduresLedger')} ({displayedItems.length})</span>
+                {filterByTooth && (
+                  <span className={styles.toothFilterChip} style={{ fontSize: '10.5px', padding: '2px 8px' }}>
+                    #{selectedToothId} tish filtri faol
+                  </span>
+                )}
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                {i18n.language === 'en' ? 'Status & Pricing' : 'Holat va narxlar'}
+              </span>
+            </div>
+
+            {displayedItems.map((proc) => {
+              const isHighlighted = selectedToothId && normalizeTooth(proc.tooth) === normalizeTooth(selectedToothId);
+              const isDone = proc.status === 'completed';
+              const isInProgress = proc.status === 'in_progress';
+
+              return (
+                <div
+                  key={proc.step}
+                  className={`${styles.appleProcedureCard} ${isHighlighted ? styles.appleProcedureCardHighlighted : ''}`}
+                >
+                  <div className={styles.cardLeftCol}>
+                    <div className={`${styles.appleStepSquircle} ${isDone ? styles.appleStepDone : isInProgress ? styles.appleStepActive : ''}`}>
+                      {isDone ? (
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check</span>
+                      ) : (
+                        proc.step
+                      )}
+                    </div>
+
+                    <div className={styles.cardContentGroup}>
+                      <div className={styles.cardTitle}>{proc.title}</div>
+                      <div className={styles.cardDesc}>{proc.desc}</div>
+                      <div className={styles.cardMetaTagsRow}>
+                        <button
+                          type="button"
+                          className={styles.cardToothTag}
+                          onClick={() => {
+                            const rawTooth = proc.tooth.replace(/\D/g, '');
+                            if (rawTooth) {
+                              setSelectedToothId(rawTooth);
+                              setShowToothSheet(true);
+                            }
+                          }}
+                          title="Odontogrammada ko'rish"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>dentistry</span>
+                          <span>{proc.tooth}</span>
+                        </button>
+                        <span className={styles.cardDateTag}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>calendar_today</span>
+                          <span>{proc.date}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.cardRightCol}>
+                    <div className={styles.cardPriceBox}>
+                      <span className={styles.cardPriceVal}>{formatUZS(proc.price)}</span>
+                    </div>
+
+                    <div
+                      className={styles.statusDropdownContainer}
+                      ref={openDropdownStep === proc.step ? dropdownRef : null}
+                    >
+                      <button
+                        type="button"
+                        className={styles.statusSelectTrigger}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdownStep((prev) => (prev === proc.step ? null : proc.step));
+                        }}
+                        title={t('treatmentPlan.status')}
+                        aria-haspopup="listbox"
+                        aria-expanded={openDropdownStep === proc.step}
+                      >
+                        <StatusPill status={proc.status} />
+                        <span className={`material-symbols-outlined ${styles.triggerChevron}`}>
+                          {openDropdownStep === proc.step ? 'expand_less' : 'expand_more'}
+                        </span>
+                      </button>
+
+                      {openDropdownStep === proc.step && (
+                        <div className={styles.statusPopover} onClick={(e) => e.stopPropagation()}>
+                          {STATUS_OPTIONS.map((opt) => {
+                            const isCurrent = proc.status === opt.key;
+                            return (
+                              <button
+                                key={opt.key}
+                                type="button"
+                                className={`${styles.popoverOption} ${isCurrent ? styles.popoverOptionActive : ''}`}
+                                onClick={() => handleSelectStatus(proc.step, opt.key)}
+                              >
+                                <span
+                                  className={styles.optionDot}
+                                  style={{ backgroundColor: opt.dotColor }}
+                                />
+                                <span className={styles.optionLabel}>{i18n.language === 'en' ? opt.labelEn : opt.labelUz}</span>
+                                {isCurrent && (
+                                  <span className={`material-symbols-outlined ${styles.optionCheck}`}>
+                                    check
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* 5. Total calculation summary card */}
       <div className={styles.totalSummaryCard}>
@@ -423,6 +574,174 @@ export default function TreatmentPlan() {
           </span>
         </div>
       </div>
+
+      {/* Apple-style Tooth Detail Sheet / Modal */}
+      {showToothSheet && selectedToothId && (
+        <div className={styles.appleToothModalOverlay} onClick={() => setShowToothSheet(false)}>
+          <div className={styles.appleToothCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.appleToothHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className={styles.odontogramIconSquircle} style={{ width: '40px', height: '40px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '15px' }}>
+                    #{selectedToothId}
+                  </span>
+                </div>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15.5px', color: 'var(--color-text-primary)' }}>
+                    {chartData[selectedToothId]?.name || `${selectedToothId}-tish`}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        fontSize: '10.5px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        padding: '2px 7px',
+                        borderRadius: '9999px',
+                        background:
+                          chartData[selectedToothId]?.status === 'caries'
+                            ? 'rgba(239,68,68,0.15)'
+                            : chartData[selectedToothId]?.status === 'treated'
+                            ? 'rgba(16,185,129,0.15)'
+                            : 'rgba(6,182,212,0.12)',
+                        color:
+                          chartData[selectedToothId]?.status === 'caries'
+                            ? '#EF4444'
+                            : chartData[selectedToothId]?.status === 'treated'
+                            ? '#10B981'
+                            : 'var(--color-cyan-hover)'
+                      }}
+                    >
+                      {chartData[selectedToothId]?.status || 'healthy'}
+                    </span>
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>FDI Xalqaro standarti</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles.clearFilterBtn}
+                onClick={() => setShowToothSheet(false)}
+                style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(120, 120, 128, 0.12)', justifyContent: 'center' }}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+              </button>
+            </div>
+
+            <div className={styles.appleToothBody}>
+              <div className={styles.clinicalBox}>
+                <div className={styles.clinicalBoxLabel}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#EF4444' }}>
+                    medical_services
+                  </span>
+                  <span>{i18n.language === 'en' ? 'Clinical Diagnosis' : 'Klinik Tashxis'}</span>
+                </div>
+                <div className={styles.clinicalBoxText}>
+                  {chartData[selectedToothId]?.diagnosis || (i18n.language === 'en' ? 'No active pathology recorded for this tooth.' : 'Ushbu tish bo\'yicha patologiya aniqlanmagan, holati normada.')}
+                </div>
+              </div>
+
+              <div className={styles.clinicalBox}>
+                <div className={styles.clinicalBoxLabel}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'var(--color-cyan-hover)' }}>
+                    assignment
+                  </span>
+                  <span>{i18n.language === 'en' ? 'Recommended Treatment Protocol' : 'Tavsiya etilgan davolash rejasi'}</span>
+                </div>
+                <div className={styles.clinicalBoxText}>
+                  {chartData[selectedToothId]?.plan || (i18n.language === 'en' ? 'Routine hygiene & observational follow-up.' : 'Profilaktik kuzatuv va gigiyena tavsiya etiladi.')}
+                </div>
+              </div>
+
+              <div className={styles.toothItemsStrip}>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}>
+                  {i18n.language === 'en' ? 'Linked Procedures' : 'Biriktirilgan muolajalar'} ({items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).length})
+                </div>
+
+                {items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).length === 0 ? (
+                  <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', padding: '10px 0', fontStyle: 'italic' }}>
+                    {i18n.language === 'en' ? 'No procedures linked to this tooth in current plan.' : 'Ushbu tish bo\'yicha rejada muolaja kiritilmagan.'}
+                  </div>
+                ) : (
+                  items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).map(proc => (
+                    <div key={proc.step} className={styles.toothItemMini}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: 'var(--color-cyan-hover)' }}>
+                          #{proc.step}
+                        </span>
+                        <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                          {proc.title}
+                        </span>
+                      </div>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>
+                        {formatUZS(proc.price)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className={styles.toothModalTotalBox}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  {i18n.language === 'en' ? `Total for Tooth #${selectedToothId}` : `#${selectedToothId} tish bo'yicha jami:`}
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                  {formatUZS(items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).reduce((sum, p) => sum + p.price, 0))}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterByTooth(true);
+                    setShowToothSheet(false);
+                  }}
+                  style={{
+                    flex: 1,
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'var(--color-surface-container)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {i18n.language === 'en' ? 'Filter Ledger' : 'Ro\'yxatda ko\'rsatish'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewStep(prev => ({ ...prev, tooth: `#${selectedToothId}` }));
+                    setShowToothSheet(false);
+                    setShowAddModal(true);
+                  }}
+                  style={{
+                    flex: 1,
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)',
+                    border: 'none',
+                    color: '#fff',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)'
+                  }}
+                >
+                  + {i18n.language === 'en' ? 'Add Procedure' : 'Muolaja qo\'shish'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Step Modal */}
       {showAddModal && (

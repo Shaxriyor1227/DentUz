@@ -1004,3 +1004,368 @@
     font-size: 15px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   APPLE-STYLE ODONTOGRAM CONTAINER & TOOTH SHEET
+   ════════════════════════════════════════════════════════════ */
+.odontogramSection {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-apple-card, 16px);
+  border: 1px solid var(--apple-card-border, var(--color-border));
+  box-shadow: var(--shadow-apple-card, var(--shadow-xs));
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  transition: all 0.22s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.odontogramSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.odontogramTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.odontogramIconSquircle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-apple-md, 12px);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.12));
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.odontogramSectionTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.odontogramSectionSub {
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+}
+
+.odontogramFilterPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toothFilterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: var(--color-cyan-hover);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.toothFilterChip:hover {
+  background: rgba(6, 182, 212, 0.2);
+}
+
+.clearFilterBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.clearFilterBtn:hover {
+  color: var(--color-text-primary);
+}
+
+/* ════════════════════════════════════════════════════════════
+   APPLE-STYLE PROCEDURE ROW CARDS (Replaces flat table)
+   ════════════════════════════════════════════════════════════ */
+.cardsListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.appleCardHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+}
+
+.appleCardListTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appleProcedureCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-apple-card, 16px);
+  border: 1px solid var(--apple-card-border, var(--color-border));
+  box-shadow: var(--shadow-apple-card, var(--shadow-xs));
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.22s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+  position: relative;
+  overflow: visible;
+}
+
+.appleProcedureCard:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-apple-hover, 0 8px 24px rgba(6, 182, 212, 0.12));
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.appleProcedureCardHighlighted {
+  border-color: var(--color-cyan) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(59, 130, 246, 0.03) 100%) !important;
+  box-shadow: 0 0 0 1.5px var(--color-cyan), 0 8px 24px rgba(6, 182, 212, 0.16) !important;
+}
+
+.cardLeftCol {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.appleStepSquircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background-color: var(--color-surface-container);
+  color: var(--color-text-secondary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.appleStepDone {
+  background: rgba(16, 185, 129, 0.14);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.appleStepActive {
+  background: rgba(6, 182, 212, 0.14);
+  color: var(--color-cyan-hover);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.cardContentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+.cardDesc {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.cardMetaTagsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.cardToothTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.09);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cardToothTag:hover {
+  background: rgba(6, 182, 212, 0.18);
+}
+
+.cardDateTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+.cardRightCol {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.cardPriceBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.cardPriceVal {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ════════════════════════════════════════════════════════════
+   APPLE TOOTH DETAIL MODAL / SHEET (Dense blur token)
+   ════════════════════════════════════════════════════════════ */
+.appleToothModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: var(--apple-blur-dense, blur(8px) saturate(140%));
+  -webkit-backdrop-filter: var(--apple-blur-dense, blur(8px) saturate(140%));
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 0.24s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.appleToothCard {
+  width: 100%;
+  max-width: 480px;
+  background: var(--apple-glass-bg, rgba(255, 255, 255, 0.94));
+  border: 1px solid var(--apple-card-border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple-sheet, 26px);
+  box-shadow: var(--shadow-apple-sheet, 0 32px 64px -12px rgba(0, 0, 0, 0.2));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleUp 0.22s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.appleToothHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.appleToothBody {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.clinicalBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-apple-card, 16px);
+  background: rgba(120, 120, 128, 0.05);
+  border: 1px solid rgba(120, 120, 128, 0.08);
+}
+
+.clinicalBoxLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clinicalBoxText {
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}
+
+.toothItemsStrip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toothItemMini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-apple-md, 12px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  gap: 10px;
+}
+
+.toothModalTotalBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: var(--radius-apple-card, 16px);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}

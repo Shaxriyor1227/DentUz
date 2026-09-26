@@ -1,0 +1,420 @@
+/* Apple-style Reusable Appointment Pill / Card */
+.pillBase {
+  position: relative;
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1)),
+              box-shadow 0.18s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1)),
+              border-color 0.18s ease;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.pillBase:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-apple-hover, 0 6px 16px rgba(15, 23, 42, 0.12));
+}
+
+.pillBase:active {
+  transform: scale(0.985);
+}
+
+/* =========================================================
+   VARIANT: WEEK VIEW (Compact Grid Card)
+   ========================================================= */
+.variantWeek {
+  border-radius: var(--radius-apple-md, 12px);
+  padding: 8px 10px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.weekHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.weekTime {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.weekStatusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.weekPatient {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.weekProcedure {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weekDoctorTag {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-secondary);
+  width: fit-content;
+  margin-top: 2px;
+}
+
+/* =========================================================
+   VARIANT: CHAIRS / OPERATORIES (Apple Pastel Pill)
+   ========================================================= */
+.variantChairs {
+  border-radius: var(--radius-apple-card, 14px);
+  padding: 9px 12px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  gap: 4px;
+  margin-bottom: 6px;
+  transition: all 0.2s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.chairsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.chairsTimeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background: var(--color-surface-container-low);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+.chairsStatusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1.5px 6px;
+  border-radius: var(--radius-full);
+}
+
+.chairsPatientName {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.chairsProcedure {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chairsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 3px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.chairsDoctorPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.chairsDoctorAvatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.chairsOperatoryTag {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.chairsDurationTag {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-container);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.weekChairBadge {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.12);
+  padding: 1px 4.5px;
+  border-radius: 4px;
+  letter-spacing: -0.01em;
+}
+
+.dayApptChairBadge {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   VARIANT: DAY VIEW (Detailed Card)
+   ========================================================= */
+.variantDay {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.variantDay:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.10);
+  border-color: var(--color-border-hover);
+}
+
+.dayApptHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dayApptTimeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-container-low);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.dayApptStatusPill {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayApptPatientRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dayApptPatientName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.dayApptPatientId {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.dayApptProcedureBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+
+.dayApptFooterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 2px;
+}
+
+.dayApptDoctorInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dayApptDoctorAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayApptDoctorName {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.dayApptActionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  transition: transform var(--transition-fast);
+}
+
+.variantDay:hover .dayApptActionLink {
+  transform: translateX(3px);
+}
+
+/* =========================================================
+   VARIANT: MONTH VIEW (Micro Pill)
+   ========================================================= */
+.variantMonth {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 6px;
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  font-size: 10.5px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+  transition: all 0.15s ease;
+}
+
+.variantMonth:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-cyan);
+}
+
+.monthDot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.monthTime {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+.monthPatient {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.monthChairBadge {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.12);
+  padding: 0 3.5px;
+  border-radius: 3px;
+  margin-right: 2px;
+  flex-shrink: 0;
+}

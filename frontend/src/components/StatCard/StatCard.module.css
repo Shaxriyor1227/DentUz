@@ -1,27 +1,28 @@
 .card {
   background-color: var(--color-surface);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-apple-card, 16px);
+  padding: 16px 20px;
+  border: 1px solid var(--apple-card-border, var(--color-border));
+  box-shadow: var(--shadow-apple-card, var(--shadow-xs));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all var(--transition-base);
+  transition: all 0.22s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
   position: relative;
   overflow: hidden;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: var(--color-cyan);
+  box-shadow: var(--shadow-apple-hover, var(--shadow-sm));
+  border-color: rgba(6, 182, 212, 0.45);
+  transform: translateY(-2px);
 }
 
 .cardTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
 }
 
 .label {
@@ -44,11 +45,25 @@
   color: var(--color-cyan-hover);
 }
 
-.valueRow {
+.valueWithSparkline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: var(--space-xs) 0 var(--space-sm);
+}
+
+.valueRow {
   display: flex;
   align-items: baseline;
   gap: var(--space-xs);
+}
+
+.sparklineSvg {
+  width: 76px;
+  height: 28px;
+  overflow: visible;
+  flex-shrink: 0;
 }
 
 .value {

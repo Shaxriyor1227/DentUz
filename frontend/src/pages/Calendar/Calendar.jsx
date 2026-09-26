@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { appointmentsApi } from '../../api/appointmentsApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
+import AppointmentPill from '../../components/AppointmentPill/AppointmentPill';
 import styles from './Calendar.module.css';
 
 const DAY_NAMES = [
@@ -132,6 +133,7 @@ function formatUzbekPhone(value) {
 export default function Calendar() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -161,6 +163,20 @@ export default function Calendar() {
 
   // Modal State - Simplified, High-Speed
   const [showModal, setShowModal] = useState(false);
+
+  // Check navigation intent from Dashboard or other pages
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (location.state?.openNewModal || params.get('new') === '1') {
+      setShowModal(true);
+      if (location.state?.chair || params.get('chair')) {
+        const chairVal = location.state?.chair || parseInt(params.get('chair'), 10);
+        setNewApt((prev) => ({ ...prev, chair: chairVal }));
+      }
+      // Immediately clear state so browser back button does not re-open modal
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
   const [newApt, setNewApt] = useState(() => {
     const today = new Date();
     const dayKey = DAY_NAMES[(today.getDay() + 6) % 7].key;
@@ -180,6 +196,58 @@ export default function Calendar() {
   const [doctorDropdownOpen, setDoctorDropdownOpen] = useState(false);
   const [doctorSearch, setDoctorSearch] = useState('');
   const doctorSelectRef = useRef(null);
+
+  // Chairs View & Apple Quick-Add Popover State
+  const [quickAddSlot, setQuickAddSlot] = useState(null); // { chair, time, date }
+
+  // TODO: totalChairs hozircha faqat shu brauzerda saqlanadi (localStorage), keyinchalik Clinic.totalChairs backend maydoniga ko'chirilishi kerak
+  const totalChairs = useMemo(() => {
+    const saved = localStorage.getItem('dentuz_clinic_chairs');
+    const parsed = saved ? parseInt(saved, 10) : 7;
+    return isNaN(parsed) || parsed < 1 ? 7 : parsed;
+  }, []);
+
+  // Operatory chairs list: union of range(1, totalChairs) and any chair numbers present in appointments for active day
+  const operatoryChairs = useMemo(() => {
+    const chairsSet = new Set(Array.from({ length: totalChairs }, (_, i) => i + 1));
+    const activeDate = formatYYYYMMDD(currentDate);
+    const dayKey = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][currentDate.getDay()];
+    appointments.forEach((a) => {
+      const isForDay = a.date ? a.date === activeDate : a.day === dayKey;
+      if (isForDay) {
+        const chairNum = parseInt(a.chair, 10);
+        if (!isNaN(chairNum) && chairNum > 0) {
+          chairsSet.add(chairNum);
+        }
+      }
+    });
+    return Array.from(chairsSet).sort((a, b) => a - b);
+  }, [totalChairs, appointments, currentDate]);
+
+  const handleOpenChairSlot = (chairNum, slotTime, dateStr) => {
+    setNewApt((prev) => ({
+      ...prev,
+      chair: chairNum,
+      time: slotTime || '10:00',
+      date: dateStr || formatYYYYMMDD(currentDate)
+    }));
+    setQuickAddSlot({
+      chair: chairNum,
+      time: slotTime || '10:00',
+      date: dateStr || formatYYYYMMDD(currentDate)
+    });
+  };
+
+  const getChairAppointmentsForHour = (dateStr, dayKey, chairNum, slotTime) => {
+    const slotHour = parseInt(slotTime.split(':')[0], 10);
+    return filteredAppointments.filter((a) => {
+      if (a.chair !== chairNum) return false;
+      const aptHour = parseInt(a.time.split(':')[0], 10);
+      if (aptHour !== slotHour) return false;
+      if (a.date && dateStr) return a.date === dateStr;
+      return a.day === dayKey;
+    });
+  };
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -353,7 +421,7 @@ export default function Calendar() {
   const handlePrev = () => {
     setCurrentDate((prev) => {
       const next = new Date(prev);
-      if (viewMode === 'day') {
+      if (viewMode === 'day' || viewMode === 'chairs') {
         next.setDate(prev.getDate() - 1);
       } else if (viewMode === 'week') {
         next.setDate(prev.getDate() - 7);
@@ -367,7 +435,7 @@ export default function Calendar() {
   const handleNext = () => {
     setCurrentDate((prev) => {
       const next = new Date(prev);
-      if (viewMode === 'day') {
+      if (viewMode === 'day' || viewMode === 'chairs') {
         next.setDate(prev.getDate() + 1);
       } else if (viewMode === 'week') {
         next.setDate(prev.getDate() + 7);
@@ -396,6 +464,8 @@ export default function Calendar() {
     if (viewMode === 'day') {
       const dayName = days[(currentDate.getDay() + 6) % 7];
       return `${currentDate.getDate()}-${months[currentDate.getMonth()]}, ${currentDate.getFullYear()} (${dayName})`;
+    } else if (viewMode === 'chairs') {
+      return `${months[currentDate.getMonth()]}, ${currentDate.getFullYear()}`;
     } else if (viewMode === 'week') {
       const first = weekDays[0];
       const last = weekDays[6];
@@ -412,6 +482,7 @@ export default function Calendar() {
   const headerBadgeText = useMemo(() => {
     if (viewMode === 'day') return i18n.language === 'en' ? 'Daily Schedule' : 'Kunlik jadval';
     if (viewMode === 'week') return i18n.language === 'en' ? 'Weekly View' : 'Haftalik reja';
+    if (viewMode === 'chairs') return i18n.language === 'en' ? 'Chairs / Operatories' : 'Kreslolar / Operatories';
     return i18n.language === 'en' ? 'Monthly View' : 'Oylik reja';
   }, [viewMode, i18n.language]);
 
@@ -633,6 +704,13 @@ export default function Calendar() {
               onClick={() => setViewMode('month')}
             >
               {t('calendar.viewMonth')}
+            </button>
+            <button
+              type="button"
+              className={`${styles.viewModeBtn} ${viewMode === 'chairs' ? styles.viewModeBtnActive : ''}`}
+              onClick={() => setViewMode('chairs')}
+            >
+              {i18n.language === 'en' ? 'Chairs' : 'Kreslolar'}
             </button>
           </div>
         </div>
@@ -880,35 +958,17 @@ export default function Calendar() {
                           )}
 
                           {slotAppointments.map((apt) => (
-                            <div
+                            <AppointmentPill
                               key={apt.id}
-                              className={styles.appointmentCard}
+                              appointment={apt}
+                              variant="week"
                               draggable
-                              onDragStart={(e) => handleDragStart(e, apt.id)}
-                              onClick={(e) => {
+                              onDragStart={handleDragStart}
+                              onClick={(e, a) => {
                                 e.stopPropagation();
-                                navigate(`/patients/${apt.patientId?.replace('P-', '') || ''}`);
+                                navigate(`/patients/${a.patientId?.replace('P-', '') || ''}`);
                               }}
-                              style={{
-                                borderLeft: `3px solid ${apt.color || 'var(--color-cyan)'}`
-                              }}
-                              title="Bemor sahifasiga o'tish"
-                            >
-                              <div className={styles.apptHeader}>
-                                <span className={styles.apptTime}>{apt.time}</span>
-                                <span
-                                  style={{
-                                    width: 6,
-                                    height: 6,
-                                    borderRadius: 9999,
-                                    backgroundColor: apt.color || 'var(--color-cyan)'
-                                  }}
-                                />
-                              </div>
-                              <div className={styles.apptPatient}>{apt.patientName}</div>
-                              <div className={styles.apptProcedure}>{apt.procedure}</div>
-                              <div className={styles.apptDoctorTag}>{apt.doctorName}</div>
-                            </div>
+                            />
                           ))}
                         </div>
                       );
@@ -1016,89 +1076,12 @@ export default function Calendar() {
                             </button>
                           ) : (
                             slotAppts.map((apt) => (
-                              <div
+                              <AppointmentPill
                                 key={apt.id}
-                                className={styles.dayApptCardDetailed}
+                                appointment={apt}
+                                variant="day"
                                 onClick={() => navigate(`/patients/${apt.patientId?.replace('P-', '') || ''}`)}
-                                style={{ borderLeft: `4px solid ${apt.color || 'var(--color-cyan)'}` }}
-                              >
-                                <div className={styles.dayApptHeaderRow}>
-                                  <span className={styles.dayApptTimeBadge}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-cyan)' }}>
-                                      schedule
-                                    </span>
-                                    {apt.time} ({apt.duration || 45} {i18n.language === 'en' ? 'min' : 'daq'})
-                                  </span>
-
-                                  <span
-                                    className={styles.dayApptStatusPill}
-                                    style={{
-                                      backgroundColor:
-                                        apt.status === 'completed'
-                                          ? 'rgba(16, 185, 129, 0.12)'
-                                          : apt.status === 'in_progress'
-                                          ? 'rgba(6, 182, 212, 0.12)'
-                                          : 'var(--color-surface-container)',
-                                      color:
-                                        apt.status === 'completed'
-                                          ? '#059669'
-                                          : apt.status === 'in_progress'
-                                          ? 'var(--color-cyan-hover)'
-                                          : 'var(--color-text-secondary)',
-                                      border: `1px solid ${
-                                        apt.status === 'completed'
-                                          ? 'rgba(16, 185, 129, 0.25)'
-                                          : apt.status === 'in_progress'
-                                          ? 'rgba(6, 182, 212, 0.25)'
-                                          : 'var(--color-border-subtle)'
-                                      }`
-                                    }}
-                                  >
-                                    {apt.status === 'completed'
-                                      ? (t('treatmentPlan.statusLabels.completed') || t('common.completed') || 'Yakunlandi')
-                                      : apt.status === 'in_progress'
-                                      ? (t('treatmentPlan.statusLabels.in_progress') || t('common.inProgress') || 'Jarayonda')
-                                      : (t('treatmentPlan.statusLabels.pending') || t('common.pending') || 'Kutilmoqda')}
-                                  </span>
-                                </div>
-
-                                <div className={styles.dayApptPatientRow}>
-                                  <div className={styles.dayApptPatientName}>
-                                    <span>{apt.patientName}</span>
-                                    {apt.patientId && (
-                                      <span className={styles.dayApptPatientId}>
-                                        {apt.patientId}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className={styles.dayApptProcedureBadge}>
-                                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'var(--color-cyan)' }}>
-                                    dentistry
-                                  </span>
-                                  <span>{apt.procedure}</span>
-                                </div>
-
-                                <div className={styles.dayApptFooterRow}>
-                                  <div className={styles.dayApptDoctorInfo}>
-                                    <div
-                                      className={styles.dayApptDoctorAvatar}
-                                      style={{ backgroundColor: apt.color || 'var(--color-cyan)' }}
-                                    >
-                                      {apt.doctorName ? apt.doctorName.replace(/^Dr\.\s*/, '').charAt(0) : 'D'}
-                                    </div>
-                                    <span className={styles.dayApptDoctorName}>{apt.doctorName}</span>
-                                  </div>
-
-                                  <span className={styles.dayApptActionLink}>
-                                    <span>{t('calendar.patientCard')}</span>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                                      arrow_forward
-                                    </span>
-                                  </span>
-                                </div>
-                              </div>
+                              />
                             ))
                           )}
                         </div>
@@ -1154,21 +1137,15 @@ export default function Calendar() {
 
                         <div className={styles.monthApptList}>
                           {dayAppts.slice(0, 3).map((apt) => (
-                            <div key={apt.id} className={styles.monthApptItem}>
-                              <span
-                                style={{
-                                  width: 5,
-                                  height: 5,
-                                  borderRadius: 9999,
-                                  backgroundColor: apt.color || 'var(--color-cyan)',
-                                  flexShrink: 0
-                                }}
-                              />
-                              <span style={{ fontWeight: 600 }}>{apt.time}</span>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {apt.patientName.split(' ')[0]}
-                              </span>
-                            </div>
+                            <AppointmentPill
+                              key={apt.id}
+                              appointment={apt}
+                              variant="month"
+                              onClick={() => {
+                                setCurrentDate(cell.dateObj);
+                                setViewMode('day');
+                              }}
+                            />
                           ))}
                           {dayAppts.length > 3 && (
                             <div className={styles.monthMoreBadge}>
@@ -1179,6 +1156,126 @@ export default function Calendar() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* 4. CHAIRS VIEW (KRESLOLAR / OPERATORIES JADVALI) */}
+            {viewMode === 'chairs' && (
+              <div className={styles.chairsViewWrapper}>
+                {/* 1. Independent Full-Width Day Selector Strip (MON-SUN, Week View Style) */}
+                <div className={styles.chairsDayTabsStrip}>
+                  {weekDays.map((day) => (
+                    <button
+                      key={day.key}
+                      type="button"
+                      className={`${styles.chairsDayTabCell} ${day.isSelected ? styles.chairsDayTabCellActive : ''} ${day.isToday ? styles.dayHeaderCellToday : ''}`}
+                      onClick={() => setCurrentDate(day.dateObj)}
+                      title={i18n.language === 'en' ? `View ${day.fullName} schedule` : `${day.fullName} kunlik jadvalini ko'rish`}
+                    >
+                      <span className={`${styles.dayName} ${day.isToday ? styles.dayNameToday : ''}`}>
+                        {day.name}
+                      </span>
+                      <span className={`${styles.dayNumber} ${day.isToday ? styles.dayNumberToday : ''}`}>
+                        {day.num}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 2. Independent Horizontally Scrollable Operatories Grid Container */}
+                <div className={styles.chairsScrollContainer}>
+                  {/* Chair Column Headers */}
+                  <div
+                    className={styles.chairsHeaderRow}
+                    style={{ gridTemplateColumns: `70px repeat(${operatoryChairs.length}, minmax(180px, 1fr))` }}
+                  >
+                    <div className={styles.chairsTimeHeaderCell}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>schedule</span>
+                    </div>
+                    {operatoryChairs.map((chairNum) => {
+                      const chairApptsToday = filteredAppointments.filter(
+                        (a) => a.chair === chairNum && (a.date ? a.date === activeDateStr : a.day === activeDayKey)
+                      ).length;
+
+                      return (
+                        <div key={chairNum} className={styles.chairsHeaderCell}>
+                          <div className={styles.chairBadgeGroup}>
+                            <div className={styles.chairHeaderIconSquircle}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                                airline_seat_recline_extra
+                              </span>
+                            </div>
+                            <div>
+                              <div className={styles.chairHeaderTitle}>
+                                {t('dashboard.chair')} #{chairNum}
+                              </div>
+                            </div>
+                          </div>
+                          <span className={styles.chairOccupancyBadge}>
+                            {chairApptsToday > 0
+                              ? `${chairApptsToday} ${t('common.qty')}`
+                              : (i18n.language === 'en' ? 'Empty' : "Bo'sh")}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Hourly Timeline Grid by Chair */}
+                  <div className={styles.chairsGridBody}>
+                    {TIME_SLOTS.map((slotTime) => (
+                      <div
+                        key={slotTime}
+                        className={styles.chairsSlotRow}
+                        style={{ gridTemplateColumns: `70px repeat(${operatoryChairs.length}, minmax(180px, 1fr))` }}
+                      >
+                        <div className={styles.chairsHourCol}>
+                          <span>{slotTime}</span>
+                        </div>
+
+                        {operatoryChairs.map((chairNum) => {
+                          const cellAppts = getChairAppointmentsForHour(activeDateStr, activeDayKey, chairNum, slotTime);
+
+                          return (
+                            <div
+                              key={chairNum}
+                              className={styles.chairsCellSlot}
+                              onClick={(e) => {
+                                if (e.target === e.currentTarget) {
+                                  handleOpenChairSlot(chairNum, slotTime, activeDateStr);
+                                }
+                              }}
+                            >
+                              {cellAppts.length === 0 ? (
+                                <div
+                                  className={styles.chairsSlotEmpty}
+                                  onClick={() => handleOpenChairSlot(chairNum, slotTime, activeDateStr)}
+                                >
+                                  <span className={styles.chairsEmptyAddBtn}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>add</span>
+                                    <span>Qabul</span>
+                                  </span>
+                                </div>
+                              ) : (
+                                cellAppts.map((apt) => (
+                                  <AppointmentPill
+                                    key={apt.id}
+                                    appointment={apt}
+                                    variant="chairs"
+                                    onClick={(e, a) => {
+                                      e.stopPropagation();
+                                      navigate(`/patients/${a.patientId?.replace('P-', '') || ''}`);
+                                    }}
+                                  />
+                                ))
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -1439,6 +1536,143 @@ export default function Calendar() {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     check
                   </span>
+                  <span>{t('calendar.modal.save')}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* APPLE QUICK-ADD FLOATING POPOVER (Operatories View, apple-blur-dense) */}
+      {quickAddSlot && (
+        <div className={styles.appleQuickAddOverlay} onClick={() => setQuickAddSlot(null)}>
+          <div className={styles.appleQuickAddPopover} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.popoverHeader}>
+              <div className={styles.popoverTitleGroup}>
+                <div className={styles.chairHeaderIconSquircle}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                    event_available
+                  </span>
+                </div>
+                <div>
+                  <div className={styles.popoverTitle}>
+                    {i18n.language === 'en' ? 'Quick Appointment' : 'Tezkor qabul biriktirish'}
+                  </div>
+                  <div className={styles.popoverSub}>
+                    {activeDateStr}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className={styles.popoverCloseBtn}
+                onClick={() => setQuickAddSlot(null)}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                await handleCreateAppointment(e);
+                setQuickAddSlot(null);
+              }}
+              className={styles.popoverForm}
+            >
+              <div className={styles.popoverMetaPillStrip}>
+                <span className={styles.popoverMetaBadge}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-cyan-hover)' }}>
+                    airline_seat_recline_extra
+                  </span>
+                  Kreslo #{quickAddSlot.chair}
+                </span>
+                <span className={styles.popoverMetaBadge}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-cyan-hover)' }}>
+                    schedule
+                  </span>
+                  {quickAddSlot.time}
+                </span>
+              </div>
+
+              <div className={styles.formFieldGroup}>
+                <label className={styles.fieldLabel}>{t('calendar.modal.patient')}</label>
+                <div className={styles.fieldInputWrapper}>
+                  <span className={`material-symbols-outlined ${styles.fieldIcon}`}>person</span>
+                  <input
+                    required
+                    type="text"
+                    placeholder={t('calendar.modal.patientPlaceholder')}
+                    value={newApt.patientName}
+                    onChange={(e) => setNewApt({ ...newApt, patientName: e.target.value })}
+                    className={styles.formTextInput}
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formFieldGroup}>
+                <label className={styles.fieldLabel}>{t('calendar.modal.phone')}</label>
+                <div className={styles.fieldInputWrapper}>
+                  <span className={`material-symbols-outlined ${styles.fieldIcon}`}>call</span>
+                  <input
+                    type="tel"
+                    placeholder="+998 xx xxx xx xx"
+                    value={newApt.patientPhone}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val || val.trim() === '') {
+                        setNewApt({ ...newApt, patientPhone: '' });
+                        return;
+                      }
+                      setNewApt({ ...newApt, patientPhone: formatUzbekPhone(val) });
+                    }}
+                    className={styles.formTextInput}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formFieldGroup}>
+                <label className={styles.fieldLabel}>{t('calendar.modal.procedure')}</label>
+                <div className={styles.fieldInputWrapper}>
+                  <span className={`material-symbols-outlined ${styles.fieldIcon}`}>dentistry</span>
+                  <input
+                    required
+                    type="text"
+                    placeholder={t('calendar.modal.procedurePlaceholder')}
+                    value={newApt.procedure}
+                    onChange={(e) => setNewApt({ ...newApt, procedure: e.target.value })}
+                    className={styles.formTextInput}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formFieldGroup}>
+                <label className={styles.fieldLabel}>{t('calendar.modal.doctor')}</label>
+                <select
+                  value={newApt.doctor}
+                  onChange={(e) => setNewApt({ ...newApt, doctor: e.target.value })}
+                  className={styles.formSelect}
+                >
+                  {CLINIC_DOCTORS.map((doc) => (
+                    <option key={doc.id} value={doc.id}>
+                      {doc.name} ({doc.role})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.popoverActions}>
+                <button
+                  type="button"
+                  className={styles.popoverCancelBtn}
+                  onClick={() => setQuickAddSlot(null)}
+                >
+                  {t('common.cancel')}
+                </button>
+                <button type="submit" className={styles.popoverSaveBtn}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check</span>
                   <span>{t('calendar.modal.save')}</span>
                 </button>
               </div>

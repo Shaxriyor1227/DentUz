@@ -102,12 +102,17 @@ export default function Dashboard() {
       if (i === 1) {
         // 1-kreslo: Qabul jarayonida (shifokor va muolaja bilan)
         const docName = inProgressApt?.doctorName || 'Dr. Azimov Farrux';
+        const patName = inProgressApt?.patientName || 'Anvar Qosimov';
         const procName = inProgressApt?.procedure || (i18n.language === 'uz' ? 'Implantatsiya tekshiruvi' : 'Implant restoration');
         list.push({
           id: 1,
           label: `${t('dashboard.chair')} #1`,
           status: 'active',
-          statusText: i18n.language === 'uz' ? `Band — ${docName} (${procName})` : `In treatment — ${docName} (${procName})`
+          patientName: patName,
+          procedure: procName,
+          doctorName: docName,
+          color: '#10B981',
+          statusText: i18n.language === 'uz' ? 'Band (Qabulda)' : 'In treatment'
         });
       } else if (i === 2) {
         // 2-kreslo: Sterilizatsiya va sanitariya
@@ -115,7 +120,11 @@ export default function Dashboard() {
           id: 2,
           label: `${t('dashboard.chair')} #2`,
           status: 'cleaning',
-          statusText: i18n.language === 'uz' ? 'Sterilizatsiya & Sanitariya (5 daq)' : 'Sterilization & Turnover (5 min)'
+          patientName: i18n.language === 'uz' ? 'Sanitariya va tozalash' : 'Sanitation',
+          procedure: i18n.language === 'uz' ? 'Sterilizatsiya (5 daq)' : 'Sterilization (5 min)',
+          doctorName: 'Med-hamshira',
+          color: '#F59E0B',
+          statusText: i18n.language === 'uz' ? 'Tozalanmoqda' : 'Cleaning'
         });
       } else if (i === 3 && pendingApts.length > 0) {
         // 3-kreslo: Navbatdagi bemor kutilmoqda
@@ -124,7 +133,11 @@ export default function Dashboard() {
           id: 3,
           label: `${t('dashboard.chair')} #3`,
           status: 'reserved',
-          statusText: i18n.language === 'uz' ? `Navbatda: ${p1.patientName} (${p1.time})` : `Queued: ${p1.patientName} (${p1.time})`
+          patientName: p1.patientName,
+          procedure: `${p1.procedure} (${p1.time})`,
+          doctorName: p1.doctorName || 'Dr. Saidova Malika',
+          color: '#3B82F6',
+          statusText: i18n.language === 'uz' ? 'Navbatda' : 'Queued'
         });
       } else if (i === 4 && pendingApts.length > 1) {
         // 4-kreslo: Keyingi navbat
@@ -133,7 +146,11 @@ export default function Dashboard() {
           id: 4,
           label: `${t('dashboard.chair')} #4`,
           status: 'reserved',
-          statusText: i18n.language === 'uz' ? `Navbatda: ${p2.patientName} (${p2.time})` : `Queued: ${p2.patientName} (${p2.time})`
+          patientName: p2.patientName,
+          procedure: `${p2.procedure} (${p2.time})`,
+          doctorName: p2.doctorName || 'Dr. Karimov Jamshid',
+          color: '#3B82F6',
+          statusText: i18n.language === 'uz' ? 'Navbatda' : 'Queued'
         });
       } else {
         // 5..N kreslolar: Bo'sh va tayyor
@@ -141,7 +158,11 @@ export default function Dashboard() {
           id: i,
           label: `${t('dashboard.chair')} #${i}`,
           status: 'idle',
-          statusText: t('dashboard.chairIdle') || (i18n.language === 'uz' ? "Bo'sh (Tayyor)" : 'Available (Ready)')
+          patientName: null,
+          procedure: null,
+          doctorName: null,
+          color: '#94A3B8',
+          statusText: t('dashboard.chairIdle') || (i18n.language === 'uz' ? "Bo'sh (Tayyor)" : 'Available')
         });
       }
     }
@@ -263,31 +284,109 @@ export default function Dashboard() {
 
         <div className={styles.chairsGrid}>
           {chairs.map((chair, idx) => {
-            const isPulse = chair.status === 'active';
-            const isIdle = chair.status === 'idle';
+            const isActive = chair.status === 'active';
             const isCleaning = chair.status === 'cleaning';
             const isReserved = chair.status === 'reserved';
+            const isIdle = chair.status === 'idle';
+
             return (
               <div
                 key={chair.id}
-                className={styles.chairCard}
+                className={`${styles.chairTile} ${
+                  isActive
+                    ? styles.chairTileActive
+                    : isCleaning
+                    ? styles.chairTileCleaning
+                    : isReserved
+                    ? styles.chairTileReserved
+                    : styles.chairTileIdle
+                }`}
                 style={{ '--chair-idx': idx }}
+                onClick={() => {
+                  if (isIdle) {
+                    navigate('/calendar', { state: { openNewModal: true, chair: chair.id } });
+                  }
+                }}
               >
                 <div className={styles.chairTop}>
-                  <span className={styles.chairNum}>{chair.label}</span>
+                  <div className={styles.chairNumGroup}>
+                    <span className={styles.chairNum}>{chair.label}</span>
+                    <span
+                      className={`${styles.chairStatusBadge} ${
+                        isActive
+                          ? styles.badgeActive
+                          : isCleaning
+                          ? styles.badgeCleaning
+                          : isReserved
+                          ? styles.badgeReserved
+                          : styles.badgeIdle
+                      }`}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '12px', verticalAlign: 'text-bottom', marginRight: '3px' }}>
+                        {isActive ? 'person' : isCleaning ? 'cleaning_services' : isReserved ? 'schedule' : 'check_circle'}
+                      </span>
+                      {chair.statusText}
+                    </span>
+                  </div>
+
                   <span
-                    className={`${styles.chairPulseDot} ${
-                      isPulse
-                        ? styles.pulseActive
+                    className={`${styles.applePulseDot} ${
+                      isActive
+                        ? styles.applePulseDotActive
                         : isCleaning
-                        ? styles.pulseCleaning
+                        ? styles.applePulseDotCleaning
                         : isReserved
-                        ? styles.pulseReserved
-                        : styles.pulseIdle
+                        ? styles.applePulseDotReserved
+                        : styles.applePulseDotIdle
                     }`}
+                    title={chair.statusText}
                   />
                 </div>
-                <div className={styles.chairStatusText}>{chair.statusText}</div>
+
+                {isIdle ? (
+                  <div className={styles.chairIdleActionArea}>
+                    <button
+                      type="button"
+                      className={styles.chairAddBtn}
+                      title={i18n.language === 'uz' ? `Yangi qabul qo'shish, kreslo #${chair.id}` : `Add appointment, operatory #${chair.id}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/calendar', { state: { openNewModal: true, chair: chair.id } });
+                      }}
+                      aria-label={`Yangi qabul qo'shish, kreslo #${chair.id}`}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                        add
+                      </span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.chairBody}>
+                    <div className={styles.chairPatientName} title={chair.patientName}>
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: '15px',
+                          color: isCleaning ? '#F59E0B' : isReserved ? '#3B82F6' : 'var(--color-cyan-hover)'
+                        }}
+                      >
+                        {isCleaning ? 'cleaning_services' : isReserved ? 'schedule' : 'person'}
+                      </span>
+                      <span>{chair.patientName}</span>
+                    </div>
+                    <div className={styles.chairProcedureText} title={chair.procedure}>
+                      {chair.procedure}
+                    </div>
+                    {chair.doctorName && (
+                      <div className={styles.chairDoctorSub}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                          {isCleaning ? 'sanitizer' : 'dentistry'}
+                        </span>
+                        <span>{chair.doctorName}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -380,6 +479,8 @@ export default function Dashboard() {
               <StatCard
                 label={t('dashboard.todayStats')}
                 value={String(todayCount)}
+                sparklineData={weeklyData.map((d) => d.patients)}
+                sparklineColor="var(--color-cyan)"
                 subtext={
                   i18n.language === 'uz'
                     ? `${inProgressCount} ta jarayonda, ${pendingCount} ta navbatda`
@@ -391,6 +492,8 @@ export default function Dashboard() {
                 label={i18n.language === 'uz' ? "Bugungi tushum (Kassa)" : "Today's Revenue"}
                 value={financeStats?.todayRevenue ? Number(financeStats.todayRevenue).toLocaleString() : '2 050 000'}
                 unit={t('common.som')}
+                sparklineData={[3.8, 4.2, 5.1, 4.6, 4.85, 3.4, 2.5]}
+                sparklineColor="var(--color-mint)"
                 subtext={i18n.language === 'uz' ? "Naqd: 1 200 000 • Karta/Payme: 850 000" : "Cash: 1.2M • Card/Payme: 850K"}
                 isMono={true}
                 icon="payments"
@@ -399,6 +502,8 @@ export default function Dashboard() {
                 label={i18n.language === 'uz' ? "Kutilayotgan qoldiq (Debitorlik)" : "Pending Receivables"}
                 value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '1 450 000'}
                 unit={t('common.som')}
+                sparklineData={[1.8, 1.6, 1.45, 1.5, 1.45, 1.4, 1.45]}
+                sparklineColor="#F59E0B"
                 subtext={i18n.language === 'uz' ? "Faol muolajalar bo'yicha qoldiq qarz" : "Balance due on active procedures"}
                 isMono={true}
                 icon="pending"

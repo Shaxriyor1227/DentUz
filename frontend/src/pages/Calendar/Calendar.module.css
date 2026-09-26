@@ -1624,3 +1624,412 @@
   background: #EF4444;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CHAIRS / OPERATORIES VIEW (Apple Operatories Grid)
+   ═══════════════════════════════════════════════════════════════════════ */
+.chairsViewWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-apple-card, 16px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-apple-card, var(--shadow-xs));
+  overflow: hidden;
+}
+
+/* 1. Independent Full-Width Day Selector Strip (MON-SUN, matching Week View) */
+.chairsDayTabsStrip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-border);
+  width: 100%;
+}
+
+.chairsDayTabCell {
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-right: 1px solid var(--color-border-subtle);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+}
+
+.chairsDayTabCell:last-child {
+  border-right: none;
+}
+
+.chairsDayTabCell:hover {
+  background-color: var(--color-surface-container);
+}
+
+.chairsDayTabCellActive {
+  background-color: var(--color-surface);
+  box-shadow: inset 0 -3px 0 0 var(--color-cyan);
+}
+
+.chairsDayTabCellActive .dayName {
+  color: var(--color-cyan-hover);
+  font-weight: 700;
+}
+
+.chairsDayTabCellActive .dayNumber {
+  color: var(--color-cyan-hover);
+  font-weight: 800;
+}
+
+/* 2. Independent Horizontally Scrollable Operatories Grid Container */
+.chairsScrollContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.chairsHeaderRow {
+  display: grid;
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  min-width: max-content;
+  width: 100%;
+}
+
+.chairsTimeHeaderCell {
+  padding: 12px 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-align: center;
+  border-right: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-container-low);
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.chairsHeaderCell {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-right: 1px solid var(--color-border-subtle);
+  gap: 8px;
+}
+
+.chairsHeaderCell:last-child {
+  border-right: none;
+}
+
+.chairBadgeGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chairHeaderIconSquircle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-apple-sm, 9px);
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--color-cyan-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.chairHeaderTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.chairOccupancyBadge {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--color-surface-container);
+  color: var(--color-text-secondary);
+}
+
+.chairsGridBody {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+  width: 100%;
+}
+
+.chairsSlotRow {
+  display: grid;
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: 84px;
+  min-width: max-content;
+  width: 100%;
+}
+
+.chairsSlotRow:last-child {
+  border-bottom: none;
+}
+
+.chairsHourCol {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  border-right: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-container-low);
+  user-select: none;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.chairsCellSlot {
+  padding: 8px;
+  border-right: 1px solid var(--color-border-subtle);
+  position: relative;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  cursor: pointer;
+}
+
+.chairsCellSlot:last-child {
+  border-right: none;
+}
+
+.chairsCellSlot:hover {
+  background-color: rgba(6, 182, 212, 0.03);
+}
+
+.chairsSlotEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 56px;
+  opacity: 0.35;
+  transition: opacity 0.15s ease;
+}
+
+.chairsCellSlot:hover .chairsSlotEmpty {
+  opacity: 1;
+}
+
+.chairsEmptyAddBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-cyan-hover);
+  background: rgba(6, 182, 212, 0.08);
+  padding: 3px 9px;
+  border-radius: 9999px;
+  border: 1px dashed rgba(6, 182, 212, 0.35);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  pointer-events: none;
+}
+
+.chairsCellSlot:hover .chairsEmptyAddBtn {
+  background: rgba(6, 182, 212, 0.16);
+  border-color: var(--color-cyan);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   APPLE QUICK ADD FLOATING POPOVER (blur-dense, 0 blur on grid)
+   ═══════════════════════════════════════════════════════════════════════ */
+.appleQuickAddOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.35);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: overlayFadeIn 0.18s ease-out;
+}
+
+.appleQuickAddPopover {
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--radius-apple-card, 16px);
+  backdrop-filter: var(--apple-blur-dense, blur(8px) saturate(140%));
+  -webkit-backdrop-filter: var(--apple-blur-dense, blur(8px) saturate(140%));
+  background: var(--apple-glass-bg, rgba(255, 255, 255, 0.94));
+  border: 1px solid var(--apple-card-border, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: popoverScaleIn 0.22s var(--apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+[data-theme='dark'] .appleQuickAddPopover {
+  background: rgba(18, 24, 38, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 56px -8px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popoverScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.popoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.popoverTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popoverTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-display), sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.popoverSub {
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.popoverCloseBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(120, 120, 128, 0.12);
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.popoverCloseBtn:hover {
+  background: rgba(120, 120, 128, 0.22);
+  color: var(--color-text-primary);
+}
+
+.popoverForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popoverMetaPillStrip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popoverMetaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-surface-container);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-mono), monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.popoverActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.popoverCancelBtn {
+  flex: 1;
+  height: 38px;
+  border-radius: var(--radius-apple-md, 12px);
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.popoverCancelBtn:hover {
+  background: var(--color-surface-container-high, #E2E8F0);
+  color: var(--color-text-primary);
+}
+
+.popoverSaveBtn {
+  flex: 1.4;
+  height: 38px;
+  border-radius: var(--radius-apple-md, 12px);
+  background: linear-gradient(135deg, var(--color-cyan, #06B6D4) 0%, #0284C7 100%);
+  border: none;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.28);
+  transition: all 0.18s ease;
+}
+
+.popoverSaveBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(6, 182, 212, 0.38);
+}
+

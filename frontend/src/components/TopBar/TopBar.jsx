@@ -138,6 +138,35 @@ export default function TopBar() {
   const profileRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Performance: Conditional backdrop-filter during scroll
+  const [isScrolling, setIsScrolling] = useState(false);
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!isScrollingRef.current) {
+        isScrollingRef.current = true;
+        setIsScrolling(true);
+      }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
+        setIsScrolling(false);
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const [customAvatar, setCustomAvatar] = useState(() => {
     return localStorage.getItem('dentuz_custom_avatar') || '/images/doctor-azimov.jpg';
   });
@@ -365,7 +394,7 @@ export default function TopBar() {
 
   return (
     <>
-      <header className={styles.topbar}>
+      <header className={`${styles.topbar} ${isScrolling ? styles.isScrolling : ''}`}>
         <div className={styles.leftSection}>
           <button
             type="button"

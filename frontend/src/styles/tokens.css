@@ -102,6 +102,25 @@
   /* Layout Dimensions */
   --sidebar-width: 240px;
   --topbar-height: 64px;
+
+  /* Apple Design Tokens (Glass, Radii, Shadows, Dense Blurs) */
+  --apple-blur-dense: blur(8px) saturate(140%);
+  --apple-blur-modal: blur(24px) saturate(180%);
+  --apple-blur-deep: blur(50px) saturate(190%);
+
+  --radius-apple-sm: 9px;
+  --radius-apple-md: 12px;
+  --radius-apple-card: 16px;
+  --radius-apple-tile: 18px;
+  --radius-apple-sheet: 26px;
+
+  --shadow-apple-card: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 12px 32px -4px rgba(0, 0, 0, 0.08);
+  --shadow-apple-sheet: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 32px 64px -12px rgba(0, 0, 0, 0.16);
+  --shadow-apple-hover: 0 0 0 1px rgba(6, 182, 212, 0.25), 0 16px 36px -4px rgba(6, 182, 212, 0.14);
+
+  --apple-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --apple-glass-bg: rgba(255, 255, 255, 0.94);
+  --apple-card-border: rgba(0, 0, 0, 0.08);
 }
 
 /* =========================================================
@@ -174,4 +193,11 @@
   --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.65);
+
+  /* Dark Apple Tokens */
+  --shadow-apple-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 32px -4px rgba(0, 0, 0, 0.4);
+  --shadow-apple-sheet: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 32px -4px rgba(0, 0, 0, 0.4), 0 32px 64px -12px rgba(0, 0, 0, 0.7);
+  --shadow-apple-hover: 0 0 0 1px rgba(6, 182, 212, 0.35), 0 16px 36px -4px rgba(0, 0, 0, 0.6);
+  --apple-glass-bg: rgba(28, 28, 30, 0.92);
+  --apple-card-border: rgba(255, 255, 255, 0.12);
 }
