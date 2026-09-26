@@ -11,6 +11,10 @@
   --color-mint-soft: #ECFDF5;
   --color-mint-text: #047857;
 
+  /* Brand CTA Gradient Tokens */
+  --gradient-cta-primary: linear-gradient(135deg, var(--color-cyan) 0%, var(--color-mint) 100%);
+  --gradient-cta-hover: linear-gradient(135deg, var(--color-cyan-hover) 0%, #059669 100%);
+
   /* Compatibility Aliases for Public & Marketing Components */
   --bg-primary: #FFFFFF;
   --bg-surface: #FFFFFF;

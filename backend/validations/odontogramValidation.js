@@ -13,8 +13,12 @@ const validateOdontogram = (data) => {
 const validateOdontogramUpdate = (data) => {
     const schema = Joi.object({
         teeth: Joi.object().required(),
+        changedTooth: Joi.number().integer().allow(null),
+        previousCondition: Joi.string().allow('', null),
+        newCondition: Joi.string().allow('', null),
+        notes: Joi.string().allow('', null),
         lastUpdatedBy: Joi.string().uuid().allow('', null),
-    });
+    }).unknown(true);
 
     return schema.validate(data);
 };

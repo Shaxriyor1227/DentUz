@@ -52,8 +52,9 @@ const STATUS_COLORS = {
   healthy: { fill: 'var(--color-surface, #FFFFFF)', stroke: 'var(--color-border, #94A3B8)' },
   caries: { fill: '#FEE2E2', stroke: '#EF4444' },
   treated: { fill: '#D1FAE5', stroke: '#10B981' },
-  crown: { fill: '#E0F2FE', stroke: '#0284C7' },
-  missing: { fill: 'var(--color-surface-container-low, #F1F5F9)', stroke: 'var(--color-border, #94A3B8)', dash: '3,3' }
+  // Royal Blue (#2563EB) — sof yorqin ko'k; implant (#06B6D4), warning (#F59E0B) va endo (#8B5CF6) bilan chalkashmasligi uchun
+  crown: { fill: '#EFF6FF', stroke: '#2563EB' },
+  missing: { fill: 'var(--color-surface-container-low, #F8FAFC)', stroke: 'var(--color-border, #94A3B8)', dash: '4,3' }
 };
 
 // High-performance memoized tooth SVG node:
@@ -106,56 +107,82 @@ const ToothSvgNode = memo(
           width={w}
           height={h}
           rx={6}
-          fill="var(--color-surface, #FFFFFF)"
+          fill={status === 'missing' ? 'var(--color-surface-container-low, #F8FAFC)' : 'var(--color-surface, #FFFFFF)'}
           stroke={isSelected ? '#06B6D4' : styling.stroke}
-          strokeWidth={isSelected ? 2 : 1}
+          strokeWidth={isSelected ? 2 : status === 'missing' ? 1.5 : 1}
           strokeDasharray={styling.dash}
         />
 
-        {/* Surface 1: Top (Buccal / Vestibular) */}
-        <polygon
-          className={styles.toothSurface}
-          points={`${x},${y} ${x + w},${y} ${cx2},${cy1} ${cx1},${cy1}`}
-          fill={styling.fill}
-          stroke="var(--color-border-subtle, #E2E8F0)"
-          strokeWidth="0.75"
-        />
+        {status === 'missing' ? (
+          /* Missing / Extracted Tooth: Diagonal Cross (X) for non-color dependent indicator */
+          <g opacity="0.65">
+            <line
+              x1={x + 6}
+              y1={y + 6}
+              x2={x + w - 6}
+              y2={y + h - 6}
+              stroke="var(--color-text-secondary, #64748B)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <line
+              x1={x + w - 6}
+              y1={y + 6}
+              x2={x + 6}
+              y2={y + h - 6}
+              stroke="var(--color-text-secondary, #64748B)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </g>
+        ) : (
+          <>
+            {/* Surface 1: Top (Buccal / Vestibular) */}
+            <polygon
+              className={styles.toothSurface}
+              points={`${x},${y} ${x + w},${y} ${cx2},${cy1} ${cx1},${cy1}`}
+              fill={styling.fill}
+              stroke="var(--color-border-subtle, #E2E8F0)"
+              strokeWidth="0.75"
+            />
 
-        {/* Surface 2: Bottom (Lingual / Palatal) */}
-        <polygon
-          className={styles.toothSurface}
-          points={`${cx1},${cy2} ${cx2},${cy2} ${x + w},${y + h} ${x},${y + h}`}
-          fill={styling.fill}
-          stroke="var(--color-border-subtle, #E2E8F0)"
-          strokeWidth="0.75"
-        />
+            {/* Surface 2: Bottom (Lingual / Palatal) */}
+            <polygon
+              className={styles.toothSurface}
+              points={`${cx1},${cy2} ${cx2},${cy2} ${x + w},${y + h} ${x},${y + h}`}
+              fill={styling.fill}
+              stroke="var(--color-border-subtle, #E2E8F0)"
+              strokeWidth="0.75"
+            />
 
-        {/* Surface 3: Left (Mesial / Distal) */}
-        <polygon
-          className={styles.toothSurface}
-          points={`${x},${y} ${cx1},${cy1} ${cx1},${cy2} ${x},${y + h}`}
-          fill={styling.fill}
-          stroke="var(--color-border-subtle, #E2E8F0)"
-          strokeWidth="0.75"
-        />
+            {/* Surface 3: Left (Mesial / Distal) */}
+            <polygon
+              className={styles.toothSurface}
+              points={`${x},${y} ${cx1},${cy1} ${cx1},${cy2} ${x},${y + h}`}
+              fill={styling.fill}
+              stroke="var(--color-border-subtle, #E2E8F0)"
+              strokeWidth="0.75"
+            />
 
-        {/* Surface 4: Right (Distal / Mesial) */}
-        <polygon
-          className={styles.toothSurface}
-          points={`${x + w},${y} ${x + w},${y + h} ${cx2},${cy2} ${cx2},${cy1}`}
-          fill={styling.fill}
-          stroke="var(--color-border-subtle, #E2E8F0)"
-          strokeWidth="0.75"
-        />
+            {/* Surface 4: Right (Distal / Mesial) */}
+            <polygon
+              className={styles.toothSurface}
+              points={`${x + w},${y} ${x + w},${y + h} ${cx2},${cy2} ${cx2},${cy1}`}
+              fill={styling.fill}
+              stroke="var(--color-border-subtle, #E2E8F0)"
+              strokeWidth="0.75"
+            />
 
-        {/* Surface 5: Center (Occlusal / Incisal Table) */}
-        <polygon
-          className={styles.toothSurface}
-          points={`${cx1},${cy1} ${cx2},${cy1} ${cx2},${cy2} ${cx1},${cy2}`}
-          fill={styling.fill}
-          stroke="var(--color-border-subtle, #E2E8F0)"
-          strokeWidth="0.75"
-        />
+            {/* Surface 5: Center (Occlusal / Incisal Table) */}
+            <polygon
+              className={styles.toothSurface}
+              points={`${cx1},${cy1} ${cx2},${cy1} ${cx2},${cy2} ${cx1},${cy2}`}
+              fill={styling.fill}
+              stroke="var(--color-border-subtle, #E2E8F0)"
+              strokeWidth="0.75"
+            />
+          </>
+        )}
 
         {/* Tooth FDI Number Indicator */}
         <text
@@ -165,7 +192,8 @@ const ToothSvgNode = memo(
           fontSize="11"
           fontFamily="var(--font-mono)"
           fontWeight={isSelected ? '700' : '500'}
-          fill={isSelected ? '#06B6D4' : status === 'caries' ? '#EF4444' : 'var(--color-text-secondary, #64748B)'}
+          fill={isSelected ? '#06B6D4' : status === 'caries' ? '#EF4444' : status === 'missing' ? '#94A3B8' : 'var(--color-text-secondary, #64748B)'}
+          opacity={status === 'missing' ? 0.7 : 1}
         >
           {label}
         </text>
@@ -359,9 +387,28 @@ export default function Odontogram({
           <div className={styles.legendItem}>
             <span
               className={styles.legendIndicator}
-              style={{ backgroundColor: '#E0F2FE', border: '1.5px solid #0284C7' }}
+              style={{ backgroundColor: '#EFF6FF', border: '1.5px solid #2563EB' }}
             />
             <span>{t('odontogram.conditions.crown')}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span
+              className={styles.legendIndicator}
+              style={{
+                backgroundColor: '#F8FAFC',
+                border: '1.5px dashed #94A3B8',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: '800',
+                color: '#64748B',
+                lineHeight: 1
+              }}
+            >
+              ✕
+            </span>
+            <span>{t('odontogram.conditions.missing') || (i18n.language === 'en' ? 'Extracted' : 'Olingan tish')}</span>
           </div>
           <div className={styles.legendItem}>
             <span

@@ -84,21 +84,21 @@ export default function Homepage() {
     if (['16', '26', '36'].includes(num)) {
       return { label: isEn ? 'Restored (Filling)' : 'Plomba', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', isRestored: true };
     }
-    // Implant (Cyan / Blue)
+    // Implant (Cyan - matches tokens.css --color-cyan)
     if (['14', '45'].includes(num)) {
-      return { label: isEn ? 'Dental Implant' : 'Implant', color: '#0EA5E9', bg: 'rgba(14, 165, 233, 0.15)', isImplant: true };
+      return { label: isEn ? 'Dental Implant' : 'Implant', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)', isImplant: true };
     }
-    // Crown / Koronka (Amber / Gold)
+    // Crown / Koronka (Royal Blue #2563EB — sof ko'k, implant #06B6D4, warning #F59E0B va endo #8B5CF6 bilan chalkashmasligi uchun)
     if (['21'].includes(num)) {
-      return { label: isEn ? 'Zirconia Crown' : 'Toj (Koronka)', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)', isCrown: true };
+      return { label: isEn ? 'Zirconia Crown' : 'Toj (Koronka)', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', isCrown: true };
     }
     // Root Canal / Endo / Pulpit (Purple)
     if (['27', '46'].includes(num)) {
       return { label: isEn ? 'Root Canal (Endo)' : 'Ildiz kanali (Pulpit)', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', isEndo: true };
     }
-    // Extracted / Missing (Muted / Slate)
+    // Extracted / Missing (Muted / Slate - non-color dependent dashed + cross indicator)
     if (['18', '28', '38'].includes(num)) {
-      return { label: isEn ? 'Extracted' : 'Olingan tish', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.22)', isExtracted: true };
+      return { label: isEn ? 'Extracted' : 'Olingan tish', color: '#94A3B8', bg: 'transparent', isExtracted: true };
     }
     // Healthy (Default)
     return { label: isEn ? 'Healthy' : "Sog'lom", color: '#64748B', bg: 'rgba(100, 116, 139, 0.08)' };
@@ -217,11 +217,11 @@ export default function Homepage() {
                   {isEn ? 'Caries' : 'Karies'}
                 </span>
                 <span className={styles.legendItem}>
-                  <span className={styles.legendDot} style={{ background: '#0EA5E9' }} />
+                  <span className={styles.legendDot} style={{ background: '#06B6D4' }} />
                   {isEn ? 'Implant' : 'Implant'}
                 </span>
                 <span className={styles.legendItem}>
-                  <span className={styles.legendDot} style={{ background: '#F59E0B' }} />
+                  <span className={styles.legendDot} style={{ background: '#2563EB' }} />
                   {isEn ? 'Crown' : 'Koronka'}
                 </span>
                 <span className={styles.legendItem}>
@@ -229,7 +229,21 @@ export default function Homepage() {
                   {isEn ? 'Root Canal' : 'Ildiz kanali'}
                 </span>
                 <span className={styles.legendItem}>
-                  <span className={styles.legendDot} style={{ background: '#94A3B8' }} />
+                  <span
+                    className={styles.legendDot}
+                    style={{
+                      background: 'transparent',
+                      border: '1.5px dashed #94A3B8',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '8px',
+                      fontWeight: 'bold',
+                      color: '#64748B'
+                    }}
+                  >
+                    ✕
+                  </span>
                   {isEn ? 'Extracted' : 'Olingan'}
                 </span>
               </div>
@@ -258,12 +272,15 @@ export default function Homepage() {
                         <div
                           className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isExtracted ? styles.toothBoxExtracted : ''}`}
                           style={
-                            !isSelected && status.color && status.color !== '#64748B'
+                            !isSelected && status.color && status.color !== '#64748B' && !status.isExtracted
                               ? { borderColor: status.color, backgroundColor: status.bg, boxShadow: `0 0 10px ${status.bg}` }
                               : undefined
                           }
                         >
-                          <span className={styles.toothNumber} style={!isSelected && status.color && status.color !== '#64748B' ? { color: status.color } : undefined}>
+                          <span
+                            className={`${styles.toothNumber} ${status.isExtracted ? styles.toothNumberExtracted : ''}`}
+                            style={!isSelected && status.color && status.color !== '#64748B' && !status.isExtracted ? { color: status.color } : undefined}
+                          >
                             {status.isExtracted ? '✕' : tooth}
                           </span>
                         </div>
@@ -296,12 +313,15 @@ export default function Homepage() {
                         <div
                           className={`${styles.toothBox} ${isSelected ? styles.toothBoxSelected : ''} ${status.isExtracted ? styles.toothBoxExtracted : ''}`}
                           style={
-                            !isSelected && status.color && status.color !== '#64748B'
+                            !isSelected && status.color && status.color !== '#64748B' && !status.isExtracted
                               ? { borderColor: status.color, backgroundColor: status.bg, boxShadow: `0 0 10px ${status.bg}` }
                               : undefined
                           }
                         >
-                          <span className={styles.toothNumber} style={!isSelected && status.color && status.color !== '#64748B' ? { color: status.color } : undefined}>
+                          <span
+                            className={`${styles.toothNumber} ${status.isExtracted ? styles.toothNumberExtracted : ''}`}
+                            style={!isSelected && status.color && status.color !== '#64748B' && !status.isExtracted ? { color: status.color } : undefined}
+                          >
                             {status.isExtracted ? '✕' : tooth}
                           </span>
                         </div>

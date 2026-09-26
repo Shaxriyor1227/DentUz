@@ -9,7 +9,58 @@ exports.createAppointment = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const appointment = await Appointment.create(req.body);
+    const payload = { ...req.body };
+    if (!payload.id) {
+      payload.id = `apt-${Date.now()}`;
+    }
+
+    // Resolve or Auto-create Patient to satisfy foreign key constraint
+    let patientId = payload.patientId;
+    if (!patientId && payload.patientName) {
+      let patient = await Patient.findOne({
+        where: { name: payload.patientName.trim() }
+      });
+      if (!patient) {
+        const count = await Patient.count();
+        patient = await Patient.create({
+          id: `P-${1042 + count + 1}`,
+          name: payload.patientName.trim(),
+          phone: payload.patientPhone || '+998 90 000 00 00',
+          status: 'today'
+        });
+      }
+      patientId = patient.id;
+    } else if (patientId) {
+      // Check if patient exists, if not normalize or create
+      const possibleIds = [patientId, patientId.startsWith('P-') ? patientId.slice(2) : `P-${patientId}`];
+      let patient = await Patient.findOne({
+        where: { id: { [Op.in]: possibleIds } }
+      });
+      if (!patient) {
+        patient = await Patient.create({
+          id: patientId.startsWith('P-') ? patientId : `P-${patientId}`,
+          name: payload.patientName || `Bemor ${patientId}`,
+          phone: payload.patientPhone || '+998 90 000 00 00',
+          status: 'today'
+        });
+      }
+      patientId = patient.id;
+    } else {
+      // Default fallback patient if both are empty
+      let defaultPatient = await Patient.findOne();
+      if (!defaultPatient) {
+        defaultPatient = await Patient.create({
+          id: 'P-1042',
+          name: 'Noma\'lum Bemor',
+          phone: '+998 90 000 00 00'
+        });
+      }
+      patientId = defaultPatient.id;
+    }
+
+    payload.patientId = patientId;
+
+    const appointment = await Appointment.create(payload);
     res.status(201).json({ success: true, data: appointment });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

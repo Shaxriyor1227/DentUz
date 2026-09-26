@@ -513,11 +513,11 @@ export default function PatientProfile() {
                 <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.currentStatus')}</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '8px' }}>
                   {[
-                    { id: 'healthy', label: t('odontogram.conditions.healthy'), color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' },
+                    { id: 'healthy', label: t('odontogram.conditions.healthy'), color: 'var(--color-text-secondary, #64748B)', bg: 'rgba(100, 116, 139, 0.08)' },
                     { id: 'caries', label: t('odontogram.conditions.caries'), color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' },
-                    { id: 'treated', label: t('odontogram.conditions.treated'), color: '#00B4D8', bg: 'rgba(0, 180, 216, 0.1)' },
-                    { id: 'crown', label: t('odontogram.conditions.crown'), color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
-                    { id: 'missing', label: t('odontogram.conditions.missing'), color: '#64748B', bg: 'rgba(100, 116, 139, 0.1)' },
+                    { id: 'treated', label: t('odontogram.conditions.treated'), color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' },
+                    { id: 'crown', label: t('odontogram.conditions.crown'), color: '#2563EB', bg: 'rgba(37, 99, 235, 0.1)' },
+                    { id: 'missing', label: `✕ ${t('odontogram.conditions.missing')}`, color: '#64748B', bg: 'rgba(100, 116, 139, 0.1)' },
                   ].map((st) => (
                     <button
                       key={st.id}

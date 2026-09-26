@@ -45,16 +45,33 @@ exports.saveOdontogram = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
+    const rawId = req.params.patientId;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    let patient = await Patient.findOne({
+      where: { id: { [Op.in]: possibleIds } }
+    });
+
+    const realPatientId = patient ? patient.id : (rawId.startsWith('P-') ? rawId : `P-${rawId}`);
+    if (!patient) {
+      patient = await Patient.create({
+        id: realPatientId,
+        name: `Bemor ${realPatientId}`,
+        phone: '+998 90 000 00 00',
+        status: 'today'
+      });
+    }
+
     const { teeth, changedTooth, previousCondition, newCondition, notes } = req.body;
     const userId = req.user?.id || null;
 
     let odontogram = await Odontogram.findOne({
-      where: { patientId: req.params.patientId },
+      where: { patientId: realPatientId },
     });
 
     if (!odontogram) {
       odontogram = await Odontogram.create({
-        patientId: req.params.patientId,
+        patientId: realPatientId,
         teeth,
         lastUpdatedBy: userId,
       });
@@ -64,7 +81,7 @@ exports.saveOdontogram = async (req, res) => {
 
     await OdontogramHistory.create({
       odontogramId:      odontogram.id,
-      patientId:         req.params.patientId,
+      patientId:         realPatientId,
       snapshot:          teeth,
       changedTooth,
       previousCondition,
