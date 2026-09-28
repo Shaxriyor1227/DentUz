@@ -46,6 +46,8 @@ router.get('/stats', superAdminController.getStats);
  *         description: Arizalar ro'yxati
  */
 router.get('/applications', superAdminController.getApplications);
+router.patch('/applications/:id/status', superAdminController.updateApplicationStatus);
+router.delete('/applications/:id', superAdminController.deleteApplication);
 
 /**
  * @swagger

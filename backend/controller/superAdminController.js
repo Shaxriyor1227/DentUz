@@ -84,6 +84,48 @@ exports.getApplications = async (req, res) => {
 };
 
 /**
+ * Ariza holatini yangilash (new, contacted, approved, rejected)
+ */
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const application = await ClinicApplication.findByPk(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Ariza topilmadi' });
+    }
+
+    await application.update({ status });
+    res.status(200).json({
+      success: true,
+      message: 'Ariza holati yangilandi',
+      data: application,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Arizani o'chirish
+ */
+exports.deleteApplication = async (req, res) => {
+  try {
+    const application = await ClinicApplication.findByPk(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Ariza topilmadi' });
+    }
+
+    await application.destroy();
+    res.status(200).json({
+      success: true,
+      message: 'Ariza tizimdan o\'chirildi',
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
  * Barcha ro'yxatdan o'tgan klinikalar va ularning holati
  */
 exports.getClinics = async (req, res) => {

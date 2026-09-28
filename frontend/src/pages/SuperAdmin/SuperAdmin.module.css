@@ -5,6 +5,7 @@
   font-family: inherit;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Header */
@@ -15,15 +16,17 @@
   top: 0;
   z-index: 50;
   backdrop-filter: blur(12px);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .topNavInner {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .brandGroup {
@@ -65,7 +68,28 @@
 .userActions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+.themeToggleBtn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #0f172a);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.themeToggleBtn:hover {
+  background: var(--color-bg, #f1f5f9);
+  border-color: var(--color-cyan, #06b6d4);
+  color: var(--color-cyan-hover, #0891b2);
 }
 
 .adminProfile {
@@ -85,6 +109,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .adminMeta {
@@ -126,7 +151,7 @@
 
 /* Main Body */
 .mainContent {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 32px 24px;
   flex: 1;
@@ -155,16 +180,23 @@
   color: var(--color-slate, #64748b);
 }
 
+.headerActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .createClinicBtn {
   background: var(--gradient-cta-primary, linear-gradient(135deg, #06b6d4, #10b981));
   color: white;
   border: none;
-  padding: 12px 20px;
+  padding: 11px 18px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
@@ -174,6 +206,27 @@
 .createClinicBtn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+}
+
+.createUserBtn {
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #0f172a);
+  border: 1px solid var(--border-color, #cbd5e1);
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.createUserBtn:hover {
+  background: var(--color-bg, #f1f5f9);
+  border-color: var(--color-cyan, #06b6d4);
+  color: var(--color-cyan-hover, #0891b2);
 }
 
 /* KPI Cards */
@@ -192,12 +245,12 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .kpiCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .kpiIconWrap {
@@ -244,6 +297,7 @@
   gap: 8px;
   border-bottom: 1px solid var(--border-color, #e2e8f0);
   margin-bottom: 24px;
+  overflow-x: auto;
 }
 
 .tabBtn {
@@ -260,11 +314,16 @@
   gap: 8px;
   transition: all 0.2s;
   margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  color: var(--color-text-primary, #0f172a);
 }
 
 .tabBtnActive {
-  color: var(--color-cyan-hover, #0891b2);
-  border-bottom-color: var(--color-cyan, #06b6d4);
+  color: var(--color-cyan-hover, #0891b2) !important;
+  border-bottom-color: var(--color-cyan, #06b6d4) !important;
 }
 
 .tabBadge {
@@ -295,6 +354,13 @@
   flex-wrap: wrap;
 }
 
+.filterControlsGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .searchBox {
   display: flex;
   align-items: center;
@@ -304,6 +370,12 @@
   padding: 8px 12px;
   gap: 8px;
   min-width: 280px;
+  transition: border-color 0.2s;
+}
+
+.searchBox:focus-within {
+  border-color: var(--color-cyan, #06b6d4);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.15);
 }
 
 .searchBox input {
@@ -323,11 +395,49 @@
   color: var(--color-text-primary, #0f172a);
   font-size: 0.875rem;
   outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filterSelect:focus {
+  border-color: var(--color-cyan, #06b6d4);
+}
+
+/* Active Clinic Filter Alert Banner */
+.activeFilterBanner {
+  background: rgba(6, 182, 212, 0.08);
+  border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--color-cyan-hover, #0891b2);
+}
+
+.clearFilterBtn {
+  background: transparent;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.clearFilterBtn:hover {
+  background: rgba(6, 182, 212, 0.15);
 }
 
 /* Table */
 .tableResponsive {
   overflow-x: auto;
+  width: 100%;
 }
 
 .dataTable {
@@ -340,9 +450,10 @@
 .dataTable th {
   background: var(--color-bg, #f8fafc);
   color: var(--color-slate, #64748b);
-  padding: 12px 18px;
+  padding: 14px 18px;
   font-weight: 600;
   border-bottom: 1px solid var(--border-color, #e2e8f0);
+  white-space: nowrap;
 }
 
 .dataTable td {
@@ -352,8 +463,24 @@
   vertical-align: middle;
 }
 
+.dataTable tbody tr {
+  transition: background-color 0.15s ease;
+}
+
 .dataTable tbody tr:hover {
   background: rgba(241, 245, 249, 0.6);
+}
+
+.nowrapCell {
+  white-space: nowrap;
+}
+
+.phoneCell {
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--color-cyan-hover, #0284c7);
+  text-decoration: none;
 }
 
 .primaryText {
@@ -364,52 +491,59 @@
 .secondaryText {
   font-size: 0.775rem;
   color: var(--color-slate, #64748b);
+  margin-top: 2px;
 }
 
 /* Status Badges */
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 4px 10px;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
+  white-space: nowrap;
   text-transform: capitalize;
 }
 
 .statusNew {
   background: #fef3c7;
   color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .statusApproved, .statusActive {
   background: #dcfce7;
   color: #166534;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .statusContacted, .statusTrial {
   background: #e0f2fe;
   color: #0369a1;
+  border: 1px solid rgba(2, 132, 199, 0.3);
 }
 
 .statusSuspended, .statusRejected {
   background: #fee2e2;
   color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* Plan Badges */
 .planBadge {
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.planStarter { background: #f1f5f9; color: #475569; }
-.planPro { background: rgba(6, 182, 212, 0.15); color: #0891b2; }
-.planEnterprise { background: rgba(139, 92, 246, 0.15); color: #7c3aed; }
+.planStarter { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.planPro { background: rgba(6, 182, 212, 0.15); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); }
+.planEnterprise { background: rgba(139, 92, 246, 0.15); color: #7c3aed; border: 1px solid rgba(139, 92, 246, 0.3); }
 
 /* User Role Badges */
 .roleBadge {
@@ -420,6 +554,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
   text-transform: capitalize;
 }
 
@@ -453,18 +588,27 @@
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Buttons */
+/* Action Buttons */
+.actionBtnGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
 .actionBtn {
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .actionBtnPrimary {
@@ -474,34 +618,59 @@
 
 .actionBtnPrimary:hover {
   filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 .actionBtnOutline {
   background: transparent;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color, #cbd5e1);
   color: var(--color-slate, #475569);
 }
 
 .actionBtnOutline:hover {
   background: var(--color-bg, #f1f5f9);
+  color: var(--color-text-primary, #0f172a);
+}
+
+.actionBtnDanger {
+  background: transparent;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+}
+
+.actionBtnDanger:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.actionBtnSuccess {
+  background: transparent;
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.actionBtnSuccess:hover {
+  background: #dcfce7;
+  border-color: #22c55e;
 }
 
 .emptyState {
   padding: 48px 24px;
   text-align: center;
   color: var(--color-slate, #64748b);
+  font-size: 0.95rem;
 }
 
-/* Modal */
+/* Modal Core Styles */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
   padding: 20px;
 }
 
@@ -510,14 +679,19 @@
   border-radius: 18px;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color, #e2e8f0);
   overflow: hidden;
-  animation: modalEnter 0.2s ease-out;
+  animation: modalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalCardSm {
+  max-width: 480px;
 }
 
 @keyframes modalEnter {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from { transform: scale(0.96) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .modalHeader {
@@ -540,8 +714,17 @@
   font-size: 1.2rem;
   color: var(--color-slate, #64748b);
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.modalCloseBtn:hover {
+  background: var(--color-bg, #f1f5f9);
+  color: var(--color-text-primary, #0f172a);
 }
 
 .modalBody {
@@ -550,6 +733,15 @@
   overflow-y: auto;
 }
 
+.modalFooter {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Form Styles */
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -583,6 +775,7 @@
   color: var(--color-text-primary, #0f172a);
   font-size: 0.9rem;
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .formGroup input:focus, .formGroup select:focus {
@@ -590,12 +783,250 @@
   box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
-.modalFooter {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color, #e2e8f0);
+/* User target card in modals */
+.targetUserSummary {
+  background: var(--color-bg, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.targetUserMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Role Selector Grid */
+.roleSelectorGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roleCard {
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+  background: var(--color-surface, #ffffff);
+}
+
+.roleCard:hover {
+  border-color: var(--color-cyan, #06b6d4);
+  background: rgba(6, 182, 212, 0.04);
+}
+
+.roleCardActive {
+  border-color: var(--color-cyan, #06b6d4) !important;
+  background: rgba(6, 182, 212, 0.08) !important;
+  box-shadow: 0 0 0 1px var(--color-cyan, #06b6d4);
+}
+
+.roleRadioCheck {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color, #cbd5e1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.roleCardActive .roleRadioCheck {
+  border-color: var(--color-cyan, #06b6d4);
+  background: var(--color-cyan, #06b6d4);
+}
+
+.roleRadioInnerDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+.roleCardInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.roleCardTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roleCardDesc {
+  font-size: 0.8rem;
+  color: var(--color-slate, #64748b);
+  margin-top: 2px;
+}
+
+/* Password Modal Controls */
+.passwordBoxWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.passwordInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInputContainer input {
+  width: 100%;
+  padding: 12px 42px 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #0f172a);
+  font-family: monospace;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  outline: none;
+}
+
+.passwordInputContainer input:focus {
+  border-color: var(--color-cyan, #06b6d4);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+.passVisibilityBtn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-slate, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.passActionsRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.generatePassBtn {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--color-cyan-hover, #0891b2);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generatePassBtn:hover {
+  background: rgba(6, 182, 212, 0.2);
+}
+
+/* Confirm Action Modal */
+.confirmBody {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.confirmIconWrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.confirmIconDanger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.confirmIconWarning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.confirmIconSuccess {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.confirmTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #0f172a);
+  margin-bottom: 8px;
+}
+
+.confirmDesc {
+  font-size: 0.9rem;
+  color: var(--color-slate, #64748b);
+  line-height: 1.5;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Extend Plan Modal */
+.planOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  margin: 16px 0;
+}
+
+.planOptionCard {
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s;
+  background: var(--color-surface, #ffffff);
+}
+
+.planOptionCard:hover {
+  border-color: var(--color-cyan, #06b6d4);
+}
+
+.planOptionCardActive {
+  border-color: var(--color-cyan, #06b6d4) !important;
+  background: rgba(6, 182, 212, 0.08) !important;
+}
+
+.planMonths {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary, #0f172a);
+}
+
+.planPriceEstimate {
+  font-size: 0.8rem;
+  color: var(--color-cyan-hover, #0891b2);
+  font-weight: 600;
 }
 
 /* Success Card in Modal */
@@ -666,4 +1097,285 @@
   color: var(--color-text-primary, #0f172a);
   resize: none;
   outline: none;
+}
+
+/* Toast Container */
+.toastContainer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toastItem {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 300px;
+  max-width: 440px;
+}
+
+@keyframes toastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.toastSuccess {
+  background: #064e3b;
+  color: #a7f3d0;
+  border: 1px solid #059669;
+}
+
+.toastError {
+  background: #7f1d1d;
+  color: #fecaca;
+  border: 1px solid #dc2626;
+}
+
+.toastInfo {
+  background: #1e3a8a;
+  color: #bfdbfe;
+  border: 1px solid #2563eb;
+}
+
+/* =========================================================
+   DARK MODE OVERRIDES (:global([data-theme="dark"]))
+   ========================================================= */
+:global([data-theme="dark"]) .superAdminContainer {
+  background-color: #0b0f19;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .topNav {
+  background: rgba(19, 27, 46, 0.85);
+  border-bottom-color: #243049;
+}
+
+:global([data-theme="dark"]) .themeToggleBtn {
+  background: #131b2e;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .themeToggleBtn:hover {
+  background: #1e2b46;
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+
+:global([data-theme="dark"]) .adminAvatar {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+}
+
+:global([data-theme="dark"]) .adminName {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .logoutBtn {
+  border-color: #243049;
+  color: #94a3b8;
+}
+
+:global([data-theme="dark"]) .logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border-color: #f87171;
+}
+
+:global([data-theme="dark"]) .pageTitle {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .createUserBtn {
+  background: #131b2e;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .createUserBtn:hover {
+  background: #1e2b46;
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+
+:global([data-theme="dark"]) .kpiCard {
+  background: #131b2e;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .kpiCard:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border-color: #374669;
+}
+
+:global([data-theme="dark"]) .kpiValue {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .tabsBar {
+  border-bottom-color: #243049;
+}
+
+:global([data-theme="dark"]) .tabBtn {
+  color: #94a3b8;
+}
+
+:global([data-theme="dark"]) .tabBtn:hover {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .sectionCard {
+  background: #131b2e;
+  border-color: #243049;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+:global([data-theme="dark"]) .sectionFilterBar {
+  border-bottom-color: #243049;
+}
+
+:global([data-theme="dark"]) .searchBox {
+  background: #0e1524;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .searchBox input {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .filterSelect {
+  background: #0e1524;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .dataTable th {
+  background: #0e1524;
+  color: #94a3b8;
+  border-bottom-color: #243049;
+}
+
+:global([data-theme="dark"]) .dataTable td {
+  border-bottom-color: #1e2b46;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .dataTable tbody tr:hover {
+  background: rgba(30, 43, 70, 0.5);
+}
+
+:global([data-theme="dark"]) .primaryText {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .actionBtnOutline {
+  border-color: #243049;
+  color: #94a3b8;
+}
+
+:global([data-theme="dark"]) .actionBtnOutline:hover {
+  background: #1e2b46;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .modalCard {
+  background: #131b2e;
+  border-color: #243049;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+}
+
+:global([data-theme="dark"]) .modalHeader,
+:global([data-theme="dark"]) .modalFooter {
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .modalTitle {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .modalCloseBtn:hover {
+  background: #1e2b46;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .formGroup label {
+  color: #94a3b8;
+}
+
+:global([data-theme="dark"]) .formGroup input,
+:global([data-theme="dark"]) .formGroup select {
+  background: #0e1524;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .targetUserSummary {
+  background: #0e1524;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .roleCard {
+  background: #0e1524;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .roleCard:hover {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: #22d3ee;
+}
+
+:global([data-theme="dark"]) .roleCardTitle {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .passwordInputContainer input {
+  background: #0e1524;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .confirmTitle {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .planOptionCard {
+  background: #0e1524;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .planMonths {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .credentialsBox {
+  background: #0e1524;
+  border-color: #243049;
+}
+
+:global([data-theme="dark"]) .credValue {
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .telegramMessageWrap textarea {
+  background: #0e1524;
+  border-color: #243049;
+  color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .planStarter {
+  background: #1e2b46;
+  color: #94a3b8;
+  border-color: #374669;
 }
