@@ -33,14 +33,15 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login({
+      const res = await login({
         email: email || 'j.azimov@dentuz.uz',
         password: password || 'Password123!',
-        name: 'Dr. Jasur Azimov',
-        clinic: 'DentUz Markaziy Klinika',
-        role: 'owner',
       });
-      navigate('/dashboard');
+      if (res?.data?.role === 'superadmin') {
+        navigate('/superadmin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error(err);
     } finally {

@@ -49,6 +49,7 @@ const options = {
       { name: 'Notifications', description: 'Notifications and reminders' },
       { name: 'Team', description: 'Staff management' },
       { name: 'Users', description: 'User management' },
+      { name: 'SuperAdmin', description: 'DentUz SaaS Platforma Egasi (SuperAdmin) boshqaruv paneli' },
     ],
   },
   apis: [

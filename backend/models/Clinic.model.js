@@ -27,6 +27,26 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('free', 'starter', 'pro', 'enterprise'),
         defaultValue: 'starter',
       },
+      status: {
+        type: DataTypes.ENUM('active', 'trial', 'suspended', 'cancelled'),
+        defaultValue: 'active',
+      },
+      subscriptionExpiresAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      chairsCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+      },
+      ownerName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: 'clinics',

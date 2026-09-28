@@ -31,6 +31,7 @@ const PatientProfile = lazy(() => import('./pages/PatientProfile/PatientProfile'
 const TreatmentPlan = lazy(() => import('./pages/TreatmentPlan/TreatmentPlan'));
 const Finance = lazy(() => import('./pages/Finance/Finance'));
 const Settings = lazy(() => import('./pages/Settings/Settings'));
+const SuperAdmin = lazy(() => import('./pages/SuperAdmin/SuperAdmin'));
 
 function PageFallback() {
   return (
@@ -82,6 +83,16 @@ export default function App() {
                   <Route path="/finance" element={<ProtectedRoute module="finance"><Finance /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
                 </Route>
+
+                {/* SuperAdmin Platform Portal Route */}
+                <Route
+                  path="/superadmin"
+                  element={
+                    <ProtectedRoute roles="superadmin">
+                      <SuperAdmin />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

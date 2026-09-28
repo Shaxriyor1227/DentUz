@@ -26,6 +26,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const labOrderRoutes = require('./routes/labOrderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use('/api', paymentRoutes);
 app.use('/api', medicalRecordRoutes);
 app.use('/api', labOrderRoutes);
 app.use('/api', inventoryRoutes);
+app.use('/api/superadmin', superAdminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route topilmadi: ${req.method} ${req.originalUrl}` });

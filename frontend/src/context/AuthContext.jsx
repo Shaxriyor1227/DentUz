@@ -4,6 +4,7 @@ import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '../api/client';
 export const AuthContext = createContext(null);
 
 export const ROLES = {
+  SUPERADMIN: 'superadmin', // Platforma egasi / SaaS Boshqaruvchi
   OWNER: 'owner',         // Bosh shifokor / Klinika egasi (Full access)
   DOCTOR: 'doctor',       // Shifokor (Clinical, Patients, Odontogram, Calendar)
   RECEPTIONIST: 'receptionist', // Administrator (Patients, Calendar, Finance, Billing)
@@ -11,6 +12,7 @@ export const ROLES = {
 };
 
 export const ROLE_PERMISSIONS = {
+  [ROLES.SUPERADMIN]: ['superadmin', 'dashboard', 'clinics', 'applications', 'analytics', 'settings'],
   [ROLES.OWNER]: ['dashboard', 'patients', 'calendar', 'treatment', 'finance', 'inventory', 'settings', 'analytics', 'team'],
   [ROLES.DOCTOR]: ['dashboard', 'patients', 'calendar', 'treatment'],
   [ROLES.RECEPTIONIST]: ['dashboard', 'patients', 'calendar', 'finance', 'settings'],
@@ -18,6 +20,16 @@ export const ROLE_PERMISSIONS = {
 };
 
 export const DEMO_USERS = {
+  superadmin: {
+    id: 'usr-super',
+    name: 'DentUz Platforma Egasi',
+    shortName: 'SuperAdmin',
+    title: 'DentUz Founder & SuperAdmin',
+    role: ROLES.SUPERADMIN,
+    email: 'superadmin@dentuz.uz',
+    clinic: 'DentUz HQ (Platforma)',
+    avatar: null
+  },
   owner: {
     id: 'usr-1',
     name: 'Dr. Jasur Azimov',
