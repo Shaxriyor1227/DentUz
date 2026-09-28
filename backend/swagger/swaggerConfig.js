@@ -49,11 +49,9 @@ const options = {
       { name: 'Notifications', description: 'Notifications and reminders' },
       { name: 'Team', description: 'Staff management' },
       { name: 'Users', description: 'User management' },
-      { name: 'System', description: 'System health check' },
     ],
   },
   apis: [
-    path.join(__dirname, '../app.js').replace(/\\/g, '/'),
     path.join(__dirname, '../routes/*.js').replace(/\\/g, '/'),
   ],
 };
