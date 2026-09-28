@@ -16,6 +16,7 @@ const Payment = require('./Payment.model')(sequelize, DataTypes);
 const MedicalRecord = require('./MedicalRecord.model')(sequelize, DataTypes);
 const LabOrder = require('./LabOrder.model')(sequelize, DataTypes);
 const Inventory = require('./Inventory.model')(sequelize, DataTypes);
+const ClinicApplication = require('./ClinicApplication.model')(sequelize, DataTypes);
 
 const models = {
   Clinic,
@@ -33,6 +34,7 @@ const models = {
   MedicalRecord,
   LabOrder,
   Inventory,
+  ClinicApplication,
 };
 
 Object.values(models).forEach((model) => {

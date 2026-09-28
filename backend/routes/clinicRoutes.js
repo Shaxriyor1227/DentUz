@@ -27,6 +27,120 @@ router.get("/clinics", clinicController.getClinics);
 
 /**
  * @swagger
+ * /api/clinics/apply:
+ *   post:
+ *     tags: [Clinics]
+ *     summary: Yangi klinika ulanish arizasini yuborish (Public)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - phone
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Dr. Jasur Azimov
+ *               clinicName:
+ *                 type: string
+ *                 example: DentUz Klinikasi
+ *               phone:
+ *                 type: string
+ *                 example: +998 90 123 45 67
+ *               chairsCount:
+ *                 type: string
+ *                 example: 1-3
+ *               message:
+ *                 type: string
+ *                 example: Klinika tizimiga ulanmoqchimiz
+ *     responses:
+ *       201:
+ *         description: Ariza muvaffaqiyatli qabul qilindi va saqlandi
+ *       400:
+ *         description: Ism va telefon raqami majburiy
+ *       500:
+ *         description: Server xatosi
+ */
+router.post("/clinics/apply", clinicController.submitApplication);
+
+/**
+ * @swagger
+ * /api/clinics/applications:
+ *   get:
+ *     tags: [Clinics]
+ *     summary: Barcha klinika ulanish arizalarini olish (Admin)
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [new, contacted, approved, rejected]
+ *         description: Arizalarni holati bo'yicha saralash
+ *     responses:
+ *       200:
+ *         description: Barcha tushgan arizalar ro'yxati
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       500:
+ *         description: Server xatosi
+ */
+router.get("/clinics/applications", clinicController.getApplications);
+
+/**
+ * @swagger
+ * /api/clinics/applications/{id}/status:
+ *   patch:
+ *     tags: [Clinics]
+ *     summary: Ariza holatini yangilash (Admin)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Ariza ID si
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [new, contacted, approved, rejected]
+ *                 example: contacted
+ *     responses:
+ *       200:
+ *         description: Ariza holati yangilandi
+ *       404:
+ *         description: Ariza topilmadi
+ *       500:
+ *         description: Server xatosi
+ */
+router.patch("/clinics/applications/:id/status", clinicController.updateApplicationStatus);
+
+/**
+ * @swagger
  * /api/clinics/{id}:
  *   get:
  *     tags: [Clinics]
@@ -176,45 +290,5 @@ router.put("/clinics/:id", validate(validateClinic), clinicController.updateClin
  */
 router.delete("/clinics/:id", clinicController.deleteClinic);
 
-/**
- * @swagger
- * /api/clinics/apply:
- *   post:
- *     tags: [Clinics]
- *     summary: Yangi klinika ulanish arizasini yuborish (Public)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - phone
- *             properties:
- *               name:
- *                 type: string
- *                 example: Dr. Jasur Azimov
- *               clinicName:
- *                 type: string
- *                 example: DentUz Klinikasi
- *               phone:
- *                 type: string
- *                 example: +998 90 123 45 67
- *               chairsCount:
- *                 type: string
- *                 example: 1-3
- *               message:
- *                 type: string
- *                 example: Klinika tizimiga ulanmoqchimiz
- *     responses:
- *       200:
- *         description: Ariza muvaffaqiyatli qabul qilindi
- *       400:
- *         description: Ism va telefon raqami majburiy
- *       500:
- *         description: Server xatosi
- */
-router.post("/clinics/apply", clinicController.submitApplication);
-
 module.exports = router;
+

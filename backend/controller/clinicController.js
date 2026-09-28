@@ -1,5 +1,4 @@
-
-const { Clinic, User, Doctor, Patient, Appointment, Invoice } = require('../models');
+const { Clinic, User, Doctor, Patient, Appointment, Invoice, ClinicApplication } = require('../models');
 const { validateClinic } = require('../validations/clinicValidation');
 
 exports.getClinics = async (req, res) => {
@@ -96,6 +95,15 @@ exports.submitApplication = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Ism va telefon raqami majburiy' });
     }
 
+    // 1. Bazaga (PostgreSQL) saqlash
+    const application = await ClinicApplication.create({
+      name: name.trim(),
+      clinicName: (clinicName || '').trim(),
+      phone: phone.trim(),
+      chairsCount,
+      message: (message || '').trim(),
+    });
+
     const now = new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
 
     const telegramText = 
@@ -108,14 +116,57 @@ exports.submitApplication = async (req, res) => {
 💬 <b>Xabar/Izoh:</b> ${message || 'Yo\'q'}
 ⏰ <b>Kelgan vaqti:</b> ${now}`;
 
-    // Telegram bot orqali xabar yuborish
+    // 2. Telegram bot orqali xabar yuborish
     sendTelegramMessage(telegramText).catch((err) => {
       console.warn('Telegram notification failed:', err.message);
     });
 
+    res.status(201).json({
+      success: true,
+      message: 'Murojaatingiz muvaffaqiyatli qabul qilindi. Tez orada siz bilan bog\'lanamiz!',
+      data: application,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Barcha tushgan arizalar ro'yxatini olish (Admin / Swagger)
+exports.getApplications = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const where = {};
+    if (status) where.status = status;
+
+    const applications = await ClinicApplication.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+
     res.status(200).json({
       success: true,
-      message: 'Murojaatingiz muvaffaqiyatli qabul qilindi. Tez orada siz bilan bog\'lanamiz!'
+      count: applications.length,
+      data: applications,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Ariza holatini yangilash (masalan: contacted, approved, rejected)
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const application = await ClinicApplication.findByPk(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Ariza topilmadi' });
+    }
+
+    await application.update({ status });
+    res.status(200).json({
+      success: true,
+      message: 'Ariza holati yangilandi',
+      data: application,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
