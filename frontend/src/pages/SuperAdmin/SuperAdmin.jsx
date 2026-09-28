@@ -945,8 +945,8 @@ export default function SuperAdmin() {
                       <th>Aloqa</th>
                       <th>Tarif</th>
                       <th>Shifokorlar / Bemorlar</th>
-                      <th>Holati</th>
-                      <th style={{ textAlign: 'right' }}>Boshqarish</th>
+                      <th>Klinika Holati (Bloklash)</th>
+                      <th style={{ textAlign: 'right' }}>Amallar</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -984,13 +984,25 @@ export default function SuperAdmin() {
                           <span className={styles.secondaryText}> / {clinic.patientsCount || 0} bemor</span>
                         </td>
                         <td>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              clinic.status === 'active' ? styles.statusActive : styles.statusSuspended
-                            }`}
-                          >
-                            {clinic.status === 'active' ? '● Faol' : '● To\'xtatilgan'}
-                          </span>
+                          <div className={styles.statusColumnWrap}>
+                            <span
+                              className={`${styles.statusBadge} ${
+                                clinic.status === 'active' ? styles.statusActive : styles.statusSuspended
+                              }`}
+                            >
+                              {clinic.status === 'active' ? '● Faol' : '● To\'xtatilgan'}
+                            </span>
+                            <button
+                              onClick={() => handleToggleClinicStatus(clinic)}
+                              className={`${styles.actionBtn} ${
+                                clinic.status === 'active' ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
+                              }`}
+                              title={clinic.status === 'active' ? 'Klinikani vaqtincha bloklash' : 'Qayta faollashtirish'}
+                            >
+                              <Icon name={clinic.status === 'active' ? 'pause_circle' : 'play_circle'} size={13} />
+                              <span>{clinic.status === 'active' ? 'Bloklash' : 'Ochish'}</span>
+                            </button>
+                          </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <div className={styles.actionBtnGroup}>
@@ -1010,17 +1022,6 @@ export default function SuperAdmin() {
                             >
                               <Icon name="schedule" size={14} />
                               <span>Uzaytirish</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleToggleClinicStatus(clinic)}
-                              className={`${styles.actionBtn} ${
-                                clinic.status === 'active' ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
-                              }`}
-                              title={clinic.status === 'active' ? 'Klinikani vaqtincha bloklash' : 'Qayta faollashtirish'}
-                            >
-                              <Icon name={clinic.status === 'active' ? 'pause_circle' : 'play_circle'} size={13} />
-                              <span>{clinic.status === 'active' ? 'Bloklash' : 'Ochish'}</span>
                             </button>
                           </div>
                         </td>
@@ -1104,9 +1105,9 @@ export default function SuperAdmin() {
                       <th>Roli (Vakolati)</th>
                       <th>Biriktirilgan Klinika</th>
                       <th>Telefon</th>
-                      <th>Kirish Huquqi</th>
+                      <th>Kirish Huquqi (Bloklash)</th>
                       <th>Qo'shilgan Sana</th>
-                      <th style={{ textAlign: 'right' }}>Huquqlarni Boshqarish</th>
+                      <th style={{ textAlign: 'right' }}>Huquqlar & Parol</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1178,13 +1179,32 @@ export default function SuperAdmin() {
                           )}
                         </td>
                         <td>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              u.isActive ? styles.statusActive : styles.statusSuspended
-                            }`}
-                          >
-                            {u.isActive ? '● Faol (Kirish mumkin)' : '● Bloklangan'}
-                          </span>
+                          {u.role === 'superadmin' ? (
+                            <span className={styles.protectedBadge}>
+                              <Icon name="verified" size={13} />
+                              <span>Faol (Asoschi)</span>
+                            </span>
+                          ) : (
+                            <div className={styles.statusColumnWrap}>
+                              <span
+                                className={`${styles.statusBadge} ${
+                                  u.isActive ? styles.statusActive : styles.statusSuspended
+                                }`}
+                              >
+                                {u.isActive ? '● Faol' : '● Bloklangan'}
+                              </span>
+                              <button
+                                onClick={() => handleToggleUserStatus(u)}
+                                className={`${styles.actionBtn} ${
+                                  u.isActive ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
+                                }`}
+                                title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
+                              >
+                                <Icon name={u.isActive ? 'block' : 'check_circle'} size={13} />
+                                <span>{u.isActive ? 'Bloklash' : 'Ochish'}</span>
+                              </button>
+                            </div>
+                          )}
                         </td>
                         <td className={styles.nowrapCell}>
                           <span className={styles.secondaryText}>
@@ -1193,17 +1213,6 @@ export default function SuperAdmin() {
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <div className={styles.actionBtnGroup}>
-                            <button
-                              onClick={() => handleToggleUserStatus(u)}
-                              className={`${styles.actionBtn} ${
-                                u.isActive ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
-                              }`}
-                              title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
-                            >
-                              <Icon name={u.isActive ? 'block' : 'check_circle'} size={13} />
-                              <span>{u.isActive ? 'Bloklash' : 'Ruxsat berish'}</span>
-                            </button>
-
                             <button
                               onClick={() => handleOpenRoleModal(u)}
                               className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
