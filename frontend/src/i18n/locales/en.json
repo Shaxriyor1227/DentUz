@@ -90,7 +90,7 @@
     "chairOccupancyDesc": "Real-time operatory and sterilization status",
     "chair": "Operatory",
     "chairActive": "In Treatment",
-    "chairIdle": "Available (Ready)",
+    "chairIdle": "Available",
     "chairCleaning": "Sanitizing / Sterilization",
     "doctor": "Doctor",
     "procedure": "Procedure",

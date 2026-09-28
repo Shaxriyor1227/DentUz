@@ -112,7 +112,7 @@ export default function Dashboard() {
           procedure: procName,
           doctorName: docName,
           color: '#10B981',
-          statusText: i18n.language === 'uz' ? 'Band (Qabulda)' : 'In treatment'
+          statusText: i18n.language === 'uz' ? 'Band' : 'In treatment'
         });
       } else if (i === 2) {
         // 2-kreslo: Sterilizatsiya va sanitariya
@@ -309,38 +309,32 @@ export default function Dashboard() {
                 }}
               >
                 <div className={styles.chairTop}>
-                  <div className={styles.chairNumGroup}>
-                    <span className={styles.chairNum}>{chair.label}</span>
-                    <span
-                      className={`${styles.chairStatusBadge} ${
-                        isActive
-                          ? styles.badgeActive
-                          : isCleaning
-                          ? styles.badgeCleaning
-                          : isReserved
-                          ? styles.badgeReserved
-                          : styles.badgeIdle
-                      }`}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: '12px', verticalAlign: 'text-bottom', marginRight: '3px' }}>
-                        {isActive ? 'person' : isCleaning ? 'cleaning_services' : isReserved ? 'schedule' : 'check_circle'}
-                      </span>
-                      {chair.statusText}
-                    </span>
-                  </div>
-
+                  <span className={styles.chairNum}>{chair.label}</span>
                   <span
-                    className={`${styles.applePulseDot} ${
+                    className={`${styles.chairStatusBadge} ${
                       isActive
-                        ? styles.applePulseDotActive
+                        ? styles.badgeActive
                         : isCleaning
-                        ? styles.applePulseDotCleaning
+                        ? styles.badgeCleaning
                         : isReserved
-                        ? styles.applePulseDotReserved
-                        : styles.applePulseDotIdle
+                        ? styles.badgeReserved
+                        : styles.badgeIdle
                     }`}
-                    title={chair.statusText}
-                  />
+                  >
+                    <span
+                      className={`${styles.applePulseDot} ${
+                        isActive
+                          ? styles.applePulseDotActive
+                          : isCleaning
+                          ? styles.applePulseDotCleaning
+                          : isReserved
+                          ? styles.applePulseDotReserved
+                          : styles.applePulseDotIdle
+                      }`}
+                      aria-hidden="true"
+                    />
+                    {chair.statusText}
+                  </span>
                 </div>
 
                 {isIdle ? (
@@ -355,10 +349,13 @@ export default function Dashboard() {
                       }}
                       aria-label={`Yangi qabul qo'shish, kreslo #${chair.id}`}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                         add
                       </span>
                     </button>
+                    <span className={styles.chairIdleHint}>
+                      {i18n.language === 'uz' ? "Qabul belgilash" : "Schedule appointment"}
+                    </span>
                   </div>
                 ) : (
                   <div className={styles.chairBody}>

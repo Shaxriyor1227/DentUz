@@ -91,7 +91,7 @@
     "chairOccupancyDesc": "Статус кресел и стерилизации в реальном времени",
     "chair": "Кресло",
     "chairActive": "Идет прием",
-    "chairIdle": "Свободно (Готово)",
+    "chairIdle": "Свободно",
     "chairCleaning": "Стерилизация / Уборка",
     "doctor": "Врач",
     "procedure": "Процедура",
