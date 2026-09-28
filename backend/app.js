@@ -47,6 +47,19 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 setupSwagger(app);
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'DentUz API',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.head('/', (req, res) => {
+  res.status(200).end();
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
