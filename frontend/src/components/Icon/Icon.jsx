@@ -2,6 +2,21 @@ import React from 'react';
 
 const ICONS = {
   // Common & Status
+  rocket_launch: (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.5c0 0-4.5 3-4.5 8.5 0 2 .7 3.8 1.8 5.2L7 19.5 9.5 19l1.2 2.5 1.3-1.5 1.3 1.5 1.2-2.5 2.5.5-2.3-3.3c1.1-1.4 1.8-3.2 1.8-5.2 0-5.5-4.5-8.5-4.5-8.5zm0 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+    </svg>
+  ),
+  play_circle: (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+    </svg>
+  ),
+  domain: (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+    </svg>
+  ),
   warning: (
     <svg viewBox="0 0 24 24" fill="currentColor">
       <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
@@ -207,7 +222,7 @@ function Icon({ name, style, className, size = 20, 'aria-hidden': ariaHidden = t
   const svg = ICONS[name];
   
   if (!svg) {
-    // Elegant fallback: render as Material Icon span so icon is ALWAYS visible!
+    // Robust fallback: render as Material Icon span so icon is ALWAYS visible!
     return (
       <span
         className={`material-symbols-outlined ${className || ''}`}
@@ -217,9 +232,13 @@ function Icon({ name, style, className, size = 20, 'aria-hidden': ariaHidden = t
           justifyContent: 'center',
           width: size,
           height: size,
+          maxWidth: size,
+          maxHeight: size,
           fontSize: `${size}px`,
           lineHeight: 1,
           flexShrink: 0,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
           ...style,
         }}
         aria-hidden={ariaHidden}

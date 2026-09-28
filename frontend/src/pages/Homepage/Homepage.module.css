@@ -208,7 +208,11 @@
 }
 
 .primaryCta {
-  padding: 14px 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
   border-radius: var(--radius-full);
   background: var(--gradient-cta-primary);
   color: #FFFFFF !important;
@@ -249,10 +253,11 @@
   color: var(--color-text-primary);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   transition: color var(--transition-fast), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
-  padding: 10px 18px;
+  padding: 12px 22px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--color-border);

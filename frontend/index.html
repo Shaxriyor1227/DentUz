@@ -48,33 +48,26 @@
       Using font-display=swap to prevent invisible text during font load.
       Preconnect for faster DNS + TCP resolution.
     -->
-    <!-- Google Fonts: Inter & JetBrains Mono (Non-render-blocking with swap) -->
+    <!-- Google Fonts: Inter, JetBrains Mono & Material Symbols (Non-render-blocking with swap) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
       />
     </noscript>
-
-    <!--
-      Material Symbols is loaded ONLY when the app shell (Sidebar/TopBar) is
-      requested — i.e., after the user navigates to /dashboard, /patients etc.
-      Public marketing pages use inline SVG icons instead (zero font cost).
-      This eliminates 321KB on the homepage critical path.
-    -->
 
     <!-- Structured Data: Organization -->
     <script type="application/ld+json">
