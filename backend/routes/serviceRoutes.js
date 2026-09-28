@@ -111,6 +111,8 @@ router.get('/services', serviceController.getServices);
  *     responses:
  *       200:
  *         description: Service details
+ *       400:
+ *         description: Invalid service ID
  *       404:
  *         description: Service not found
  *       500:
@@ -182,6 +184,8 @@ router.put('/services/:id', validate(validateService), serviceController.updateS
  *     responses:
  *       200:
  *         description: Service deleted
+ *       400:
+ *         description: Invalid service ID
  *       404:
  *         description: Service not found
  *       500:

@@ -69,6 +69,10 @@ router.get("/odontogram/:patientId", odontogramController.getOdontogramByPatient
  *     responses:
  *       200:
  *         description: Updated odontogram
+ *       400:
+ *         description: Invalid odontogram data
+ *       404:
+ *         description: Patient not found
  *       500:
  *         description: Server error
  */

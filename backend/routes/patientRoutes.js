@@ -60,6 +60,8 @@ router.use(authenticate);
  *         description: Patient created
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -74,6 +76,8 @@ router.post("/patients", validate(validatePatient), patientController.createPati
  *     responses:
  *       200:
  *         description: List of patients
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -97,6 +101,8 @@ router.get("/patients", patientController.getPatients);
  *         description: List of patients matching search
  *       400:
  *         description: Search query is required
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -118,6 +124,10 @@ router.get("/patients/search", patientController.searchPatient);
  *     responses:
  *       200:
  *         description: Patient details
+ *       400:
+ *         description: Invalid patient ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Patient not found
  *       500:
@@ -162,6 +172,8 @@ router.get("/patients/:id", patientController.getPatientById);
  *         description: Patient updated
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Patient not found
  *       500:
@@ -185,6 +197,10 @@ router.put("/patients/:id", validate(validatePatient), patientController.updateP
  *     responses:
  *       200:
  *         description: Patient deleted
+ *       400:
+ *         description: Invalid patient ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Patient not found
  *       500:

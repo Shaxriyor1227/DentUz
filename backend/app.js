@@ -60,6 +60,18 @@ app.head('/', (req, res) => {
   res.status(200).end();
 });
 
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     tags: [System]
+ *     summary: Check API server health and status
+ *     responses:
+ *       200:
+ *         description: Server is healthy and running
+ *       500:
+ *         description: Server error
+ */
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });

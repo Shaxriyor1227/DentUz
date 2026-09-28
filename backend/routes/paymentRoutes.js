@@ -123,6 +123,8 @@ router.get('/payments/stats', paymentController.getPaymentStats);
  *     responses:
  *       200:
  *         description: Payment details
+ *       400:
+ *         description: Invalid payment ID
  *       404:
  *         description: Not found
  *       500:
@@ -185,6 +187,8 @@ router.put('/payments/:id', validate(validatePayment), paymentController.updateP
  *     responses:
  *       200:
  *         description: Payment deleted
+ *       400:
+ *         description: Invalid payment ID
  *       404:
  *         description: Not found
  *       500:

@@ -22,10 +22,20 @@ const options = {
           bearerFormat: 'JWT',
         },
       },
+      schemas: {
+        ErrorResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: false },
+            message: { type: 'string', example: 'Error description' },
+          },
+        },
+      },
     },
     security: [{ bearerAuth: [] }],
     tags: [
       { name: 'Auth', description: 'Authentication endpoints' },
+      { name: 'Clinics', description: 'Clinic management and onboarding' },
       { name: 'Patients', description: 'Patient management' },
       { name: 'Appointments', description: 'Calendar & scheduling' },
       { name: 'Finance', description: 'Invoices & stats' },
@@ -36,11 +46,14 @@ const options = {
       { name: 'LabOrders', description: 'Dental lab orders' },
       { name: 'Inventory', description: 'Clinic inventory' },
       { name: 'Odontogram', description: 'Dental chart' },
+      { name: 'Notifications', description: 'Notifications and reminders' },
       { name: 'Team', description: 'Staff management' },
       { name: 'Users', description: 'User management' },
+      { name: 'System', description: 'System health check' },
     ],
   },
   apis: [
+    path.join(__dirname, '../app.js').replace(/\\/g, '/'),
     path.join(__dirname, '../routes/*.js').replace(/\\/g, '/'),
   ],
 };

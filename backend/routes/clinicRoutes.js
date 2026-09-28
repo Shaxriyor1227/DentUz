@@ -177,8 +177,44 @@ router.put("/clinics/:id", validate(validateClinic), clinicController.updateClin
 router.delete("/clinics/:id", clinicController.deleteClinic);
 
 /**
-  * Public application route for new clinics from website
-  */
+ * @swagger
+ * /api/clinics/apply:
+ *   post:
+ *     tags: [Clinics]
+ *     summary: Yangi klinika ulanish arizasini yuborish (Public)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - phone
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Dr. Jasur Azimov
+ *               clinicName:
+ *                 type: string
+ *                 example: DentUz Klinikasi
+ *               phone:
+ *                 type: string
+ *                 example: +998 90 123 45 67
+ *               chairsCount:
+ *                 type: string
+ *                 example: 1-3
+ *               message:
+ *                 type: string
+ *                 example: Klinika tizimiga ulanmoqchimiz
+ *     responses:
+ *       200:
+ *         description: Ariza muvaffaqiyatli qabul qilindi
+ *       400:
+ *         description: Ism va telefon raqami majburiy
+ *       500:
+ *         description: Server xatosi
+ */
 router.post("/clinics/apply", clinicController.submitApplication);
 
 module.exports = router;

@@ -135,6 +135,8 @@ router.get('/inventory/search', inventoryController.searchInventory);
  *     responses:
  *       200:
  *         description: Inventory item details
+ *       400:
+ *         description: Invalid inventory ID
  *       404:
  *         description: Not found
  *       500:
@@ -243,6 +245,8 @@ router.patch('/inventory/:id/adjust', inventoryController.adjustQuantity);
  *     responses:
  *       200:
  *         description: Inventory item deleted
+ *       400:
+ *         description: Invalid inventory ID
  *       404:
  *         description: Not found
  *       500:

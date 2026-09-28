@@ -115,8 +115,12 @@ router.post("/login", authLimiter, validate(validateLogin), authController.login
  *     responses:
  *       200:
  *         description: New access and refresh tokens returned
+ *       400:
+ *         description: Refresh token is required
  *       401:
  *         description: Invalid or expired refresh token
+ *       500:
+ *         description: Server error
  */
 router.post("/refresh", authController.refresh);
 
@@ -129,6 +133,10 @@ router.post("/refresh", authController.refresh);
  *     responses:
  *       200:
  *         description: Successfully logged out
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
  */
 router.post("/logout", authenticate, authController.logout);
 

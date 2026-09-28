@@ -70,6 +70,8 @@ router.use(authenticate);
  *         description: Appointment created
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -84,6 +86,8 @@ router.post("/appointments", validate(validateAppointment), appointmentControlle
  *     responses:
  *       200:
  *         description: List of appointments
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -98,6 +102,8 @@ router.get("/appointments", appointmentController.getAppointments);
  *     responses:
  *       200:
  *         description: Today's appointment list
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -121,6 +127,8 @@ router.get("/appointments/today", appointmentController.getTodayAppointments);
  *         description: Filtered appointment list
  *       400:
  *         description: Search query is required
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -142,6 +150,10 @@ router.get("/appointments/search", appointmentController.searchAppointment);
  *     responses:
  *       200:
  *         description: Appointment details
+ *       400:
+ *         description: Invalid appointment ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Appointment not found
  *       500:
@@ -184,6 +196,8 @@ router.get("/appointments/:id", appointmentController.getAppointmentById);
  *         description: Appointment updated
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Appointment not found
  *       500:
@@ -207,6 +221,10 @@ router.put("/appointments/:id", validate(validateAppointment), appointmentContro
  *     responses:
  *       200:
  *         description: Appointment deleted
+ *       400:
+ *         description: Invalid appointment ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Appointment not found
  *       500:

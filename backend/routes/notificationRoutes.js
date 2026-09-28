@@ -64,6 +64,8 @@ router.get("/notifications", notificationController.getNotifications);
  *     responses:
  *       200:
  *         description: Bildirishnoma ma'lumotlari
+ *       400:
+ *         description: Noto'g'ri ID formati
  *       404:
  *         description: Topilmadi
  *       500:
@@ -111,6 +113,8 @@ router.get("/notifications/:id", notificationController.getNotificationById);
  *     responses:
  *       201:
  *         description: Bildirishnoma yaratildi
+ *       400:
+ *         description: Noto'g'ri ma'lumot yoki majburiy maydonlar to'ldirilmagan
  *       500:
  *         description: Server xatosi
  */
@@ -157,6 +161,8 @@ router.put("/notifications/read-all", notificationController.markAllAsRead);
  *     responses:
  *       200:
  *         description: Bildirishnoma o'qildi
+ *       400:
+ *         description: Noto'g'ri ID formati
  *       404:
  *         description: Topilmadi
  *       500:
@@ -180,6 +186,8 @@ router.put("/notifications/:id/read", notificationController.markAsRead);
  *     responses:
  *       200:
  *         description: O'chirildi
+ *       400:
+ *         description: Noto'g'ri ID formati
  *       404:
  *         description: Topilmadi
  *       500:

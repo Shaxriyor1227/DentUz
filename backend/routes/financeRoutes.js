@@ -30,6 +30,10 @@ router.use(authenticate);
  *     responses:
  *       200:
  *         description: Revenue, pending amounts, and summaries
+ *       400:
+ *         description: Invalid period filter
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -44,6 +48,8 @@ router.get("/finance/stats", financeController.getStats);
  *     responses:
  *       200:
  *         description: List of invoices
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -95,6 +101,8 @@ router.get("/finance/invoices", financeController.getInvoices);
  *         description: Invoice created
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -118,6 +126,8 @@ router.post("/finance/invoices", validate(validateInvoice), financeController.cr
  *         description: Matching invoices
  *       400:
  *         description: Search query is required
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -139,6 +149,10 @@ router.get("/finance/invoices/search", financeController.searchInvoice);
  *     responses:
  *       200:
  *         description: Invoice details
+ *       400:
+ *         description: Invalid invoice ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Invoice not found
  *       500:
@@ -177,6 +191,8 @@ router.get("/finance/invoices/:id", financeController.getInvoiceById);
  *         description: Invoice updated
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Invoice not found
  *       500:
@@ -210,6 +226,10 @@ router.put("/finance/invoices/:id", validate(validateInvoice), financeController
  *     responses:
  *       200:
  *         description: Status updated
+ *       400:
+ *         description: Invalid status value
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Invoice not found
  *       500:
@@ -233,6 +253,10 @@ router.patch("/finance/invoices/:id/status", financeController.updateStatus);
  *     responses:
  *       200:
  *         description: Invoice deleted
+ *       400:
+ *         description: Invalid invoice ID
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Invoice not found
  *       500:

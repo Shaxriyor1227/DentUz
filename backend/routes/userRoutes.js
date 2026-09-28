@@ -109,6 +109,8 @@ router.get("/users/search", userController.searchUser);
  *     responses:
  *       200:
  *         description: User details
+ *       400:
+ *         description: Invalid user ID
  *       404:
  *         description: User not found
  *       500:
@@ -174,6 +176,8 @@ router.put("/users/:id", validate(validateUser), userController.updateUser);
  *     responses:
  *       200:
  *         description: User deleted
+ *       400:
+ *         description: Invalid user ID
  *       404:
  *         description: User not found
  *       500:

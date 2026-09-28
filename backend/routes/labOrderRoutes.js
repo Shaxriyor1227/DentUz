@@ -155,6 +155,8 @@ router.get('/lab-orders', labOrderController.getLabOrders);
  *     responses:
  *       200:
  *         description: Lab order details
+ *       400:
+ *         description: Invalid lab order ID
  *       404:
  *         description: Not found
  *       500:
@@ -222,6 +224,8 @@ router.put('/lab-orders/:id', validate(validateLabOrder), labOrderController.upd
  *     responses:
  *       200:
  *         description: Lab order deleted
+ *       400:
+ *         description: Invalid lab order ID
  *       404:
  *         description: Not found
  *       500:

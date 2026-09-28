@@ -137,6 +137,8 @@ router.get('/medical-records/search', medicalRecordController.searchMedicalRecor
  *     responses:
  *       200:
  *         description: Medical record details
+ *       400:
+ *         description: Invalid medical record ID
  *       404:
  *         description: Not found
  *       500:
@@ -210,6 +212,8 @@ router.put(
  *     responses:
  *       200:
  *         description: Medical record deleted
+ *       400:
+ *         description: Invalid medical record ID
  *       404:
  *         description: Not found
  *       500:

@@ -110,6 +110,8 @@ router.get("/team/search", teamController.searchMember);
  *     responses:
  *       200:
  *         description: Member details
+ *       400:
+ *         description: Invalid user ID
  *       404:
  *         description: Member not found
  *       500:
@@ -173,6 +175,8 @@ router.put("/team/:id", validate(validateUser), teamController.updateMember);
  *     responses:
  *       200:
  *         description: Member deleted
+ *       400:
+ *         description: Invalid user ID
  *       403:
  *         description: Cannot delete clinic owner
  *       404:

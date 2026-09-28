@@ -156,6 +156,8 @@ router.get('/treatment-plans', treatmentPlanController.getTreatmentPlans);
  *     responses:
  *       200:
  *         description: Treatment plan details
+ *       400:
+ *         description: Invalid treatment plan ID
  *       404:
  *         description: Not found
  *       500:
@@ -227,6 +229,8 @@ router.put('/treatment-plans/:id', validate(validateTreatmentPlan), treatmentPla
  *     responses:
  *       200:
  *         description: Treatment plan deleted
+ *       400:
+ *         description: Invalid treatment plan ID
  *       404:
  *         description: Not found
  *       500:
