@@ -73,7 +73,7 @@
 
 .themeToggleBtn {
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 9px;
   border: 1px solid var(--border-color, #e2e8f0);
   background: var(--color-surface, #ffffff);
   color: var(--color-text-primary, #0f172a);
@@ -130,7 +130,7 @@
 
 .logoutBtn {
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 9px;
   border: 1px solid var(--border-color, #e2e8f0);
   background: transparent;
   color: var(--color-slate, #64748b);
@@ -365,17 +365,17 @@
   display: flex;
   align-items: center;
   background: var(--color-bg, #f1f5f9);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 8px;
-  padding: 8px 12px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 10px;
+  padding: 9px 14px;
   gap: 8px;
-  min-width: 280px;
-  transition: border-color 0.2s;
+  min-width: 300px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .searchBox:focus-within {
   border-color: var(--color-cyan, #06b6d4);
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 .searchBox input {
@@ -387,20 +387,35 @@
   color: var(--color-text-primary, #0f172a);
 }
 
+/* Custom styled Select Dropdown (Replaces default Windows select) */
 .filterSelect {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--color-surface, #ffffff);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 15px 15px;
+  padding: 9px 36px 9px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background-color: var(--color-surface, #ffffff);
   color: var(--color-text-primary, #0f172a);
   font-size: 0.875rem;
+  font-weight: 500;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.filterSelect:hover {
+  border-color: var(--color-cyan, #06b6d4);
 }
 
 .filterSelect:focus {
   border-color: var(--color-cyan, #06b6d4);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 /* Active Clinic Filter Alert Banner */
@@ -428,6 +443,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  transition: all 0.2s;
 }
 
 .clearFilterBtn:hover {
@@ -451,13 +467,16 @@
   background: var(--color-bg, #f8fafc);
   color: var(--color-slate, #64748b);
   padding: 14px 18px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.775rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   border-bottom: 1px solid var(--border-color, #e2e8f0);
   white-space: nowrap;
 }
 
 .dataTable td {
-  padding: 16px 18px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border-color, #e2e8f0);
   color: var(--color-text-primary, #0f172a);
   vertical-align: middle;
@@ -468,7 +487,33 @@
 }
 
 .dataTable tbody tr:hover {
-  background: rgba(241, 245, 249, 0.6);
+  background: rgba(241, 245, 249, 0.65);
+}
+
+/* User cell with Avatar */
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userTableAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.825rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.userTableMeta {
+  display: flex;
+  flex-direction: column;
 }
 
 .nowrapCell {
@@ -481,6 +526,10 @@
   font-weight: 600;
   color: var(--color-cyan-hover, #0284c7);
   text-decoration: none;
+}
+
+.phoneCell:hover {
+  text-decoration: underline;
 }
 
 .primaryText {
@@ -499,7 +548,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -588,7 +637,9 @@
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Action Buttons */
+/* =========================================================
+   Modern Action Buttons Group
+   ========================================================= */
 .actionBtnGroup {
   display: inline-flex;
   align-items: center;
@@ -598,8 +649,9 @@
 }
 
 .actionBtn {
-  padding: 6px 12px;
-  border-radius: 7px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 600;
   border: none;
@@ -607,7 +659,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
@@ -618,6 +670,84 @@
 
 .actionBtnPrimary:hover {
   filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.actionBtnSoftCyan {
+  background: rgba(6, 182, 212, 0.08);
+  color: var(--color-cyan-hover, #0891b2);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.actionBtnSoftCyan:hover {
+  background: var(--color-cyan, #06b6d4);
+  color: white;
+  border-color: var(--color-cyan, #06b6d4);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(6, 182, 212, 0.3);
+}
+
+.actionBtnSoftPurple {
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.actionBtnSoftPurple:hover {
+  background: #8b5cf6;
+  color: white;
+  border-color: #8b5cf6;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(139, 92, 246, 0.3);
+}
+
+.actionBtnSoftDanger {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.actionBtnSoftDanger:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.3);
+}
+
+.actionBtnSoftSuccess {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.actionBtnSoftSuccess:hover {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
+}
+
+.actionBtnSoftIcon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.06);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionBtnSoftIcon:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
   transform: translateY(-1px);
 }
 
@@ -632,28 +762,6 @@
   color: var(--color-text-primary, #0f172a);
 }
 
-.actionBtnDanger {
-  background: transparent;
-  border: 1px solid #fca5a5;
-  color: #dc2626;
-}
-
-.actionBtnDanger:hover {
-  background: #fee2e2;
-  border-color: #ef4444;
-}
-
-.actionBtnSuccess {
-  background: transparent;
-  border: 1px solid #86efac;
-  color: #16a34a;
-}
-
-.actionBtnSuccess:hover {
-  background: #dcfce7;
-  border-color: #22c55e;
-}
-
 .emptyState {
   padding: 48px 24px;
   text-align: center;
@@ -661,12 +769,14 @@
   font-size: 0.95rem;
 }
 
-/* Modal Core Styles */
+/* =========================================================
+   Modal Core Styles
+   ========================================================= */
 .modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -676,7 +786,7 @@
 
 .modalCard {
   background: var(--color-surface, #ffffff);
-  border-radius: 18px;
+  border-radius: 20px;
   max-width: 600px;
   width: 100%;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -741,7 +851,9 @@
   gap: 12px;
 }
 
-/* Form Styles */
+/* =========================================================
+   Form Controls in Modals - Fixed Full Width & Border Styling
+   ========================================================= */
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -761,26 +873,40 @@
   gap: 6px;
 }
 
-.formGroup label {
+.formGroup label,
+.formGroupFull label {
   font-size: 0.825rem;
   font-weight: 600;
   color: var(--color-slate, #475569);
+  margin-bottom: 2px;
 }
 
-.formGroup input, .formGroup select {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color, #e2e8f0);
+.formGroup input,
+.formGroup select,
+.formGroupFull input,
+.formGroupFull select,
+.formGroup textarea,
+.formGroupFull textarea {
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
   background: var(--color-surface, #ffffff);
   color: var(--color-text-primary, #0f172a);
   font-size: 0.9rem;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.formGroup input:focus, .formGroup select:focus {
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroupFull input:focus,
+.formGroupFull select:focus,
+.formGroup textarea:focus,
+.formGroupFull textarea:focus {
   border-color: var(--color-cyan, #06b6d4);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.16);
 }
 
 /* User target card in modals */
@@ -936,6 +1062,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: all 0.2s;
 }
 
 .generatePassBtn:hover {
@@ -1090,8 +1217,8 @@
   width: 100%;
   height: 140px;
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
   background: var(--color-bg, #f8fafc);
   font-size: 0.825rem;
   color: var(--color-text-primary, #0f172a);
@@ -1256,9 +1383,19 @@
 }
 
 :global([data-theme="dark"]) .filterSelect {
-  background: #0e1524;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-color: #0e1524;
   border-color: #243049;
   color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .filterSelect:hover {
+  border-color: #22d3ee;
+}
+
+:global([data-theme="dark"]) .filterSelect:focus {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
 }
 
 :global([data-theme="dark"]) .dataTable th {
@@ -1278,6 +1415,36 @@
 
 :global([data-theme="dark"]) .primaryText {
   color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .actionBtnSoftCyan {
+  background: rgba(34, 211, 238, 0.12);
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+:global([data-theme="dark"]) .actionBtnSoftPurple {
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+:global([data-theme="dark"]) .actionBtnSoftDanger {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+:global([data-theme="dark"]) .actionBtnSoftSuccess {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+:global([data-theme="dark"]) .actionBtnSoftIcon {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
 }
 
 :global([data-theme="dark"]) .actionBtnOutline {
@@ -1310,15 +1477,28 @@
   color: #f8fafc;
 }
 
-:global([data-theme="dark"]) .formGroup label {
+:global([data-theme="dark"]) .formGroup label,
+:global([data-theme="dark"]) .formGroupFull label {
   color: #94a3b8;
 }
 
 :global([data-theme="dark"]) .formGroup input,
-:global([data-theme="dark"]) .formGroup select {
+:global([data-theme="dark"]) .formGroup select,
+:global([data-theme="dark"]) .formGroupFull input,
+:global([data-theme="dark"]) .formGroupFull select,
+:global([data-theme="dark"]) .formGroup textarea,
+:global([data-theme="dark"]) .formGroupFull textarea {
   background: #0e1524;
   border-color: #243049;
   color: #f8fafc;
+}
+
+:global([data-theme="dark"]) .formGroup input:focus,
+:global([data-theme="dark"]) .formGroup select:focus,
+:global([data-theme="dark"]) .formGroupFull input:focus,
+:global([data-theme="dark"]) .formGroupFull select:focus {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
 }
 
 :global([data-theme="dark"]) .targetUserSummary {

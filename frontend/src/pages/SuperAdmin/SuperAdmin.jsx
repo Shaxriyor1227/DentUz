@@ -890,20 +890,20 @@ export default function SuperAdmin() {
                             {app.status === 'new' && (
                               <button
                                 onClick={() => handleUpdateAppStatus(app, 'contacted')}
-                                className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                                className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
                                 title="Bog'lanildi deb belgilash"
                               >
+                                <Icon name="phone_callback" size={13} />
                                 <span>Bog'lanildi</span>
                               </button>
                             )}
 
                             <button
                               onClick={() => handleDeleteAppPrompt(app)}
-                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
-                              style={{ color: '#ef4444' }}
+                              className={styles.actionBtnSoftIcon}
                               title="Arizani o'chirish"
                             >
-                              ✕
+                              <Icon name="delete" size={14} />
                             </button>
                           </div>
                         </td>
@@ -996,7 +996,7 @@ export default function SuperAdmin() {
                           <div className={styles.actionBtnGroup}>
                             <button
                               onClick={() => handleViewClinicStaff(clinic)}
-                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
                               title="Ushbu klinika xodimlarini ko'rish va sozlash"
                             >
                               <Icon name="group" size={14} />
@@ -1005,7 +1005,7 @@ export default function SuperAdmin() {
 
                             <button
                               onClick={() => handleOpenExtendPlan(clinic)}
-                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
                               title="Obunani uzaytirish"
                             >
                               <Icon name="schedule" size={14} />
@@ -1015,11 +1015,12 @@ export default function SuperAdmin() {
                             <button
                               onClick={() => handleToggleClinicStatus(clinic)}
                               className={`${styles.actionBtn} ${
-                                clinic.status === 'active' ? styles.actionBtnDanger : styles.actionBtnSuccess
+                                clinic.status === 'active' ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
                               }`}
                               title={clinic.status === 'active' ? 'Klinikani vaqtincha bloklash' : 'Qayta faollashtirish'}
                             >
-                              {clinic.status === 'active' ? 'Bloklash' : 'Ochish'}
+                              <Icon name={clinic.status === 'active' ? 'pause_circle' : 'play_circle'} size={13} />
+                              <span>{clinic.status === 'active' ? 'Bloklash' : 'Ochish'}</span>
                             </button>
                           </div>
                         </td>
@@ -1112,9 +1113,36 @@ export default function SuperAdmin() {
                     {filteredUsers.map((u) => (
                       <tr key={u.id}>
                         <td>
-                          <div className={styles.primaryText}>{u.name}</div>
-                          <div className={styles.secondaryText}>
-                            {u.username ? `@${u.username} • ` : ''}{u.email}
+                          <div className={styles.userCell}>
+                            <div
+                              className={styles.userTableAvatar}
+                              style={{
+                                background:
+                                  u.role === 'superadmin'
+                                    ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                                    : u.role === 'owner'
+                                    ? 'linear-gradient(135deg, #0284c7, #0369a1)'
+                                    : u.role === 'doctor'
+                                    ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
+                                    : u.role === 'nurse'
+                                    ? 'linear-gradient(135deg, #10b981, #059669)'
+                                    : 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                              }}
+                            >
+                              {u.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .filter(Boolean)
+                                .slice(0, 2)
+                                .join('')
+                                .toUpperCase() || 'U'}
+                            </div>
+                            <div className={styles.userTableMeta}>
+                              <div className={styles.primaryText}>{u.name}</div>
+                              <div className={styles.secondaryText}>
+                                {u.username ? `@${u.username} • ` : ''}{u.email}
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td>
@@ -1168,25 +1196,26 @@ export default function SuperAdmin() {
                             <button
                               onClick={() => handleToggleUserStatus(u)}
                               className={`${styles.actionBtn} ${
-                                u.isActive ? styles.actionBtnDanger : styles.actionBtnSuccess
+                                u.isActive ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
                               }`}
                               title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
                             >
-                              {u.isActive ? 'Bloklash' : 'Ruxsat berish'}
+                              <Icon name={u.isActive ? 'block' : 'check_circle'} size={13} />
+                              <span>{u.isActive ? 'Bloklash' : 'Ruxsat berish'}</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenRoleModal(u)}
-                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
                               title="Rolni o'zgartirish"
                             >
-                              <Icon name="badge" size={14} />
+                              <Icon name="manage_accounts" size={14} />
                               <span>Rol</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenPasswordModal(u)}
-                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
                               title="Parolni yangilash"
                             >
                               <Icon name="key" size={14} />
@@ -1196,11 +1225,10 @@ export default function SuperAdmin() {
                             {u.role !== 'superadmin' && (
                               <button
                                 onClick={() => handleDeleteUser(u)}
-                                className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
-                                style={{ color: '#ef4444' }}
+                                className={styles.actionBtnSoftIcon}
                                 title="O'chirish"
                               >
-                                ✕
+                                <Icon name="delete" size={14} />
                               </button>
                             )}
                           </div>
