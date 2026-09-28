@@ -21,11 +21,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate: { isEmail: true },
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
       password: {
         type: DataTypes.STRING,

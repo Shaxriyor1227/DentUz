@@ -9,7 +9,7 @@ export default function SuperAdmin() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'clinics'
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'clinics' | 'users'
   const [stats, setStats] = useState({
     totalClinics: 0,
     activeClinics: 0,
@@ -22,18 +22,34 @@ export default function SuperAdmin() {
 
   const [applications, setApplications] = useState([]);
   const [clinics, setClinics] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
   const [appSearch, setAppSearch] = useState('');
   const [appStatus, setAppStatus] = useState('all');
   const [clinicSearch, setClinicSearch] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
 
-  // Modal State
+  // Onboard Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [onboardSuccessData, setOnboardSuccessData] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [copyStatus, setCopyStatus] = useState('');
+
+  // Create User Modal State
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [userFormData, setUserFormData] = useState({
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+    role: 'doctor',
+    clinicId: '',
+    phone: '',
+    title: '',
+  });
 
   // Form State for Onboarding
   const [formData, setFormData] = useState({
@@ -54,10 +70,11 @@ export default function SuperAdmin() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [statsRes, appsRes, clinicsRes] = await Promise.all([
+      const [statsRes, appsRes, clinicsRes, usersRes] = await Promise.all([
         fetch(`${baseUrl}/superadmin/stats`),
         fetch(`${baseUrl}/superadmin/applications`),
         fetch(`${baseUrl}/superadmin/clinics`),
+        fetch(`${baseUrl}/superadmin/users`),
       ]);
 
       if (statsRes.ok) {
@@ -71,6 +88,10 @@ export default function SuperAdmin() {
       if (clinicsRes.ok) {
         const cData = await clinicsRes.json();
         if (cData.success) setClinics(cData.data);
+      }
+      if (usersRes.ok) {
+        const uData = await usersRes.json();
+        if (uData.success) setUsers(uData.data);
       }
     } catch (err) {
       console.error('SuperAdmin loadData error:', err);
@@ -188,6 +209,112 @@ export default function SuperAdmin() {
     }
   };
 
+  // --- USER ACCESS MANAGEMENT FUNCTIONS ---
+
+  // Toggle User Active / Blocked status
+  const handleToggleUserStatus = async (targetUser) => {
+    const newActive = !targetUser.isActive;
+    const confirmMsg = newActive
+      ? `"${targetUser.name}" foydalanuvchisini faollashtirishni tasdiqlaysizmi?`
+      : `"${targetUser.name}" foydalanuvchisini bloklashni tasdiqlaysizmi? (U tizimga kira olmaydi)`;
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: newActive }),
+      });
+      if (res.ok) {
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Change User Role
+  const handleChangeUserRole = async (targetUser) => {
+    const roles = ['superadmin', 'owner', 'doctor', 'receptionist', 'nurse'];
+    const newRole = prompt(`Yangi rolni tanlang (${roles.join(', ')}):`, targetUser.role);
+    if (!newRole || !roles.includes(newRole)) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      });
+      if (res.ok) {
+        alert(`Rol muvaffaqiyatli o'zgartirildi: ${newRole}`);
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Reset User Password
+  const handleResetUserPassword = async (targetUser) => {
+    const newPass = prompt(`"${targetUser.name}" uchun yangi parol kiriting (kamida 6 ta belgi):`, 'DentUz2026!');
+    if (!newPass || newPass.trim().length < 6) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}/password`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPass.trim() }),
+      });
+      if (res.ok) {
+        alert(`Parol muvaffaqiyatli yangilandi! Yangi parol: ${newPass}`);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Delete User
+  const handleDeleteUser = async (targetUser) => {
+    if (!window.confirm(`"${targetUser.name}" foydalanuvchisini tizimdan o'chirishni tasdiqlaysizmi?`)) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        alert('Foydalanuvchi tizimdan o\'chirildi');
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Submit Create New User
+  const handleSubmitCreateUser = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userFormData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('Foydalanuvchi muvaffaqiyatli yaratildi!');
+        setIsUserModalOpen(false);
+        loadData();
+      } else {
+        alert(data.message || 'Xatolik yuz berdi');
+      }
+    } catch (err) {
+      alert('Server xatosi: ' + err.message);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
   // Copy helper
   const handleCopy = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -218,6 +345,19 @@ export default function SuperAdmin() {
     );
   });
 
+  // Filtered users
+  const filteredUsers = users.filter((u) => {
+    const matchRole = userRoleFilter === 'all' || u.role === userRoleFilter;
+    const q = userSearch.toLowerCase();
+    const matchSearch =
+      !userSearch ||
+      (u.name && u.name.toLowerCase().includes(q)) ||
+      (u.username && u.username.toLowerCase().includes(q)) ||
+      (u.email && u.email.toLowerCase().includes(q)) ||
+      (u.phone && u.phone.includes(q));
+    return matchRole && matchSearch;
+  });
+
   return (
     <div className={styles.superAdminContainer}>
       {/* Top Navbar */}
@@ -233,10 +373,10 @@ export default function SuperAdmin() {
 
           <div className={styles.userActions}>
             <div className={styles.adminProfile}>
-              <div className={styles.adminAvatar}>SA</div>
+              <div className={styles.adminAvatar}>SR</div>
               <div className={styles.adminMeta}>
-                <span className={styles.adminName}>{user?.name || 'SuperAdmin'}</span>
-                <span className={styles.adminRole}>Platform Administrator</span>
+                <span className={styles.adminName}>{user?.name || 'Shaxriyor Rozmamatov'}</span>
+                <span className={styles.adminRole}>Founder & SuperAdmin (@{user?.username || 'shaxriyorrozmamatov'})</span>
               </div>
             </div>
 
@@ -255,14 +395,37 @@ export default function SuperAdmin() {
           <div>
             <h1 className={styles.pageTitle}>DentUz SaaS Boshqaruv Markazi</h1>
             <p className={styles.pageSubtitle}>
-              Platformadagi barcha klinikalar, arizalar va obunalarni markazlashgan holda boshqaring.
+              Barcha klinikalar, arizalar, xodimlar va kirish huquqlarini to'liq boshqaring.
             </p>
           </div>
 
-          <button onClick={handleOpenNewClinic} className={styles.createClinicBtn}>
-            <Icon name="add" size={18} />
-            <span>+ Yangi Klinika Qo'shish</span>
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => {
+                setUserFormData({
+                  name: '',
+                  username: '',
+                  email: '',
+                  password: '',
+                  role: 'doctor',
+                  clinicId: clinics[0]?.id || '',
+                  phone: '',
+                  title: '',
+                });
+                setIsUserModalOpen(true);
+              }}
+              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+              style={{ padding: '12px 18px', borderRadius: '10px', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              <Icon name="person_add" size={18} />
+              <span>+ Xodim Qo'shish</span>
+            </button>
+
+            <button onClick={handleOpenNewClinic} className={styles.createClinicBtn}>
+              <Icon name="add" size={18} />
+              <span>+ Yangi Klinika Qo'shish</span>
+            </button>
+          </div>
         </div>
 
         {/* KPI Dashboard Cards */}
@@ -291,12 +454,12 @@ export default function SuperAdmin() {
 
           <div className={styles.kpiCard}>
             <div className={styles.kpiIconWrap} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              <Icon name="medical_services" size={26} />
+              <Icon name="verified_user" size={26} />
             </div>
             <div className={styles.kpiInfo}>
-              <span className={styles.kpiLabel}>Shifokorlar & Bemorlar</span>
-              <span className={styles.kpiValue}>{stats.totalDoctors} shifokor</span>
-              <span className={styles.kpiSub}>• {stats.totalPatients} ta bemorlar bazada</span>
+              <span className={styles.kpiLabel}>Foydalanuvchilar & Xodimlar</span>
+              <span className={styles.kpiValue}>{users.length} ta</span>
+              <span className={styles.kpiSub}>• Tizimdagi barcha hisoblar</span>
             </div>
           </div>
 
@@ -332,6 +495,15 @@ export default function SuperAdmin() {
             <Icon name="apartment" size={18} />
             <span>Klinikalar Boshqaruvi</span>
             <span className={styles.tabBadge}>{clinics.length}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
+          >
+            <Icon name="verified_user" size={18} />
+            <span>Foydalanuvchilar va Kirish Huquqlari</span>
+            <span className={styles.tabBadge}>{users.length}</span>
           </button>
         </div>
 
@@ -552,6 +724,152 @@ export default function SuperAdmin() {
             </div>
           </div>
         )}
+
+        {/* Tab 3: Users & Access Rights (RBAC) */}
+        {activeTab === 'users' && (
+          <div className={styles.sectionCard}>
+            <div className={styles.sectionFilterBar}>
+              <div className={styles.searchBox}>
+                <Icon name="search" size={18} />
+                <input
+                  type="text"
+                  placeholder="Ism, login, email yoki telefon orqali qidirish..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                />
+              </div>
+
+              <select
+                className={styles.filterSelect}
+                value={userRoleFilter}
+                onChange={(e) => setUserRoleFilter(e.target.value)}
+              >
+                <option value="all">Barcha rollar</option>
+                <option value="superadmin">SuperAdmin (Asosiy Egasi)</option>
+                <option value="owner">Klinika Egasi (Owner)</option>
+                <option value="doctor">Shifokor (Doctor)</option>
+                <option value="receptionist">Administrator (Receptionist)</option>
+                <option value="nurse">Hamshira (Nurse)</option>
+              </select>
+            </div>
+
+            <div className={styles.tableResponsive}>
+              {loading ? (
+                <div className={styles.emptyState}>Foydalanuvchilar yuklanmoqda...</div>
+              ) : filteredUsers.length === 0 ? (
+                <div className={styles.emptyState}>Hech qanday foydalanuvchi topilmadi.</div>
+              ) : (
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Foydalanuvchi</th>
+                      <th>Roli (Vakolati)</th>
+                      <th>Biriktirilgan Klinika</th>
+                      <th>Telefon</th>
+                      <th>Kirish Huquqi</th>
+                      <th>Qo'shilgan Sana</th>
+                      <th style={{ textAlign: 'right' }}>Huquqlarni Boshqarish</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((u) => (
+                      <tr key={u.id}>
+                        <td>
+                          <div className={styles.primaryText}>{u.name}</div>
+                          <div className={styles.secondaryText}>
+                            {u.username ? `@${u.username} • ` : ''}{u.email}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.roleBadge} ${
+                              u.role === 'superadmin'
+                                ? styles.roleSuperadmin
+                                : u.role === 'owner'
+                                ? styles.roleOwner
+                                : u.role === 'doctor'
+                                ? styles.roleDoctor
+                                : u.role === 'receptionist'
+                                ? styles.roleReceptionist
+                                : styles.roleNurse
+                            }`}
+                          >
+                            {u.role === 'superadmin' && '👑 '}
+                            {u.role}
+                          </span>
+                        </td>
+                        <td>
+                          <div className={styles.primaryText}>
+                            {u.clinic?.name || (u.role === 'superadmin' ? 'DentUz Platformasi' : 'Biriktirilmagan')}
+                          </div>
+                        </td>
+                        <td>
+                          <span className={styles.secondaryText}>{u.phone || '—'}</span>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.statusBadge} ${
+                              u.isActive ? styles.statusActive : styles.statusSuspended
+                            }`}
+                          >
+                            {u.isActive ? '● Faol (Kirish mumkin)' : '● Bloklangan (Kira olmaydi)'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.secondaryText}>
+                            {new Date(u.createdAt).toLocaleDateString('uz-UZ')}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => handleToggleUserStatus(u)}
+                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              style={{
+                                color: u.isActive ? '#dc2626' : '#16a34a',
+                                borderColor: u.isActive ? '#fca5a5' : '#86efac',
+                              }}
+                              title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
+                            >
+                              {u.isActive ? 'Bloklash' : 'Ruxsat berish'}
+                            </button>
+
+                            <button
+                              onClick={() => handleChangeUserRole(u)}
+                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              title="Rolni o'zgartirish"
+                            >
+                              <span>Rol</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleResetUserPassword(u)}
+                              className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                              title="Parolni tiklash"
+                            >
+                              <span>Parol</span>
+                            </button>
+
+                            {u.role !== 'superadmin' && (
+                              <button
+                                onClick={() => handleDeleteUser(u)}
+                                className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                                style={{ color: '#ef4444' }}
+                                title="O'chirish"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Onboarding Modal */}
@@ -749,6 +1067,135 @@ export default function SuperAdmin() {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create User Modal */}
+      {isUserModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Yangi Xodim / Foydalanuvchi Qo'shish</h2>
+              <button onClick={() => setIsUserModalOpen(false)} className={styles.modalCloseBtn}>
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitCreateUser}>
+              <div className={styles.modalBody}>
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label>F.I.Sh (Ism Familiya) *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Dr. Anvar Aliyev"
+                      value={userFormData.name}
+                      onChange={(e) => setUserFormData({ ...userFormData, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Login (Username)</label>
+                    <input
+                      type="text"
+                      placeholder="anvar_dr (ixtiyoriy)"
+                      value={userFormData.username}
+                      onChange={(e) => setUserFormData({ ...userFormData, username: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="anvar@klinika.uz"
+                      value={userFormData.email}
+                      onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Parol *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Parol kiriting..."
+                      value={userFormData.password}
+                      onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Roli (Kirish Huquqi) *</label>
+                    <select
+                      value={userFormData.role}
+                      onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
+                    >
+                      <option value="doctor">Shifokor (Doctor)</option>
+                      <option value="receptionist">Qabulxona (Receptionist)</option>
+                      <option value="nurse">Hamshira (Nurse)</option>
+                      <option value="owner">Klinika Rahbari (Owner)</option>
+                      <option value="superadmin">SuperAdmin</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Biriktirilgan Klinika</label>
+                    <select
+                      value={userFormData.clinicId}
+                      onChange={(e) => setUserFormData({ ...userFormData, clinicId: e.target.value })}
+                    >
+                      <option value="">— Klinika tanlang —</option>
+                      {clinics.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Telefon Raqami</label>
+                    <input
+                      type="text"
+                      placeholder="+998 90 000 00 00"
+                      value={userFormData.phone}
+                      onChange={(e) => setUserFormData({ ...userFormData, phone: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Lavozimi / Mutaxassisligi</label>
+                    <input
+                      type="text"
+                      placeholder="Terapevt, Ortodont..."
+                      value={userFormData.title}
+                      onChange={(e) => setUserFormData({ ...userFormData, title: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  onClick={() => setIsUserModalOpen(false)}
+                  className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={modalLoading}
+                  className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                >
+                  {modalLoading ? 'Yaratilmoqda...' : 'Foydalanuvchini Saqlash'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

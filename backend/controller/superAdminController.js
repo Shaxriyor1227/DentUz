@@ -315,3 +315,181 @@ exports.updateClinicPlan = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+/**
+ * Barcha foydalanuvchilar va ularning huquqlarini olish (RBAC / Access Control)
+ */
+exports.getUsers = async (req, res) => {
+  try {
+    const { role, clinicId, search } = req.query;
+    const where = {};
+    if (role && role !== 'all') where.role = role;
+    if (clinicId && clinicId !== 'all') where.clinicId = clinicId;
+
+    let users = await User.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: Clinic, as: 'clinic', attributes: ['id', 'name'] },
+        { model: Doctor, as: 'doctorProfile', attributes: ['id', 'specialization', 'cabinetNumber'] },
+      ],
+      attributes: ['id', 'name', 'username', 'shortName', 'title', 'email', 'role', 'phone', 'isActive', 'clinicId', 'createdAt'],
+    });
+
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      users = users.filter(
+        (u) =>
+          (u.name && u.name.toLowerCase().includes(q)) ||
+          (u.email && u.email.toLowerCase().includes(q)) ||
+          (u.username && u.username.toLowerCase().includes(q)) ||
+          (u.phone && u.phone.includes(q))
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Yangi foydalanuvchi / xodim yaratish
+ */
+exports.createUser = async (req, res) => {
+  try {
+    const { name, username, email, password, role = 'receptionist', clinicId, phone, title } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Ism, email va parol majburiy' });
+    }
+
+    const existing = await User.findOne({
+      where: {
+        [sequelize.Sequelize.Op.or]: [
+          { email: email.trim().toLowerCase() },
+          ...(username ? [{ username: username.trim().toLowerCase() }] : []),
+        ],
+      },
+    });
+
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'Bu email yoki login allaqachon mavjud' });
+    }
+
+    const user = await User.create({
+      name: name.trim(),
+      username: username ? username.trim().toLowerCase() : null,
+      email: email.trim().toLowerCase(),
+      password: password.trim(),
+      role,
+      clinicId: clinicId || null,
+      phone: phone ? phone.trim() : null,
+      title: title ? title.trim() : null,
+      isActive: true,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Foydalanuvchi muvaffaqiyatli yaratildi',
+      data: user,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Foydalanuvchi holatini o'zgartirish (Bloklash / Faollashtirish)
+ */
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    }
+
+    await user.update({ isActive: Boolean(isActive) });
+    res.status(200).json({
+      success: true,
+      message: `Foydalanuvchi holati yangilandi: ${isActive ? 'Faollashtirildi' : 'Bloklandi'}`,
+      data: { id: user.id, isActive: user.isActive },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Foydalanuvchi rolini o'zgartirish (Ruxsatlarni boshqarish)
+ */
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    }
+
+    await user.update({ role });
+    res.status(200).json({
+      success: true,
+      message: `Foydalanuvchi roli muvaffaqiyatli yangilandi: ${role}`,
+      data: user,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Foydalanuvchi parolini yangilash (Parolni tiklash)
+ */
+exports.updateUserPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password || password.trim().length < 6) {
+      return res.status(400).json({ success: false, message: 'Parol kamida 6 belgidan iborat bo\'lishi shart' });
+    }
+
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    }
+
+    user.password = password.trim();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Foydalanuvchi paroli muvaffaqiyatli yangilandi',
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Foydalanuvchini o'chirish
+ */
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    }
+
+    await user.destroy();
+    res.status(200).json({
+      success: true,
+      message: 'Foydalanuvchi tizimdan o\'chirildi',
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

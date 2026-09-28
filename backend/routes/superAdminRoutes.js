@@ -179,4 +179,175 @@ router.patch('/clinics/:id/status', superAdminController.updateClinicStatus);
  */
 router.patch('/clinics/:id/plan', superAdminController.updateClinicPlan);
 
+/**
+ * @swagger
+ * /api/superadmin/users:
+ *   get:
+ *     tags: [SuperAdmin]
+ *     summary: Barcha foydalanuvchilar va xodimlar ro'yxatini olish (RBAC / Kirish huquqlari)
+ *     parameters:
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [all, superadmin, owner, doctor, receptionist, nurse]
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Foydalanuvchilar ro'yxati
+ */
+router.get('/users', superAdminController.getUsers);
+
+/**
+ * @swagger
+ * /api/superadmin/users:
+ *   post:
+ *     tags: [SuperAdmin]
+ *     summary: Yangi xodim yoki boshqaruvchi yaratish
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [superadmin, owner, doctor, receptionist, nurse]
+ *               clinicId:
+ *                 type: string
+ *                 format: uuid
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Foydalanuvchi yaratildi
+ */
+router.post('/users', superAdminController.createUser);
+
+/**
+ * @swagger
+ * /api/superadmin/users/{id}/status:
+ *   patch:
+ *     tags: [SuperAdmin]
+ *     summary: Foydalanuvchini bloklash yoki faollashtirish (Kirish huquqini boshqarish)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isActive
+ *             properties:
+ *               isActive:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Status yangilandi
+ */
+router.patch('/users/:id/status', superAdminController.updateUserStatus);
+
+/**
+ * @swagger
+ * /api/superadmin/users/{id}/role:
+ *   patch:
+ *     tags: [SuperAdmin]
+ *     summary: Foydalanuvchi rolini o'zgartirish
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [superadmin, owner, doctor, receptionist, nurse]
+ *     responses:
+ *       200:
+ *         description: Rol yangilandi
+ */
+router.patch('/users/:id/role', superAdminController.updateUserRole);
+
+/**
+ * @swagger
+ * /api/superadmin/users/{id}/password:
+ *   patch:
+ *     tags: [SuperAdmin]
+ *     summary: Foydalanuvchi parolini yangilash (Parolni tiklash)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Parol muvaffaqiyatli yangilandi
+ */
+router.patch('/users/:id/password', superAdminController.updateUserPassword);
+
+/**
+ * @swagger
+ * /api/superadmin/users/{id}:
+ *   delete:
+ *     tags: [SuperAdmin]
+ *     summary: Foydalanuvchini tizimdan o'chirish
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: O'chirildi
+ */
+router.delete('/users/:id', superAdminController.deleteUser);
+
 module.exports = router;

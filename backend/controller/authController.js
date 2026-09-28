@@ -1,6 +1,7 @@
 
 const jwt = require('jsonwebtoken');
 const { User, Clinic } = require('../models');
+const { Op } = require('sequelize');
 const { validateLogin, validateUser } = require('../validations/userValidation');
 
 const signTokens = (userId) => {
@@ -36,16 +37,29 @@ exports.login = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const { email, password } = req.body;
+    const identifier = (req.body.login || req.body.username || req.body.email || '').trim();
+    const { password } = req.body;
+
     const user = await User.scope('withSecrets').findOne({
-      where: { email },
+      where: {
+        [Op.or]: [
+          { email: identifier },
+          { email: identifier.toLowerCase() },
+          { username: identifier },
+          { username: identifier.toLowerCase() },
+        ],
+      },
       include: [{ model: Clinic, as: 'clinic' }],
     });
 
-    if (!user) return res.status(401).json({ success: false, message: 'Email yoki parol noto\'g\'ri' });
+    if (!user) return res.status(401).json({ success: false, message: 'Email, login yoki parol noto\'g\'ri' });
+
+    if (user.isActive === false) {
+      return res.status(403).json({ success: false, message: 'Hisobingiz administrator tomonidan vaqtincha bloklangan.' });
+    }
 
     const valid = await user.comparePassword(password);
-    if (!valid) return res.status(401).json({ success: false, message: 'Email yoki parol noto\'g\'ri' });
+    if (!valid) return res.status(401).json({ success: false, message: 'Email, login yoki parol noto\'g\'ri' });
 
     const { access, refresh } = signTokens(user.id);
     await user.update({ refreshToken: refresh });
@@ -53,6 +67,7 @@ exports.login = async (req, res) => {
     const userPayload = {
       id: user.id,
       name: user.name,
+      username: user.username,
       shortName: user.shortName,
       title: user.title,
       email: user.email,
@@ -61,6 +76,7 @@ exports.login = async (req, res) => {
       clinic: user.clinic,
       phone: user.phone,
       avatarUrl: user.avatarUrl,
+      isActive: user.isActive,
     };
 
     res.status(200).json({ success: true, token: access, refreshToken: refresh, data: userPayload });
