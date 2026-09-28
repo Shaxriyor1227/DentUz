@@ -29,6 +29,9 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const app = express();
 
+// Trust reverse proxy (Render.com, Nginx, Cloudflare) for accurate client IP identification in rate-limiters
+app.set('trust proxy', 1);
+
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
 app.use(cors({
