@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
@@ -6,12 +6,69 @@ import Logo from '../../components/Logo/Logo';
 import Icon from '../../components/Icon/Icon';
 import styles from './SuperAdmin.module.css';
 
+// Sleek Custom Dropdown (No native OS select box glitches)
+function CustomDropdown({ value, options, onChange, placeholder, icon }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const selectedOption = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className={styles.customDropdownContainer} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={styles.customDropdownTrigger}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {icon && <Icon name={icon} size={16} />}
+          <span>{selectedOption ? selectedOption.label : placeholder}</span>
+        </div>
+        <Icon name={open ? 'expand_less' : 'expand_more'} size={18} />
+      </button>
+
+      {open && (
+        <div className={styles.customDropdownMenu}>
+          {options.map((opt) => (
+            <div
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              className={`${styles.customDropdownItem} ${
+                opt.value === value ? styles.customDropdownItemActive : ''
+              }`}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {opt.icon && <Icon name={opt.icon} size={15} />}
+                <span>{opt.label}</span>
+              </div>
+              {opt.value === value && <Icon name="check" size={16} style={{ color: '#06b6d4' }} />}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SuperAdmin() {
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'clinics' | 'users'
+  const [activeTab, setActiveTab] = useState('clinics'); // 'clinics' | 'applications' | 'superadmins'
   const [stats, setStats] = useState({
     totalClinics: 0,
     activeClinics: 0,
@@ -27,13 +84,15 @@ export default function SuperAdmin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Dedicated Clinic Workspace View State
+  const [selectedClinicDetail, setSelectedClinicDetail] = useState(null);
+
   // Filters
   const [appSearch, setAppSearch] = useState('');
   const [appStatus, setAppStatus] = useState('all');
   const [clinicSearch, setClinicSearch] = useState('');
-  const [userSearch, setUserSearch] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState('all');
-  const [userClinicFilter, setUserClinicFilter] = useState('all');
+  const [staffSearch, setStaffSearch] = useState('');
+  const [staffRoleFilter, setStaffRoleFilter] = useState('all');
 
   // Toasts
   const [toasts, setToasts] = useState([]);
@@ -64,6 +123,16 @@ export default function SuperAdmin() {
     title: '',
   });
 
+  // Telegram Credentials Sharing Modal
+  const [telegramModal, setTelegramModal] = useState({
+    isOpen: false,
+    clinicName: '',
+    employeeName: '',
+    role: '',
+    login: '',
+    password: '',
+  });
+
   // Form State for Onboarding
   const [formData, setFormData] = useState({
     applicationId: '',
@@ -77,7 +146,7 @@ export default function SuperAdmin() {
     password: '',
   });
 
-  // Custom Modal 1: Role Change Modal
+  // Custom Modal: Role Change
   const [roleModal, setRoleModal] = useState({
     isOpen: false,
     user: null,
@@ -85,7 +154,7 @@ export default function SuperAdmin() {
     loading: false,
   });
 
-  // Custom Modal 2: Password Reset Modal
+  // Custom Modal: Password Reset
   const [passwordModal, setPasswordModal] = useState({
     isOpen: false,
     user: null,
@@ -95,20 +164,20 @@ export default function SuperAdmin() {
     loading: false,
   });
 
-  // Custom Modal 3: Confirm Action Modal
+  // Custom Modal: Confirm Action
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     title: '',
     message: '',
     confirmText: 'Tasdiqlash',
     cancelText: 'Bekor qilish',
-    icon: 'warning', // 'warning' | 'block' | 'delete' | 'check_circle'
+    icon: 'warning',
     isDanger: true,
     onConfirm: null,
     loading: false,
   });
 
-  // Custom Modal 4: Extend Subscription Modal
+  // Custom Modal: Extend Subscription
   const [extendPlanModal, setExtendPlanModal] = useState({
     isOpen: false,
     clinic: null,
@@ -139,7 +208,14 @@ export default function SuperAdmin() {
       }
       if (clinicsRes.ok) {
         const cData = await clinicsRes.json();
-        if (cData.success) setClinics(cData.data);
+        if (cData.success) {
+          setClinics(cData.data);
+          // If a clinic was open, update its reference
+          if (selectedClinicDetail) {
+            const updated = cData.data.find((c) => c.id === selectedClinicDetail.id);
+            if (updated) setSelectedClinicDetail(updated);
+          }
+        }
       }
       if (usersRes.ok) {
         const uData = await usersRes.json();
@@ -160,6 +236,33 @@ export default function SuperAdmin() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  // Helper: Strong password generator
+  const generateRandomPassword = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
+    let rand = '';
+    for (let i = 0; i < 4; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const num = Math.floor(1000 + Math.random() * 9000);
+    return `DentUz#${num}!`;
+  };
+
+  // Helper: Clean auto username generator from full name
+  const generateUsernameFromName = (name, clinicName = '') => {
+    if (!name) return `xodim_${Math.floor(100 + Math.random() * 900)}`;
+    const clean = name
+      .toLowerCase()
+      .replace(/dr\.?/g, '')
+      .trim()
+      .replace(/[^a-z0-9]/g, '_')
+      .replace(/__+/g, '_')
+      .replace(/^_|_$/g, '');
+    const cSlug = clinicName
+      ? clinicName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5)
+      : '';
+    return cSlug ? `${clean}_${cSlug}` : clean || `xodim_${Math.floor(1000 + Math.random() * 9000)}`;
   };
 
   // Open modal from an application
@@ -209,7 +312,7 @@ export default function SuperAdmin() {
       const data = await res.json();
       if (res.ok && data.success) {
         setOnboardSuccessData(data.data);
-        showToast('Klinika va egasi muvaffaqiyatli tizimga ulandi! 🎉');
+        showToast('Klinika va uning egasi muvaffaqiyatli ulandi! 🎉');
         loadData();
       } else {
         showToast(data.message || 'Xatolik yuz berdi', 'error');
@@ -221,7 +324,75 @@ export default function SuperAdmin() {
     }
   };
 
-  // --- APPLICATION ACTIONS ---
+  // Submit Create New User (inside a clinic)
+  const handleSubmitCreateUser = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/superadmin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userFormData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast('Xodim muvaffaqiyatli yaratildi!');
+        setIsUserModalOpen(false);
+
+        // Open Telegram credentials modal for instant copy to clinic head
+        const clName =
+          clinics.find((c) => c.id === userFormData.clinicId)?.name ||
+          selectedClinicDetail?.name ||
+          'Klinika';
+        setTelegramModal({
+          isOpen: true,
+          clinicName: clName,
+          employeeName: userFormData.name,
+          role: userFormData.role,
+          login: userFormData.username || userFormData.email,
+          password: userFormData.password,
+        });
+
+        loadData();
+      } else {
+        showToast(data.message || 'Xatolik yuz berdi', 'error');
+      }
+    } catch (err) {
+      showToast('Server xatosi: ' + err.message, 'error');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Helper: Open New User Modal with pre-locked clinic
+  const handleOpenAddStaffForClinic = (clinic) => {
+    const autoPass = generateRandomPassword();
+    setUserFormData({
+      name: '',
+      username: '',
+      email: '',
+      password: autoPass,
+      role: 'doctor',
+      clinicId: clinic.id,
+      phone: '',
+      title: '',
+    });
+    setIsUserModalOpen(true);
+  };
+
+  // Open Telegram modal for an existing employee
+  const handleOpenTelegramForEmployee = (employee, clinic) => {
+    setTelegramModal({
+      isOpen: true,
+      clinicName: clinic?.name || 'Klinika',
+      employeeName: employee.name,
+      role: employee.role,
+      login: employee.username || employee.email,
+      password: '*(Avval o\'rnatilgan parol yoki parolni yangilash tugmasidan oling)*',
+    });
+  };
+
+  // Application actions
   const handleUpdateAppStatus = async (app, newStatus) => {
     try {
       const res = await fetch(`${baseUrl}/superadmin/applications/${app.id}/status`, {
@@ -230,10 +401,8 @@ export default function SuperAdmin() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
-        showToast(`Ariza holati o'zgartirildi: ${newStatus}`);
+        showToast(`Ariza holati yangilandi: ${newStatus}`);
         loadData();
-      } else {
-        showToast('Statusni o\'zgartirib bo\'lmadi', 'error');
       }
     } catch (err) {
       showToast('Xatolik: ' + err.message, 'error');
@@ -267,7 +436,7 @@ export default function SuperAdmin() {
     });
   };
 
-  // --- CLINIC MANAGEMENT ACTIONS ---
+  // Clinic actions
   const handleToggleClinicStatus = (clinic) => {
     const isActivating = clinic.status !== 'active';
     setConfirmModal({
@@ -333,16 +502,7 @@ export default function SuperAdmin() {
     }
   };
 
-  // Helper: jump from Clinic to filtered Staff
-  const handleViewClinicStaff = (clinic) => {
-    setUserClinicFilter(clinic.id);
-    setUserRoleFilter('all');
-    setActiveTab('users');
-  };
-
-  // --- USER ACCESS & RBAC MANAGEMENT MODALS ---
-
-  // 1. Role Change Modal
+  // User actions
   const handleOpenRoleModal = (targetUser) => {
     setRoleModal({
       isOpen: true,
@@ -365,24 +525,12 @@ export default function SuperAdmin() {
         showToast(`Rol muvaffaqiyatli yangilandi: ${roleModal.selectedRole}`);
         setRoleModal((prev) => ({ ...prev, isOpen: false }));
         loadData();
-      } else {
-        showToast('Rolni o\'zgartirib bo\'lmadi', 'error');
       }
     } catch (err) {
       showToast('Xatolik: ' + err.message, 'error');
     } finally {
       setRoleModal((prev) => ({ ...prev, loading: false }));
     }
-  };
-
-  // 2. Password Reset Modal
-  const generateRandomPassword = () => {
-    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
-    let rand = '';
-    for (let i = 0; i < 5; i++) {
-      rand += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `DentUz#${rand}!`;
   };
 
   const handleOpenPasswordModal = (targetUser) => {
@@ -413,8 +561,17 @@ export default function SuperAdmin() {
       if (res.ok) {
         showToast(`"${passwordModal.user.name}" paroli muvaffaqiyatli yangilandi!`);
         setPasswordModal((prev) => ({ ...prev, isOpen: false }));
-      } else {
-        showToast('Parolni yangilashda xatolik', 'error');
+
+        // Offer to share updated credentials via Telegram
+        const targetClinic = clinics.find((c) => c.id === passwordModal.user.clinicId);
+        setTelegramModal({
+          isOpen: true,
+          clinicName: targetClinic?.name || 'Klinika',
+          employeeName: passwordModal.user.name,
+          role: passwordModal.user.role,
+          login: passwordModal.user.username || passwordModal.user.email,
+          password: passwordModal.newPassword.trim(),
+        });
       }
     } catch (err) {
       showToast('Xatolik: ' + err.message, 'error');
@@ -423,7 +580,6 @@ export default function SuperAdmin() {
     }
   };
 
-  // 3. Toggle User Active / Blocked status with Confirm Modal
   const handleToggleUserStatus = (targetUser) => {
     const isActivating = !targetUser.isActive;
     setConfirmModal({
@@ -456,12 +612,11 @@ export default function SuperAdmin() {
     });
   };
 
-  // 4. Delete User with Confirm Modal
   const handleDeleteUser = (targetUser) => {
     setConfirmModal({
       isOpen: true,
       title: "Foydalanuvchini o'chirish",
-      message: `"${targetUser.name}" (${targetUser.email}) hisobini butunlay o'chirib tashlashni tasdiqlaysizmi? Bu amalni ortga qaytarib bo'lmaydi!`,
+      message: `"${targetUser.name}" (${targetUser.email}) hisobini butunlay o'chirib tashlashni tasdiqlaysizmi?`,
       confirmText: "O'chirish",
       cancelText: "Bekor qilish",
       icon: 'delete',
@@ -484,37 +639,25 @@ export default function SuperAdmin() {
     });
   };
 
-  // Submit Create New User
-  const handleSubmitCreateUser = async (e) => {
-    e.preventDefault();
-    setModalLoading(true);
-    try {
-      const res = await fetch(`${baseUrl}/superadmin/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userFormData),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showToast('Foydalanuvchi muvaffaqiyatli yaratildi!');
-        setIsUserModalOpen(false);
-        loadData();
-      } else {
-        showToast(data.message || 'Xatolik yuz berdi', 'error');
-      }
-    } catch (err) {
-      showToast('Server xatosi: ' + err.message, 'error');
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
   // Copy helper
-  const handleCopy = (text, type) => {
+  const handleCopy = (text, type = '') => {
     navigator.clipboard.writeText(text);
     setCopyStatus(type);
     showToast('Nusxalandi! ✓');
     setTimeout(() => setCopyStatus(''), 2500);
+  };
+
+  // Build Telegram ready text
+  const generateTelegramShareText = (m) => {
+    return `🏥 "${m.clinicName}" xodimi uchun kirish ma'lumotlari:
+
+👤 Xodim: ${m.employeeName}
+💼 Lavozimi: ${m.role}
+🔑 Login (Username/Email): ${m.login}
+🔒 Parol: ${m.password}
+🌐 Kirish havolasi: http://localhost:3001/login
+
+Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
   };
 
   // Filtered applications
@@ -540,60 +683,69 @@ export default function SuperAdmin() {
     );
   });
 
-  // Filtered users
-  const filteredUsers = users.filter((u) => {
-    const matchRole = userRoleFilter === 'all' || u.role === userRoleFilter;
-    const matchClinic =
-      userClinicFilter === 'all'
-        ? true
-        : userClinicFilter === 'unassigned'
-        ? !u.clinicId
-        : u.clinicId === userClinicFilter;
-    const matchSearch =
-      !userSearch ||
-      (u.name && u.name.toLowerCase().includes(userSearch.toLowerCase())) ||
-      (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase())) ||
-      (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-      (u.phone && u.phone.includes(userSearch));
-    return matchRole && matchClinic && matchSearch;
-  });
+  // Filtered staff for Selected Clinic
+  const clinicStaff = selectedClinicDetail
+    ? users.filter((u) => {
+        if (u.clinicId !== selectedClinicDetail.id) return false;
+        const matchRole = staffRoleFilter === 'all' || u.role === staffRoleFilter;
+        const matchSearch =
+          !staffSearch ||
+          (u.name && u.name.toLowerCase().includes(staffSearch.toLowerCase())) ||
+          (u.email && u.email.toLowerCase().includes(staffSearch.toLowerCase())) ||
+          (u.username && u.username.toLowerCase().includes(staffSearch.toLowerCase())) ||
+          (u.phone && u.phone.includes(staffSearch));
+        return matchRole && matchSearch;
+      })
+    : [];
 
-  const selectedClinicForStaff = clinics.find((c) => c.id === userClinicFilter);
+  // SuperAdmins (Platform level accounts)
+  const platformSuperAdmins = users.filter((u) => u.role === 'superadmin');
 
-  // Available roles with human descriptions
+  // Role list options for custom dropdown
+  const roleDropdownOptions = [
+    { value: 'all', label: 'Barcha rollar', icon: 'filter_list' },
+    { value: 'owner', label: 'Klinika Egasi (Owner)', icon: 'apartment' },
+    { value: 'doctor', label: 'Shifokor (Doctor)', icon: 'medical_services' },
+    { value: 'receptionist', label: 'Administrator (Receptionist)', icon: 'calendar_month' },
+    { value: 'nurse', label: 'Hamshira (Nurse)', icon: 'vaccines' },
+  ];
+
+  const appStatusOptions = [
+    { value: 'all', label: 'Barcha statuslar', icon: 'filter_list' },
+    { value: 'new', label: 'Yangi (new)', icon: 'mark_email_unread' },
+    { value: 'contacted', label: 'Bog\'lanildi (contacted)', icon: 'phone_callback' },
+    { value: 'approved', label: 'Tasdiqlandi (approved)', icon: 'verified' },
+    { value: 'rejected', label: 'Rad etildi (rejected)', icon: 'cancel' },
+  ];
+
   const rolesList = [
     {
       id: 'doctor',
       name: 'Shifokor (Doctor)',
-      icon: 'medical_services',
       desc: 'Bemorlarni qabul qilish, tashxis, muolaja va davolash jurnallari',
       badgeClass: styles.roleDoctor,
     },
     {
       id: 'receptionist',
       name: 'Administrator (Receptionist)',
-      icon: 'calendar_month',
       desc: 'Navbatga yozish, kassa/to\'lovlar, yangi bemor kartochkasini ochish',
       badgeClass: styles.roleReceptionist,
     },
     {
       id: 'nurse',
       name: 'Hamshira (Nurse)',
-      icon: 'vaccines',
       desc: 'Muolaja xonalari, asboblarni sterilizatsiya qilish, vrachga yordam',
       badgeClass: styles.roleNurse,
     },
     {
       id: 'owner',
       name: 'Klinika Egasi (Owner)',
-      icon: 'apartment',
       desc: 'Klinika ichidagi barcha shifokorlar, moliya va xizmatlarni to\'liq boshqarish',
       badgeClass: styles.roleOwner,
     },
     {
       id: 'superadmin',
       name: '👑 SuperAdmin (DentUz Egasi)',
-      icon: 'admin_panel_settings',
       desc: 'DentUz butun platformasining boshqaruvchisi va barcha klinikalarga kirish huquqi',
       badgeClass: styles.roleSuperadmin,
     },
@@ -664,36 +816,16 @@ export default function SuperAdmin() {
 
       {/* Main Body */}
       <main className={styles.mainContent}>
-        {/* Page Title & Quick Actions */}
+        {/* Page Title & Header Actions */}
         <div className={styles.pageHeader}>
           <div>
             <h1 className={styles.pageTitle}>DentUz SaaS Boshqaruv Markazi</h1>
             <p className={styles.pageSubtitle}>
-              Barcha klinikalar, arizalar, xodimlar va kirish huquqlarini professional darajada boshqaring.
+              Klinikalar, ularning xodimlari va arizalarini alohida, aralashtirmasdan qulay boshqaring.
             </p>
           </div>
 
           <div className={styles.headerActions}>
-            <button
-              onClick={() => {
-                setUserFormData({
-                  name: '',
-                  username: '',
-                  email: '',
-                  password: '',
-                  role: 'doctor',
-                  clinicId: userClinicFilter !== 'all' && userClinicFilter !== 'unassigned' ? userClinicFilter : (clinics[0]?.id || ''),
-                  phone: '',
-                  title: '',
-                });
-                setIsUserModalOpen(true);
-              }}
-              className={styles.createUserBtn}
-            >
-              <Icon name="person_add" size={18} />
-              <span>Xodim Qo'shish</span>
-            </button>
-
             <button onClick={handleOpenNewClinic} className={styles.createClinicBtn}>
               <Icon name="add" size={18} />
               <span>Yangi Klinika Qo'shish</span>
@@ -732,7 +864,7 @@ export default function SuperAdmin() {
             <div className={styles.kpiInfo}>
               <span className={styles.kpiLabel}>Foydalanuvchilar & Xodimlar</span>
               <span className={styles.kpiValue}>{users.length} ta</span>
-              <span className={styles.kpiSub}>• Tizimdagi barcha hisoblar</span>
+              <span className={styles.kpiSub}>• Barcha tizim hisoblari</span>
             </div>
           </div>
 
@@ -745,7 +877,7 @@ export default function SuperAdmin() {
               <span className={styles.kpiValue}>
                 {new Intl.NumberFormat('uz-UZ').format(stats.estimatedMRR || 0)} UZS
               </span>
-              <span className={styles.kpiSub}>• Faol litsenziyalar bo'yicha</span>
+              <span className={styles.kpiSub}>• Faol obunalar bo'yicha</span>
             </div>
           </div>
         </div>
@@ -753,7 +885,22 @@ export default function SuperAdmin() {
         {/* Navigation Tabs */}
         <div className={styles.tabsBar}>
           <button
-            onClick={() => setActiveTab('applications')}
+            onClick={() => {
+              setActiveTab('clinics');
+              setSelectedClinicDetail(null);
+            }}
+            className={`${styles.tabBtn} ${activeTab === 'clinics' ? styles.tabBtnActive : ''}`}
+          >
+            <Icon name="apartment" size={18} />
+            <span>Klinikalar va Xodimlar Markazi</span>
+            <span className={styles.tabBadge}>{clinics.length}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('applications');
+              setSelectedClinicDetail(null);
+            }}
             className={`${styles.tabBtn} ${activeTab === 'applications' ? styles.tabBtnActive : ''}`}
           >
             <Icon name="inbox" size={18} />
@@ -762,25 +909,409 @@ export default function SuperAdmin() {
           </button>
 
           <button
-            onClick={() => setActiveTab('clinics')}
-            className={`${styles.tabBtn} ${activeTab === 'clinics' ? styles.tabBtnActive : ''}`}
+            onClick={() => {
+              setActiveTab('superadmins');
+              setSelectedClinicDetail(null);
+            }}
+            className={`${styles.tabBtn} ${activeTab === 'superadmins' ? styles.tabBtnActive : ''}`}
           >
-            <Icon name="apartment" size={18} />
-            <span>Klinikalar Boshqaruvi</span>
-            <span className={styles.tabBadge}>{clinics.length}</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
-          >
-            <Icon name="verified_user" size={18} />
-            <span>Xodimlar va Huquqlar (RBAC)</span>
-            <span className={styles.tabBadge}>{users.length}</span>
+            <Icon name="admin_panel_settings" size={18} />
+            <span>Platforma Asoschilari (SuperAdmin)</span>
+            <span className={styles.tabBadge}>{platformSuperAdmins.length}</span>
           </button>
         </div>
 
-        {/* Tab 1: Applications (Leads) */}
+        {/* TAB 1: CLINICS & THEIR STAFF WORKSPACE */}
+        {activeTab === 'clinics' && (
+          <div>
+            {!selectedClinicDetail ? (
+              /* VIEW A: LIST OF ALL CLINICS */
+              <div className={styles.sectionCard}>
+                <div className={styles.sectionFilterBar}>
+                  <div className={styles.searchBox}>
+                    <Icon name="search" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Klinika nomi, egasi yoki telefon orqali qidirish..."
+                      value={clinicSearch}
+                      onChange={(e) => setClinicSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.tableResponsive}>
+                  {loading ? (
+                    <div className={styles.emptyState}>Ma'lumotlar yuklanmoqda...</div>
+                  ) : filteredClinics.length === 0 ? (
+                    <div className={styles.emptyState}>Hech qanday klinika topilmadi.</div>
+                  ) : (
+                    <table className={styles.dataTable}>
+                      <thead>
+                        <tr>
+                          <th>Klinika</th>
+                          <th>Bosh Shifokor (Rahbar)</th>
+                          <th>Aloqa</th>
+                          <th>Tarif</th>
+                          <th>Xodimlar / Bemorlar</th>
+                          <th>Klinika Holati (Bloklash)</th>
+                          <th style={{ textAlign: 'right' }}>Amallar</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredClinics.map((clinic) => (
+                          <tr key={clinic.id}>
+                            <td>
+                              <div className={styles.primaryText}>{clinic.name}</div>
+                              <div className={styles.secondaryText}>{clinic.address || 'Toshkent sh.'}</div>
+                            </td>
+                            <td>
+                              <div className={styles.primaryText}>{clinic.ownerName || clinic.owner?.name || '—'}</div>
+                              <div className={styles.secondaryText}>{clinic.email || clinic.owner?.email || '—'}</div>
+                            </td>
+                            <td>
+                              <a href={`tel:${clinic.phone}`} className={styles.phoneCell}>
+                                {clinic.phone || '—'}
+                              </a>
+                              <div className={styles.secondaryText}>{clinic.chairsCount || 1} ta kreslo</div>
+                            </td>
+                            <td>
+                              <span
+                                className={`${styles.planBadge} ${
+                                  clinic.subscriptionPlan === 'enterprise'
+                                    ? styles.planEnterprise
+                                    : clinic.subscriptionPlan === 'pro'
+                                    ? styles.planPro
+                                    : styles.planStarter
+                                }`}
+                              >
+                                {clinic.subscriptionPlan || 'starter'}
+                              </span>
+                            </td>
+                            <td className={styles.nowrapCell}>
+                              <span className={styles.primaryText}>{clinic.doctorsCount || 0} xodim</span>
+                              <span className={styles.secondaryText}> / {clinic.patientsCount || 0} bemor</span>
+                            </td>
+                            <td>
+                              <div className={styles.statusColumnWrap}>
+                                <span
+                                  className={`${styles.statusBadge} ${
+                                    clinic.status === 'active' ? styles.statusActive : styles.statusSuspended
+                                  }`}
+                                >
+                                  {clinic.status === 'active' ? '● Faol' : '● To\'xtatilgan'}
+                                </span>
+                                <button
+                                  onClick={() => handleToggleClinicStatus(clinic)}
+                                  className={`${styles.actionBtn} ${
+                                    clinic.status === 'active' ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
+                                  }`}
+                                  title={clinic.status === 'active' ? 'Klinikani vaqtincha bloklash' : 'Qayta faollashtirish'}
+                                >
+                                  <Icon name={clinic.status === 'active' ? 'pause_circle' : 'play_circle'} size={13} />
+                                  <span>{clinic.status === 'active' ? 'Bloklash' : 'Ochish'}</span>
+                                </button>
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div className={styles.actionBtnGroup}>
+                                <button
+                                  onClick={() => setSelectedClinicDetail(clinic)}
+                                  className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                                  title="Ushbu klinika ichiga kirish va uning xodimlarini alohida boshqarish"
+                                >
+                                  <Icon name="arrow_forward" size={14} />
+                                  <span>Klinikaga Kirish & Xodimlar ({clinic.doctorsCount || 0})</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleOpenExtendPlan(clinic)}
+                                  className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
+                                  title="Obunani uzaytirish"
+                                >
+                                  <Icon name="schedule" size={14} />
+                                  <span>Uzaytirish</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* VIEW B: DEDICATED CLINIC WORKSPACE (NO OTHER CLINIC STAFF MIXED!) */
+              <div className={styles.clinicWorkspaceWrap}>
+                <button
+                  onClick={() => setSelectedClinicDetail(null)}
+                  className={styles.backToClinicsBtn}
+                >
+                  <Icon name="arrow_back" size={18} />
+                  <span>Barcha Klinikalar Ro'yxatiga Qaytish</span>
+                </button>
+
+                {/* Clinic Hero Banner Card */}
+                <div className={styles.clinicHeroCard}>
+                  <div className={styles.clinicHeroLeft}>
+                    <div className={styles.clinicHeroAvatar}>
+                      <Icon name="domain" size={32} />
+                    </div>
+                    <div>
+                      <div className={styles.clinicHeroTitle}>
+                        <span>{selectedClinicDetail.name}</span>
+                        <span
+                          className={`${styles.statusBadge} ${
+                            selectedClinicDetail.status === 'active'
+                              ? styles.statusActive
+                              : styles.statusSuspended
+                          }`}
+                        >
+                          {selectedClinicDetail.status === 'active' ? '● Faol' : '● To\'xtatilgan'}
+                        </span>
+                        <span className={styles.planBadge}>{selectedClinicDetail.subscriptionPlan || 'pro'}</span>
+                      </div>
+                      <div className={styles.clinicHeroSub}>
+                        <span><strong>Rahbar:</strong> {selectedClinicDetail.ownerName || '—'}</span>
+                        <span>•</span>
+                        <span><strong>Telefon:</strong> {selectedClinicDetail.phone || '—'}</span>
+                        <span>•</span>
+                        <span><strong>Manzil:</strong> {selectedClinicDetail.address || 'Toshkent sh.'}</span>
+                        <span>•</span>
+                        <span><strong>Kreslolar:</strong> {selectedClinicDetail.chairsCount || 1} ta</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.clinicHeroActions}>
+                    <button
+                      onClick={() => handleOpenAddStaffForClinic(selectedClinicDetail)}
+                      className={styles.createClinicBtn}
+                      style={{ padding: '10px 18px', fontSize: '0.9rem' }}
+                    >
+                      <Icon name="person_add" size={18} />
+                      <span>+ Ushbu Klinikaga Xodim Qo'shish</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleOpenExtendPlan(selectedClinicDetail)}
+                      className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
+                      style={{ height: '40px', padding: '0 14px' }}
+                    >
+                      <Icon name="schedule" size={16} />
+                      <span>Obunani Uzaytirish</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleToggleClinicStatus(selectedClinicDetail)}
+                      className={`${styles.actionBtn} ${
+                        selectedClinicDetail.status === 'active'
+                          ? styles.actionBtnSoftDanger
+                          : styles.actionBtnSoftSuccess
+                      }`}
+                      style={{ height: '40px', padding: '0 14px' }}
+                    >
+                      <Icon
+                        name={selectedClinicDetail.status === 'active' ? 'pause_circle' : 'play_circle'}
+                        size={16}
+                      />
+                      <span>{selectedClinicDetail.status === 'active' ? 'Klinikani Bloklash' : 'Faollashtirish'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Staff Section for this Clinic */}
+                <div className={styles.sectionCard}>
+                  <div className={styles.sectionFilterBar}>
+                    <div className={styles.searchBox}>
+                      <Icon name="search" size={18} />
+                      <input
+                        type="text"
+                        placeholder={`"${selectedClinicDetail.name}" xodimlarini qidirish...`}
+                        value={staffSearch}
+                        onChange={(e) => setStaffSearch(e.target.value)}
+                      />
+                    </div>
+
+                    <div className={styles.filterControlsGroup}>
+                      {/* Custom styled Dropdown for Role Filter */}
+                      <CustomDropdown
+                        value={staffRoleFilter}
+                        options={roleDropdownOptions}
+                        onChange={setStaffRoleFilter}
+                        placeholder="Barcha rollar"
+                        icon="filter_alt"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.tableResponsive}>
+                    {clinicStaff.length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <Icon name="group_off" size={40} style={{ opacity: 0.3, marginBottom: '12px' }} />
+                        <p>Hozircha ushbu klinikada xodimlar topilmadi.</p>
+                        <button
+                          onClick={() => handleOpenAddStaffForClinic(selectedClinicDetail)}
+                          className={styles.createClinicBtn}
+                          style={{ margin: '14px auto 0' }}
+                        >
+                          <Icon name="person_add" size={16} />
+                          <span>Birinchi xodimni qo'shish</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <table className={styles.dataTable}>
+                        <thead>
+                          <tr>
+                            <th>Xodim (F.I.Sh)</th>
+                            <th>Roli / Vazifasi</th>
+                            <th>Login & Email</th>
+                            <th>Telefon</th>
+                            <th>Kirish Huquqi (Bloklash)</th>
+                            <th>Qo'shilgan Sana</th>
+                            <th style={{ textAlign: 'right' }}>Amallar & Telegram</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {clinicStaff.map((u) => (
+                            <tr key={u.id}>
+                              <td>
+                                <div className={styles.userCell}>
+                                  <div
+                                    className={styles.userTableAvatar}
+                                    style={{
+                                      background:
+                                        u.role === 'owner'
+                                          ? 'linear-gradient(135deg, #0284c7, #0369a1)'
+                                          : u.role === 'doctor'
+                                          ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
+                                          : u.role === 'nurse'
+                                          ? 'linear-gradient(135deg, #10b981, #059669)'
+                                          : 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                                    }}
+                                  >
+                                    {u.name
+                                      .split(' ')
+                                      .map((n) => n[0])
+                                      .filter(Boolean)
+                                      .slice(0, 2)
+                                      .join('')
+                                      .toUpperCase() || 'U'}
+                                  </div>
+                                  <div className={styles.userTableMeta}>
+                                    <div className={styles.primaryText}>{u.name}</div>
+                                    <div className={styles.secondaryText}>{u.title || 'Mutaxassis'}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span
+                                  className={`${styles.roleBadge} ${
+                                    u.role === 'owner'
+                                      ? styles.roleOwner
+                                      : u.role === 'doctor'
+                                      ? styles.roleDoctor
+                                      : u.role === 'receptionist'
+                                      ? styles.roleReceptionist
+                                      : styles.roleNurse
+                                  }`}
+                                >
+                                  {u.role}
+                                </span>
+                              </td>
+                              <td>
+                                <div className={styles.primaryText}>{u.username ? `@${u.username}` : '—'}</div>
+                                <div className={styles.secondaryText}>{u.email}</div>
+                              </td>
+                              <td>
+                                {u.phone ? (
+                                  <a href={`tel:${u.phone}`} className={styles.phoneCell}>
+                                    {u.phone}
+                                  </a>
+                                ) : (
+                                  <span className={styles.secondaryText}>—</span>
+                                )}
+                              </td>
+                              <td>
+                                <div className={styles.statusColumnWrap}>
+                                  <span
+                                    className={`${styles.statusBadge} ${
+                                      u.isActive ? styles.statusActive : styles.statusSuspended
+                                    }`}
+                                  >
+                                    {u.isActive ? '● Faol' : '● Bloklangan'}
+                                  </span>
+                                  <button
+                                    onClick={() => handleToggleUserStatus(u)}
+                                    className={`${styles.actionBtn} ${
+                                      u.isActive ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
+                                    }`}
+                                    title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
+                                  >
+                                    <Icon name={u.isActive ? 'block' : 'check_circle'} size={13} />
+                                    <span>{u.isActive ? 'Bloklash' : 'Ochish'}</span>
+                                  </button>
+                                </div>
+                              </td>
+                              <td className={styles.nowrapCell}>
+                                <span className={styles.secondaryText}>
+                                  {new Date(u.createdAt).toLocaleDateString('uz-UZ')}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <div className={styles.actionBtnGroup}>
+                                  {/* Telegram Ready Message Button */}
+                                  <button
+                                    onClick={() => handleOpenTelegramForEmployee(u, selectedClinicDetail)}
+                                    className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
+                                    title="Klinika rahbariga Telegram orqali yuborish uchun ma'lumotlarni nusxalash"
+                                  >
+                                    <Icon name="send" size={13} />
+                                    <span>Telegram</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleOpenRoleModal(u)}
+                                    className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
+                                    title="Rolni o'zgartirish"
+                                  >
+                                    <Icon name="manage_accounts" size={14} />
+                                    <span>Rol</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleOpenPasswordModal(u)}
+                                    className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
+                                    title="Parolni yangilash"
+                                  >
+                                    <Icon name="key" size={14} />
+                                    <span>Parol</span>
+                                  </button>
+
+                                  {u.role !== 'owner' && (
+                                    <button
+                                      onClick={() => handleDeleteUser(u)}
+                                      className={styles.actionBtnSoftIcon}
+                                      title="O'chirish"
+                                    >
+                                      <Icon name="delete" size={14} />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: APPLICATIONS (DEMO SO'ROVLARI) */}
         {activeTab === 'applications' && (
           <div className={styles.sectionCard}>
             <div className={styles.sectionFilterBar}>
@@ -795,17 +1326,13 @@ export default function SuperAdmin() {
               </div>
 
               <div className={styles.filterControlsGroup}>
-                <select
-                  className={styles.filterSelect}
+                <CustomDropdown
                   value={appStatus}
-                  onChange={(e) => setAppStatus(e.target.value)}
-                >
-                  <option value="all">Barcha statuslar</option>
-                  <option value="new">Yangi (new)</option>
-                  <option value="contacted">Bog'lanildi (contacted)</option>
-                  <option value="approved">Tasdiqlandi (approved)</option>
-                  <option value="rejected">Rad etildi (rejected)</option>
-                </select>
+                  options={appStatusOptions}
+                  onChange={setAppStatus}
+                  placeholder="Status bo'yicha filter"
+                  icon="filter_list"
+                />
               </div>
             </div>
 
@@ -878,7 +1405,7 @@ export default function SuperAdmin() {
                                 className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
                                 title="Ushbu arizadan klinika ochish va hisob yaratish"
                               >
-                                <Icon name="bolt" size={15} />
+                                <Icon name="bolt" size={14} />
                                 <span>Klinika ochish</span>
                               </button>
                             ) : (
@@ -916,344 +1443,149 @@ export default function SuperAdmin() {
           </div>
         )}
 
-        {/* Tab 2: Clinics Directory */}
-        {activeTab === 'clinics' && (
+        {/* TAB 3: PLATFORM SUPERADMINS ONLY (NEVER MIXED WITH CLINIC STAFF!) */}
+        {activeTab === 'superadmins' && (
           <div className={styles.sectionCard}>
             <div className={styles.sectionFilterBar}>
-              <div className={styles.searchBox}>
-                <Icon name="search" size={18} />
-                <input
-                  type="text"
-                  placeholder="Klinika nomi, egasi yoki email orqali qidirish..."
-                  value={clinicSearch}
-                  onChange={(e) => setClinicSearch(e.target.value)}
-                />
+              <div>
+                <strong style={{ fontSize: '1rem', color: 'var(--color-text-primary, #0f172a)' }}>
+                  Platforma Asoschilari va Tizim Adminlari
+                </strong>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #64748b)', margin: '2px 0 0' }}>
+                  Bu hisoblar DentUz butun infratuzilmasi, serverlari va klinikalari ustidan to'liq nazoratga ega.
+                </p>
               </div>
             </div>
 
             <div className={styles.tableResponsive}>
-              {loading ? (
-                <div className={styles.emptyState}>Ma'lumotlar yuklanmoqda...</div>
-              ) : filteredClinics.length === 0 ? (
-                <div className={styles.emptyState}>Hech qanday klinika topilmadi.</div>
-              ) : (
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Klinika</th>
-                      <th>Bosh Shifokor (Rahbar)</th>
-                      <th>Aloqa</th>
-                      <th>Tarif</th>
-                      <th>Shifokorlar / Bemorlar</th>
-                      <th>Klinika Holati (Bloklash)</th>
-                      <th style={{ textAlign: 'right' }}>Amallar</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredClinics.map((clinic) => (
-                      <tr key={clinic.id}>
-                        <td>
-                          <div className={styles.primaryText}>{clinic.name}</div>
-                          <div className={styles.secondaryText}>{clinic.address || 'Toshkent sh.'}</div>
-                        </td>
-                        <td>
-                          <div className={styles.primaryText}>{clinic.ownerName || clinic.owner?.name || '—'}</div>
-                          <div className={styles.secondaryText}>{clinic.email || clinic.owner?.email || '—'}</div>
-                        </td>
-                        <td>
-                          <a href={`tel:${clinic.phone}`} className={styles.phoneCell}>
-                            {clinic.phone || '—'}
-                          </a>
-                          <div className={styles.secondaryText}>{clinic.chairsCount || 1} ta kreslo</div>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.planBadge} ${
-                              clinic.subscriptionPlan === 'enterprise'
-                                ? styles.planEnterprise
-                                : clinic.subscriptionPlan === 'pro'
-                                ? styles.planPro
-                                : styles.planStarter
-                            }`}
+              <table className={styles.dataTable}>
+                <thead>
+                  <tr>
+                    <th>Asoschi / SuperAdmin</th>
+                    <th>Vakolat</th>
+                    <th>Tizim</th>
+                    <th>Kirish Holati</th>
+                    <th>Qo'shilgan Sana</th>
+                    <th style={{ textAlign: 'right' }}>Xavfsizlik & Parol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {platformSuperAdmins.map((u) => (
+                    <tr key={u.id}>
+                      <td>
+                        <div className={styles.userCell}>
+                          <div
+                            className={styles.userTableAvatar}
+                            style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
                           >
-                            {clinic.subscriptionPlan || 'starter'}
-                          </span>
-                        </td>
-                        <td className={styles.nowrapCell}>
-                          <span className={styles.primaryText}>{clinic.doctorsCount || 0} shifokor</span>
-                          <span className={styles.secondaryText}> / {clinic.patientsCount || 0} bemor</span>
-                        </td>
-                        <td>
-                          <div className={styles.statusColumnWrap}>
-                            <span
-                              className={`${styles.statusBadge} ${
-                                clinic.status === 'active' ? styles.statusActive : styles.statusSuspended
-                              }`}
-                            >
-                              {clinic.status === 'active' ? '● Faol' : '● To\'xtatilgan'}
-                            </span>
-                            <button
-                              onClick={() => handleToggleClinicStatus(clinic)}
-                              className={`${styles.actionBtn} ${
-                                clinic.status === 'active' ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
-                              }`}
-                              title={clinic.status === 'active' ? 'Klinikani vaqtincha bloklash' : 'Qayta faollashtirish'}
-                            >
-                              <Icon name={clinic.status === 'active' ? 'pause_circle' : 'play_circle'} size={13} />
-                              <span>{clinic.status === 'active' ? 'Bloklash' : 'Ochish'}</span>
-                            </button>
+                            {u.name.split(' ').map((n) => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()}
                           </div>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div className={styles.actionBtnGroup}>
-                            <button
-                              onClick={() => handleViewClinicStaff(clinic)}
-                              className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
-                              title="Ushbu klinika xodimlarini ko'rish va sozlash"
-                            >
-                              <Icon name="group" size={14} />
-                              <span>Xodimlar ({clinic.doctorsCount || 0})</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleOpenExtendPlan(clinic)}
-                              className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
-                              title="Obunani uzaytirish"
-                            >
-                              <Icon name="schedule" size={14} />
-                              <span>Uzaytirish</span>
-                            </button>
+                          <div className={styles.userTableMeta}>
+                            <div className={styles.primaryText}>{u.name}</div>
+                            <div className={styles.secondaryText}>
+                              {u.username ? `@${u.username} • ` : ''}{u.email}
+                            </div>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 3: Users & Access Rights (RBAC) */}
-        {activeTab === 'users' && (
-          <div className={styles.sectionCard}>
-            <div className={styles.sectionFilterBar}>
-              <div className={styles.searchBox}>
-                <Icon name="search" size={18} />
-                <input
-                  type="text"
-                  placeholder="Ism, login, email yoki telefon orqali qidirish..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                />
-              </div>
-
-              <div className={styles.filterControlsGroup}>
-                {/* Clinic Filter */}
-                <select
-                  className={styles.filterSelect}
-                  value={userClinicFilter}
-                  onChange={(e) => setUserClinicFilter(e.target.value)}
-                >
-                  <option value="all">Barcha klinikalar</option>
-                  <option value="unassigned">Biriktirilmagan / Superadmin</option>
-                  {clinics.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`${styles.roleBadge} ${styles.roleSuperadmin}`}>
+                          👑 SuperAdmin (Asoschi)
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.primaryText}>DentUz Platformasi</span>
+                      </td>
+                      <td>
+                        <span className={styles.protectedBadge}>
+                          <Icon name="verified" size={13} />
+                          <span>Faol (Himoyalangan)</span>
+                        </span>
+                      </td>
+                      <td className={styles.nowrapCell}>
+                        <span className={styles.secondaryText}>
+                          {new Date(u.createdAt).toLocaleDateString('uz-UZ')}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className={styles.actionBtnGroup}>
+                          <button
+                            onClick={() => handleOpenPasswordModal(u)}
+                            className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
+                            title="Parolni yangilash"
+                          >
+                            <Icon name="key" size={14} />
+                            <span>Parolni Yangilash</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </select>
-
-                {/* Role Filter */}
-                <select
-                  className={styles.filterSelect}
-                  value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
-                >
-                  <option value="all">Barcha rollar</option>
-                  <option value="superadmin">👑 SuperAdmin</option>
-                  <option value="owner">Klinika Egasi (Owner)</option>
-                  <option value="doctor">Shifokor (Doctor)</option>
-                  <option value="receptionist">Administrator (Receptionist)</option>
-                  <option value="nurse">Hamshira (Nurse)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* If a clinic is filtered, display a convenient active indicator */}
-            {userClinicFilter !== 'all' && (
-              <div className={styles.activeFilterBanner}>
-                <span>
-                  Hozirda <strong>{selectedClinicForStaff?.name || 'Biriktirilmagan xodimlar'}</strong> filtri faol ({filteredUsers.length} ta xodim).
-                </span>
-                <button onClick={() => setUserClinicFilter('all')} className={styles.clearFilterBtn}>
-                  Filtrni tozalash ✕
-                </button>
-              </div>
-            )}
-
-            <div className={styles.tableResponsive}>
-              {loading ? (
-                <div className={styles.emptyState}>Foydalanuvchilar yuklanmoqda...</div>
-              ) : filteredUsers.length === 0 ? (
-                <div className={styles.emptyState}>Hech qanday foydalanuvchi topilmadi.</div>
-              ) : (
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Foydalanuvchi</th>
-                      <th>Roli (Vakolati)</th>
-                      <th>Biriktirilgan Klinika</th>
-                      <th>Telefon</th>
-                      <th>Kirish Huquqi (Bloklash)</th>
-                      <th>Qo'shilgan Sana</th>
-                      <th style={{ textAlign: 'right' }}>Huquqlar & Parol</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id}>
-                        <td>
-                          <div className={styles.userCell}>
-                            <div
-                              className={styles.userTableAvatar}
-                              style={{
-                                background:
-                                  u.role === 'superadmin'
-                                    ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-                                    : u.role === 'owner'
-                                    ? 'linear-gradient(135deg, #0284c7, #0369a1)'
-                                    : u.role === 'doctor'
-                                    ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
-                                    : u.role === 'nurse'
-                                    ? 'linear-gradient(135deg, #10b981, #059669)'
-                                    : 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
-                              }}
-                            >
-                              {u.name
-                                .split(' ')
-                                .map((n) => n[0])
-                                .filter(Boolean)
-                                .slice(0, 2)
-                                .join('')
-                                .toUpperCase() || 'U'}
-                            </div>
-                            <div className={styles.userTableMeta}>
-                              <div className={styles.primaryText}>{u.name}</div>
-                              <div className={styles.secondaryText}>
-                                {u.username ? `@${u.username} • ` : ''}{u.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.roleBadge} ${
-                              u.role === 'superadmin'
-                                ? styles.roleSuperadmin
-                                : u.role === 'owner'
-                                ? styles.roleOwner
-                                : u.role === 'doctor'
-                                ? styles.roleDoctor
-                                : u.role === 'receptionist'
-                                ? styles.roleReceptionist
-                                : styles.roleNurse
-                            }`}
-                          >
-                            {u.role === 'superadmin' && '👑 '}
-                            {u.role}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.primaryText}>
-                            {u.clinic?.name || (u.role === 'superadmin' ? 'DentUz Platformasi' : 'Biriktirilmagan')}
-                          </div>
-                        </td>
-                        <td>
-                          {u.phone ? (
-                            <a href={`tel:${u.phone}`} className={styles.phoneCell}>
-                              {u.phone}
-                            </a>
-                          ) : (
-                            <span className={styles.secondaryText}>—</span>
-                          )}
-                        </td>
-                        <td>
-                          {u.role === 'superadmin' ? (
-                            <span className={styles.protectedBadge}>
-                              <Icon name="verified" size={13} />
-                              <span>Faol (Asoschi)</span>
-                            </span>
-                          ) : (
-                            <div className={styles.statusColumnWrap}>
-                              <span
-                                className={`${styles.statusBadge} ${
-                                  u.isActive ? styles.statusActive : styles.statusSuspended
-                                }`}
-                              >
-                                {u.isActive ? '● Faol' : '● Bloklangan'}
-                              </span>
-                              <button
-                                onClick={() => handleToggleUserStatus(u)}
-                                className={`${styles.actionBtn} ${
-                                  u.isActive ? styles.actionBtnSoftDanger : styles.actionBtnSoftSuccess
-                                }`}
-                                title={u.isActive ? 'Foydalanuvchini bloklash' : 'Kirish huquqini qayta yoqish'}
-                              >
-                                <Icon name={u.isActive ? 'block' : 'check_circle'} size={13} />
-                                <span>{u.isActive ? 'Bloklash' : 'Ochish'}</span>
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                        <td className={styles.nowrapCell}>
-                          <span className={styles.secondaryText}>
-                            {new Date(u.createdAt).toLocaleDateString('uz-UZ')}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div className={styles.actionBtnGroup}>
-                            <button
-                              onClick={() => handleOpenRoleModal(u)}
-                              className={`${styles.actionBtn} ${styles.actionBtnSoftCyan}`}
-                              title="Rolni o'zgartirish"
-                            >
-                              <Icon name="manage_accounts" size={14} />
-                              <span>Rol</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleOpenPasswordModal(u)}
-                              className={`${styles.actionBtn} ${styles.actionBtnSoftPurple}`}
-                              title="Parolni yangilash"
-                            >
-                              <Icon name="key" size={14} />
-                              <span>Parol</span>
-                            </button>
-
-                            {u.role !== 'superadmin' && (
-                              <button
-                                onClick={() => handleDeleteUser(u)}
-                                className={styles.actionBtnSoftIcon}
-                                title="O'chirish"
-                              >
-                                <Icon name="delete" size={14} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
       </main>
 
       {/* =========================================================
-          MODAL 1: Role Change Modal (NO prompt/alert!)
+          MODAL: TELEGRAM CREDENTIALS SHARING MODAL
+         ========================================================= */}
+      {telegramModal.isOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={`${styles.modalCard} ${styles.modalCardSm}`}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon name="send" size={22} style={{ color: '#0284c7' }} />
+                <h2 className={styles.modalTitle}>Telegram uchun Tayyor Ma'lumot</h2>
+              </div>
+              <button
+                onClick={() => setTelegramModal((prev) => ({ ...prev, isOpen: false }))}
+                className={styles.modalCloseBtn}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-slate, #64748b)', marginBottom: '14px' }}>
+                Ushbu tayyor matnni nusxalab, klinika rahbariga Telegram yoki SMS orqali yuborishingiz mumkin:
+              </p>
+
+              <div className={styles.telegramMessageWrap} style={{ margin: 0 }}>
+                <textarea
+                  readOnly
+                  style={{ height: '170px', fontFamily: 'monospace', lineHeight: 1.5 }}
+                  value={generateTelegramShareText(telegramModal)}
+                />
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button
+                type="button"
+                onClick={() => setTelegramModal((prev) => ({ ...prev, isOpen: false }))}
+                className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+              >
+                Yopish
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCopy(generateTelegramShareText(telegramModal), 'tgMsg')}
+                className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                style={{ padding: '10px 18px' }}
+              >
+                <Icon name="content_copy" size={16} />
+                <span>Nusxalash (Telegram)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL: Role Change Modal
          ========================================================= */}
       {roleModal.isOpen && roleModal.user && (
         <div className={styles.modalOverlay}>
@@ -1326,7 +1658,7 @@ export default function SuperAdmin() {
       )}
 
       {/* =========================================================
-          MODAL 2: Password Reset Modal (NO prompt/alert!)
+          MODAL: Password Reset Modal with Quick Telegram Sharing
          ========================================================= */}
       {passwordModal.isOpen && passwordModal.user && (
         <div className={styles.modalOverlay}>
@@ -1422,7 +1754,7 @@ export default function SuperAdmin() {
                 onClick={handleSavePassword}
                 className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
               >
-                {passwordModal.loading ? 'Saqlanmoqda...' : 'Parolni Saqlash'}
+                {passwordModal.loading ? 'Saqlanmoqda...' : 'Parolni Saqlash & Telegram'}
               </button>
             </div>
           </div>
@@ -1430,7 +1762,7 @@ export default function SuperAdmin() {
       )}
 
       {/* =========================================================
-          MODAL 3: Action Confirm Modal (NO window.confirm!)
+          MODAL: Confirm Action Modal
          ========================================================= */}
       {confirmModal.isOpen && (
         <div className={styles.modalOverlay}>
@@ -1476,7 +1808,7 @@ export default function SuperAdmin() {
       )}
 
       {/* =========================================================
-          MODAL 4: Extend Plan Modal (NO prompt/alert!)
+          MODAL: Extend Plan Modal
          ========================================================= */}
       {extendPlanModal.isOpen && extendPlanModal.clinic && (
         <div className={styles.modalOverlay}>
@@ -1550,7 +1882,7 @@ export default function SuperAdmin() {
       )}
 
       {/* =========================================================
-          MODAL 5: Onboarding Modal
+          MODAL: Onboarding Modal
          ========================================================= */}
       {isModalOpen && (
         <div className={styles.modalOverlay}>
@@ -1566,7 +1898,6 @@ export default function SuperAdmin() {
 
             <div className={styles.modalBody}>
               {onboardSuccessData ? (
-                /* Success View: Display credentials & ready Telegram notification */
                 <div className={styles.successCard}>
                   <div className={styles.successIcon}>
                     <Icon name="check_circle" size={36} />
@@ -1622,7 +1953,6 @@ export default function SuperAdmin() {
                   </div>
                 </div>
               ) : (
-                /* Form View */
                 <form id="onboardForm" onSubmit={handleSubmitOnboard}>
                   <div className={styles.formGrid}>
                     <div className={styles.formGroup}>
@@ -1751,13 +2081,18 @@ export default function SuperAdmin() {
       )}
 
       {/* =========================================================
-          MODAL 6: Create User / Staff Modal
+          MODAL: Create User / Staff Modal (With Instant Auto-Generators)
          ========================================================= */}
       {isUserModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalCard}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Yangi Xodim / Foydalanuvchi Qo'shish</h2>
+              <div>
+                <h2 className={styles.modalTitle}>Yangi Xodim Qo'shish</h2>
+                <span style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 600 }}>
+                  🏥 {clinics.find((c) => c.id === userFormData.clinicId)?.name || 'Klinika xodimi'}
+                </span>
+              </div>
               <button onClick={() => setIsUserModalOpen(false)} className={styles.modalCloseBtn}>
                 ✕
               </button>
@@ -1771,17 +2106,62 @@ export default function SuperAdmin() {
                     <input
                       type="text"
                       required
-                      placeholder="Dr. Anvar Aliyev"
+                      placeholder="Dr. Sardor Aliyev"
                       value={userFormData.name}
-                      onChange={(e) => setUserFormData({ ...userFormData, name: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const cName = clinics.find((c) => c.id === userFormData.clinicId)?.name || '';
+                        setUserFormData({
+                          ...userFormData,
+                          name: val,
+                          username: userFormData.username || generateUsernameFromName(val, cName),
+                          email: userFormData.email || `${generateUsernameFromName(val)}@dentuz.uz`,
+                        });
+                      }}
                     />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>Login (Username)</label>
+                    <label>Roli (Kirish Huquqi) *</label>
+                    <select
+                      value={userFormData.role}
+                      onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
+                    >
+                      <option value="doctor">🩺 Shifokor (Doctor)</option>
+                      <option value="receptionist">📋 Qabulxona (Receptionist)</option>
+                      <option value="nurse">💉 Hamshira (Nurse)</option>
+                      <option value="owner">🏥 Klinika Rahbari (Owner)</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label>Login (Username) *</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const cName = clinics.find((c) => c.id === userFormData.clinicId)?.name || '';
+                          setUserFormData({
+                            ...userFormData,
+                            username: generateUsernameFromName(userFormData.name, cName),
+                          });
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#0891b2',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ⚡ Avto-yaratish
+                      </button>
+                    </div>
                     <input
                       type="text"
-                      placeholder="anvar_dr (ixtiyoriy)"
+                      required
+                      placeholder="sardor_dr"
                       value={userFormData.username}
                       onChange={(e) => setUserFormData({ ...userFormData, username: e.target.value })}
                     />
@@ -1792,50 +2172,42 @@ export default function SuperAdmin() {
                     <input
                       type="email"
                       required
-                      placeholder="anvar@klinika.uz"
+                      placeholder="sardor@dentuz.uz"
                       value={userFormData.email}
                       onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
                     />
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label>Parol *</label>
+                  <div className={styles.formGroupFull}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label>Parol *</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserFormData({
+                            ...userFormData,
+                            password: generateRandomPassword(),
+                          });
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#0891b2',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ⚡ Tasodifiy parol yaratish
+                      </button>
+                    </div>
                     <input
                       type="text"
                       required
-                      placeholder="Parol kiriting..."
+                      placeholder="masalan: DentUz#2026!"
                       value={userFormData.password}
                       onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
                     />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Roli (Kirish Huquqi) *</label>
-                    <select
-                      value={userFormData.role}
-                      onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
-                    >
-                      <option value="doctor">Shifokor (Doctor)</option>
-                      <option value="receptionist">Qabulxona (Receptionist)</option>
-                      <option value="nurse">Hamshira (Nurse)</option>
-                      <option value="owner">Klinika Rahbari (Owner)</option>
-                      <option value="superadmin">SuperAdmin</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Biriktirilgan Klinika</label>
-                    <select
-                      value={userFormData.clinicId}
-                      onChange={(e) => setUserFormData({ ...userFormData, clinicId: e.target.value })}
-                    >
-                      <option value="">— Klinika tanlang —</option>
-                      {clinics.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   <div className={styles.formGroup}>
@@ -1873,7 +2245,7 @@ export default function SuperAdmin() {
                   disabled={modalLoading}
                   className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
                 >
-                  {modalLoading ? 'Yaratilmoqda...' : 'Foydalanuvchini Saqlash'}
+                  {modalLoading ? 'Yaratilmoqda...' : 'Saqlash va Telegramga Tayyorlash 🚀'}
                 </button>
               </div>
             </form>
