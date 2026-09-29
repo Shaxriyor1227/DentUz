@@ -97,7 +97,7 @@ export const DEMO_USERS = {
 };
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || 'demo_mock_jwt_token');
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || null);
 
   const [user, setUser] = useState(() => {
     try {
@@ -109,13 +109,13 @@ export function AuthProvider({ children }) {
         }
         return parsed;
       }
-      return DEMO_USERS.owner;
+      return null;
     } catch {
-      return DEMO_USERS.owner;
+      return null;
     }
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(user));
+  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(user && token));
 
   useEffect(() => {
     if (user) {

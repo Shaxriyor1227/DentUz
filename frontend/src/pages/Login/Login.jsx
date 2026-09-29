@@ -21,34 +21,43 @@ const EyeOffIcon = () => (
 
 export default function Login() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('j.azimov@dentuz.uz');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim() || !password) {
+      setErrorMessage('Iltimos, login va parolni kiriting');
+      return;
+    }
+
     setLoading(true);
+    setErrorMessage('');
+
     try {
       const res = await login({
-        email: email || 'j.azimov@dentuz.uz',
-        password: password || 'Password123!',
+        email: email.trim(),
+        password: password,
       });
-      if (res?.data?.role === 'superadmin') {
-        const newTab = window.open('/superadmin', '_blank');
-        if (newTab) {
-          navigate('/dashboard');
-        } else {
-          navigate('/superadmin');
-        }
+
+      if (!res || !res.success) {
+        setErrorMessage(res?.message || 'Login yoki parol noto\'g\'ri');
+        return;
+      }
+
+      if (res.data?.role === 'superadmin') {
+        navigate('/superadmin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
-      console.error(err);
+      setErrorMessage('Serverga ulanib bo\'lmadi. Internet yoki backend ulanishini tekshiring.');
     } finally {
       setLoading(false);
     }
@@ -66,6 +75,24 @@ export default function Login() {
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
+        {errorMessage && (
+          <div style={{
+            padding: '10px 14px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#EF4444',
+            fontSize: '13px',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>error</span>
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Email or Clinic ID */}
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="login-email">
