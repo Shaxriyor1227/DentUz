@@ -182,8 +182,19 @@ export default function SuperAdmin() {
     isOpen: false,
     clinic: null,
     months: 12,
+    subscriptionPlan: 'pro',
     loading: false,
   });
+
+  // Helper: Real-time calculation of new subscription expiration date
+  const calculateNewExpireDate = (clinic, additionalMonths) => {
+    if (!clinic) return '—';
+    const num = parseInt(additionalMonths, 10) || 0;
+    const currentExpire = clinic.subscriptionExpiresAt ? new Date(clinic.subscriptionExpiresAt) : new Date();
+    const baseDate = currentExpire > new Date() ? new Date(currentExpire) : new Date();
+    baseDate.setMonth(baseDate.getMonth() + num);
+    return baseDate.toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
 
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -475,25 +486,35 @@ export default function SuperAdmin() {
       isOpen: true,
       clinic,
       months: 12,
+      subscriptionPlan: clinic.subscriptionPlan || 'pro',
       loading: false,
     });
   };
 
   const handleSaveExtendPlan = async () => {
     if (!extendPlanModal.clinic) return;
+    const monthsNum = parseInt(extendPlanModal.months, 10);
+    if (!monthsNum || monthsNum < 1) {
+      showToast('Iltimos, kamida 1 oylik muddat kiriting', 'error');
+      return;
+    }
     setExtendPlanModal((prev) => ({ ...prev, loading: true }));
     try {
       const res = await fetch(`${baseUrl}/superadmin/clinics/${extendPlanModal.clinic.id}/plan`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ additionalMonths: parseInt(extendPlanModal.months, 10) }),
+        body: JSON.stringify({
+          additionalMonths: monthsNum,
+          subscriptionPlan: extendPlanModal.subscriptionPlan,
+        }),
       });
-      if (res.ok) {
-        showToast(`"${extendPlanModal.clinic.name}" obunasi ${extendPlanModal.months} oyga uzaytirildi!`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(data.message || `"${extendPlanModal.clinic.name}" obunasi ${monthsNum} oyga muvaffaqiyatli uzaytirildi! 🎉`);
         setExtendPlanModal((prev) => ({ ...prev, isOpen: false }));
         loadData();
       } else {
-        showToast('Obunani yangilab bo\'lmadi', 'error');
+        showToast(data.message || 'Obunani yangilab bo\'lmadi', 'error');
       }
     } catch (err) {
       showToast('Xatolik: ' + err.message, 'error');
@@ -1765,12 +1786,20 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
       )}
 
       {/* =========================================================
-          MODAL: Confirm Action Modal
+          MODAL: Confirm Action Modal (Upgraded Design & Hover Effects)
          ========================================================= */}
       {confirmModal.isOpen && (
         <div className={styles.modalOverlay}>
-          <div className={`${styles.modalCard} ${styles.modalCardSm}`}>
-            <div className={styles.modalBody}>
+          <div className={`${styles.modalCard} ${styles.modalCardSm} ${styles.confirmModalCard}`}>
+            <button
+              onClick={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+              className={styles.modalCloseBtn}
+              style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}
+              title="Yopish"
+            >
+              ✕
+            </button>
+            <div className={styles.modalBody} style={{ paddingTop: '28px', paddingBottom: '10px' }}>
               <div className={styles.confirmBody}>
                 <div
                   className={`${styles.confirmIconWrap} ${
@@ -1781,18 +1810,18 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
                       : styles.confirmIconWarning
                   }`}
                 >
-                  <Icon name={confirmModal.icon || 'warning'} size={32} />
+                  <Icon name={confirmModal.icon || 'warning'} size={34} />
                 </div>
                 <h3 className={styles.confirmTitle}>{confirmModal.title}</h3>
                 <p className={styles.confirmDesc}>{confirmModal.message}</p>
               </div>
             </div>
 
-            <div className={styles.modalFooter}>
+            <div className={styles.confirmModalFooter}>
               <button
                 type="button"
                 onClick={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
-                className={`${styles.actionBtn} ${styles.actionBtnOutline}`}
+                className={`${styles.actionBtn} ${styles.actionBtnOutline} ${styles.confirmBtnCancel}`}
               >
                 {confirmModal.cancelText}
               </button>
@@ -1801,7 +1830,7 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
                 onClick={confirmModal.onConfirm}
                 className={`${styles.actionBtn} ${
                   confirmModal.isDanger ? styles.actionBtnDanger : styles.actionBtnPrimary
-                }`}
+                } ${styles.confirmBtnSubmit}`}
               >
                 {confirmModal.confirmText}
               </button>
@@ -1811,13 +1840,23 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
       )}
 
       {/* =========================================================
-          MODAL: Extend Plan Modal
+          MODAL: Extend Plan Modal (Any Custom Months + Live Calculation)
          ========================================================= */}
       {extendPlanModal.isOpen && extendPlanModal.clinic && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalCard} ${styles.modalCardSm}`}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Obuna Muddatini Uzaytirish</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className={styles.kpiIconWrap} style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', margin: 0 }}>
+                  <Icon name="event_repeat" size={20} />
+                </div>
+                <div>
+                  <h2 className={styles.modalTitle} style={{ margin: 0 }}>Obuna Muddatini Uzaytirish</h2>
+                  <span style={{ fontSize: '0.785rem', color: 'var(--color-slate, #64748b)' }}>
+                    Tarif va litsenziya davomiyligini erkin sozlang
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => setExtendPlanModal((prev) => ({ ...prev, isOpen: false }))}
                 className={styles.modalCloseBtn}
@@ -1827,39 +1866,164 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
             </div>
 
             <div className={styles.modalBody}>
+              {/* Clinic summary banner */}
               <div className={styles.targetUserSummary}>
                 <div className={styles.targetUserMeta}>
                   <strong className={styles.primaryText}>{extendPlanModal.clinic.name}</strong>
                   <span className={styles.secondaryText}>
-                    Bosh shifokor: {extendPlanModal.clinic.ownerName || '—'}
+                    Rahbar: {extendPlanModal.clinic.ownerName || '—'} • {extendPlanModal.clinic.phone || '—'}
                   </span>
                 </div>
-                <span className={styles.planBadge}>{extendPlanModal.clinic.subscriptionPlan || 'pro'}</span>
+                <span className={`${styles.planBadge} ${
+                  extendPlanModal.subscriptionPlan === 'enterprise'
+                    ? styles.planEnterprise
+                    : extendPlanModal.subscriptionPlan === 'starter'
+                    ? styles.planStarter
+                    : styles.planPro
+                }`}>
+                  {extendPlanModal.subscriptionPlan?.toUpperCase() || 'PRO'}
+                </span>
               </div>
 
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-slate, #64748b)' }}>
-                Qo'shiladigan muddatni tanlang:
+              {/* 1. Subscription Plan Tier selector */}
+              <div style={{ margin: '14px 0 16px' }}>
+                <label style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--color-text-primary, #0f172a)', display: 'block', marginBottom: '8px' }}>
+                  Tarif Rejasini Tanlang:
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  {[
+                    { id: 'starter', label: 'Starter', desc: '1-2 kreslo' },
+                    { id: 'pro', label: 'Pro', desc: '3-5 kreslo' },
+                    { id: 'enterprise', label: 'Enterprise', desc: 'VIP / Katta' },
+                  ].map((p) => {
+                    const isSelected = extendPlanModal.subscriptionPlan === p.id;
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => setExtendPlanModal((prev) => ({ ...prev, subscriptionPlan: p.id }))}
+                        className={`${styles.planOptionCard} ${isSelected ? styles.planOptionCardActive : ''}`}
+                        style={{ padding: '10px 8px', textAlign: 'center', cursor: 'pointer' }}
+                      >
+                        <strong style={{ fontSize: '0.9rem', color: isSelected ? '#0891b2' : 'inherit' }}>{p.label}</strong>
+                        <span style={{ fontSize: '0.75rem', opacity: 0.75 }}>{p.desc}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Quick preset months */}
+              <label style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--color-text-primary, #0f172a)', display: 'block', marginBottom: '8px' }}>
+                Tezkor Muddatlar (Oylar):
               </label>
 
-              <div className={styles.planOptionsGrid}>
+              <div className={styles.planOptionsGrid} style={{ margin: '0 0 14px' }}>
                 {[
                   { m: 1, label: '1 Oy', sub: 'Qisqa sinov' },
-                  { m: 3, label: '3 Oy', sub: 'Kvartal litsenziyasi' },
+                  { m: 3, label: '3 Oy', sub: 'Kvartal' },
                   { m: 6, label: '6 Oy', sub: 'Yarim yillik' },
                   { m: 12, label: '1 Yil (12 oy)', sub: 'Tavsiya etiladi' },
-                  { m: 24, label: '2 Yil (24 oy)', sub: 'Maksimal chegirma' },
-                ].map((opt) => (
-                  <div
-                    key={opt.m}
-                    onClick={() => setExtendPlanModal((prev) => ({ ...prev, months: opt.m }))}
-                    className={`${styles.planOptionCard} ${
-                      extendPlanModal.months === opt.m ? styles.planOptionCardActive : ''
-                    }`}
+                  { m: 24, label: '2 Yil (24 oy)', sub: 'Chegirma bilan' },
+                ].map((opt) => {
+                  const isSelected = parseInt(extendPlanModal.months, 10) === opt.m;
+                  return (
+                    <div
+                      key={opt.m}
+                      onClick={() => setExtendPlanModal((prev) => ({ ...prev, months: opt.m }))}
+                      className={`${styles.planOptionCard} ${isSelected ? styles.planOptionCardActive : ''}`}
+                    >
+                      <span className={styles.planMonths}>{opt.label}</span>
+                      <span className={styles.planPriceEstimate}>{opt.sub}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 3. Custom exact months input (User can enter ANY number of months) */}
+              <div className={styles.customMonthsWrap}>
+                <div className={styles.customMonthsHeader}>
+                  <label htmlFor="customMonthsInput">
+                    <Icon name="edit_calendar" size={16} />
+                    <span>Yoki o'zingiz xohlagan oylar sonini kiriting:</span>
+                  </label>
+                  <span className={styles.customMonthsBadge}>
+                    +{extendPlanModal.months || 0} oy qo'shiladi
+                  </span>
+                </div>
+
+                <div className={styles.customMonthsInputRow}>
+                  <button
+                    type="button"
+                    className={styles.counterBtn}
+                    onClick={() =>
+                      setExtendPlanModal((prev) => ({
+                        ...prev,
+                        months: Math.max(1, (parseInt(prev.months, 10) || 1) - 1),
+                      }))
+                    }
+                    title="1 oy kamaytirish"
                   >
-                    <span className={styles.planMonths}>{opt.label}</span>
-                    <span className={styles.planPriceEstimate}>{opt.sub}</span>
-                  </div>
-                ))}
+                    <Icon name="remove" size={18} />
+                  </button>
+
+                  <input
+                    id="customMonthsInput"
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={extendPlanModal.months}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      setExtendPlanModal((prev) => ({
+                        ...prev,
+                        months: isNaN(v) ? '' : Math.max(1, Math.min(120, v)),
+                      }));
+                    }}
+                    className={styles.customMonthsInput}
+                    placeholder="Masalan: 5"
+                  />
+
+                  <span className={styles.monthsSuffix}>oy</span>
+
+                  <button
+                    type="button"
+                    className={styles.counterBtn}
+                    onClick={() =>
+                      setExtendPlanModal((prev) => ({
+                        ...prev,
+                        months: (parseInt(prev.months, 10) || 0) + 1,
+                      }))
+                    }
+                    title="1 oy qo'shish"
+                  >
+                    <Icon name="add" size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. Live Calculation & Preview Card */}
+              <div className={styles.planCalculationCard}>
+                <div className={styles.calcRow}>
+                  <span className={styles.calcLabel}>Joriy muddat:</span>
+                  <span className={styles.calcValue}>
+                    {extendPlanModal.clinic.subscriptionExpiresAt
+                      ? new Date(extendPlanModal.clinic.subscriptionExpiresAt).toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : 'Muddati tugagan / Yangi'}
+                  </span>
+                </div>
+                <div className={styles.calcRow}>
+                  <span className={styles.calcLabel}>Yangi hisoblangan muddat:</span>
+                  <span className={styles.calcValueHighlight}>
+                    <Icon name="check_circle" size={16} />
+                    <strong>{calculateNewExpireDate(extendPlanModal.clinic, extendPlanModal.months)}</strong>
+                  </span>
+                </div>
+                <div className={styles.calcRow}>
+                  <span className={styles.calcLabel}>Klinika holati:</span>
+                  <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.8rem' }}>
+                    ● Avtomatik Faol (Active) litsenziya holatiga o'tadi
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1873,11 +2037,12 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
               </button>
               <button
                 type="button"
-                disabled={extendPlanModal.loading}
+                disabled={extendPlanModal.loading || !extendPlanModal.months || parseInt(extendPlanModal.months, 10) < 1}
                 onClick={handleSaveExtendPlan}
                 className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                style={{ padding: '10px 22px' }}
               >
-                {extendPlanModal.loading ? 'Uzaytirilmoqda...' : 'Obunani Uzaytirish'}
+                {extendPlanModal.loading ? 'Uzaytirilmoqda...' : 'Obunani Uzaytirish va Saqlash 🚀'}
               </button>
             </div>
           </div>

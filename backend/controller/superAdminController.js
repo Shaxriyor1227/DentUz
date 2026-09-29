@@ -340,9 +340,10 @@ exports.updateClinicPlan = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Klinika topilmadi' });
     }
 
+    const monthsToAdd = Math.max(1, parseInt(additionalMonths, 10) || 1);
     const currentExpire = clinic.subscriptionExpiresAt ? new Date(clinic.subscriptionExpiresAt) : new Date();
     const baseDate = currentExpire > new Date() ? currentExpire : new Date();
-    baseDate.setMonth(baseDate.getMonth() + parseInt(additionalMonths, 10));
+    baseDate.setMonth(baseDate.getMonth() + monthsToAdd);
 
     await clinic.update({
       subscriptionPlan: subscriptionPlan || clinic.subscriptionPlan,
@@ -352,7 +353,7 @@ exports.updateClinicPlan = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Klinika obuna tarifi va muddati muvaffaqiyatli uzaytirildi',
+      message: `Klinika obunasi muvaffaqiyatli ${monthsToAdd} oyga uzaytirildi (Yangi muddat: ${baseDate.toISOString().split('T')[0]})`,
       data: clinic,
     });
   } catch (err) {
