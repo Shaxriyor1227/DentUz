@@ -525,11 +525,17 @@ export default function Finance() {
       setLoading(true);
       try {
         const [s, inv] = await Promise.all([
-          financeApi.getStats(dateRange),
-          financeApi.getInvoices(dateRange)
+          financeApi.getStats(dateRange).catch((err) => {
+            console.warn('Finance stats restricted or unavailable:', err?.message);
+            return null;
+          }),
+          financeApi.getInvoices(dateRange).catch((err) => {
+            console.warn('Finance invoices restricted or unavailable:', err?.message);
+            return [];
+          })
         ]);
-        setStats(s);
-        setInvoices(inv);
+        if (s) setStats(s);
+        if (inv) setInvoices(inv);
       } catch (err) {
         console.error(err);
       } finally {

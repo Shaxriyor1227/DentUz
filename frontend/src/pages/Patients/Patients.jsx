@@ -556,10 +556,15 @@ export default function Patients() {
                 </div>
               ) : patients.length === 0 ? (
                 <div className={styles.emptyState}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '42px', color: 'var(--color-outline)' }}>
-                    person_search
-                  </span>
-                  <p style={{ margin: 0, fontWeight: 500 }}>{t('patients.table.noPatientsFound')}</p>
+                  <div className={styles.emptyIconWrapper}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>
+                      person_search
+                    </span>
+                  </div>
+                  <h4 className={styles.emptyStateTitle}>{t('patients.table.noPatientsFound')}</h4>
+                  <p className={styles.emptyStateSubtitle}>
+                    {search ? `"${search}" bo'yicha mos keluvchi bemor topilmadi` : "Ushbu filtr bo'yicha bemorlar mavjud emas"}
+                  </p>
                   {(search || filter !== 'all') && (
                     <button
                       type="button"
@@ -596,10 +601,15 @@ export default function Patients() {
           </div>
         ) : patients.length === 0 ? (
           <div className={styles.emptyState}>
-            <span className="material-symbols-outlined" style={{ fontSize: '38px', color: 'var(--color-outline)' }}>
-              person_search
-            </span>
-            <p style={{ margin: 0, fontWeight: 500 }}>{t('patients.table.noPatientsFound')}</p>
+            <div className={styles.emptyIconWrapper}>
+              <span className="material-symbols-outlined" style={{ fontSize: '30px' }}>
+                person_search
+              </span>
+            </div>
+            <h4 className={styles.emptyStateTitle}>{t('patients.table.noPatientsFound')}</h4>
+            <p className={styles.emptyStateSubtitle}>
+              {search ? `"${search}" bo'yicha bemor topilmadi` : "Bemorlar mavjud emas"}
+            </p>
             {(search || filter !== 'all') && (
               <button
                 type="button"

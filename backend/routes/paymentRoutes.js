@@ -3,6 +3,9 @@ const router = express.Router();
 const paymentController = require('../controller/paymentController');
 const { validate } = require('../middleware/validate');
 const { validatePayment } = require('../validations/paymentValidation');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -52,7 +55,7 @@ const { validatePayment } = require('../validations/paymentValidation');
  *       500:
  *         description: Server error
  */
-router.post('/payments', validate(validatePayment), paymentController.createPayment);
+router.post('/payments', authorize('owner', 'accountant'), validate(validatePayment), paymentController.createPayment);
 
 /**
  * @swagger
@@ -82,7 +85,7 @@ router.post('/payments', validate(validatePayment), paymentController.createPaym
  *       500:
  *         description: Server error
  */
-router.get('/payments', paymentController.getPayments);
+router.get('/payments', authorize('owner', 'accountant', 'administrator'), paymentController.getPayments);
 
 /**
  * @swagger
@@ -104,7 +107,7 @@ router.get('/payments', paymentController.getPayments);
  *       500:
  *         description: Server error
  */
-router.get('/payments/stats', paymentController.getPaymentStats);
+router.get('/payments/stats', authorize('owner', 'accountant', 'administrator'), paymentController.getPaymentStats);
 
 /**
  * @swagger
@@ -130,7 +133,7 @@ router.get('/payments/stats', paymentController.getPaymentStats);
  *       500:
  *         description: Server error
  */
-router.get('/payments/:id', paymentController.getPaymentById);
+router.get('/payments/:id', authorize('owner', 'accountant', 'administrator'), paymentController.getPaymentById);
 
 /**
  * @swagger
@@ -168,7 +171,7 @@ router.get('/payments/:id', paymentController.getPaymentById);
  *       500:
  *         description: Server error
  */
-router.put('/payments/:id', validate(validatePayment), paymentController.updatePayment);
+router.put('/payments/:id', authorize('owner', 'accountant'), validate(validatePayment), paymentController.updatePayment);
 
 /**
  * @swagger
@@ -194,6 +197,6 @@ router.put('/payments/:id', validate(validatePayment), paymentController.updateP
  *       500:
  *         description: Server error
  */
-router.delete('/payments/:id', paymentController.deletePayment);
+router.delete('/payments/:id', authorize('owner', 'accountant'), paymentController.deletePayment);
 
 module.exports = router;

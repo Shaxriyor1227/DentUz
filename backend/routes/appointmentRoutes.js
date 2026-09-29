@@ -3,9 +3,10 @@ const router = express.Router();
 const appointmentController = require("../controller/appointmentsController");
 const { validate } = require("../middleware/validate");
 const { validateAppointment } = require("../validations/appointmentValidation");
-const { authenticate } = require("../middleware/auth");
+const { authenticate, authorize } = require("../middleware/auth");
 
 router.use(authenticate);
+router.use(authorize('owner', 'doctor', 'administrator', 'receptionist', 'admin'));
 
 /**
  * @swagger

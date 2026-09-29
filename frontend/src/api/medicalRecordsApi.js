@@ -69,6 +69,7 @@ export const medicalRecordsApi = {
           }
         }
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real MedicalRecords API getByPatient failed, using fallback:', e.message);
       }
     }
@@ -81,6 +82,7 @@ export const medicalRecordsApi = {
         const res = await apiClient.post('/medical-records', recordData);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real MedicalRecords API create failed:', e.message);
       }
     }

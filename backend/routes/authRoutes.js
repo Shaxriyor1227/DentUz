@@ -6,14 +6,18 @@ const { authenticate } = require("../middleware/auth");
 const { validate } = require("../middleware/validate");
 const { validateUser, validateLogin } = require("../validations/userValidation");
 
-// Rate limiter: max 10 requests per 15 minutes per IP
-const authLimiter = rateLimit({
+// Rate limiter: max 10 requests per 15 minutes per IP + identifier
+const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  validate: { xForwardedForHeader: false },
-  message: { success: false, message: 'Juda ko\'p urinish. 15 daqiqadan keyin qayta urinib ko\'ring.' },
+  keyGenerator: (req) => {
+    const id = (req.body && (req.body.identifier || req.body.email || req.body.login || req.body.username)) || '';
+    return `${req.ip}_${id.toLowerCase().trim()}`;
+  },
+  validate: false,
+  message: { success: false, message: 'Juda ko\'p login urinishlari. 15 daqiqadan keyin qayta urinib ko\'ring.' },
 });
 
 /**
@@ -61,7 +65,7 @@ const authLimiter = rateLimit({
  *       500:
  *         description: Server error
  */
-router.post("/register", authLimiter, validate(validateUser), authController.register);
+router.post("/register", loginLimiter, validate(validateUser), authController.register);
 
 /**
  * @swagger
@@ -93,7 +97,7 @@ router.post("/register", authLimiter, validate(validateUser), authController.reg
  *       500:
  *         description: Server error
  */
-router.post("/login", authLimiter, validate(validateLogin), authController.login);
+router.post("/login", loginLimiter, validate(validateLogin), authController.login);
 
 /**
  * @swagger

@@ -40,9 +40,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM('superadmin', 'owner', 'doctor', 'receptionist', 'nurse'),
+        type: DataTypes.ENUM('superadmin', 'owner', 'doctor', 'administrator', 'accountant', 'receptionist', 'nurse'),
         allowNull: false,
-        defaultValue: 'receptionist',
+        defaultValue: 'administrator',
       },
       clinicId: {
         type: DataTypes.UUID,

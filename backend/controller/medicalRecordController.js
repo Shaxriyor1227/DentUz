@@ -1,9 +1,10 @@
-
 const path = require('path');
 const { MedicalRecord, Patient, Doctor, Appointment } = require('../models');
 const { validateMedicalRecord } = require('../validations/medicalRecordValidation');
 const { Op } = require('sequelize');
 const multer = require('multer');
+const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -27,13 +28,30 @@ exports.upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 }).array('attachments', 10);
 
-const { getPagination, getPagingData } = require('../utils/pagination');
-
 exports.createMedicalRecord = async (req, res) => {
   const { error } = validateMedicalRecord(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
+    const { patientId, doctorId } = req.body;
+    if (patientId) {
+      const patient = await Patient.findOne({
+        where: withTenantScope(req, { id: patientId }),
+      });
+      if (!patient) {
+        return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    if (doctorId) {
+      const doctor = await Doctor.findOne({
+        where: withTenantScope(req, { id: doctorId }),
+      });
+      if (!doctor) {
+        return res.status(404).json({ success: false, message: 'Shifokor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
     let attachments = req.body.attachments || [];
     if (req.files && req.files.length > 0) {
       const uploaded = req.files.map((f) => ({
@@ -44,7 +62,11 @@ exports.createMedicalRecord = async (req, res) => {
       attachments = [...attachments, ...uploaded];
     }
 
-    const record = await MedicalRecord.create({ ...req.body, attachments });
+    const record = await MedicalRecord.create({
+      ...req.body,
+      attachments,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: record });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -54,7 +76,7 @@ exports.createMedicalRecord = async (req, res) => {
 exports.getMedicalRecords = async (req, res) => {
   try {
     const { patientId, doctorId, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (patientId) where.patientId = patientId;
@@ -70,6 +92,8 @@ exports.getMedicalRecords = async (req, res) => {
         { recommendations: { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await MedicalRecord.findAndCountAll({
       where,
@@ -95,7 +119,8 @@ exports.getMedicalRecords = async (req, res) => {
 
 exports.getMedicalRecordById = async (req, res) => {
   try {
-    const record = await MedicalRecord.findByPk(req.params.id, {
+    const record = await MedicalRecord.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Patient,     as: 'patient'     },
         { model: Doctor,      as: 'doctor'      },
@@ -114,7 +139,9 @@ exports.updateMedicalRecord = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const record = await MedicalRecord.findByPk(req.params.id);
+    const record = await MedicalRecord.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!record) return res.status(404).json({ success: false, message: 'Tibbiy yozuv topilmadi' });
 
     let attachments = req.body.attachments || record.attachments || [];
@@ -127,6 +154,7 @@ exports.updateMedicalRecord = async (req, res) => {
       attachments = [...attachments, ...uploaded];
     }
 
+    delete req.body.clinicId;
     await record.update({ ...req.body, attachments });
     res.status(200).json({ success: true, data: record });
   } catch (err) {
@@ -139,16 +167,19 @@ exports.searchMedicalRecord = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { complaints:      { [Op.iLike]: `%${query}%` } },
+        { diagnosis:       { [Op.iLike]: `%${query}%` } },
+        { treatmentDone:   { [Op.iLike]: `%${query}%` } },
+        { toothNumber:     { [Op.iLike]: `%${query}%` } },
+        { recommendations: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const records = await MedicalRecord.findAll({
-      where: {
-        [Op.or]: [
-          { complaints:      { [Op.iLike]: `%${query}%` } },
-          { diagnosis:       { [Op.iLike]: `%${query}%` } },
-          { treatmentDone:   { [Op.iLike]: `%${query}%` } },
-          { toothNumber:     { [Op.iLike]: `%${query}%` } },
-          { recommendations: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },
@@ -164,7 +195,9 @@ exports.searchMedicalRecord = async (req, res) => {
 
 exports.deleteMedicalRecord = async (req, res) => {
   try {
-    const record = await MedicalRecord.findByPk(req.params.id);
+    const record = await MedicalRecord.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!record) return res.status(404).json({ success: false, message: 'Tibbiy yozuv topilmadi' });
 
     await record.destroy();

@@ -4,26 +4,7 @@ const clinicController = require("../controller/clinicController");
 const { validate } = require("../middleware/validate");
 const { validateClinic } = require("../validations/clinicValidation");
 
-/**
- * @swagger
- * tags:
- *   name: Clinics
- *   description: Klinika boshqaruvi
- */
-
-/**
- * @swagger
- * /api/clinics:
- *   get:
- *     tags: [Clinics]
- *     summary: Barcha klinikalarni olish
- *     responses:
- *       200:
- *         description: Klinikalar ro'yxati
- *       500:
- *         description: Server xatosi
- */
-router.get("/clinics", clinicController.getClinics);
+const { authenticate } = require("../middleware/auth");
 
 /**
  * @swagger
@@ -65,6 +46,25 @@ router.get("/clinics", clinicController.getClinics);
  *         description: Server xatosi
  */
 router.post("/clinics/apply", clinicController.submitApplication);
+
+// All other clinic routes require authentication
+router.use(authenticate);
+
+/**
+ * @swagger
+ * /api/clinics:
+ *   get:
+ *     tags: [Clinics]
+ *     summary: Barcha klinikalarni olish
+ *     responses:
+ *       200:
+ *         description: Klinikalar ro'yxati
+ *       500:
+ *         description: Server xatosi
+ */
+router.get("/clinics", clinicController.getClinics);
+
+
 
 /**
  * @swagger

@@ -3,7 +3,7 @@ const router = express.Router();
 const financeController = require("../controller/financeController");
 const { validate } = require("../middleware/validate");
 const { validateInvoice } = require("../validations/invoiceValidation");
-const { authenticate } = require("../middleware/auth");
+const { authenticate, authorize } = require("../middleware/auth");
 
 router.use(authenticate);
 
@@ -37,7 +37,7 @@ router.use(authenticate);
  *       500:
  *         description: Server error
  */
-router.get("/finance/stats", financeController.getStats);
+router.get("/finance/stats", authorize('owner', 'accountant', 'administrator'), financeController.getStats);
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ router.get("/finance/stats", financeController.getStats);
  *       500:
  *         description: Server error
  */
-router.get("/finance/invoices", financeController.getInvoices);
+router.get("/finance/invoices", authorize('owner', 'accountant', 'administrator'), financeController.getInvoices);
 
 /**
  * @swagger
@@ -106,7 +106,7 @@ router.get("/finance/invoices", financeController.getInvoices);
  *       500:
  *         description: Server error
  */
-router.post("/finance/invoices", validate(validateInvoice), financeController.createInvoice);
+router.post("/finance/invoices", authorize('owner', 'accountant'), validate(validateInvoice), financeController.createInvoice);
 
 /**
  * @swagger
@@ -131,7 +131,7 @@ router.post("/finance/invoices", validate(validateInvoice), financeController.cr
  *       500:
  *         description: Server error
  */
-router.get("/finance/invoices/search", financeController.searchInvoice);
+router.get("/finance/invoices/search", authorize('owner', 'accountant', 'administrator'), financeController.searchInvoice);
 
 /**
  * @swagger
@@ -158,7 +158,7 @@ router.get("/finance/invoices/search", financeController.searchInvoice);
  *       500:
  *         description: Server error
  */
-router.get("/finance/invoices/:id", financeController.getInvoiceById);
+router.get("/finance/invoices/:id", authorize('owner', 'accountant', 'administrator'), financeController.getInvoiceById);
 
 /**
  * @swagger
@@ -198,7 +198,7 @@ router.get("/finance/invoices/:id", financeController.getInvoiceById);
  *       500:
  *         description: Server error
  */
-router.put("/finance/invoices/:id", validate(validateInvoice), financeController.updateInvoice);
+router.put("/finance/invoices/:id", authorize('owner', 'accountant'), validate(validateInvoice), financeController.updateInvoice);
 
 /**
  * @swagger
@@ -235,7 +235,7 @@ router.put("/finance/invoices/:id", validate(validateInvoice), financeController
  *       500:
  *         description: Server error
  */
-router.patch("/finance/invoices/:id/status", financeController.updateStatus);
+router.patch("/finance/invoices/:id/status", authorize('owner', 'accountant'), financeController.updateStatus);
 
 /**
  * @swagger
@@ -262,6 +262,6 @@ router.patch("/finance/invoices/:id/status", financeController.updateStatus);
  *       500:
  *         description: Server error
  */
-router.delete("/finance/invoices/:id", financeController.deleteInvoice);
+router.delete("/finance/invoices/:id", authorize('owner', 'accountant'), financeController.deleteInvoice);
 
 module.exports = router;

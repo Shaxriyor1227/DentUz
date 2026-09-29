@@ -3,6 +3,9 @@ const router = express.Router();
 const odontogramController = require("../controller/odontogramController");
 const { validate } = require("../middleware/validate");
 const { validateOdontogramUpdate } = require("../validations/odontogramValidation");
+const { authenticate, authorize } = require("../middleware/auth");
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -30,7 +33,7 @@ const { validateOdontogramUpdate } = require("../validations/odontogramValidatio
  *       500:
  *         description: Server error
  */
-router.get("/odontogram/:patientId", odontogramController.getOdontogramByPatient);
+router.get("/odontogram/:patientId", authorize('owner', 'doctor', 'administrator'), odontogramController.getOdontogramByPatient);
 
 /**
  * @swagger
@@ -76,7 +79,7 @@ router.get("/odontogram/:patientId", odontogramController.getOdontogramByPatient
  *       500:
  *         description: Server error
  */
-router.put("/odontogram/:patientId", validate(validateOdontogramUpdate), odontogramController.saveOdontogram);
+router.put("/odontogram/:patientId", authorize('owner', 'doctor'), validate(validateOdontogramUpdate), odontogramController.saveOdontogram);
 
 /**
  * @swagger
@@ -97,6 +100,6 @@ router.put("/odontogram/:patientId", validate(validateOdontogramUpdate), odontog
  *       500:
  *         description: Server error
  */
-router.get("/odontogram/:patientId/history", odontogramController.getOdontogramHistory);
+router.get("/odontogram/:patientId/history", authorize('owner', 'doctor', 'administrator'), odontogramController.getOdontogramHistory);
 
 module.exports = router;

@@ -208,6 +208,7 @@ export const appointmentsApi = {
         const res = await apiClient.get('/appointments');
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real API failed, fallback to local data:', e.message);
       }
     }
@@ -221,6 +222,7 @@ export const appointmentsApi = {
         const res = await apiClient.get('/appointments/today');
         if (res && res.data && Array.isArray(res.data) && res.data.length > 0) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real API failed, fallback to local data:', e.message);
       }
     }

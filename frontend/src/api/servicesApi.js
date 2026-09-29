@@ -34,6 +34,7 @@ export const servicesApi = {
           }
         }
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Services API getAll failed, using fallback:', e.message);
       }
     }
@@ -46,6 +47,7 @@ export const servicesApi = {
         const res = await apiClient.post('/services', serviceData);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Services API create failed:', e.message);
       }
     }

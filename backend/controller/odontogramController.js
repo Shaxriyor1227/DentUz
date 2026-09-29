@@ -1,37 +1,36 @@
-
 const { Odontogram, OdontogramHistory, Patient, User } = require('../models');
 const { validateOdontogramUpdate } = require('../validations/odontogramValidation');
-
 const { Op } = require('sequelize');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.getOdontogramByPatient = async (req, res) => {
   try {
     const rawId = req.params.patientId;
     const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
 
+    // Verify patient belongs to current tenant
     const patient = await Patient.findOne({
-      where: { id: { [Op.in]: possibleIds } }
+      where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
     });
 
-    const realPatientId = patient ? patient.id : (rawId.startsWith('P-') ? rawId : `P-${rawId}`);
+    if (!patient) {
+      return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+    }
 
     let odontogram = await Odontogram.findOne({
-      where: { patientId: realPatientId },
+      where: { patientId: patient.id },
       include: [
         { model: OdontogramHistory, as: 'history', limit: 20, order: [['createdAt', 'DESC']] },
         { model: Patient,           as: 'patient' },
       ],
     });
 
-    if (!odontogram && patient) {
+    if (!odontogram) {
       odontogram = await Odontogram.create({
         patientId: patient.id,
         teeth: {},
+        lastUpdatedBy: req.user?.id || null,
       });
-    }
-
-    if (!odontogram) {
-      return res.status(200).json({ success: true, data: { patientId: realPatientId, teeth: {} } });
     }
 
     res.status(200).json({ success: true, data: odontogram });
@@ -48,30 +47,25 @@ exports.saveOdontogram = async (req, res) => {
     const rawId = req.params.patientId;
     const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
 
-    let patient = await Patient.findOne({
-      where: { id: { [Op.in]: possibleIds } }
+    // Verify patient belongs to current tenant
+    const patient = await Patient.findOne({
+      where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
     });
 
-    const realPatientId = patient ? patient.id : (rawId.startsWith('P-') ? rawId : `P-${rawId}`);
     if (!patient) {
-      patient = await Patient.create({
-        id: realPatientId,
-        name: `Bemor ${realPatientId}`,
-        phone: '+998 90 000 00 00',
-        status: 'today'
-      });
+      return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
     }
 
     const { teeth, changedTooth, previousCondition, newCondition, notes } = req.body;
     const userId = req.user?.id || null;
 
     let odontogram = await Odontogram.findOne({
-      where: { patientId: realPatientId },
+      where: { patientId: patient.id },
     });
 
     if (!odontogram) {
       odontogram = await Odontogram.create({
-        patientId: realPatientId,
+        patientId: patient.id,
         teeth,
         lastUpdatedBy: userId,
       });
@@ -81,7 +75,7 @@ exports.saveOdontogram = async (req, res) => {
 
     await OdontogramHistory.create({
       odontogramId:      odontogram.id,
-      patientId:         realPatientId,
+      patientId:         patient.id,
       snapshot:          teeth,
       changedTooth,
       previousCondition,
@@ -98,8 +92,20 @@ exports.saveOdontogram = async (req, res) => {
 
 exports.getOdontogramHistory = async (req, res) => {
   try {
+    const rawId = req.params.patientId;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    // Verify patient belongs to current tenant
+    const patient = await Patient.findOne({
+      where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
+    });
+
+    if (!patient) {
+      return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+    }
+
     const history = await OdontogramHistory.findAll({
-      where: { patientId: req.params.patientId },
+      where: { patientId: patient.id },
       include: [{ model: User, as: 'author' }],
       order: [['createdAt', 'DESC']],
       limit: 50,

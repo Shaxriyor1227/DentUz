@@ -229,6 +229,7 @@ export const odontogramApi = {
           return merged;
         }
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Odontogram API getChart failed, fallback to local data:', e.message);
       }
     }
@@ -253,6 +254,7 @@ export const odontogramApi = {
           notes: updates.note || null,
         });
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Odontogram API updateTooth failed:', e.message);
       }
     }

@@ -1,15 +1,19 @@
-
-const { Inventory } = require('../models');
+const { Inventory, sequelize } = require('../models');
 const { validateInventory } = require('../validations/inventoryValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
+const { notifyLowStock } = require('../services/notificationService');
 
 exports.createInventory = async (req, res) => {
   const { error } = validateInventory(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const item = await Inventory.create(req.body);
+    const item = await Inventory.create({
+      ...req.body,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: item });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -19,7 +23,7 @@ exports.createInventory = async (req, res) => {
 exports.getInventories = async (req, res) => {
   try {
     const { category, lowStock, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (category) where.category = category;
@@ -33,6 +37,8 @@ exports.getInventories = async (req, res) => {
       ];
     }
 
+    where = withTenantScope(req, where);
+
     const { count, rows } = await Inventory.findAndCountAll({
       where,
       order: [['name', 'ASC']],
@@ -41,7 +47,7 @@ exports.getInventories = async (req, res) => {
     });
 
     const data = lowStock === 'true'
-      ? rows.filter((item) => item.quantity <= item.minQuantity)
+      ? rows.filter((item) => Number(item.quantity) <= Number(item.minQuantity))
       : rows;
 
     const paging = getPagingData({ count, rows }, page, lim);
@@ -57,7 +63,9 @@ exports.getInventories = async (req, res) => {
 
 exports.getInventoryById = async (req, res) => {
   try {
-    const item = await Inventory.findByPk(req.params.id);
+    const item = await Inventory.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!item) return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
     res.status(200).json({ success: true, data: item });
   } catch (err) {
@@ -70,9 +78,12 @@ exports.updateInventory = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const item = await Inventory.findByPk(req.params.id);
+    const item = await Inventory.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!item) return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
 
+    delete req.body.clinicId;
     await item.update(req.body);
     res.status(200).json({ success: true, data: item });
   } catch (err) {
@@ -80,21 +91,52 @@ exports.updateInventory = async (req, res) => {
   }
 };
 
+/**
+ * adjustQuantity: Atomic increment/decrement under transaction with row locking
+ * Ensures quantity cannot drop below 0.
+ */
 exports.adjustQuantity = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const { delta } = req.body;
-    if (typeof delta !== 'number') {
+    const delta = Number(req.body.delta !== undefined ? req.body.delta : req.body.quantity);
+    if (isNaN(delta)) {
+      await t.rollback();
       return res.status(400).json({ success: false, message: 'Delta raqam bo\'lishi shart' });
     }
 
-    const item = await Inventory.findByPk(req.params.id);
-    if (!item) return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
+    const item = await Inventory.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+      lock: t.LOCK.UPDATE,
+      transaction: t,
+    });
 
-    const newQuantity = Math.max(0, item.quantity + delta);
-    await item.update({ quantity: newQuantity });
+    if (!item) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
+    }
+
+    const currentQty = Number(item.quantity || 0);
+    if (currentQty + delta < 0) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: `Ombor qoldig'i yetarli emas. Hozirgi qoldiq: ${currentQty}, o'zgarish: ${delta}`,
+      });
+    }
+
+    // Atomic increment/decrement
+    await item.increment('quantity', { by: delta, transaction: t });
+    await item.reload({ transaction: t });
+
+    await t.commit();
+
+    if (Number(item.quantity) <= Number(item.minQuantity)) {
+      notifyLowStock(item, req.clinicId).catch(() => {});
+    }
 
     res.status(200).json({ success: true, data: item });
   } catch (err) {
+    await t.rollback();
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -104,14 +146,17 @@ exports.searchInventory = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { name:     { [Op.iLike]: `%${query}%` } },
+        { sku:      { [Op.iLike]: `%${query}%` } },
+        { supplier: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const items = await Inventory.findAll({
-      where: {
-        [Op.or]: [
-          { name:     { [Op.iLike]: `%${query}%` } },
-          { sku:      { [Op.iLike]: `%${query}%` } },
-          { supplier: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       limit: 50,
     });
 
@@ -123,7 +168,9 @@ exports.searchInventory = async (req, res) => {
 
 exports.deleteInventory = async (req, res) => {
   try {
-    const item = await Inventory.findByPk(req.params.id);
+    const item = await Inventory.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!item) return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
 
     const data = item.toJSON();

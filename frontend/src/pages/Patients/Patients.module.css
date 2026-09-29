@@ -802,6 +802,46 @@
   box-shadow: 0 6px 16px rgba(0, 180, 216, 0.4);
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 56px 24px;
+  gap: 12px;
+  min-height: 240px;
+  width: 100%;
+}
+
+.emptyIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--color-surface-container);
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+.emptyStateTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.emptyStateSubtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  max-width: 320px;
+  margin: 0;
+}
+
 .clearFilterBtn {
   padding: 8px 16px;
   font-family: var(--font-body);

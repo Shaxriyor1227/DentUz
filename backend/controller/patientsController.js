@@ -1,15 +1,26 @@
-
 const { Patient, Appointment, Invoice, Odontogram } = require('../models');
 const { validatePatient } = require('../validations/patientValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
+const { notifyPatientCreated } = require('../services/notificationService');
 
 exports.createPatient = async (req, res) => {
   const { error } = validatePatient(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const patient = await Patient.create(req.body);
+    const payload = { ...req.body };
+    if (!payload.id) {
+      payload.id = `P-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
+    }
+    payload.clinicId = req.clinicId;
+
+    const patient = await Patient.create(payload);
+
+    // Asynchronously create system notification
+    notifyPatientCreated(patient, req.clinicId).catch(() => {});
+
     res.status(201).json({ success: true, data: patient });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -20,7 +31,7 @@ exports.getPatients = async (req, res) => {
   try {
     const { search, status, filter, page, limit } = req.query;
     const activeFilter = filter || status;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (activeFilter && activeFilter !== 'all') {
@@ -44,17 +55,19 @@ exports.getPatients = async (req, res) => {
       ];
     }
 
+    where = withTenantScope(req, where);
+
     const [allCount, todayCount, scheduledCount, debtorCount] = await Promise.all([
-      Patient.count(),
-      Patient.count({ where: { status: 'today' } }),
-      Patient.count({ where: { status: 'scheduled' } }),
+      Patient.count({ where: withTenantScope(req) }),
+      Patient.count({ where: withTenantScope(req, { status: 'today' }) }),
+      Patient.count({ where: withTenantScope(req, { status: 'scheduled' }) }),
       Patient.count({
-        where: {
+        where: withTenantScope(req, {
           [Op.or]: [
             { status: 'debtor' },
             { balance: { [Op.lt]: 0 } },
           ],
-        },
+        }),
       }),
     ]);
 
@@ -93,10 +106,12 @@ exports.getPatientById = async (req, res) => {
     const rawId = req.params.id;
     const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
 
+    const where = withTenantScope(req, {
+      id: { [Op.in]: possibleIds },
+    });
+
     const patient = await Patient.findOne({
-      where: {
-        id: { [Op.in]: possibleIds }
-      },
+      where,
       include: [
         { model: Appointment, as: 'appointments' },
         { model: Invoice, as: 'invoices' },
@@ -115,9 +130,15 @@ exports.updatePatient = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const patient = await Patient.findByPk(req.params.id);
+    const rawId = req.params.id;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    const patient = await Patient.findOne({
+      where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
+    });
     if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
 
+    delete req.body.clinicId;
     await patient.update(req.body);
     res.status(200).json({ success: true, data: patient });
   } catch (err) {
@@ -127,7 +148,12 @@ exports.updatePatient = async (req, res) => {
 
 exports.deletePatient = async (req, res) => {
   try {
-    const patient = await Patient.findByPk(req.params.id);
+    const rawId = req.params.id;
+    const possibleIds = [rawId, rawId.startsWith('P-') ? rawId.slice(2) : `P-${rawId}`];
+
+    const patient = await Patient.findOne({
+      where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
+    });
     if (!patient) return res.status(404).json({ success: false, message: 'Bemor topilmadi' });
 
     const data = patient.toJSON();
@@ -143,14 +169,17 @@ exports.searchPatient = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${query}%` } },
+        { phone: { [Op.iLike]: `%${query}%` } },
+        { id: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const patients = await Patient.findAll({
-      where: {
-        [Op.or]: [
-          { name: { [Op.iLike]: `%${query}%` } },
-          { phone: { [Op.iLike]: `%${query}%` } },
-          { id: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       limit: 50,
     });
 

@@ -5,60 +5,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useSidebar } from '../../context/SidebarContext';
 import { patientsApi } from '../../api/patientsApi';
+import { notificationsApi } from '../../api/notificationsApi';
 import styles from './TopBar.module.css';
 
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: 'notif-1',
-    title: 'Yangi qabul belgilandi',
-    message: 'Nodir Ergashev - Gigiyenik tozalash (Bugun 12:00 da, Dr. Karimov)',
-    time: '5 daqiqa oldin',
-    read: false,
-    icon: 'calendar_month',
-    color: 'var(--color-cyan)',
-    link: '/calendar'
-  },
-  {
-    id: 'notif-2',
-    title: 'Bemor yetib keldi',
-    message: 'Anvar Qosimov qabulxona kutish zalida kutmoqda',
-    time: '15 daqiqa oldin',
-    read: false,
-    icon: 'person_check',
-    color: 'var(--color-mint)',
-    link: '/patients/1042'
-  },
-  {
-    id: 'notif-3',
-    title: 'Laboratoriya natijasi',
-    message: 'Malika Saidova: Qolip va sirkoniy toj tayyor',
-    time: '45 daqiqa oldin',
-    read: false,
-    icon: 'biotech',
-    color: '#3B82F6',
-    link: '/treatment-plan'
-  },
-  {
-    id: 'notif-4',
-    title: "To'lov qabul qilindi",
-    message: "Jamshid Karimov: 850 000 so'm (Karta orqali to'landi)",
-    time: '2 soat oldin',
-    read: true,
-    icon: 'payments',
-    color: '#10B981',
-    link: '/finance'
-  },
-  {
-    id: 'notif-5',
-    title: "Qabul vaqti ko'chirildi",
-    message: "Dilnoza Karimova qabulini ertaga soat 11:00 ga ko'chirdi",
-    time: '4 soat oldin',
-    read: true,
-    icon: 'schedule',
-    color: '#F59E0B',
-    link: '/calendar'
-  }
-];
 
 const ALL_SEARCH_ITEMS = [
   // Bemorlar
@@ -86,6 +35,38 @@ const ALL_SEARCH_ITEMS = [
   { id: 'act-3', category: 'actions', type: 'Amal', title: 'Davolash rejasini eksport qilish', meta: 'PDF hisobot chiqarish', keywords: 'chop etish yuklab olish pdf eksport', path: '/treatment-plan', icon: 'picture_as_pdf' },
   { id: 'act-4', category: 'actions', type: 'Amal', title: 'Mavzuni almashtirish', meta: "Tungi / Kunduzgi rejim (Dark/Light)", keywords: 'tungi kunduzgi fon mavzu theme dark light', actionType: 'toggle_theme', icon: 'dark_mode' }
 ];
+
+function formatRelativeTime(dateInput) {
+  if (!dateInput) return 'hozirgina';
+  const now = new Date();
+  const past = new Date(dateInput);
+  const diffMs = now - past;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffSec < 45) return 'hozirgina';
+  if (diffMin < 60) return `${diffMin} daqiqa oldin`;
+  if (diffHour < 24) return `${diffHour} soat oldin`;
+  if (diffDay === 1) return 'kecha';
+  if (diffDay < 7) return `${diffDay} kun oldin`;
+  return past.toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' });
+}
+
+function mapServerNotification(n) {
+  return {
+    id: n.id,
+    title: n.title,
+    message: n.body,
+    time: formatRelativeTime(n.createdAt || n.sentAt),
+    read: n.status === 'read',
+    icon: n.metadata?.icon || (n.type === 'payment' ? 'payments' : n.type === 'patient' ? 'person_add' : n.type === 'inventory' ? 'inventory_2' : 'notifications'),
+    color: n.metadata?.color || (n.type === 'payment' ? '#10B981' : n.type === 'patient' ? '#8B5CF6' : n.type === 'inventory' ? '#EF4444' : 'var(--color-cyan)'),
+    link: n.metadata?.link || '/calendar',
+    raw: n,
+  };
+}
 
 export default function TopBar() {
   const { t, i18n } = useTranslation();
@@ -127,11 +108,29 @@ export default function TopBar() {
     return () => { active = false; };
   }, []);
 
-  // Notifications state
+  // Notifications state (strictly loaded from backend, initially empty for new clinics)
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState('all'); // 'all' | 'unread'
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
   const notifRef = useRef(null);
+
+  // Real backend notifications synchronization
+  const fetchNotifications = async () => {
+    try {
+      const res = await notificationsApi.getAll({ limit: 40 });
+      if (res?.success && Array.isArray(res.data)) {
+        setNotifications(res.data.map(mapServerNotification));
+      }
+    } catch (err) {
+      console.warn('Backend notifications fetch fallback:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 20000); // 20s polling
+    return () => clearInterval(interval);
+  }, []);
 
   // Doctor Profile Popover State
   const [profileOpen, setProfileOpen] = useState(false);
@@ -238,8 +237,13 @@ export default function TopBar() {
     };
   }, [notifOpen, profileOpen, searchOpen]);
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await notificationsApi.markAllAsRead();
+    } catch (err) {
+      console.warn('Failed markAllAsRead:', err);
+    }
   };
 
   const handleNotificationClick = (item) => {
@@ -247,8 +251,22 @@ export default function TopBar() {
       prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
     );
     setNotifOpen(false);
+
+    if (item.raw?.id) {
+      notificationsApi.markAsRead(item.raw.id).catch(() => {});
+    }
+
     if (item.link) {
       navigate(item.link);
+    }
+  };
+
+  const handleClearAllNotifications = async () => {
+    setNotifications([]);
+    try {
+      await notificationsApi.clearAll();
+    } catch (err) {
+      console.warn('Failed clearAll:', err);
     }
   };
 
@@ -596,7 +614,7 @@ export default function TopBar() {
                     <button
                       type="button"
                       className={styles.clearNotifsBtn}
-                      onClick={() => setNotifications([])}
+                      onClick={handleClearAllNotifications}
                     >
                       {t('topbar.clearAll')}
                     </button>
@@ -702,34 +720,59 @@ export default function TopBar() {
                           </button>
                         )}
                       </div>
-                      <div className={styles.popDoctorClinic}>🏥 {user?.clinic || 'DentUz Markaziy Klinika'}</div>
+                      <div className={styles.popDoctorClinic}>
+                        {user?.role === 'superadmin' ? '🌐 DentUz SaaS Boshqaruvi' : `🏥 ${user?.clinic || 'DentUz Markaziy Klinika'}`}
+                      </div>
                     </div>
                   </div>
 
                   <div className={styles.popInfoGrid}>
-                    <div className={styles.popInfoItem}>
+                    <div className={`${styles.popInfoItem} ${styles.popInfoFull}`}>
                       <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Elektron pochta' : 'Email'}</span>
-                      <span className={styles.popInfoValue}>
-                        {typeof user?.email === 'string' ? user.email : (user?.email?.email || 'j.azimov@dentuz.uz')}
+                      <span className={styles.popInfoValue} title={typeof user?.email === 'string' ? user.email : (user?.email?.email || 'shaxriyorrozmamatov@dentuz.uz')}>
+                        {typeof user?.email === 'string' ? user.email : (user?.email?.email || 'shaxriyorrozmamatov@dentuz.uz')}
                       </span>
                     </div>
                     <div className={styles.popInfoItem}>
                       <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Telefon raqam' : 'Phone'}</span>
-                      <span className={styles.popInfoValue}>+998 (90) 123-45-67</span>
+                      <span className={styles.popInfoValue}>{user?.phone || '+998 (90) 123-45-67'}</span>
                     </div>
-                    <div className={styles.popInfoItem}>
-                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Klinika ID' : 'Clinic ID'}</span>
-                      <span className={styles.popInfoValue} style={{ color: 'var(--color-cyan)', fontWeight: 700 }}>#DENT-778</span>
-                    </div>
-                    <div className={styles.popInfoItem}>
-                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Litsenziya' : 'License'}</span>
-                      <span className={styles.popInfoValue}>SSV-UZ-2024-884</span>
-                    </div>
+                    {user?.role === 'superadmin' ? (
+                      <div className={styles.popInfoItem}>
+                        <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Tizim roli' : 'System Role'}</span>
+                        <span className={styles.popRoleBadge}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 13 }}>verified_user</span>
+                          SuperAdmin
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={styles.popInfoItem}>
+                        <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Klinika ID' : 'Clinic ID'}</span>
+                        <span className={styles.popInfoValue} style={{ color: 'var(--color-cyan)', fontWeight: 700 }}>
+                          #{user?.clinicId ? `DENT-${user.clinicId}` : 'DENT-778'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.popDivider} />
 
                   <div className={styles.popNavActions}>
+                    {user?.role === 'superadmin' && (
+                      <a
+                        href="/superadmin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.popActionLink}
+                        onClick={() => setProfileOpen(false)}
+                        style={{ color: '#06b6d4', fontWeight: 600, background: 'rgba(6, 182, 212, 0.08)' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ color: '#06b6d4' }}>admin_panel_settings</span>
+                        <span>{i18n.language === 'uz' ? 'SuperAdmin Portali' : 'SuperAdmin Portal'}</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, marginLeft: 'auto', opacity: 0.7 }}>open_in_new</span>
+                      </a>
+                    )}
+
                     <Link
                       to="/settings"
                       className={styles.popActionLink}
@@ -739,14 +782,16 @@ export default function TopBar() {
                       <span>{i18n.language === 'uz' ? 'Klinika va profil sozlamalari' : 'Clinic & Profile Settings'}</span>
                     </Link>
 
-                    <Link
-                      to="/finance"
-                      className={styles.popActionLink}
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      <span className="material-symbols-outlined">payments</span>
-                      <span>{i18n.language === 'uz' ? 'Shifokor ulushi va hisob-kitob' : 'Doctor KPI & Compensation'}</span>
-                    </Link>
+                    {user?.role !== 'superadmin' && (
+                      <Link
+                        to="/finance"
+                        className={styles.popActionLink}
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <span className="material-symbols-outlined">payments</span>
+                        <span>{i18n.language === 'uz' ? 'Shifokor ulushi va hisob-kitob' : 'Doctor KPI & Compensation'}</span>
+                      </Link>
+                    )}
                   </div>
 
                   <div className={styles.popDivider} />

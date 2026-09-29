@@ -1,15 +1,18 @@
-
 const { Service } = require('../models');
 const { validateService } = require('../validations/serviceValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.createService = async (req, res) => {
   const { error } = validateService(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const service = await Service.create(req.body);
+    const service = await Service.create({
+      ...req.body,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: service });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -19,7 +22,7 @@ exports.createService = async (req, res) => {
 exports.getServices = async (req, res) => {
   try {
     const { category, isActive, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (category) where.category = category;
@@ -33,6 +36,8 @@ exports.getServices = async (req, res) => {
         { description: { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await Service.findAndCountAll({
       where,
@@ -54,7 +59,9 @@ exports.getServices = async (req, res) => {
 
 exports.getServiceById = async (req, res) => {
   try {
-    const service = await Service.findByPk(req.params.id);
+    const service = await Service.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
     res.status(200).json({ success: true, data: service });
   } catch (err) {
@@ -67,9 +74,12 @@ exports.updateService = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const service = await Service.findByPk(req.params.id);
+    const service = await Service.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
 
+    delete req.body.clinicId;
     await service.update(req.body);
     res.status(200).json({ success: true, data: service });
   } catch (err) {
@@ -79,32 +89,14 @@ exports.updateService = async (req, res) => {
 
 exports.deleteService = async (req, res) => {
   try {
-    const service = await Service.findByPk(req.params.id);
+    const service = await Service.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!service) return res.status(404).json({ success: false, message: 'Xizmat topilmadi' });
 
+    const data = service.toJSON();
     await service.destroy();
-    res.status(200).json({ success: true, message: 'Xizmat o\'chirildi' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-exports.searchServices = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
-
-    const services = await Service.findAll({
-      where: {
-        [Op.or]: [
-          { name: { [Op.iLike]: `%${query}%` } },
-          { code: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
-      limit: 50,
-    });
-
-    res.status(200).json({ success: true, data: services });
+    res.status(200).json({ success: true, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -45,3 +45,7 @@ PostSQL/
 PostSQLzip/
 PostSQLzip_extracted/
 *.zip
+
+# Temporary scratch tests
+scratch/
+

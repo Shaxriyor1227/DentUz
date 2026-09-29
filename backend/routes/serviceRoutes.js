@@ -3,6 +3,9 @@ const router = express.Router();
 const serviceController = require('../controller/serviceController');
 const { validate } = require('../middleware/validate');
 const { validateService } = require('../validations/serviceValidation');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -63,7 +66,7 @@ const { validateService } = require('../validations/serviceValidation');
  *       500:
  *         description: Server error
  */
-router.post('/services', validate(validateService), serviceController.createService);
+router.post('/services', authorize('owner', 'administrator'), validate(validateService), serviceController.createService);
 
 /**
  * @swagger
@@ -93,7 +96,7 @@ router.post('/services', validate(validateService), serviceController.createServ
  *       500:
  *         description: Server error
  */
-router.get('/services', serviceController.getServices);
+router.get('/services', authorize('owner', 'doctor', 'administrator', 'accountant'), serviceController.getServices);
 
 /**
  * @swagger
@@ -118,7 +121,7 @@ router.get('/services', serviceController.getServices);
  *       500:
  *         description: Server error
  */
-router.get('/services/:id', serviceController.getServiceById);
+router.get('/services/:id', authorize('owner', 'doctor', 'administrator', 'accountant'), serviceController.getServiceById);
 
 /**
  * @swagger
@@ -166,7 +169,7 @@ router.get('/services/:id', serviceController.getServiceById);
  *       500:
  *         description: Server error
  */
-router.put('/services/:id', validate(validateService), serviceController.updateService);
+router.put('/services/:id', authorize('owner', 'administrator'), validate(validateService), serviceController.updateService);
 
 /**
  * @swagger
@@ -191,6 +194,6 @@ router.put('/services/:id', validate(validateService), serviceController.updateS
  *       500:
  *         description: Server error
  */
-router.delete('/services/:id', serviceController.deleteService);
+router.delete('/services/:id', authorize('owner', 'administrator'), serviceController.deleteService);
 
 module.exports = router;

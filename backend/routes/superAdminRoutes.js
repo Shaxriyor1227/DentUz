@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const superAdminController = require('../controller/superAdminController');
+const { authenticate, authorize } = require('../middleware/auth');
+
+// Protect all SuperAdmin endpoints - Only users with role 'superadmin' can access
+router.use(authenticate, authorize('superadmin'));
 
 /**
  * @swagger

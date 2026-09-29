@@ -221,6 +221,7 @@ export const financeApi = {
         const res = await apiClient.get(`/finance/stats?period=${period}`);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Finance API getStats failed, fallback to local data:', e.message);
       }
     }
@@ -234,6 +235,7 @@ export const financeApi = {
         const res = await apiClient.get('/finance/invoices');
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Finance API getInvoices failed, fallback to local data:', e.message);
       }
     }
@@ -247,6 +249,7 @@ export const financeApi = {
         const res = await apiClient.post('/finance/invoices', invoiceData);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Finance API createInvoice failed:', e.message);
       }
     }

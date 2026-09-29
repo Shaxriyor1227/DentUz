@@ -14,12 +14,14 @@ export function ProtectedRoute({ module, roles, children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  const defaultRedirect = user.role === 'superadmin' ? '/superadmin' : '/dashboard';
+
   if (module && !canAccess(module)) {
-    return <Navigate to="/app" replace />;
+    return <Navigate to={defaultRedirect} replace />;
   }
 
   if (roles && !hasRole(roles)) {
-    return <Navigate to="/app" replace />;
+    return <Navigate to={defaultRedirect} replace />;
   }
 
   return <>{children}</>;

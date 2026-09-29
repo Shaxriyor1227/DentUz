@@ -3,6 +3,7 @@ const router = express.Router();
 const teamController = require("../controller/teamController");
 const { validate } = require("../middleware/validate");
 const { validateUser } = require("../validations/userValidation");
+const { authorize } = require("../middleware/auth");
 
 /**
  * @swagger
@@ -23,7 +24,7 @@ const { validateUser } = require("../validations/userValidation");
  *       500:
  *         description: Server error
  */
-router.get("/team", teamController.getTeam);
+router.get("/team", authorize('owner', 'administrator', 'accountant'), teamController.getTeam);
 
 /**
  * @swagger
@@ -69,7 +70,7 @@ router.get("/team", teamController.getTeam);
  *       500:
  *         description: Server error
  */
-router.post("/team", validate(validateUser), teamController.addMember);
+router.post("/team", authorize('owner'), validate(validateUser), teamController.addMember);
 
 /**
  * @swagger
@@ -92,7 +93,7 @@ router.post("/team", validate(validateUser), teamController.addMember);
  *       500:
  *         description: Server error
  */
-router.get("/team/search", teamController.searchMember);
+router.get("/team/search", authorize('owner', 'administrator', 'accountant'), teamController.searchMember);
 
 /**
  * @swagger
@@ -117,7 +118,7 @@ router.get("/team/search", teamController.searchMember);
  *       500:
  *         description: Server error
  */
-router.get("/team/:id", teamController.getMemberById);
+router.get("/team/:id", authorize('owner', 'administrator', 'accountant'), teamController.getMemberById);
 
 /**
  * @swagger
@@ -157,7 +158,7 @@ router.get("/team/:id", teamController.getMemberById);
  *       500:
  *         description: Server error
  */
-router.put("/team/:id", validate(validateUser), teamController.updateMember);
+router.put("/team/:id", authorize('owner'), validate(validateUser), teamController.updateMember);
 
 /**
  * @swagger
@@ -184,6 +185,6 @@ router.put("/team/:id", validate(validateUser), teamController.updateMember);
  *       500:
  *         description: Server error
  */
-router.delete("/team/:id", teamController.removeMember);
+router.delete("/team/:id", authorize('owner'), teamController.removeMember);
 
 module.exports = router;

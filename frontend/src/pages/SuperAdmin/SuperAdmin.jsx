@@ -198,15 +198,34 @@ export default function SuperAdmin() {
 
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('dentuz_auth_token');
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  };
+
+  const authFetch = (url, options = {}) => {
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...(options.headers || {})
+      }
+    });
+  };
+
   // Load all initial data
   const loadData = async () => {
     setLoading(true);
     try {
       const [statsRes, appsRes, clinicsRes, usersRes] = await Promise.all([
-        fetch(`${baseUrl}/superadmin/stats`),
-        fetch(`${baseUrl}/superadmin/applications`),
-        fetch(`${baseUrl}/superadmin/clinics`),
-        fetch(`${baseUrl}/superadmin/users`),
+        authFetch(`${baseUrl}/superadmin/stats`),
+        authFetch(`${baseUrl}/superadmin/applications`),
+        authFetch(`${baseUrl}/superadmin/clinics`),
+        authFetch(`${baseUrl}/superadmin/users`),
       ]);
 
       if (statsRes.ok) {
@@ -315,7 +334,7 @@ export default function SuperAdmin() {
     e.preventDefault();
     setModalLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/superadmin/clinics/onboard`, {
+      const res = await authFetch(`${baseUrl}/superadmin/clinics/onboard`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -340,7 +359,7 @@ export default function SuperAdmin() {
     e.preventDefault();
     setModalLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/superadmin/users`, {
+      const res = await authFetch(`${baseUrl}/superadmin/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userFormData),
@@ -406,7 +425,7 @@ export default function SuperAdmin() {
   // Application actions
   const handleUpdateAppStatus = async (app, newStatus) => {
     try {
-      const res = await fetch(`${baseUrl}/superadmin/applications/${app.id}/status`, {
+      const res = await authFetch(`${baseUrl}/superadmin/applications/${app.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -431,7 +450,7 @@ export default function SuperAdmin() {
       isDanger: true,
       onConfirm: async () => {
         try {
-          const res = await fetch(`${baseUrl}/superadmin/applications/${app.id}`, {
+          const res = await authFetch(`${baseUrl}/superadmin/applications/${app.id}`, {
             method: 'DELETE',
           });
           if (res.ok) {
@@ -463,7 +482,7 @@ export default function SuperAdmin() {
       onConfirm: async () => {
         try {
           const newStatus = isActivating ? 'active' : 'suspended';
-          const res = await fetch(`${baseUrl}/superadmin/clinics/${clinic.id}/status`, {
+          const res = await authFetch(`${baseUrl}/superadmin/clinics/${clinic.id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus }),
@@ -500,7 +519,7 @@ export default function SuperAdmin() {
     }
     setExtendPlanModal((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await fetch(`${baseUrl}/superadmin/clinics/${extendPlanModal.clinic.id}/plan`, {
+      const res = await authFetch(`${baseUrl}/superadmin/clinics/${extendPlanModal.clinic.id}/plan`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -537,7 +556,7 @@ export default function SuperAdmin() {
     if (!roleModal.user) return;
     setRoleModal((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await fetch(`${baseUrl}/superadmin/users/${roleModal.user.id}/role`, {
+      const res = await authFetch(`${baseUrl}/superadmin/users/${roleModal.user.id}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: roleModal.selectedRole }),
@@ -574,7 +593,7 @@ export default function SuperAdmin() {
     }
     setPasswordModal((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await fetch(`${baseUrl}/superadmin/users/${passwordModal.user.id}/password`, {
+      const res = await authFetch(`${baseUrl}/superadmin/users/${passwordModal.user.id}/password`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: passwordModal.newPassword.trim() }),
@@ -615,7 +634,7 @@ export default function SuperAdmin() {
       isDanger: !isActivating,
       onConfirm: async () => {
         try {
-          const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}/status`, {
+          const res = await authFetch(`${baseUrl}/superadmin/users/${targetUser.id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ isActive: isActivating }),
@@ -644,7 +663,7 @@ export default function SuperAdmin() {
       isDanger: true,
       onConfirm: async () => {
         try {
-          const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}`, {
+          const res = await authFetch(`${baseUrl}/superadmin/users/${targetUser.id}`, {
             method: 'DELETE',
           });
           const data = await res.json();
@@ -820,6 +839,19 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
               <Icon name={theme === 'dark' ? 'light_mode' : 'dark_mode'} size={18} />
               <span>{theme === 'dark' ? "Yorug'" : 'Tungi'}</span>
             </button>
+
+            {/* Clinic OS Tab Link */}
+            <a
+              href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.themeToggleBtn}
+              style={{ textDecoration: 'none' }}
+              title="Klinika tizimini alohida tabda ochish"
+            >
+              <Icon name="storefront" size={18} />
+              <span>Klinika OS</span>
+            </a>
 
             {/* Admin Profile */}
             <div className={styles.adminProfile}>

@@ -1,15 +1,34 @@
-
 const { Invoice, Patient, Clinic } = require('../models');
 const { validateInvoice } = require('../validations/invoiceValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.createInvoice = async (req, res) => {
   const { error } = validateInvoice(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const invoice = await Invoice.create(req.body);
+    const { patientId } = req.body;
+    if (patientId) {
+      const patient = await Patient.findOne({
+        where: withTenantScope(req, { id: patientId }),
+      });
+      if (!patient) {
+        return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+      if (!req.body.patient) {
+        req.body.patient = patient.name;
+      }
+    }
+
+    const payload = { ...req.body };
+    if (!payload.id) {
+      payload.id = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
+    }
+    payload.clinicId = req.clinicId;
+
+    const invoice = await Invoice.create(payload);
     res.status(201).json({ success: true, data: invoice });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -19,7 +38,7 @@ exports.createInvoice = async (req, res) => {
 exports.getInvoices = async (req, res) => {
   try {
     const { status, patientId, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (status)    where.status    = status;
@@ -33,6 +52,8 @@ exports.getInvoices = async (req, res) => {
         { procedure: { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await Invoice.findAndCountAll({
       where,
@@ -55,7 +76,8 @@ exports.getInvoices = async (req, res) => {
 
 exports.getInvoiceById = async (req, res) => {
   try {
-    const invoice = await Invoice.findByPk(req.params.id, {
+    const invoice = await Invoice.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Patient, as: 'patientRecord' },
         { model: Clinic,  as: 'clinic'        },
@@ -73,9 +95,12 @@ exports.updateInvoice = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const invoice = await Invoice.findByPk(req.params.id);
+    const invoice = await Invoice.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!invoice) return res.status(404).json({ success: false, message: 'Hisob-faktura topilmadi' });
 
+    delete req.body.clinicId;
     await invoice.update(req.body);
     res.status(200).json({ success: true, data: invoice });
   } catch (err) {
@@ -85,7 +110,9 @@ exports.updateInvoice = async (req, res) => {
 
 exports.deleteInvoice = async (req, res) => {
   try {
-    const invoice = await Invoice.findByPk(req.params.id);
+    const invoice = await Invoice.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!invoice) return res.status(404).json({ success: false, message: 'Hisob-faktura topilmadi' });
 
     const data = invoice.toJSON();
@@ -101,14 +128,17 @@ exports.searchInvoice = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { patient:   { [Op.iLike]: `%${query}%` } },
+        { doctor:    { [Op.iLike]: `%${query}%` } },
+        { procedure: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const invoices = await Invoice.findAll({
-      where: {
-        [Op.or]: [
-          { patient:   { [Op.iLike]: `%${query}%` } },
-          { doctor:    { [Op.iLike]: `%${query}%` } },
-          { procedure: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       include: [{ model: Patient, as: 'patientRecord' }],
       limit: 50,
     });
@@ -136,7 +166,7 @@ exports.getStats = async (req, res) => {
       end   = now;
     }
 
-    const baseWhere = { date: { [Op.between]: [start, end] } };
+    const baseWhere = withTenantScope(req, { date: { [Op.between]: [start, end] } });
 
     const [paidSum, pendingSum, pendingCount] = await Promise.all([
       Invoice.sum('amount', { where: { ...baseWhere, status: 'paid' } }),
@@ -162,7 +192,9 @@ exports.getStats = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
   try {
-    const inv = await Invoice.findByPk(req.params.id);
+    const inv = await Invoice.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!inv) return res.status(404).json({ success: false, message: 'Hisob-faktura topilmadi' });
 
     await inv.update({ status: req.body.status });

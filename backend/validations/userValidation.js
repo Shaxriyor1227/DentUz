@@ -8,7 +8,7 @@ const validateUser = (user) => {
     title: Joi.string().allow('', null),
     email: Joi.string().required(),
     password: Joi.string().min(6),
-    role: Joi.string().valid('superadmin', 'owner', 'doctor', 'receptionist', 'nurse'),
+    role: Joi.string().valid('superadmin', 'owner', 'doctor', 'administrator', 'accountant', 'receptionist', 'nurse'),
     phone: Joi.string().allow('', null),
     avatarUrl: Joi.string().allow('', null),
     clinicId: Joi.string().uuid().allow('', null),

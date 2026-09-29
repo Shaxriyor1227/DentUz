@@ -1,15 +1,40 @@
-
 const { TreatmentPlan, Patient, Doctor } = require('../models');
 const { validateTreatmentPlan } = require('../validations/treatmentPlanValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.createTreatmentPlan = async (req, res) => {
   const { error } = validateTreatmentPlan(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const data = { ...req.body, id: req.body.id || `TR-${Date.now()}` };
+    const { patientId, doctorId } = req.body;
+
+    if (patientId) {
+      const patient = await Patient.findOne({
+        where: withTenantScope(req, { id: patientId }),
+      });
+      if (!patient) {
+        return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    if (doctorId) {
+      const doctor = await Doctor.findOne({
+        where: withTenantScope(req, { id: doctorId }),
+      });
+      if (!doctor) {
+        return res.status(404).json({ success: false, message: 'Shifokor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    const data = {
+      ...req.body,
+      id: req.body.id || `TR-${Date.now()}`,
+      clinicId: req.clinicId,
+    };
+
     const plan = await TreatmentPlan.create(data);
     res.status(201).json({ success: true, data: plan });
   } catch (err) {
@@ -20,7 +45,7 @@ exports.createTreatmentPlan = async (req, res) => {
 exports.getTreatmentPlans = async (req, res) => {
   try {
     const { patientId, doctorId, status, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (patientId) where.patientId = patientId;
@@ -35,6 +60,8 @@ exports.getTreatmentPlans = async (req, res) => {
         { notes:     { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await TreatmentPlan.findAndCountAll({
       where,
@@ -58,9 +85,16 @@ exports.getTreatmentPlans = async (req, res) => {
   }
 };
 
+exports.searchTreatmentPlan = async (req, res) => {
+  req.query.search = req.query.query || req.query.search || '';
+  return exports.getTreatmentPlans(req, res);
+};
+
+
 exports.getTreatmentPlanById = async (req, res) => {
   try {
-    const plan = await TreatmentPlan.findByPk(req.params.id, {
+    const plan = await TreatmentPlan.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },
@@ -78,9 +112,12 @@ exports.updateTreatmentPlan = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const plan = await TreatmentPlan.findByPk(req.params.id);
+    const plan = await TreatmentPlan.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!plan) return res.status(404).json({ success: false, message: 'Davolash rejasi topilmadi' });
 
+    delete req.body.clinicId;
     await plan.update(req.body);
     res.status(200).json({ success: true, data: plan });
   } catch (err) {
@@ -88,35 +125,11 @@ exports.updateTreatmentPlan = async (req, res) => {
   }
 };
 
-exports.searchTreatmentPlan = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
-
-    const plans = await TreatmentPlan.findAll({
-      where: {
-        [Op.or]: [
-          { title:     { [Op.iLike]: `%${query}%` } },
-          { diagnosis: { [Op.iLike]: `%${query}%` } },
-          { notes:     { [Op.iLike]: `%${query}%` } },
-        ],
-      },
-      include: [
-        { model: Patient, as: 'patient' },
-        { model: Doctor,  as: 'doctor'  },
-      ],
-      limit: 50,
-    });
-
-    res.status(200).json({ success: true, data: plans });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
 exports.deleteTreatmentPlan = async (req, res) => {
   try {
-    const plan = await TreatmentPlan.findByPk(req.params.id);
+    const plan = await TreatmentPlan.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!plan) return res.status(404).json({ success: false, message: 'Davolash rejasi topilmadi' });
 
     await plan.destroy();

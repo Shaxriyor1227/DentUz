@@ -1,14 +1,17 @@
-
 const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.createUser = async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const user = await User.create(req.body);
+    const user = await User.create({
+      ...req.body,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -17,11 +20,14 @@ exports.createUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
+    const where = withTenantScope(req, {});
     const users = await User.findAll({
+      where,
       include: [
         { model: Doctor, as: 'doctorProfile' },
         { model: Clinic, as: 'clinic'        },
       ],
+      order: [['createdAt', 'ASC']],
     });
     res.status(200).json({ success: true, data: users });
   } catch (err) {
@@ -31,7 +37,8 @@ exports.getUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id, {
+    const user = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Doctor, as: 'doctorProfile' },
         { model: Clinic, as: 'clinic'        },
@@ -49,9 +56,12 @@ exports.updateUser = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!user) return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
 
+    delete req.body.clinicId;
     await user.update(req.body);
     res.status(200).json({ success: true, data: user });
   } catch (err) {
@@ -61,8 +71,14 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!user) return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+
+    if (user.role === 'owner') {
+      return res.status(403).json({ success: false, message: 'Owner o\'chirilmaydi' });
+    }
 
     const data = user.toJSON();
     await user.destroy();
@@ -77,14 +93,17 @@ exports.searchUser = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { name:  { [Op.iLike]: `%${query}%` } },
+        { email: { [Op.iLike]: `%${query}%` } },
+        { phone: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const users = await User.findAll({
-      where: {
-        [Op.or]: [
-          { name:  { [Op.iLike]: `%${query}%` } },
-          { email: { [Op.iLike]: `%${query}%` } },
-          { phone: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       limit: 50,
     });
 

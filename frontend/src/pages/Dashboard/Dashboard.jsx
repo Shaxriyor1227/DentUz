@@ -59,9 +59,11 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation();
   usePageMeta(t('nav.dashboard') || 'Boshqaruv Paneli', "DentUz stomatologiya klinikasi asosiy boshqaruv paneli: kunlik qabullar, tushumlar va kreslolar bandligi.");
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { data: appointments, loading } = useApi(appointmentsApi.getToday, []);
-  const { data: financeStats } = useApi(financeApi.getStats, null);
+  const { user, canAccess } = useAuth();
+  const shouldFetchAppointments = canAccess('calendar') || canAccess('patients');
+  const shouldFetchFinance = canAccess('finance');
+  const { data: appointments, loading } = useApi(appointmentsApi.getToday, [], shouldFetchAppointments);
+  const { data: financeStats } = useApi(financeApi.getStats, null, shouldFetchFinance);
 
   const today = new Date();
 

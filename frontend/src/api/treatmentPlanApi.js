@@ -67,6 +67,7 @@ export const treatmentPlanApi = {
           return res.items || res.data;
         }
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real TreatmentPlan API getAll failed, using fallback:', e.message);
       }
     }
@@ -79,6 +80,7 @@ export const treatmentPlanApi = {
         const res = await apiClient.get(`/treatment-plans/${id}`);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real TreatmentPlan API getById failed:', e.message);
       }
     }

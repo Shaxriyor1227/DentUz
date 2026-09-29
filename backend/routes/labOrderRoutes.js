@@ -3,6 +3,9 @@ const router = express.Router();
 const labOrderController = require('../controller/labOrderController');
 const { validate } = require('../middleware/validate');
 const { validateLabOrder } = require('../validations/labOrderValidation');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -78,7 +81,7 @@ const { validateLabOrder } = require('../validations/labOrderValidation');
  *       500:
  *         description: Server error
  */
-router.post('/lab-orders', validate(validateLabOrder), labOrderController.createLabOrder);
+router.post('/lab-orders', authorize('owner', 'doctor'), validate(validateLabOrder), labOrderController.createLabOrder);
 
 /**
  * @swagger
@@ -101,7 +104,7 @@ router.post('/lab-orders', validate(validateLabOrder), labOrderController.create
  *       500:
  *         description: Server error
  */
-router.get('/lab-orders/search', labOrderController.searchLabOrder);
+router.get('/lab-orders/search', authorize('owner', 'doctor', 'administrator'), labOrderController.searchLabOrder);
 
 /**
  * @swagger
@@ -136,7 +139,7 @@ router.get('/lab-orders/search', labOrderController.searchLabOrder);
  *       500:
  *         description: Server error
  */
-router.get('/lab-orders', labOrderController.getLabOrders);
+router.get('/lab-orders', authorize('owner', 'doctor', 'administrator'), labOrderController.getLabOrders);
 
 /**
  * @swagger
@@ -162,7 +165,7 @@ router.get('/lab-orders', labOrderController.getLabOrders);
  *       500:
  *         description: Server error
  */
-router.get('/lab-orders/:id', labOrderController.getLabOrderById);
+router.get('/lab-orders/:id', authorize('owner', 'doctor', 'administrator'), labOrderController.getLabOrderById);
 
 /**
  * @swagger
@@ -205,7 +208,7 @@ router.get('/lab-orders/:id', labOrderController.getLabOrderById);
  *       500:
  *         description: Server error
  */
-router.put('/lab-orders/:id', validate(validateLabOrder), labOrderController.updateLabOrder);
+router.put('/lab-orders/:id', authorize('owner', 'doctor'), validate(validateLabOrder), labOrderController.updateLabOrder);
 
 /**
  * @swagger
@@ -231,6 +234,6 @@ router.put('/lab-orders/:id', validate(validateLabOrder), labOrderController.upd
  *       500:
  *         description: Server error
  */
-router.delete('/lab-orders/:id', labOrderController.deleteLabOrder);
+router.delete('/lab-orders/:id', authorize('owner', 'doctor'), labOrderController.deleteLabOrder);
 
 module.exports = router;

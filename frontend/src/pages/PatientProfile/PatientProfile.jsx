@@ -175,17 +175,17 @@ export default function PatientProfile() {
       setLoading(true);
       try {
         const [pat, chart, recs] = await Promise.all([
-          patientsApi.getById(id || '1042'),
-          odontogramApi.getChart(id || '1042'),
+          patientsApi.getById(id || '1042').catch(() => null),
+          odontogramApi.getChart(id || '1042').catch(() => ({})),
           medicalRecordsApi.getByPatient(id || '1042').catch(() => null)
         ]);
-        setPatient(pat);
-        setChartData(chart);
+        if (pat) setPatient(pat);
+        if (chart) setChartData(chart);
         if (recs && recs.length > 0) {
           setTreatments(recs);
         }
 
-        const initialTooth = chart['16'] || chart[Object.keys(chart)[0]];
+        const initialTooth = chart && (chart['16'] || (Object.keys(chart).length > 0 ? chart[Object.keys(chart)[0]] : null));
         if (initialTooth) {
           setSelectedToothId(initialTooth.id);
           setToothStatus(initialTooth.status);

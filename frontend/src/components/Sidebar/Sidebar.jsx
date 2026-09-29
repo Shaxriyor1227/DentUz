@@ -8,7 +8,7 @@ import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
   const { t } = useTranslation();
-  const { logout, canAccess } = useAuth();
+  const { user, logout, canAccess } = useAuth();
   const { collapsed, toggleSidebar, mobileOpen, closeMobileSidebar } = useSidebar();
   const navigate = useNavigate();
 
@@ -105,6 +105,40 @@ export default function Sidebar() {
                 </NavLink>
               </li>
             ))}
+            {user?.role === 'superadmin' && (
+              <li className={styles.navListItem}>
+                <a
+                  href="/superadmin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.navItem}
+                  style={{
+                    border: '1px dashed rgba(6, 182, 212, 0.4)',
+                    background: 'rgba(6, 182, 212, 0.06)',
+                    marginTop: '8px'
+                  }}
+                  title={collapsed ? 'SuperAdmin (Alohida tabda)' : undefined}
+                  onClick={closeMobileSidebar}
+                >
+                  <span className={`material-symbols-outlined ${styles.navIcon}`} style={{ color: '#06b6d4' }}>
+                    admin_panel_settings
+                  </span>
+                  {!collapsed && (
+                    <span className={styles.navLabel} style={{ color: '#06b6d4', fontWeight: 600 }}>
+                      SuperAdmin
+                    </span>
+                  )}
+                  {!collapsed && (
+                    <span className="material-symbols-outlined" style={{ fontSize: 16, marginLeft: 'auto', opacity: 0.6 }}>
+                      open_in_new
+                    </span>
+                  )}
+                  {collapsed && (
+                    <span className={styles.floatingTooltip}>SuperAdmin (Alohida tabda)</span>
+                  )}
+                </a>
+              </li>
+            )}
           </ul>
         </nav>
       </div>

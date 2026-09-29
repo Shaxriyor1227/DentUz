@@ -272,6 +272,9 @@ export const patientsApi = {
           };
         }
       } catch (err) {
+        if (err?.status === 401 || err?.status === 403) {
+          throw err;
+        }
         console.warn('Backend API unreachable, using local storage dataset:', err);
       }
     }
@@ -326,6 +329,9 @@ export const patientsApi = {
         const res = await apiClient.get(`/patients/${id}`);
         if (res && res.data) return res.data;
       } catch (err) {
+        if (err?.status === 401 || err?.status === 403) {
+          throw err;
+        }
         console.warn('Real Patient API getById failed, fallback to local:', err.message);
       }
     }
@@ -340,6 +346,9 @@ export const patientsApi = {
         const res = await apiClient.post('/patients', newPatient);
         if (res && res.data) return res.data;
       } catch (err) {
+        if (err?.status === 401 || err?.status === 403) {
+          throw err;
+        }
         console.warn('Real Patient API create failed, fallback to local:', err.message);
       }
     }

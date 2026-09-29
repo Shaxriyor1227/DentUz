@@ -1,21 +1,25 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '../api/client';
+import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from '../api/client';
 
 export const AuthContext = createContext(null);
 
 export const ROLES = {
-  SUPERADMIN: 'superadmin', // Platforma egasi / SaaS Boshqaruvchi
-  OWNER: 'owner',         // Bosh shifokor / Klinika egasi (Full access)
-  DOCTOR: 'doctor',       // Shifokor (Clinical, Patients, Odontogram, Calendar)
-  RECEPTIONIST: 'receptionist', // Administrator (Patients, Calendar, Finance, Billing)
-  NURSE: 'nurse'          // Hamshira (Patients view, Inventory)
+  SUPERADMIN: 'superadmin',       // Platforma egasi / SaaS Boshqaruvchi
+  OWNER: 'owner',                 // Bosh shifokor / Klinika egasi (Full access)
+  ADMINISTRATOR: 'administrator', // Klinika ma'muri (Operations, Staff, Patients, Finance view)
+  DOCTOR: 'doctor',               // Shifokor (Clinical, Patients, Odontogram, Calendar)
+  ACCOUNTANT: 'accountant',       // Buxgalter (Finance, Invoices, Payments, Inventory)
+  RECEPTIONIST: 'receptionist',   // Qabulxona (Patients, Calendar)
+  NURSE: 'nurse'                  // Hamshira (Patients view, Inventory)
 };
 
 export const ROLE_PERMISSIONS = {
   [ROLES.SUPERADMIN]: ['superadmin', 'dashboard', 'clinics', 'applications', 'analytics', 'settings'],
   [ROLES.OWNER]: ['dashboard', 'patients', 'calendar', 'treatment', 'finance', 'inventory', 'settings', 'analytics', 'team'],
+  [ROLES.ADMINISTRATOR]: ['dashboard', 'patients', 'calendar', 'treatment', 'finance', 'inventory', 'settings', 'analytics', 'team'],
   [ROLES.DOCTOR]: ['dashboard', 'patients', 'calendar', 'treatment'],
-  [ROLES.RECEPTIONIST]: ['dashboard', 'patients', 'calendar', 'finance', 'settings'],
+  [ROLES.ACCOUNTANT]: ['dashboard', 'finance', 'inventory'],
+  [ROLES.RECEPTIONIST]: ['dashboard', 'patients', 'calendar'],
   [ROLES.NURSE]: ['dashboard', 'patients', 'inventory']
 };
 
@@ -40,6 +44,16 @@ export const DEMO_USERS = {
     clinic: 'DentUz Markaziy Klinika',
     avatar: null
   },
+  administrator: {
+    id: 'usr-admin',
+    name: 'Dilshod Rahmatov',
+    shortName: 'D. Rahmatov',
+    title: 'Klinika Bosh Administratori',
+    role: ROLES.ADMINISTRATOR,
+    email: 'admin.dilshod@dentuz.uz',
+    clinic: 'DentUz Markaziy Klinika',
+    avatar: null
+  },
   doctor: {
     id: 'usr-2',
     name: 'Dr. Malika Saidova',
@@ -50,11 +64,21 @@ export const DEMO_USERS = {
     clinic: 'DentUz Markaziy Klinika',
     avatar: null
   },
+  accountant: {
+    id: 'usr-acc',
+    name: 'Nodira Qosimova',
+    shortName: 'N. Qosimova',
+    title: 'Bosh Buxgalter',
+    role: ROLES.ACCOUNTANT,
+    email: 'accountant@dentuz.uz',
+    clinic: 'DentUz Markaziy Klinika',
+    avatar: null
+  },
   receptionist: {
     id: 'usr-3',
     name: 'Bobur Mirzayev',
     shortName: 'B. Mirzayev',
-    title: 'Bosh Administrator',
+    title: 'Qabulxona Administratori',
     role: ROLES.RECEPTIONIST,
     email: 'admin@dentuz.uz',
     clinic: 'DentUz Markaziy Klinika',
@@ -138,41 +162,41 @@ export function AuthProvider({ children }) {
         const data = await res.json();
         if (data && data.success && data.token) {
           const userPayload = {
-            id: data.data?.id || 'usr-real',
-            name: data.data?.name || data.data?.shortName || identifier,
-            username: data.data?.username || null,
-            shortName: data.data?.shortName || data.data?.name || 'Foydalanuvchi',
-            title: data.data?.title || 'Stomatolog',
-            role: data.data?.role || ROLES.OWNER,
-            email: data.data?.email || identifier,
-            clinic: data.data?.clinic?.name || data.data?.clinic || 'DentUz Markaziy Klinika',
-            phone: data.data?.phone || '',
-            avatar: data.data?.avatarUrl || null
+            id: data.data?.id || data.user?.id || 'usr-real',
+            name: data.data?.name || data.user?.name || identifier,
+            username: data.data?.username || data.user?.username || null,
+            shortName: data.data?.shortName || data.user?.shortName || data.data?.name || 'Foydalanuvchi',
+            title: data.data?.title || data.user?.title || 'Stomatolog',
+            role: data.data?.role || data.user?.role || ROLES.OWNER,
+            email: data.data?.email || data.user?.email || identifier,
+            clinic: data.data?.clinic?.name || data.user?.clinic?.name || 'DentUz Markaziy Klinika',
+            phone: data.data?.phone || data.user?.phone || '',
+            avatar: data.data?.avatarUrl || data.user?.avatarUrl || null
           };
 
           setToken(data.token);
+          if (data.refreshToken) {
+            localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+          }
           setUser(userPayload);
           setIsAuthenticated(true);
           return { success: true, data: userPayload };
         }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        return {
+          success: false,
+          message: errData.message || 'Login yoki parol noto\'g\'ri'
+        };
       }
     } catch (err) {
-      console.warn('Real backend auth not reachable, applying local fallback:', err.message);
+      console.warn('Real backend auth not reachable:', err.message);
+      return {
+        success: false,
+        message: 'Serverga ulanib bo\'lmadi. Internet yoki backend ishlayotganini tekshiring.'
+      };
     }
-
-    // 2. Graceful fallback for offline demo or standalone frontend mode
-    const matchedUser = Object.values(DEMO_USERS).find((u) => u.email === email) || {
-      ...(DEMO_USERS[targetRole] || DEMO_USERS.owner),
-      email: email || DEMO_USERS.owner.email,
-      name: (typeof credentials === 'object' && credentials?.name) || DEMO_USERS.owner.name,
-      clinic: (typeof credentials === 'object' && credentials?.clinic) || DEMO_USERS.owner.clinic
-    };
-
-    const mockJwt = `jwt_${Date.now()}_${btoa(email || 'user')}`;
-    setToken(mockJwt);
-    setUser(matchedUser);
-    setIsAuthenticated(true);
-    return { success: true, data: matchedUser };
+    return { success: false, message: 'Autentifikatsiya amalga oshmadi' };
   };
 
   const switchRole = (roleKey) => {
@@ -189,6 +213,7 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
     localStorage.removeItem(USER_STORAGE_KEY);
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
   };
 
   /**

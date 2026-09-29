@@ -37,6 +37,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
       },
+      paidAmount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        defaultValue: 0,
+      },
       status: {
         type: DataTypes.ENUM('paid', 'pending', 'partial', 'cancelled'),
         defaultValue: 'pending',

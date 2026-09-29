@@ -121,6 +121,7 @@ export const teamApi = {
           }));
         }
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Team API getTeam failed, fallback to local data:', e.message);
       }
     }
@@ -134,6 +135,7 @@ export const teamApi = {
         const res = await apiClient.post('/team', member);
         if (res && res.data) return res.data;
       } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Team API addMember failed:', e.message);
       }
     }

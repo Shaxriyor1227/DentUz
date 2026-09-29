@@ -258,7 +258,7 @@ export default function Settings() {
       setLoading(true);
       try {
         const [teamData, servicesData] = await Promise.all([
-          teamApi.getTeam(),
+          teamApi.getTeam().catch(() => null),
           servicesApi.getAll().catch(() => null)
         ]);
         if (teamData) setTeam(teamData);

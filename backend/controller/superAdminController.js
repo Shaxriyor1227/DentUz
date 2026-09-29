@@ -141,26 +141,44 @@ exports.getClinics = async (req, res) => {
       ],
     });
 
-    // Har bir klinika uchun shifokorlar, barcha xodimlar va bemorlar sonini qo'shib berish
-    const enrichedClinics = await Promise.all(
-      clinics.map(async (c) => {
-        const [doctorsCount, staffCount, patientsCount] = await Promise.all([
-          Doctor.count({ where: { clinicId: c.id } }),
-          User.count({ where: { clinicId: c.id } }),
-          Patient.count({ where: { clinicId: c.id } }),
-        ]);
+    // N+1 Query Fix: 3 bulk aggregate queries with GROUP BY instead of loop queries
+    const clinicIds = clinics.map((c) => c.id);
 
-        const owner = c.users && c.users.find((u) => u.role === 'owner');
+    const [doctorCounts, staffCounts, patientCounts] = await Promise.all([
+      Doctor.findAll({
+        attributes: ['clinicId', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+        where: { clinicId: clinicIds },
+        group: ['clinicId'],
+        raw: true,
+      }),
+      User.findAll({
+        attributes: ['clinicId', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+        where: { clinicId: clinicIds },
+        group: ['clinicId'],
+        raw: true,
+      }),
+      Patient.findAll({
+        attributes: ['clinicId', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+        where: { clinicId: clinicIds },
+        group: ['clinicId'],
+        raw: true,
+      }),
+    ]);
 
-        return {
-          ...c.toJSON(),
-          owner: owner || null,
-          doctorsCount,
-          staffCount,
-          patientsCount,
-        };
-      })
-    );
+    const doctorMap = Object.fromEntries(doctorCounts.map((r) => [r.clinicId, parseInt(r.count, 10)]));
+    const staffMap = Object.fromEntries(staffCounts.map((r) => [r.clinicId, parseInt(r.count, 10)]));
+    const patientMap = Object.fromEntries(patientCounts.map((r) => [r.clinicId, parseInt(r.count, 10)]));
+
+    const enrichedClinics = clinics.map((c) => {
+      const owner = c.users && c.users.find((u) => u.role === 'owner');
+      return {
+        ...c.toJSON(),
+        owner: owner || null,
+        doctorsCount: doctorMap[c.id] || 0,
+        staffCount: staffMap[c.id] || 0,
+        patientsCount: patientMap[c.id] || 0,
+      };
+    });
 
     res.status(200).json({
       success: true,

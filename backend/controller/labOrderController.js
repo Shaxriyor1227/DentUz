@@ -1,15 +1,38 @@
-
 const { LabOrder, Patient, Doctor } = require('../models');
 const { validateLabOrder } = require('../validations/labOrderValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
+const { notifyLabOrderReady } = require('../services/notificationService');
 
 exports.createLabOrder = async (req, res) => {
   const { error } = validateLabOrder(req.body);
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const order = await LabOrder.create(req.body);
+    const { patientId, doctorId } = req.body;
+    if (patientId) {
+      const patient = await Patient.findOne({
+        where: withTenantScope(req, { id: patientId }),
+      });
+      if (!patient) {
+        return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    if (doctorId) {
+      const doctor = await Doctor.findOne({
+        where: withTenantScope(req, { id: doctorId }),
+      });
+      if (!doctor) {
+        return res.status(404).json({ success: false, message: 'Shifokor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    const order = await LabOrder.create({
+      ...req.body,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -19,7 +42,7 @@ exports.createLabOrder = async (req, res) => {
 exports.getLabOrders = async (req, res) => {
   try {
     const { patientId, doctorId, status, search, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (patientId) where.patientId = patientId;
@@ -35,6 +58,8 @@ exports.getLabOrders = async (req, res) => {
         { notes:         { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await LabOrder.findAndCountAll({
       where,
@@ -58,15 +83,22 @@ exports.getLabOrders = async (req, res) => {
   }
 };
 
+exports.searchLabOrder = async (req, res) => {
+  req.query.search = req.query.query || req.query.search || '';
+  return exports.getLabOrders(req, res);
+};
+
+
 exports.getLabOrderById = async (req, res) => {
   try {
-    const order = await LabOrder.findByPk(req.params.id, {
+    const order = await LabOrder.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },
       ],
     });
-    if (!order) return res.status(404).json({ success: false, message: 'Lab buyurtmasi topilmadi' });
+    if (!order) return res.status(404).json({ success: false, message: 'Laboratoriya buyurtmasi topilmadi' });
     res.status(200).json({ success: true, data: order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -78,37 +110,21 @@ exports.updateLabOrder = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const order = await LabOrder.findByPk(req.params.id);
-    if (!order) return res.status(404).json({ success: false, message: 'Lab buyurtmasi topilmadi' });
-
-    await order.update(req.body);
-    res.status(200).json({ success: true, data: order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-exports.searchLabOrder = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
-
-    const orders = await LabOrder.findAll({
-      where: {
-        [Op.or]: [
-          { orderNumber:    { [Op.iLike]: `%${query}%` } },
-          { technicianName: { [Op.iLike]: `%${query}%` } },
-          { notes:          { [Op.iLike]: `%${query}%` } },
-        ],
-      },
-      include: [
-        { model: Patient, as: 'patient' },
-        { model: Doctor,  as: 'doctor'  },
-      ],
-      limit: 50,
+    const order = await LabOrder.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
     });
+    if (!order) return res.status(404).json({ success: false, message: 'Laboratoriya buyurtmasi topilmadi' });
 
-    res.status(200).json({ success: true, data: orders });
+    delete req.body.clinicId;
+    const oldStatus = order.status;
+    await order.update(req.body);
+
+    if (['completed', 'ready', 'delivered'].includes(req.body.status) && oldStatus !== req.body.status) {
+      const patient = await Patient.findOne({ where: withTenantScope(req, { id: order.patientId }) });
+      notifyLabOrderReady(order, patient, req.clinicId).catch(() => {});
+    }
+
+    res.status(200).json({ success: true, data: order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -116,11 +132,13 @@ exports.searchLabOrder = async (req, res) => {
 
 exports.deleteLabOrder = async (req, res) => {
   try {
-    const order = await LabOrder.findByPk(req.params.id);
-    if (!order) return res.status(404).json({ success: false, message: 'Lab buyurtmasi topilmadi' });
+    const order = await LabOrder.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
+    if (!order) return res.status(404).json({ success: false, message: 'Laboratoriya buyurtmasi topilmadi' });
 
     await order.destroy();
-    res.status(200).json({ success: true, message: 'Lab buyurtmasi o\'chirildi' });
+    res.status(200).json({ success: true, message: 'Laboratoriya buyurtmasi o\'chirildi' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

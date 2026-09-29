@@ -1,8 +1,9 @@
-
 const { Appointment, Patient, Doctor, Clinic } = require('../models');
 const { validateAppointment } = require('../validations/appointmentValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
+const { notifyAppointmentCreated, notifyAppointmentUpdated } = require('../services/notificationService');
 
 exports.createAppointment = async (req, res) => {
   const { error } = validateAppointment(req.body);
@@ -14,53 +15,67 @@ exports.createAppointment = async (req, res) => {
       payload.id = `apt-${Date.now()}`;
     }
 
-    // Resolve or Auto-create Patient to satisfy foreign key constraint
-    let patientId = payload.patientId;
-    if (!patientId && payload.patientName) {
-      let patient = await Patient.findOne({
-        where: { name: payload.patientName.trim() }
+    // Always enforce tenant clinicId
+    payload.clinicId = req.clinicId;
+
+    // Check doctor belongs to this clinic
+    let foundDoctor = null;
+    if (payload.doctorId) {
+      foundDoctor = await Doctor.findOne({
+        where: withTenantScope(req, { id: payload.doctorId }),
       });
-      if (!patient) {
-        const count = await Patient.count();
-        patient = await Patient.create({
+      if (!foundDoctor) {
+        return res.status(404).json({ success: false, message: 'Shifokor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+    }
+
+    // Resolve or create Patient scoped to this clinic
+    let patientId = payload.patientId;
+    let foundPatient = null;
+    if (patientId) {
+      const possibleIds = [patientId, patientId.startsWith('P-') ? patientId.slice(2) : `P-${patientId}`];
+      foundPatient = await Patient.findOne({
+        where: withTenantScope(req, { id: { [Op.in]: possibleIds } }),
+      });
+      if (!foundPatient) {
+        return res.status(404).json({ success: false, message: 'Bemor topilmadi yoki ushbu klinikaga tegishli emas' });
+      }
+      patientId = foundPatient.id;
+    } else if (payload.patientName) {
+      foundPatient = await Patient.findOne({
+        where: withTenantScope(req, { name: payload.patientName.trim() }),
+      });
+      if (!foundPatient) {
+        const count = await Patient.count({ where: withTenantScope(req) });
+        foundPatient = await Patient.create({
           id: `P-${1042 + count + 1}`,
           name: payload.patientName.trim(),
           phone: payload.patientPhone || '+998 90 000 00 00',
-          status: 'today'
+          status: 'today',
+          clinicId: req.clinicId,
         });
       }
-      patientId = patient.id;
-    } else if (patientId) {
-      // Check if patient exists, if not normalize or create
-      const possibleIds = [patientId, patientId.startsWith('P-') ? patientId.slice(2) : `P-${patientId}`];
-      let patient = await Patient.findOne({
-        where: { id: { [Op.in]: possibleIds } }
-      });
-      if (!patient) {
-        patient = await Patient.create({
-          id: patientId.startsWith('P-') ? patientId : `P-${patientId}`,
-          name: payload.patientName || `Bemor ${patientId}`,
-          phone: payload.patientPhone || '+998 90 000 00 00',
-          status: 'today'
-        });
-      }
-      patientId = patient.id;
+      patientId = foundPatient.id;
     } else {
-      // Default fallback patient if both are empty
-      let defaultPatient = await Patient.findOne();
-      if (!defaultPatient) {
-        defaultPatient = await Patient.create({
-          id: 'P-1042',
+      foundPatient = await Patient.findOne({ where: withTenantScope(req) });
+      if (!foundPatient) {
+        foundPatient = await Patient.create({
+          id: `P-${Date.now()}`,
           name: 'Noma\'lum Bemor',
-          phone: '+998 90 000 00 00'
+          phone: '+998 90 000 00 00',
+          clinicId: req.clinicId,
         });
       }
-      patientId = defaultPatient.id;
+      patientId = foundPatient.id;
     }
 
     payload.patientId = patientId;
 
     const appointment = await Appointment.create(payload);
+
+    // Asynchronously trigger notification
+    notifyAppointmentCreated(appointment, foundPatient, foundDoctor, req.clinicId).catch(() => {});
+
     res.status(201).json({ success: true, data: appointment });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -70,13 +85,15 @@ exports.createAppointment = async (req, res) => {
 exports.getAppointments = async (req, res) => {
   try {
     const { status, doctorId, patientId, date, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (status)    where.status    = status;
     if (doctorId)  where.doctorId  = doctorId;
     if (patientId) where.patientId = patientId;
     if (date)      where.date      = date;
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await Appointment.findAndCountAll({
       where,
@@ -103,8 +120,10 @@ exports.getAppointments = async (req, res) => {
 exports.getTodayAppointments = async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
+    const where = withTenantScope(req, { date: today });
+
     const appointments = await Appointment.findAll({
-      where: { date: today },
+      where,
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },
@@ -119,7 +138,8 @@ exports.getTodayAppointments = async (req, res) => {
 
 exports.getAppointmentById = async (req, res) => {
   try {
-    const appointment = await Appointment.findByPk(req.params.id, {
+    const appointment = await Appointment.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },
@@ -138,10 +158,38 @@ exports.updateAppointment = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const appointment = await Appointment.findByPk(req.params.id);
+    const appointment = await Appointment.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!appointment) return res.status(404).json({ success: false, message: 'Qabulxona topilmadi' });
 
+    const prevDate = appointment.date;
+    const prevTime = appointment.time;
+    const prevStatus = appointment.status;
+
+    delete req.body.clinicId;
     await appointment.update(req.body);
+
+    // If date, time, or status changed, notify clinic
+    const isRescheduled = (req.body.date && req.body.date !== prevDate) || (req.body.time && req.body.time !== prevTime);
+    const isStatusChanged = req.body.status && req.body.status !== prevStatus;
+
+    if (isRescheduled || isStatusChanged) {
+      let statusDesc = '';
+      if (isRescheduled) {
+        statusDesc = `qabul vaqti ${appointment.date} soat ${appointment.time || ''} ga ko'chirildi`;
+      } else if (req.body.status === 'cancelled') {
+        statusDesc = 'qabuli bekor qilindi';
+      } else if (req.body.status === 'completed') {
+        statusDesc = 'muolajasi yakunlandi';
+      } else {
+        statusDesc = `holati "${req.body.status}" ga o'zgartirildi`;
+      }
+
+      const patient = await Patient.findOne({ where: withTenantScope(req, { id: appointment.patientId }) });
+      notifyAppointmentUpdated(appointment, patient, statusDesc, req.clinicId).catch(() => {});
+    }
+
     res.status(200).json({ success: true, data: appointment });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -150,7 +198,9 @@ exports.updateAppointment = async (req, res) => {
 
 exports.deleteAppointment = async (req, res) => {
   try {
-    const appointment = await Appointment.findByPk(req.params.id);
+    const appointment = await Appointment.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!appointment) return res.status(404).json({ success: false, message: 'Qabulxona topilmadi' });
 
     const data = appointment.toJSON();
@@ -166,14 +216,17 @@ exports.searchAppointment = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { patientName: { [Op.iLike]: `%${query}%` } },
+        { procedure:   { [Op.iLike]: `%${query}%` } },
+        { doctorName:  { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const appointments = await Appointment.findAll({
-      where: {
-        [Op.or]: [
-          { patientName: { [Op.iLike]: `%${query}%` } },
-          { procedure:   { [Op.iLike]: `%${query}%` } },
-          { doctorName:  { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       include: [
         { model: Patient, as: 'patient' },
         { model: Doctor,  as: 'doctor'  },

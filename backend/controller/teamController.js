@@ -1,13 +1,13 @@
-
 const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { withTenantScope } = require('../utils/tenantScope');
 
 exports.getTeam = async (req, res) => {
   try {
     const { search, role, page, limit } = req.query;
-    const where = {};
+    let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
     if (role) where.role = role;
@@ -20,6 +20,8 @@ exports.getTeam = async (req, res) => {
         { phone: { [Op.iLike]: `%${q}%` } },
       ];
     }
+
+    where = withTenantScope(req, where);
 
     const { count, rows } = await User.findAndCountAll({
       where,
@@ -45,7 +47,8 @@ exports.getTeam = async (req, res) => {
 
 exports.getMemberById = async (req, res) => {
   try {
-    const member = await User.findByPk(req.params.id, {
+    const member = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
       include: [{ model: Doctor, as: 'doctorProfile' }],
     });
     if (!member) return res.status(404).json({ success: false, message: 'Xodim topilmadi' });
@@ -60,7 +63,10 @@ exports.addMember = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const user = await User.create(req.body);
+    const user = await User.create({
+      ...req.body,
+      clinicId: req.clinicId,
+    });
     res.status(201).json({ success: true, data: user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -72,9 +78,12 @@ exports.updateMember = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!user) return res.status(404).json({ success: false, message: 'Xodim topilmadi' });
 
+    delete req.body.clinicId;
     await user.update(req.body);
     res.status(200).json({ success: true, data: user });
   } catch (err) {
@@ -84,7 +93,9 @@ exports.updateMember = async (req, res) => {
 
 exports.removeMember = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findOne({
+      where: withTenantScope(req, { id: req.params.id }),
+    });
     if (!user) return res.status(404).json({ success: false, message: 'Xodim topilmadi' });
 
     if (user.role === 'owner') {
@@ -104,14 +115,17 @@ exports.searchMember = async (req, res) => {
     const { query } = req.query;
     if (!query) return res.status(400).json({ success: false, message: 'Qidiruv so\'zi kiritilmadi' });
 
+    let where = {
+      [Op.or]: [
+        { name:  { [Op.iLike]: `%${query}%` } },
+        { email: { [Op.iLike]: `%${query}%` } },
+        { phone: { [Op.iLike]: `%${query}%` } },
+      ],
+    };
+    where = withTenantScope(req, where);
+
     const members = await User.findAll({
-      where: {
-        [Op.or]: [
-          { name:  { [Op.iLike]: `%${query}%` } },
-          { email: { [Op.iLike]: `%${query}%` } },
-          { phone: { [Op.iLike]: `%${query}%` } },
-        ],
-      },
+      where,
       include: [{ model: Doctor, as: 'doctorProfile' }],
       limit: 50,
     });

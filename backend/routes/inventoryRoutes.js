@@ -3,6 +3,9 @@ const router = express.Router();
 const inventoryController = require('../controller/inventoryController');
 const { validate } = require('../middleware/validate');
 const { validateInventory } = require('../validations/inventoryValidation');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -67,7 +70,7 @@ const { validateInventory } = require('../validations/inventoryValidation');
  *       500:
  *         description: Server error
  */
-router.post('/inventory', validate(validateInventory), inventoryController.createInventory);
+router.post('/inventory', authorize('owner', 'administrator'), validate(validateInventory), inventoryController.createInventory);
 
 /**
  * @swagger
@@ -93,7 +96,7 @@ router.post('/inventory', validate(validateInventory), inventoryController.creat
  *       500:
  *         description: Server error
  */
-router.get('/inventory', inventoryController.getInventories);
+router.get('/inventory', authorize('owner', 'administrator', 'doctor'), inventoryController.getInventories);
 
 /**
  * @swagger
@@ -116,7 +119,7 @@ router.get('/inventory', inventoryController.getInventories);
  *       500:
  *         description: Server error
  */
-router.get('/inventory/search', inventoryController.searchInventory);
+router.get('/inventory/search', authorize('owner', 'administrator', 'doctor'), inventoryController.searchInventory);
 
 /**
  * @swagger
@@ -142,7 +145,7 @@ router.get('/inventory/search', inventoryController.searchInventory);
  *       500:
  *         description: Server error
  */
-router.get('/inventory/:id', inventoryController.getInventoryById);
+router.get('/inventory/:id', authorize('owner', 'administrator', 'doctor'), inventoryController.getInventoryById);
 
 /**
  * @swagger
@@ -187,7 +190,7 @@ router.get('/inventory/:id', inventoryController.getInventoryById);
  *       500:
  *         description: Server error
  */
-router.put('/inventory/:id', validate(validateInventory), inventoryController.updateInventory);
+router.put('/inventory/:id', authorize('owner', 'administrator'), validate(validateInventory), inventoryController.updateInventory);
 
 /**
  * @swagger
@@ -226,7 +229,7 @@ router.put('/inventory/:id', validate(validateInventory), inventoryController.up
  *       500:
  *         description: Server error
  */
-router.patch('/inventory/:id/adjust', inventoryController.adjustQuantity);
+router.patch('/inventory/:id/adjust', authorize('owner', 'administrator'), inventoryController.adjustQuantity);
 
 /**
  * @swagger
@@ -252,6 +255,6 @@ router.patch('/inventory/:id/adjust', inventoryController.adjustQuantity);
  *       500:
  *         description: Server error
  */
-router.delete('/inventory/:id', inventoryController.deleteInventory);
+router.delete('/inventory/:id', authorize('owner', 'administrator'), inventoryController.deleteInventory);
 
 module.exports = router;

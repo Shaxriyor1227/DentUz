@@ -193,6 +193,7 @@ router.put("/notifications/:id/read", notificationController.markAsRead);
  *       500:
  *         description: Server xatosi
  */
+router.delete("/notifications/clear-all", notificationController.clearAllNotifications);
 router.delete("/notifications/:id", notificationController.deleteNotification);
 
 module.exports = router;

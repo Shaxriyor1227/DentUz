@@ -3,6 +3,9 @@ const router = express.Router();
 const treatmentPlanController = require('../controller/treatmentPlanController');
 const { validate } = require('../middleware/validate');
 const { validateTreatmentPlan } = require('../validations/treatmentPlanValidation');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -85,7 +88,7 @@ const { validateTreatmentPlan } = require('../validations/treatmentPlanValidatio
  *       500:
  *         description: Server error
  */
-router.post('/treatment-plans', validate(validateTreatmentPlan), treatmentPlanController.createTreatmentPlan);
+router.post('/treatment-plans', authorize('owner', 'doctor'), validate(validateTreatmentPlan), treatmentPlanController.createTreatmentPlan);
 
 /**
  * @swagger
@@ -108,7 +111,7 @@ router.post('/treatment-plans', validate(validateTreatmentPlan), treatmentPlanCo
  *       500:
  *         description: Server error
  */
-router.get('/treatment-plans/search', treatmentPlanController.searchTreatmentPlan);
+router.get('/treatment-plans/search', authorize('owner', 'doctor', 'administrator'), treatmentPlanController.searchTreatmentPlan);
 
 /**
  * @swagger
@@ -138,7 +141,7 @@ router.get('/treatment-plans/search', treatmentPlanController.searchTreatmentPla
  *       500:
  *         description: Server error
  */
-router.get('/treatment-plans', treatmentPlanController.getTreatmentPlans);
+router.get('/treatment-plans', authorize('owner', 'doctor', 'administrator'), treatmentPlanController.getTreatmentPlans);
 
 /**
  * @swagger
@@ -163,7 +166,7 @@ router.get('/treatment-plans', treatmentPlanController.getTreatmentPlans);
  *       500:
  *         description: Server error
  */
-router.get('/treatment-plans/:id', treatmentPlanController.getTreatmentPlanById);
+router.get('/treatment-plans/:id', authorize('owner', 'doctor', 'administrator'), treatmentPlanController.getTreatmentPlanById);
 
 /**
  * @swagger
@@ -211,7 +214,7 @@ router.get('/treatment-plans/:id', treatmentPlanController.getTreatmentPlanById)
  *       500:
  *         description: Server error
  */
-router.put('/treatment-plans/:id', validate(validateTreatmentPlan), treatmentPlanController.updateTreatmentPlan);
+router.put('/treatment-plans/:id', authorize('owner', 'doctor'), validate(validateTreatmentPlan), treatmentPlanController.updateTreatmentPlan);
 
 /**
  * @swagger
@@ -236,6 +239,6 @@ router.put('/treatment-plans/:id', validate(validateTreatmentPlan), treatmentPla
  *       500:
  *         description: Server error
  */
-router.delete('/treatment-plans/:id', treatmentPlanController.deleteTreatmentPlan);
+router.delete('/treatment-plans/:id', authorize('owner', 'doctor'), treatmentPlanController.deleteTreatmentPlan);
 
 module.exports = router;

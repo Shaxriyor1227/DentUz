@@ -3,6 +3,9 @@ const router = express.Router();
 const userController = require("../controller/userController");
 const { validate } = require("../middleware/validate");
 const { validateUser } = require("../validations/userValidation");
+const { authenticate, authorize } = require("../middleware/auth");
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -54,7 +57,7 @@ const { validateUser } = require("../validations/userValidation");
  *       500:
  *         description: Server error
  */
-router.post("/users", validate(validateUser), userController.createUser);
+router.post("/users", authorize('owner'), validate(validateUser), userController.createUser);
 
 /**
  * @swagger
@@ -68,7 +71,7 @@ router.post("/users", validate(validateUser), userController.createUser);
  *       500:
  *         description: Server error
  */
-router.get("/users", userController.getUsers);
+router.get("/users", authorize('owner', 'administrator', 'accountant'), userController.getUsers);
 
 /**
  * @swagger
@@ -91,7 +94,7 @@ router.get("/users", userController.getUsers);
  *       500:
  *         description: Server error
  */
-router.get("/users/search", userController.searchUser);
+router.get("/users/search", authorize('owner', 'administrator', 'accountant'), userController.searchUser);
 
 /**
  * @swagger
@@ -116,7 +119,7 @@ router.get("/users/search", userController.searchUser);
  *       500:
  *         description: Server error
  */
-router.get("/users/:id", userController.getUserById);
+router.get("/users/:id", authorize('owner', 'administrator', 'accountant'), userController.getUserById);
 
 /**
  * @swagger
@@ -158,7 +161,7 @@ router.get("/users/:id", userController.getUserById);
  *       500:
  *         description: Server error
  */
-router.put("/users/:id", validate(validateUser), userController.updateUser);
+router.put("/users/:id", authorize('owner'), validate(validateUser), userController.updateUser);
 
 /**
  * @swagger
@@ -183,6 +186,6 @@ router.put("/users/:id", validate(validateUser), userController.updateUser);
  *       500:
  *         description: Server error
  */
-router.delete("/users/:id", userController.deleteUser);
+router.delete("/users/:id", authorize('owner'), userController.deleteUser);
 
 module.exports = router;

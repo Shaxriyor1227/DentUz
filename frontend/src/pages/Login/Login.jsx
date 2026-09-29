@@ -38,7 +38,12 @@ export default function Login() {
         password: password || 'Password123!',
       });
       if (res?.data?.role === 'superadmin') {
-        navigate('/superadmin');
+        const newTab = window.open('/superadmin', '_blank');
+        if (newTab) {
+          navigate('/dashboard');
+        } else {
+          navigate('/superadmin');
+        }
       } else {
         navigate('/dashboard');
       }

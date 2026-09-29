@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const medicalRecordController = require('../controller/medicalRecordController');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -68,6 +71,7 @@ const medicalRecordController = require('../controller/medicalRecordController')
  */
 router.post(
   '/medical-records',
+  authorize('owner', 'doctor'),
   medicalRecordController.upload,
   medicalRecordController.createMedicalRecord
 );
@@ -95,7 +99,7 @@ router.post(
  *       500:
  *         description: Server error
  */
-router.get('/medical-records', medicalRecordController.getMedicalRecords);
+router.get('/medical-records', authorize('owner', 'doctor', 'administrator'), medicalRecordController.getMedicalRecords);
 
 /**
  * @swagger
@@ -118,7 +122,7 @@ router.get('/medical-records', medicalRecordController.getMedicalRecords);
  *       500:
  *         description: Server error
  */
-router.get('/medical-records/search', medicalRecordController.searchMedicalRecord);
+router.get('/medical-records/search', authorize('owner', 'doctor', 'administrator'), medicalRecordController.searchMedicalRecord);
 
 /**
  * @swagger
@@ -144,7 +148,7 @@ router.get('/medical-records/search', medicalRecordController.searchMedicalRecor
  *       500:
  *         description: Server error
  */
-router.get('/medical-records/:id', medicalRecordController.getMedicalRecordById);
+router.get('/medical-records/:id', authorize('owner', 'doctor', 'administrator'), medicalRecordController.getMedicalRecordById);
 
 /**
  * @swagger
@@ -191,6 +195,7 @@ router.get('/medical-records/:id', medicalRecordController.getMedicalRecordById)
  */
 router.put(
   '/medical-records/:id',
+  authorize('owner', 'doctor'),
   medicalRecordController.upload,
   medicalRecordController.updateMedicalRecord
 );
@@ -219,6 +224,6 @@ router.put(
  *       500:
  *         description: Server error
  */
-router.delete('/medical-records/:id', medicalRecordController.deleteMedicalRecord);
+router.delete('/medical-records/:id', authorize('owner', 'doctor'), medicalRecordController.deleteMedicalRecord);
 
 module.exports = router;

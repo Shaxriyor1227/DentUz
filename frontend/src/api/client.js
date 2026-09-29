@@ -2,6 +2,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
 export const TOKEN_STORAGE_KEY = 'dentuz_auth_token';
+export const REFRESH_TOKEN_STORAGE_KEY = 'dentuz_refresh_token';
 export const USER_STORAGE_KEY = 'dentuz_auth_user';
 
 export class ApiError extends Error {
@@ -10,6 +11,40 @@ export class ApiError extends Error {
     this.name = 'ApiError';
     this.status = status;
     this.data = data;
+  }
+}
+
+let refreshPromise = null;
+
+async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+  if (!refreshToken) return null;
+
+  try {
+    const res = await fetch(`${BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    if (data && data.success && data.token) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      if (data.refreshToken) {
+        localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+      }
+      return data.token;
+    }
+    return null;
+  } catch {
+    return null;
   }
 }
 
@@ -42,7 +77,30 @@ async function request(endpoint, options = {}) {
 
     // Handle 401 Unauthorized (Expired or invalid token)
     if (response.status === 401) {
+      const isAuthUrl = endpoint.includes('/auth/login') || endpoint.includes('/auth/refresh');
+      if (!options._isRetry && !isAuthUrl) {
+        if (!refreshPromise) {
+          refreshPromise = refreshAccessToken().finally(() => {
+            refreshPromise = null;
+          });
+        }
+        const newToken = await refreshPromise;
+        if (newToken) {
+          const retryHeaders = {
+            ...headers,
+            'Authorization': `Bearer ${newToken}`
+          };
+          return await request(endpoint, {
+            ...options,
+            _isRetry: true,
+            headers: retryHeaders
+          });
+        }
+      }
+
+      // Refresh failed or already retried
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
       localStorage.removeItem(USER_STORAGE_KEY);
       window.dispatchEvent(new CustomEvent('dentuz:auth:unauthorized'));
       throw new ApiError('Sessiya muddati tugadi. Iltimos, qaytadan kiring.', 401);
