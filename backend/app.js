@@ -58,7 +58,12 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow non-browser requests (mobile, server-to-server, curl, uptime monitor)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (
+      allowedOrigins.includes(origin) ||
+      allowedOrigins.includes('*') ||
+      origin.endsWith('.vercel.app') ||
+      origin.includes('vercel.app')
+    ) {
       return callback(null, true);
     }
     return callback(new Error(`CORS bloklandi: Ushbu domendan so'rov qabul qilinmaydi (${origin})`));
