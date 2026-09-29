@@ -210,11 +210,11 @@ export default function SuperAdmin() {
         const cData = await clinicsRes.json();
         if (cData.success) {
           setClinics(cData.data);
-          // If a clinic was open, update its reference
-          if (selectedClinicDetail) {
-            const updated = cData.data.find((c) => c.id === selectedClinicDetail.id);
-            if (updated) setSelectedClinicDetail(updated);
-          }
+          // If a clinic was open, update its reference with functional updater
+          setSelectedClinicDetail((prev) => {
+            if (!prev) return null;
+            return cData.data.find((c) => c.id === prev.id) || prev;
+          });
         }
       }
       if (usersRes.ok) {
@@ -626,9 +626,12 @@ export default function SuperAdmin() {
           const res = await fetch(`${baseUrl}/superadmin/users/${targetUser.id}`, {
             method: 'DELETE',
           });
-          if (res.ok) {
+          const data = await res.json();
+          if (res.ok && data.success) {
             showToast('Foydalanuvchi tizimdan o\'chirildi');
             loadData();
+          } else {
+            showToast(data.message || 'Xatolik yuz berdi', 'error');
           }
         } catch (err) {
           showToast('Xatolik: ' + err.message, 'error');

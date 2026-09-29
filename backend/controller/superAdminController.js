@@ -141,11 +141,12 @@ exports.getClinics = async (req, res) => {
       ],
     });
 
-    // Har bir klinika uchun shifokorlar va bemorlar sonini qo'shib berish
+    // Har bir klinika uchun shifokorlar, barcha xodimlar va bemorlar sonini qo'shib berish
     const enrichedClinics = await Promise.all(
       clinics.map(async (c) => {
-        const [doctorsCount, patientsCount] = await Promise.all([
+        const [doctorsCount, staffCount, patientsCount] = await Promise.all([
           Doctor.count({ where: { clinicId: c.id } }),
+          User.count({ where: { clinicId: c.id } }),
           Patient.count({ where: { clinicId: c.id } }),
         ]);
 
@@ -155,6 +156,7 @@ exports.getClinics = async (req, res) => {
           ...c.toJSON(),
           owner: owner || null,
           doctorsCount,
+          staffCount,
           patientsCount,
         };
       })
@@ -435,6 +437,20 @@ exports.createUser = async (req, res) => {
       isActive: true,
     });
 
+    // Agar shifokor roli tanlangan bo'lsa, Doctor profilini ham avtomatik yaratish
+    if (role === 'doctor' && clinicId) {
+      try {
+        await Doctor.create({
+          userId: user.id,
+          clinicId: clinicId,
+          specialization: title ? title.trim() : 'Stomatolog',
+          cabinetNumber: 1,
+        });
+      } catch (docErr) {
+        console.warn('Doctor profile creation warning:', docErr.message);
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Foydalanuvchi muvaffaqiyatli yaratildi',
@@ -525,6 +541,13 @@ exports.deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
     }
+
+    if (user.role === 'superadmin') {
+      return res.status(403).json({ success: false, message: 'SuperAdmin hisobini tizimdan o\'chirib bo\'lmaydi' });
+    }
+
+    // Shifokor profili mavjud bo'lsa, avval uni tozalash
+    await Doctor.destroy({ where: { userId: user.id } });
 
     await user.destroy();
     res.status(200).json({

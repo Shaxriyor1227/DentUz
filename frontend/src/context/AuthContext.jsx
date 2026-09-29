@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (credentials, passwordParam, role = ROLES.OWNER) => {
-    const email = (typeof credentials === 'object' && credentials?.email) ? credentials.email : credentials;
+    const identifier = (typeof credentials === 'object' ? (credentials?.login || credentials?.username || credentials?.email) : credentials) || '';
     const password = (typeof credentials === 'object' && credentials?.password) ? credentials.password : (passwordParam || 'Password123!');
     const targetRole = (typeof credentials === 'object' && credentials?.role) ? credentials.role : role;
 
@@ -131,7 +131,7 @@ export function AuthProvider({ children }) {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email: email?.trim(), password })
+        body: JSON.stringify({ email: identifier?.trim(), login: identifier?.trim(), password })
       });
 
       if (res.ok) {
@@ -139,11 +139,12 @@ export function AuthProvider({ children }) {
         if (data && data.success && data.token) {
           const userPayload = {
             id: data.data?.id || 'usr-real',
-            name: data.data?.name || data.data?.shortName || email,
+            name: data.data?.name || data.data?.shortName || identifier,
+            username: data.data?.username || null,
             shortName: data.data?.shortName || data.data?.name || 'Foydalanuvchi',
             title: data.data?.title || 'Stomatolog',
             role: data.data?.role || ROLES.OWNER,
-            email: data.data?.email || email,
+            email: data.data?.email || identifier,
             clinic: data.data?.clinic?.name || data.data?.clinic || 'DentUz Markaziy Klinika',
             phone: data.data?.phone || '',
             avatar: data.data?.avatarUrl || null
