@@ -1,5 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://dentuz.onrender.com/api';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const TOKEN_STORAGE_KEY = 'dentuz_auth_token';
 export const REFRESH_TOKEN_STORAGE_KEY = 'dentuz_refresh_token';

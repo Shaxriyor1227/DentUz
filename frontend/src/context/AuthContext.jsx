@@ -151,7 +151,7 @@ export function AuthProvider({ children }) {
 
     // 1. Try real backend authentication
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://dentuz.onrender.com/api';
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
