@@ -118,8 +118,13 @@ router.get('/treatment-plans/search', authorize('owner', 'doctor', 'administrato
  * /api/treatment-plans:
  *   get:
  *     tags: [TreatmentPlans]
- *     summary: Get treatment plans (filter by patient, doctor, status)
+ *     summary: Get treatment plans (supports search, filters, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by plan title, diagnosis, or notes
  *       - in: query
  *         name: patientId
  *         schema:
@@ -134,7 +139,20 @@ router.get('/treatment-plans/search', authorize('owner', 'doctor', 'administrato
  *         name: status
  *         schema:
  *           type: string
- *         description: Filter status (draft, active, completed, cancelled)
+ *           enum: [draft, active, completed, cancelled]
+ *         description: Filter status
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of treatment plans

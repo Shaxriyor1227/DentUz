@@ -130,7 +130,25 @@ exports.deleteApplication = async (req, res) => {
  */
 exports.getClinics = async (req, res) => {
   try {
+    const { search, status } = req.query;
+    let where = {};
+
+    if (status) {
+      where.subscriptionStatus = status;
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      where[Op.or] = [
+        { name:  { [Op.iLike]: `%${q}%` } },
+        { email: { [Op.iLike]: `%${q}%` } },
+        { phone: { [Op.iLike]: `%${q}%` } },
+        { city:  { [Op.iLike]: `%${q}%` } },
+      ];
+    }
+
     const clinics = await Clinic.findAll({
+      where,
       order: [['createdAt', 'DESC']],
       include: [
         {

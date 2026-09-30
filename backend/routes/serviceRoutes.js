@@ -73,23 +73,35 @@ router.post('/services', authorize('owner', 'administrator'), validate(validateS
  * /api/services:
  *   get:
  *     tags: [Services]
- *     summary: Get all services (with category and search filters)
+ *     summary: Get all services (supports search, category filter, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by service name, code, or description
  *       - in: query
  *         name: category
  *         schema:
  *           type: string
  *         description: Filter by category (therapy, surgery, etc.)
  *       - in: query
- *         name: search
+ *         name: isActive
  *         schema:
- *           type: string
- *         description: Search by service name or code
+ *           type: boolean
+ *         description: Filter active services
  *       - in: query
- *         name: activeOnly
+ *         name: page
  *         schema:
- *           type: string
- *         description: Set to 'true' for only active services
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of services

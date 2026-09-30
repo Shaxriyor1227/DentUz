@@ -44,10 +44,39 @@ router.get("/finance/stats", authorize('owner', 'accountant', 'administrator'), 
  * /api/finance/invoices:
  *   get:
  *     tags: [Finance]
- *     summary: Get all invoices
+ *     summary: Get all invoices (supports search, filters, pagination)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by patient name, doctor, or procedure
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [paid, pending, partially_paid, cancelled]
+ *         description: Filter invoices by status
+ *       - in: query
+ *         name: patientId
+ *         schema:
+ *           type: string
+ *         description: Filter by patient ID (e.g. P-1001)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of invoices
+ *         description: Paginated list of invoices
  *       401:
  *         description: Unauthorized
  *       500:

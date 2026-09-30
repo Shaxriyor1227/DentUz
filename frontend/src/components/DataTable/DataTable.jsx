@@ -30,7 +30,12 @@ export default function DataTable({
             {data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className={styles.emptyState}>
-                  {emptyMessage}
+                  <div className={styles.emptyContent}>
+                    <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
+                      inbox
+                    </span>
+                    <div className={styles.emptyText}>{emptyMessage}</div>
+                  </div>
                 </td>
               </tr>
             ) : (

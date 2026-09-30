@@ -202,18 +202,47 @@ let appointments = [
 import apiClient from './client';
 
 export const appointmentsApi = {
-  async getAll() {
+  async getAll(params = {}) {
     if (!apiClient.isMockEnabled()) {
       try {
-        const res = await apiClient.get('/appointments');
-        if (res && res.data) return res.data;
+        const query = new URLSearchParams();
+        if (params.search)    query.append('search', params.search);
+        if (params.status)    query.append('status', params.status);
+        if (params.doctorId)  query.append('doctorId', params.doctorId);
+        if (params.patientId) query.append('patientId', params.patientId);
+        if (params.date)      query.append('date', params.date);
+        if (params.page)      query.append('page', params.page);
+        if (params.limit)     query.append('limit', params.limit);
+
+        const qs = query.toString();
+        const endpoint = qs ? `/appointments?${qs}` : '/appointments';
+        const res = await apiClient.get(endpoint);
+        if (res && res.data) {
+          return Array.isArray(res.data) ? res.data : (res.data.rows || []);
+        }
+        if (Array.isArray(res)) return res;
       } catch (e) {
         if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real API failed, fallback to local data:', e.message);
       }
     }
-    await new Promise((r) => setTimeout(r, 200));
-    return [...appointments];
+    await new Promise((r) => setTimeout(r, 150));
+    let list = [...appointments];
+    if (params.date) {
+      list = list.filter((a) => a.date === params.date);
+    }
+    if (params.status) {
+      list = list.filter((a) => a.status === params.status);
+    }
+    if (params.search && params.search.trim()) {
+      const q = params.search.toLowerCase();
+      list = list.filter((a) =>
+        (a.patientName && a.patientName.toLowerCase().includes(q)) ||
+        (a.procedure && a.procedure.toLowerCase().includes(q)) ||
+        (a.doctorName && a.doctorName.toLowerCase().includes(q))
+      );
+    }
+    return list;
   },
 
   async getToday() {

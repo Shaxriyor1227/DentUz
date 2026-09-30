@@ -77,8 +77,13 @@ router.post('/inventory', authorize('owner', 'administrator'), validate(validate
  * /api/inventory:
  *   get:
  *     tags: [Inventory]
- *     summary: Get all inventory items (supports lowStock filter and category)
+ *     summary: Get all inventory items (supports search, category, lowStock filter, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by item name, SKU, or supplier
  *       - in: query
  *         name: category
  *         schema:
@@ -90,6 +95,18 @@ router.post('/inventory', authorize('owner', 'administrator'), validate(validate
  *           type: string
  *           enum: [true, false]
  *         description: Filter items where quantity <= minQuantity
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of inventory items

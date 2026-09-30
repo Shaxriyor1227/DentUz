@@ -85,3 +85,23 @@
   color: var(--color-text-secondary);
   font-size: 14px;
 }
+
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.emptyIcon {
+  font-size: 40px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.emptyText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}

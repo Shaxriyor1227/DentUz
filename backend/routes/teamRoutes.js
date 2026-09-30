@@ -17,10 +17,34 @@ const { authorize } = require("../middleware/auth");
  * /api/team:
  *   get:
  *     tags: [Team]
- *     summary: Get all team members
+ *     summary: Get all team members (supports search, role filter, pagination)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name, email, or phone
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [owner, administrator, doctor, receptionist, accountant]
+ *         description: Filter by staff role
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of team members
+ *         description: Paginated list of team members
  *       500:
  *         description: Server error
  */

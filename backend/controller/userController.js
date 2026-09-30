@@ -20,7 +20,21 @@ exports.createUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const where = withTenantScope(req, {});
+    const { search, role } = req.query;
+    let where = {};
+
+    if (role) where.role = role;
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      where[Op.or] = [
+        { name:  { [Op.iLike]: `%${q}%` } },
+        { email: { [Op.iLike]: `%${q}%` } },
+        { phone: { [Op.iLike]: `%${q}%` } },
+      ];
+    }
+
+    where = withTenantScope(req, where);
     const users = await User.findAll({
       where,
       include: [

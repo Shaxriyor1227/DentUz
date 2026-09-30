@@ -16,6 +16,9 @@ export default function AppointmentPill({
   const { t, i18n } = useTranslation();
   if (!appointment) return null;
 
+  const patientName = appointment.patientName || appointment.patient?.name || 'Noma\'lum bemor';
+  const doctorName = appointment.doctorName || appointment.doctor?.name || appointment.doctor || '';
+  const procedure = appointment.procedure || 'Konsultatsiya';
   const accentColor = appointment.color || 'var(--color-cyan, #06B6D4)';
   const status = appointment.status || 'pending';
 
@@ -71,7 +74,7 @@ export default function AppointmentPill({
       <div
         className={styles.variantMonth}
         onClick={handleClick}
-        title={`${appointment.time} - ${appointment.patientName} (${appointment.procedure})`}
+        title={`${appointment.time} - ${patientName} (${procedure})`}
       >
         <span className={styles.monthDot} style={{ backgroundColor: accentColor }} />
         <span className={styles.monthTime}>{appointment.time}</span>
@@ -79,7 +82,7 @@ export default function AppointmentPill({
           <span className={styles.monthChairBadge}>#{appointment.chair}</span>
         )}
         <span className={styles.monthPatient}>
-          {appointment.patientName ? appointment.patientName.split(' ')[0] : ''}
+          {patientName ? patientName.split(' ')[0] : ''}
         </span>
       </div>
     );
@@ -113,9 +116,9 @@ export default function AppointmentPill({
 
         <div className={styles.dayApptPatientRow}>
           <div className={styles.dayApptPatientName}>
-            <span>{appointment.patientName}</span>
-            {appointment.patientId && (
-              <span className={styles.dayApptPatientId}>{appointment.patientId}</span>
+            <span>{patientName}</span>
+            {(appointment.patientId || appointment.patient?.id) && (
+              <span className={styles.dayApptPatientId}>{appointment.patientId || appointment.patient?.id}</span>
             )}
           </div>
         </div>
@@ -124,15 +127,15 @@ export default function AppointmentPill({
           <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'var(--color-cyan)' }}>
             dentistry
           </span>
-          <span>{appointment.procedure}</span>
+          <span>{procedure}</span>
         </div>
 
         <div className={styles.dayApptFooterRow}>
           <div className={styles.dayApptDoctorInfo}>
             <div className={styles.dayApptDoctorAvatar} style={{ backgroundColor: accentColor }}>
-              {appointment.doctorName ? appointment.doctorName.replace(/^Dr\.\s*/, '').charAt(0) : 'D'}
+              {doctorName ? doctorName.replace(/^Dr\.\s*/, '').charAt(0) : 'D'}
             </div>
-            <span className={styles.dayApptDoctorName}>{appointment.doctorName}</span>
+            <span className={styles.dayApptDoctorName}>{doctorName}</span>
           </div>
 
           <span className={styles.dayApptActionLink}>
@@ -156,7 +159,7 @@ export default function AppointmentPill({
           borderLeft: `3.5px solid ${accentColor}`,
           background: `linear-gradient(135deg, var(--color-surface) 75%, ${accentColor}12 100%)`
         }}
-        title={`Kreslo #${appointment.chair || '—'} • ${appointment.patientName}`}
+        title={`Kreslo #${appointment.chair || '—'} • ${patientName}`}
       >
         <div className={styles.chairsHeader}>
           <span className={styles.chairsTimeBadge}>
@@ -170,18 +173,17 @@ export default function AppointmentPill({
           </span>
         </div>
 
-        <div className={styles.chairsPatientName}>{appointment.patientName}</div>
-        <div className={styles.chairsProcedure}>{appointment.procedure}</div>
+        <div className={styles.chairsPatientName}>{patientName}</div>
+        <div className={styles.chairsProcedure}>{procedure}</div>
 
         <div className={styles.chairsFooter}>
           <div className={styles.chairsDoctorPill}>
             <div className={styles.chairsDoctorAvatar} style={{ backgroundColor: accentColor }}>
-              {appointment.doctorName ? appointment.doctorName.replace(/^Dr\.\s*/, '').charAt(0) : 'D'}
+              {doctorName ? doctorName.replace(/^Dr\.\s*/, '').charAt(0) : 'D'}
             </div>
-            <span>{appointment.doctorName ? appointment.doctorName.replace(/^Dr\.\s*/, '') : ''}</span>
+            <span>{doctorName ? doctorName.replace(/^Dr\.\s*/, '') : ''}</span>
           </div>
 
-          {/* Note: #chair badge is intentionally HIDDEN in Chairs view because the column header already denotes Operatory #X */}
           <span className={styles.chairsDurationTag}>
             ⏱ {appointment.duration || 45} {i18n.language === 'en' ? 'min' : 'daq'}
           </span>
@@ -209,9 +211,9 @@ export default function AppointmentPill({
           <span className={styles.weekStatusDot} style={{ backgroundColor: accentColor }} />
         </div>
       </div>
-      <div className={styles.weekPatient}>{appointment.patientName}</div>
-      <div className={styles.weekProcedure}>{appointment.procedure}</div>
-      <div className={styles.weekDoctorTag}>{appointment.doctorName}</div>
+      <div className={styles.weekPatient}>{patientName}</div>
+      <div className={styles.weekProcedure}>{procedure}</div>
+      <div className={styles.weekDoctorTag}>{doctorName}</div>
     </div>
   );
 }

@@ -62,8 +62,13 @@ router.post('/payments', authorize('owner', 'accountant'), validate(validatePaym
  * /api/payments:
  *   get:
  *     tags: [Payments]
- *     summary: Get list of payments (filter by patient, invoice, method)
+ *     summary: Get list of payments (supports search, filters, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by receipt number or notes
  *       - in: query
  *         name: patientId
  *         schema:
@@ -78,7 +83,19 @@ router.post('/payments', authorize('owner', 'accountant'), validate(validatePaym
  *         name: method
  *         schema:
  *           type: string
- *         description: Payment method (Naqd, Payme, etc.)
+ *         description: Payment method (Naqd, Payme, Uzum, etc.)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of payments

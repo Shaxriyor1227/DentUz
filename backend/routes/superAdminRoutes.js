@@ -59,9 +59,23 @@ router.delete('/applications/:id', superAdminController.deleteApplication);
  *   get:
  *     tags: [SuperAdmin]
  *     summary: Ro'yxatdan o'tgan barcha klinikalar va ularning holati
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Klinika nomi, email, telefon yoki shahar bo'yicha qidirish
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, pending, suspended, expired]
+ *         description: Obuna holati bo'yicha filter
  *     responses:
  *       200:
  *         description: Klinikalar ro'yxati
+ *       500:
+ *         description: Server xatosi
  */
 router.get('/clinics', superAdminController.getClinics);
 

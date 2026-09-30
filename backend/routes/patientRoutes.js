@@ -73,10 +73,34 @@ router.post("/patients", validate(validatePatient), patientController.createPati
  * /api/patients:
  *   get:
  *     tags: [Patients]
- *     summary: Get all patients
+ *     summary: Get all patients (supports search, filter, pagination)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search query for patient name, phone, or ID
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [all, today, scheduled, debtor]
+ *         description: Filter patients by status
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of patients
+ *         description: Paginated list of patients with summary counts
  *       401:
  *         description: Unauthorized
  *       500:

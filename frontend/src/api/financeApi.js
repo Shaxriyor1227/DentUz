@@ -229,18 +229,49 @@ export const financeApi = {
     return { ...(STATS_BY_PERIOD[period] || STATS_BY_PERIOD.this_month) };
   },
 
-  async getInvoices(period = 'this_month') {
+  async getInvoices(params = 'this_month') {
+    const isString = typeof params === 'string';
+    const period = isString ? params : (params.period || 'this_month');
+    const search = !isString && params.search ? params.search : '';
+    const status = !isString && params.status ? params.status : '';
+    const page = !isString && params.page ? params.page : 1;
+    const limit = !isString && params.limit ? params.limit : 50;
+
     if (!apiClient.isMockEnabled()) {
       try {
-        const res = await apiClient.get('/finance/invoices');
-        if (res && res.data) return res.data;
+        const query = new URLSearchParams();
+        if (search) query.append('search', search);
+        if (status && status !== 'all') query.append('status', status);
+        if (page) query.append('page', page);
+        if (limit) query.append('limit', limit);
+
+        const qs = query.toString();
+        const endpoint = qs ? `/finance/invoices?${qs}` : '/finance/invoices';
+        const res = await apiClient.get(endpoint);
+        if (res && res.data) {
+          return Array.isArray(res.data) ? res.data : (res.data.rows || []);
+        }
+        if (Array.isArray(res)) return res;
       } catch (e) {
         if (e?.status === 401 || e?.status === 403) throw e;
         console.warn('Real Finance API getInvoices failed, fallback to local data:', e.message);
       }
     }
-    await new Promise((r) => setTimeout(r, 200));
-    return [...(INVOICES_BY_PERIOD[period] || INVOICES_BY_PERIOD.this_month)];
+    await new Promise((r) => setTimeout(r, 150));
+    let list = [...(INVOICES_BY_PERIOD[period] || INVOICES_BY_PERIOD.this_month)];
+    if (status && status !== 'all') {
+      list = list.filter((inv) => inv.status === status);
+    }
+    if (search && search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((inv) =>
+        (inv.patient && inv.patient.toLowerCase().includes(q)) ||
+        (inv.doctor && inv.doctor.toLowerCase().includes(q)) ||
+        (inv.procedure && inv.procedure.toLowerCase().includes(q)) ||
+        (inv.id && inv.id.toLowerCase().includes(q))
+      );
+    }
+    return list;
   },
 
   async createInvoice(invoiceData) {

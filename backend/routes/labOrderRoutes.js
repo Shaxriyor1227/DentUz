@@ -111,13 +111,19 @@ router.get('/lab-orders/search', authorize('owner', 'doctor', 'administrator'), 
  * /api/lab-orders:
  *   get:
  *     tags: [LabOrders]
- *     summary: Get list of lab orders (filter by status, patient, doctor, technician)
+ *     summary: Get list of lab orders (supports search, filters, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by order number, technician, tooth number, or notes
  *       - in: query
  *         name: status
  *         schema:
  *           type: string
- *         description: Filter by status (sent, in_progress, received, etc.)
+ *           enum: [sent, in_progress, received, fitted, cancelled]
+ *         description: Filter by status
  *       - in: query
  *         name: patientId
  *         schema:
@@ -129,13 +135,20 @@ router.get('/lab-orders/search', authorize('owner', 'doctor', 'administrator'), 
  *           type: string
  *         description: Filter by doctor UUID
  *       - in: query
- *         name: technicianName
+ *         name: page
  *         schema:
- *           type: string
- *         description: Search by technician name
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of lab orders
+ *         description: Paginated list of lab orders
  *       500:
  *         description: Server error
  */

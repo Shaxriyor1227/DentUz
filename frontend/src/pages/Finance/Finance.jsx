@@ -546,14 +546,20 @@ export default function Finance() {
   }, [dateRange]);
 
   const filteredInvoices = invoices.filter((item) => {
+    if (!item) return false;
     if (activeTab === 'paid' && item.status !== 'paid') return false;
     if (activeTab === 'pending' && item.status !== 'pending' && item.status !== 'partial') return false;
     if (search.trim()) {
       const q = search.toLowerCase();
+      const patientName = (item.patient || item.patientRecord?.name || '').toLowerCase();
+      const invId = (item.id || '').toLowerCase();
+      const doctorName = (item.doctor || '').toLowerCase();
+      const proc = (item.procedure || '').toLowerCase();
       return (
-        item.patient.toLowerCase().includes(q) ||
-        item.id.toLowerCase().includes(q) ||
-        item.doctor.toLowerCase().includes(q)
+        patientName.includes(q) ||
+        invId.includes(q) ||
+        doctorName.includes(q) ||
+        proc.includes(q)
       );
     }
     return true;
@@ -574,9 +580,11 @@ export default function Finance() {
       key: 'patient',
       render: (val, row) => (
         <div>
-          <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', transition: 'color 0.2s ease' }}>{val}</div>
+          <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', transition: 'color 0.2s ease' }}>
+            {val || row?.patientRecord?.name || 'Noma\'lum bemor'}
+          </div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-            ID: #{row.patientId}
+            ID: #{row?.patientId || row?.patientRecord?.id || '—'}
           </div>
         </div>
       )

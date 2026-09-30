@@ -84,7 +84,7 @@ exports.createAppointment = async (req, res) => {
 
 exports.getAppointments = async (req, res) => {
   try {
-    const { status, doctorId, patientId, date, page, limit } = req.query;
+    const { status, doctorId, patientId, date, search, page, limit } = req.query;
     let where = {};
     const { limit: lim, offset } = getPagination(page, limit);
 
@@ -92,6 +92,15 @@ exports.getAppointments = async (req, res) => {
     if (doctorId)  where.doctorId  = doctorId;
     if (patientId) where.patientId = patientId;
     if (date)      where.date      = date;
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      where[Op.or] = [
+        { patientName: { [Op.iLike]: `%${q}%` } },
+        { procedure:   { [Op.iLike]: `%${q}%` } },
+        { doctorName:  { [Op.iLike]: `%${q}%` } },
+      ];
+    }
 
     where = withTenantScope(req, where);
 

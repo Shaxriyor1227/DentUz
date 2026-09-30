@@ -83,10 +83,50 @@ router.post("/appointments", validate(validateAppointment), appointmentControlle
  * /api/appointments:
  *   get:
  *     tags: [Appointments]
- *     summary: Get all appointments
+ *     summary: Get all appointments (supports search, filters, pagination)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by patient name, procedure, or doctor name
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [confirmed, pending, in_progress, completed, cancelled]
+ *         description: Filter by appointment status
+ *       - in: query
+ *         name: doctorId
+ *         schema:
+ *           type: string
+ *         description: Filter by doctor UUID
+ *       - in: query
+ *         name: patientId
+ *         schema:
+ *           type: string
+ *         description: Filter by patient ID (e.g. P-1001)
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter by date (YYYY-MM-DD)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of appointments
+ *         description: Paginated list of appointments
  *       401:
  *         description: Unauthorized
  *       500:

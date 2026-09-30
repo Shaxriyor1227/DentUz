@@ -81,8 +81,13 @@ router.post(
  * /api/medical-records:
  *   get:
  *     tags: [MedicalRecords]
- *     summary: Get medical records list (filter by patient or doctor)
+ *     summary: Get medical records list (supports search, filters, pagination)
  *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by complaints, diagnosis, treatment, tooth number, or recommendations
  *       - in: query
  *         name: patientId
  *         schema:
@@ -93,9 +98,21 @@ router.post(
  *         schema:
  *           type: string
  *         description: Doctor UUID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of medical records
+ *         description: Paginated list of medical records
  *       500:
  *         description: Server error
  */

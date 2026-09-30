@@ -64,7 +64,19 @@ router.post("/users", authorize('owner'), validate(validateUser), userController
  * /api/users:
  *   get:
  *     tags: [Users]
- *     summary: Get all users
+ *     summary: Get all users (supports search and role filter)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name, email, or phone
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [owner, administrator, doctor, receptionist, accountant]
+ *         description: Filter by user role
  *     responses:
  *       200:
  *         description: List of users
