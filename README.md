@@ -14,7 +14,8 @@
   <img src="https://img.shields.io/badge/CSS_Modules-Custom_Design_Tokens-1572B6?logo=css3&logoColor=white" alt="CSS Modules" />
   <img src="https://img.shields.io/badge/Typography-Inter_%26_JetBrains_Mono-000000" alt="Typography" />
   <img src="https://img.shields.io/badge/Design-Apple_Spotlight_%26_GateDent_Aesthetics-06B6D4" alt="Design" />
-  <img src="https://img.shields.io/badge/PWA-Ready-10B981" alt="PWA Ready" />
+  <img src="https://img.shields.io/badge/Swagger-OpenAPI_3.0-85EA2D?logo=swagger&logoColor=black" alt="Swagger OpenAPI" />
+  <img src="https://img.shields.io/badge/REST_API-Optimized_Search-06B6D4" alt="REST API" />
 </p>
 
 ---
