@@ -4,7 +4,7 @@
   "description": "DentUz Dental Clinic Management System — REST API",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node config/migrator.js up && node app.js",
     "dev": "nodemon app.js",
     "bot": "node scripts/runBot.js",
     "migrate": "node config/migrator.js up",

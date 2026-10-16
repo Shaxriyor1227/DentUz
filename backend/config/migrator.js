@@ -28,17 +28,13 @@ async function assertNoPendingMigrations() {
     const pending = await umzug.pending();
     if (pending.length > 0) {
       const pendingNames = pending.map((m) => m.name).join(', ');
-      throw new Error(
-        `🚨 XATOLIK: Bazada kutilayotgan migratsiyalar mavjud [${pendingNames}]. ` +
-        `Iltimos, serverni ishga tushirishdan oldin 'npm run migrate' buyrug'ini bajaring!`
-      );
+      console.log(`🔄 Bazada kutilayotgan migratsiyalar aniqlandi [${pendingNames}]. Avtomatik bajarilmoqda...`);
+      const executed = await umzug.up();
+      console.log(`✅ ${executed.length} ta migratsiya muvaffaqiyatli yakunlandi.`);
     }
   } catch (err) {
-    if (err.message.includes('🚨 XATOLIK: Bazada kutilayotgan')) {
-      throw err;
-    }
-    // If SequelizeMeta doesn't exist yet on fresh DB
-    console.warn('Migratsiya holatini tekshirishda ogohlantirish:', err.message);
+    console.error('Migratsiya tekshirish yoki bajarishda xatolik:', err.message);
+    throw err;
   }
 }
 
