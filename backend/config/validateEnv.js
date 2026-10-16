@@ -8,19 +8,23 @@ function validateEnvironment() {
   const errors = [];
   const warnings = [];
 
-  // 1. JWT Secrets (must be at least 32 characters for HMAC SHA-256 security)
+  // 1. JWT Secrets
   const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
-    errors.push("JWT_SECRET kiritilmagan. Kamida 32 belgidan iborat maxfiy kalit bo'lishi shart.");
+    errors.push("JWT_SECRET kiritilmagan. Maxfiy kalit bo'lishi shart.");
+  } else if (jwtSecret.length < 16) {
+    errors.push(`JWT_SECRET xavfli darajada qisqa (${jwtSecret.length} belgi). Kamida 16 belgi bo'lishi shart.`);
   } else if (jwtSecret.length < 32) {
-    errors.push(`JWT_SECRET juda qisqa (${jwtSecret.length} belgi). Xavfsizlik uchun kamida 32 belgi talab qilinadi.`);
+    warnings.push(`JWT_SECRET tavsiya etilgan 32 belgidan kamroq (${jwtSecret.length} belgi). Xavfsizlikni kuchaytirish uchun Render panelida 32+ belgili kalit o'rnatish tavsiya etiladi.`);
   }
 
   const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
   if (!jwtRefreshSecret) {
-    errors.push("JWT_REFRESH_SECRET kiritilmagan. Kamida 32 belgidan iborat maxfiy kalit bo'lishi shart.");
+    errors.push("JWT_REFRESH_SECRET kiritilmagan. Maxfiy kalit bo'lishi shart.");
+  } else if (jwtRefreshSecret.length < 16) {
+    errors.push(`JWT_REFRESH_SECRET xavfli darajada qisqa (${jwtRefreshSecret.length} belgi). Kamida 16 belgi bo'lishi shart.`);
   } else if (jwtRefreshSecret.length < 32) {
-    errors.push(`JWT_REFRESH_SECRET juda qisqa (${jwtRefreshSecret.length} belgi). Xavfsizlik uchun kamida 32 belgi talab qilinadi.`);
+    warnings.push(`JWT_REFRESH_SECRET tavsiya etilgan 32 belgidan kamroq (${jwtRefreshSecret.length} belgi). Xavfsizlikni kuchaytirish uchun Render panelida 32+ belgili kalit o'rnatish tavsiya etiladi.`);
   }
 
   // 2. Database connection
@@ -32,7 +36,11 @@ function validateEnvironment() {
 
   // 3. CORS Origins
   if (!process.env.CORS_ORIGINS && process.env.NODE_ENV === 'production') {
-    errors.push("Production muhitida CORS_ORIGINS kiritilishi shart (masalan: https://dentuz.vercel.app).");
+    if (process.env.CLIENT_URL) {
+      warnings.push(`CORS_ORIGINS belgilanmagan, CLIENT_URL (${process.env.CLIENT_URL}) dan foydalanilmoqda.`);
+    } else {
+      warnings.push("Production muhitida CORS_ORIGINS kiritilmagan. Default domenlar va Vercel previewlar qabul qilinadi.");
+    }
   }
 
   // 4. Storage Driver Warning
