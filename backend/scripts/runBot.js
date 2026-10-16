@@ -1,36 +1,28 @@
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const bot = require('../services/telegramBot');
 const logger = require('../utils/logger');
 
-const LOCK_FILE = path.join(__dirname, '../.bot.lock');
-
-// Prevent duplicate bot instances (avoid Telegram 409 Conflict error on Render/local)
-if (fs.existsSync(LOCK_FILE)) {
-  try {
-    const existingPid = parseInt(fs.readFileSync(LOCK_FILE, 'utf8'), 10);
-    // Check if process with PID is actually running
-    process.kill(existingPid, 0);
-    logger.error(`Bot allaqachon ishlamoqda (PID: ${existingPid}). Bitta tokenda ikki bot ishlay olmaydi.`);
-    process.exit(1);
-  } catch (err) {
-    // Process is dead, stale lock file
-    try { fs.unlinkSync(LOCK_FILE); } catch {}
-  }
+// Security check: Only start bot if explicitly enabled
+if (process.env.BOT_ENABLED !== 'true') {
+  logger.warn("⚠️ BOT_ENABLED='true' emas. Telegram bot ishga tushirilmaydi.");
+  logger.info("Botni faollashtirish uchun backend/.env faylida BOT_ENABLED=true qiling.");
+  process.exit(0);
 }
 
-try {
-  fs.writeFileSync(LOCK_FILE, String(process.pid));
-} catch (e) {
-  logger.warn('Lock fayl yaratilmadi:', e.message);
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  logger.error("❌ TELEGRAM_BOT_TOKEN kiritilmagan. Bot ishga tushmadi.");
+  process.exit(1);
 }
 
-logger.info(`DentUz Telegram Bot mustaqil xizmat sifatida ishga tushirilmoqda (PID: ${process.pid})...`);
+logger.info(`DentUz Telegram Bot jarayoni ishga tushirilmoqda (PID: ${process.pid})...`);
+
 try {
   bot.startPolling();
+  logger.info("✅ Telegram Bot muvaffaqiyatli ishga tushdi va xabarlarni tinglamoqda (long-polling).");
 } catch (err) {
   logger.error('Bot polling xatoligi:', err);
+  process.exit(1);
 }
 
 // Graceful shutdown
@@ -39,16 +31,8 @@ const shutdown = () => {
   try {
     bot.stopPolling();
   } catch {}
-  try {
-    if (fs.existsSync(LOCK_FILE)) fs.unlinkSync(LOCK_FILE);
-  } catch {}
   process.exit(0);
 };
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-process.on('exit', () => {
-  try {
-    if (fs.existsSync(LOCK_FILE)) fs.unlinkSync(LOCK_FILE);
-  } catch {}
-});

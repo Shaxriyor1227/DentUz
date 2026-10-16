@@ -151,6 +151,19 @@ function trackFailedAttempt(identifier) {
   loginAttempts.set(identifier, current);
 }
 
+// Grace window for concurrent refresh requests (e.g. multiple tabs loading simultaneously)
+// userId -> { prevHash, latestTokens: { token, refreshToken }, rotatedAt }
+const recentRotations = new Map();
+const ROTATION_GRACE_MS = 20 * 1000; // 20 seconds grace window
+
+// Periodic cleanup of stale grace cache
+setInterval(() => {
+  const cutoff = Date.now() - 60000;
+  for (const [uid, record] of recentRotations.entries()) {
+    if (record.rotatedAt < cutoff) recentRotations.delete(uid);
+  }
+}, 60000).unref();
+
 exports.refresh = async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -169,23 +182,52 @@ exports.refresh = async (req, res) => {
     }
 
     const incomingHash = hashRefreshToken(refreshToken);
+    const now = Date.now();
 
-    // Refresh Token Rotation & Theft Detection:
-    // If incoming token hash does NOT match stored hash, token reuse / theft detected!
-    if (!user.refreshToken || user.refreshToken !== incomingHash) {
-      // Invalidate all active sessions immediately
-      await user.update({ refreshToken: null });
-      return res.status(401).json({
-        success: false,
-        message: 'Xavfsizlik ogohlantirishi: Eski yoki noto\'g\'ri refresh token ishlatildi. Barcha sessiyalar bekor qilindi. Qaytadan kiring.',
+    // 1. Normal rotation: incoming token matches stored hash in database
+    if (user.refreshToken && user.refreshToken === incomingHash) {
+      const { access, refresh: newRefresh } = signTokens(user.id);
+      const newHash = hashRefreshToken(newRefresh);
+
+      // Save to recent rotations for concurrency grace window
+      recentRotations.set(user.id, {
+        prevHash: incomingHash,
+        latestTokens: { token: access, refreshToken: newRefresh },
+        rotatedAt: now,
       });
+
+      await user.update({ refreshToken: newHash });
+      return res.status(200).json({ success: true, token: access, refreshToken: newRefresh });
     }
 
-    // Issue new pair of tokens and rotate stored hash
-    const { access, refresh: newRefresh } = signTokens(user.id);
-    await user.update({ refreshToken: hashRefreshToken(newRefresh) });
+    // 2. Check if token matches recently rotated token within grace window (e.g. concurrent tabs)
+    const recent = recentRotations.get(user.id);
+    if (recent && recent.prevHash === incomingHash) {
+      if (now - recent.rotatedAt < ROTATION_GRACE_MS) {
+        // Within 20-second grace window: return the newly issued tokens without revoking sessions
+        return res.status(200).json({
+          success: true,
+          token: recent.latestTokens.token,
+          refreshToken: recent.latestTokens.refreshToken,
+          concurrencyGrace: true,
+        });
+      } else {
+        // Grace window expired! Potential token replay attack
+        recentRotations.delete(user.id);
+        await user.update({ refreshToken: null });
+        return res.status(401).json({
+          success: false,
+          message: 'Xavfsizlik ogohlantirishi: Eski refresh token grace oynasidan keyin qayta ishlatildi. Barcha sessiyalar bekor qilindi. Qaytadan kiring.',
+        });
+      }
+    }
 
-    res.status(200).json({ success: true, token: access, refreshToken: newRefresh });
+    // 3. Stored hash mismatch and not in grace cache -> Token theft / invalid token
+    await user.update({ refreshToken: null });
+    return res.status(401).json({
+      success: false,
+      message: 'Xavfsizlik ogohlantirishi: Eski yoki noto\'g\'ri refresh token ishlatildi. Barcha sessiyalar bekor qilindi. Qaytadan kiring.',
+    });
   } catch (err) {
     res.status(401).json({ success: false, message: 'Refresh token muddati tugagan yoki noto\'g\'ri' });
   }
@@ -194,6 +236,7 @@ exports.refresh = async (req, res) => {
 exports.logout = async (req, res) => {
   try {
     if (req.user?.id) {
+      recentRotations.delete(req.user.id);
       const u = await User.scope('withSecrets').findByPk(req.user.id);
       if (u) await u.update({ refreshToken: null });
     }

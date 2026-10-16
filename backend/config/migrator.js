@@ -19,6 +19,29 @@ const umzug = new Umzug({
   logger: console,
 });
 
+/**
+ * Asserts that all database migrations are applied before application starts.
+ * Protects production against running code on an outdated database schema.
+ */
+async function assertNoPendingMigrations() {
+  try {
+    const pending = await umzug.pending();
+    if (pending.length > 0) {
+      const pendingNames = pending.map((m) => m.name).join(', ');
+      throw new Error(
+        `🚨 XATOLIK: Bazada kutilayotgan migratsiyalar mavjud [${pendingNames}]. ` +
+        `Iltimos, serverni ishga tushirishdan oldin 'npm run migrate' buyrug'ini bajaring!`
+      );
+    }
+  } catch (err) {
+    if (err.message.includes('🚨 XATOLIK: Bazada kutilayotgan')) {
+      throw err;
+    }
+    // If SequelizeMeta doesn't exist yet on fresh DB
+    console.warn('Migratsiya holatini tekshirishda ogohlantirish:', err.message);
+  }
+}
+
 if (require.main === module) {
   const command = process.argv[2] || 'up';
 
@@ -47,3 +70,4 @@ if (require.main === module) {
 }
 
 module.exports = umzug;
+module.exports.assertNoPendingMigrations = assertNoPendingMigrations;

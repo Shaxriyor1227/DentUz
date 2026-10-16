@@ -99,8 +99,8 @@ const storageService = {
       // In production with Supabase Storage:
       // Uses Supabase REST Storage API or S3 API without needing heavy AWS SDK
       const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
-      const bucket = process.env.SUPABASE_BUCKET || 'medical-records';
+      const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+      const bucket = process.env.STORAGE_BUCKET || process.env.SUPABASE_BUCKET || 'medical-records';
 
       if (supabaseUrl && supabaseKey) {
         const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${storedFilename}`;
@@ -157,8 +157,8 @@ const storageService = {
 
     if (STORAGE_DRIVER === 'supabase' || STORAGE_DRIVER === 's3') {
       const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
-      const bucket = process.env.SUPABASE_BUCKET || 'medical-records';
+      const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+      const bucket = process.env.STORAGE_BUCKET || process.env.SUPABASE_BUCKET || 'medical-records';
 
       if (supabaseUrl && supabaseKey) {
         const downloadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${safeFilename}`;
@@ -191,13 +191,28 @@ const storageService = {
   },
 
   /**
-   * Deletes a file from storage
+   * Deletes a file from storage (both remote and local fallback)
    */
   async deleteFile(storedFilename) {
     const safeFilename = path.basename(storedFilename);
+
+    if (STORAGE_DRIVER === 'supabase' || STORAGE_DRIVER === 's3') {
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+      const bucket = process.env.STORAGE_BUCKET || process.env.SUPABASE_BUCKET || 'medical-records';
+
+      if (supabaseUrl && supabaseKey) {
+        const deleteUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${safeFilename}`;
+        await fetch(deleteUrl, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${supabaseKey}` },
+        }).catch(() => {});
+      }
+    }
+
     const filePath = path.join(LOCAL_STORAGE_DIR, safeFilename);
     if (fs.existsSync(filePath)) {
-      await fs.promises.unlink(filePath);
+      await fs.promises.unlink(filePath).catch(() => {});
     }
   },
 };

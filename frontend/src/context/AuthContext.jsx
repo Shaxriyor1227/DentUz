@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from '../api/client';
+import apiClient, { TOKEN_STORAGE_KEY, USER_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from '../api/client';
 
 export const AuthContext = createContext(null);
 
@@ -151,7 +151,7 @@ export function AuthProvider({ children }) {
 
     // 1. Try real backend authentication
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'https://dentuz.onrender.com/api';
+      const baseUrl = apiClient.getBaseUrl();
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

@@ -1,162 +1,150 @@
-# 🦷 DentUz — Zamonaviy Stomatologiya Klinikalari Boshqaruv Tizimi
+# 🦷 DentUz — Zamonaviy Stomatologiya Klinikalari Boshqaruv Tizimi (Dental Clinic OS)
 
 <p align="center">
   <img src="./frontend/public/favicon.svg" alt="DentUz Logo" width="96" height="96" />
 </p>
 
 <p align="center">
-  <b>O'zbekistondagi stomatologiya klinikalari uchun professional, ergonomik va to'liq avtomatlashtirilgan klinik operatsion tizim (Dental Clinic OS).</b>
+  <b>O'zbekistondagi stomatologiya klinikalari uchun professional, multi-tenant va yuqori xavfsizlikka ega klinik boshqaruv platformasi.</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black" alt="React 18" />
-  <img src="https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite&logoColor=white" alt="Vite 5" />
-  <img src="https://img.shields.io/badge/CSS_Modules-Custom_Design_Tokens-1572B6?logo=css3&logoColor=white" alt="CSS Modules" />
-  <img src="https://img.shields.io/badge/Typography-Inter_%26_JetBrains_Mono-000000" alt="Typography" />
-  <img src="https://img.shields.io/badge/Design-Apple_Spotlight_%26_GateDent_Aesthetics-06B6D4" alt="Design" />
-  <img src="https://img.shields.io/badge/Swagger-OpenAPI_3.0-85EA2D?logo=swagger&logoColor=black" alt="Swagger OpenAPI" />
-  <img src="https://img.shields.io/badge/REST_API-Optimized_Search-06B6D4" alt="REST API" />
+  <img src="https://img.shields.io/badge/Frontend-React_18_%26_Vite_5-61DAFB?logo=react&logoColor=black" alt="React 18" />
+  <img src="https://img.shields.io/badge/Backend-Express_%26_Sequelize-000000?logo=express&logoColor=white" alt="Express 4" />
+  <img src="https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Security-HIPAA_Tenant_Isolation-06B6D4" alt="Security" />
+  <img src="https://img.shields.io/badge/Deploy-Vercel_%2B_Render-000000?logo=vercel&logoColor=white" alt="Vercel & Render" />
+  <img src="https://img.shields.io/badge/Languages-UZ_%26_EN_Only-10B981" alt="Languages" />
 </p>
 
 ---
 
-## 🌟 Asosiy Imkoniyatlar (Features)
+## 🌟 Tizim Arxitekturasi va Xavfsizlik
 
-### 1. 🦷 Interaktiv Digital Odontogramma (FDI Xalqaro Standarti)
-- 32 ta tishning to'liq anatomik joylashuvi (yuqori va pastki jag', 4 ta kvadrant).
-- Har bir tishning **5 ta yuzasi** alohida boshqariladi: *Okklyuzal, Mezial, Distal, Vestibulyar, Lingval*.
-- Holatlar: Sog'lom, Karies, Plomba, Koronka, Yo'q (sug'urilgan), Ildiz davolash.
-- Tish bo'yicha tezkor muolaja belgilash va davolash tarixini real vaqtda ko'rish.
+DentUz bemorlarning nozik tibbiy ma'lumotlari (EHR, tashxislar, rentgen suratlari, to'lovlar) bilan ishlagani sababli xavfsizlik tizimning yadrosiga qurilgan:
 
-### 2. 📊 Real-vaqt Kreslolar va Klinika Dashboardi
-- Klinika kreslolari holati real vaqt indikatori (Band / Bo'sh / Tozalanmoqda, qolgan vaqt taymeri, shifokor va muolaja nomi).
-- Bugungi qabullar statistikasi va navbatdagi bemorlar ro'yxati.
-- Haftalik tushum va dinamika vizual grafiklari (chart).
-- Tezkor randevu qo'shish modali.
-
-### 3. 👥 Bemorlar Boshqaruvi va Elektron Tibbiy Karta (EHR)
-- Katta hajmdagi bemorlar ro'yxati uchun optimallashtirilgan tezkor qidiruv va filtrlash.
-- Bemor profili: Anamnez, kontaktlar, qon guruhi, allergiyalar, tish formulasi, rentgen tasvirlari galereyasi va to'lovlar varaqasi.
-- Rentgen (X-ray) lightbox ko'rish va tasvirlarni siqish algoritmi.
-
-### 4. 📅 Aqlli Randevu Taqvimi (Calendar)
-- Kunlik, haftalik va oylik interaktiv ko'rinish.
-- Shifokorlar va kabinetlar bo'yicha filtrlar.
-- O'zbekiston vaqt mintaqasi (`Asia/Tashkent`) bilan sinxronlangan qabul vaqtlari.
-
-### 5. 📑 Davolash Rejasi va Professional PDF Eksport
-- Bosqichma-bosqich davolash rejasi, har bir bosqich narxi, holati va muddati.
-- O'zbekiston Respublikasi tibbiy hujjati talablariga mos, chop etishga tayyor rasmiy **Klinik Davolash Rejasi PDF hujjati**.
-
-### 6. 💰 Moliya va Hisob-kitob Moduli
-- Davrlar bo'yicha dinamik filtrlar (*"Shu oy"*, *"O'tgan oy"*, *"Boshqa sana"*).
-- Jami tushum, kutilayotgan qoldiq to'lovlar, o'rtacha chek va to'lov turlari bo'yicha tahlil (*Payme, Click, Uzum, Naqd, Humo*).
-- Hisob-fakturalar (Invoices) boshqaruvi.
-
-### 7. 🔍 Apple Spotlight Universal Qidiruv (`⌘K` / `Ctrl+K`)
-- Istalgan sahifadan turib bemorlar, shifokorlar, xizmatlar va sahifalarni bir zumda topish.
-- Klaviatura orqali to'liq boshqaruv (`ArrowUp`, `ArrowDown`, `Enter`, `Escape`).
-
-### 8. 🌓 Klinik Ergonomik Dark / Light Mode
-- Ko'z charchashini oldini oluvchi, GateDent va Apple dizayn falsafasiga asoslangan ranglar palitrasi.
-- **Inter** shrifti — barcha sarlavhalar, matnlar, tugmalar va yorliqlar uchun.
-- **JetBrains Mono** — qat'iy ravishda faqat raqamlar, narxlar, sanalar va ID kodlar uchun.
-- 240px dan 72px ga ixchamlashuvchi yon panel (`Sidebar`) va silliq mikro-animatsiyalar.
+1. **Multi-Tenant Izolyatsiyasi (BOLA/IDOR Himoyasi):** Har bir so'rov `tenantMiddleware` va `withTenantScope` orqali tekshiriladi. Klinika A foydalanuvchisi boshqa klinikaning ma'lumotlariga kira olmaydi (`404 Not Found`).
+2. **Tibbiy Fayllar Xavfsizligi:** Ochiq statik papkalar butunlay o'chirilgan. Fayllarga faqat `GET /api/medical-records/:id/files/:fileId` endpointi, JWT autentifikatsiyasi va tenant tekshiruvi orqali ruxsat beriladi.
+3. **Storage Abstraksiyasi:** Render diski vaqtinchalik bo'lgani sababli `storageService.js` orqali **Supabase Storage** (yoki S3) drayveri integratsiya qilingan (Private bucket, Service Key faqat backendda).
+4. **Fayl Haqiqiyligini Tekshirish (Magic Bytes):** Kengaytma bilan birga faylning dastlabki baytlari (PDF, PNG, JPEG, WEBP, DICOM) tekshiriladi.
+5. **Kengaytirilgan Auth & Token Rotation:** Refresh tokenlar SHA-256 xesh qilinib saqlanadi. Bir vaqtda bir nechta tablar yuklanishi uchun 20 soniyalik qisqa **Grace Window** mavjud. O'g'irlangan yoki eski token ishlatilsa barcha sessiyalar bekor qilinadi.
+6. **AuditLog & Soft Delete:** Bemorlar va to'lovlar o'chirilganda `paranoid: true` (soft delete) qo'llanadi. Muhim amallar `AuditLog` modelida qayd etiladi.
+7. **Cold-Start UX:** Render bepul rejimida server uyg'onishini kutish uchun frontendda avtomatik 3 soniyalik cold-start indikatori va GET so'rovlarida qayta urinish (retry) mexanizmi joriy etilgan.
 
 ---
 
-## 🛠 Texnologiyalar Steki (Tech Stack)
+## 🚀 Ishga Tushirish va Deploy Yo'riqnomasi
 
-| Qatlam | Texnologiya |
-|---|---|
-| **Frontend Framework** | React 18 (Hooks, Context, Suspense, Lazy loading) |
-| **Build Tool** | Vite 5 (Fast HMR, optimized bundling) |
-| **Styling** | Vanilla CSS Modules + CSS Custom Properties (Design Tokens) |
-| **Typography** | Inter (UI), JetBrains Mono (Tabular Numbers/Codes) |
-| **Icons** | Google Material Symbols & Custom SVG Icons |
-| **Routing** | React Router v6 |
-| **PWA** | Vite PWA Plugin (Offline caching, installable web app) |
-| **Backend (Rejalashtirilgan)** | Node.js (Express) / Python (FastAPI) + PostgreSQL |
+### 1. Render.com ga Backendni Deploy Qilish
 
----
+Backend Render Web Service sifatida ishlaydi. Loyiha ildizida `render.yaml` (Blueprint) mavjud.
 
-## 🚀 O'rnatish va Ishga Tushirish (Getting Started)
+#### Qadamlar:
+1. [Render.com Dashboard](https://dashboard.render.com/) ga kiring.
+2. **New +** -> **Blueprint** ni tanlang va DentUz GitHub repozitoriysini ulang.
+3. Render avtomatik `render.yaml` faylini aniqlaydi.
+4. Muhit o'zgaruvchilarini to'ldiring:
 
-### Talablar:
-- [Node.js](https://nodejs.org/) (v18 yoki undan yuqori)
-- `npm` yoki `yarn` / `pnpm`
+| O'zgaruvchi | Tavsifi | Namuna qiymat |
+|---|---|---|
+| `NODE_ENV` | Ishga tushish muhiti | `production` |
+| `DATABASE_URL` | PostgreSQL ulanish URL | `postgresql://user:pass@host:5432/db` |
+| `JWT_SECRET` | JWT imzo kaliti (kamida 32 belgi) | `crypto.randomBytes(32).toString('hex')` |
+| `JWT_REFRESH_SECRET` | Refresh JWT kaliti (kamida 32 belgi) | `crypto.randomBytes(32).toString('hex')` |
+| `CORS_ORIGINS` | Ruxsat etilgan frontend domenlari | `https://dentuz.vercel.app` |
+| `STORAGE_DRIVER` | Fayllar ombori drayveri | `supabase` |
+| `SUPABASE_URL` | Supabase loyiha URL | `https://xyz.supabase.co` |
+| `SUPABASE_SERVICE_KEY` | Supabase Private Service Key | `eyJhbGciOi...` |
+| `STORAGE_BUCKET` | Maxfiy fayllar papkasi | `medical-records` |
+| `BOT_ENABLED` | Telegram bot polling | `false` (web uchun) / `true` (worker uchun) |
+| `ENABLE_SWAGGER` | Swagger docs yoqish | `false` (yoki Basic Auth bilan `true`) |
 
-### 1. Repozitoriyani klonlash:
-```bash
-git clone https://github.com/USERNAME/dentuz.git
-cd dentuz
-```
+5. **Start Command:** `npm run migrate && npm start` (Har bir deployda yangi migratsiyalar avtomatik xavfsiz bajariladi).
+6. **Health Check Path:** `/api/health`
 
-### 2. Frontend bog'liqliklarini (dependencies) o'rnatish:
-```bash
-cd frontend
-npm install
-```
-
-### 3. Dasturni dev rejimida ishga tushirish:
-```bash
-npm run dev
-```
-Brauzerda oching: [http://localhost:3000](http://localhost:3000)
-
-### 4. Ishlab chiqarish (Production build) uchun yig'ish:
-```bash
-npm run build
-npm run preview
-```
+> ⚠️ **Muhim:** Render bepul tarifida konteyner 15 daqiqa harakatsizlikdan so'ng uxlaydi. [UptimeRobot](https://uptimerobot.com/) kabi bepul xizmat orqali `https://your-app.onrender.com/api/health` manziliga har 5-10 daqiqada HTTP GET ping qo'yish tavsiya etiladi.
 
 ---
 
-## 📂 Loyiha Strukturasi (Folder Structure)
+### 2. Vercel ga Frontendni Deploy Qilish
 
-```text
-DentUz/
-├── .gitignore               # Git uchun filtrlar
-├── package.json             # Root boshqaruv konfiguratsiyasi
-├── README.md                # Loyiha bosh sahifasi va yo'riqnomasi
-├── backend/                 # Backend API uchun tayyorlangan papka
-└── frontend/                # React Vite Frontend ilovasi
-    ├── index.html           # HTML5 bosh sahifa va SEO teglari
-    ├── vite.config.js       # Vite konfiguratsiyasi
-    └── src/
-        ├── App.jsx          # Yo'nalishlar (Routes) va kontekstlar
-        ├── main.jsx         # React ilova ildizi
-        ├── api/             # Mock API xizmatlari (Bemorlar, Moliya, Randevular)
-        ├── components/      # Qayta ishlatiluvchi UI komponentlar
-        │   ├── Button/
-        │   ├── CalendarGrid/
-        │   ├── DataTable/
-        │   ├── Odontogram/  # FDI 32 tishli SVG odontogramma
-        │   ├── Sidebar/     # Yig'iluvchi yon navigatsiya
-        │   ├── StatCard/
-        │   ├── StatusPill/
-        │   ├── Toast/
-        │   └── TopBar/      # Apple Spotlight qidiruv va notifikatsiyalar
-        ├── context/         # Auth, Theme va Sidebar global kontekstlari
-        ├── hooks/           # Maxsus React hooklar
-        ├── layouts/         # AppLayout, AuthLayout, PublicLayout
-        ├── pages/           # Asosiy sahifalar (Dashboard, Patients, Finance...)
-        ├── styles/          # global.css va tokens.css (Design System)
-        └── utils/           # Formatlagichlar va rasm siqish utilitalari
-```
+Frontend Vercel platformasiga optimallashtirilgan (`vercel.json` xavfsizlik sarlavhalari va CSP bilan).
+
+#### Qadamlar:
+1. [Vercel Dashboard](https://vercel.com/) ga kiring.
+2. **Add New Project** -> DentUz repozitoriyini tanlang.
+3. **Root Directory:** `frontend` deb belgilang.
+4. **Environment Variables:**
+   - `VITE_API_URL`: Backend API manzili (masalan: `https://dentuz.onrender.com/api`).
+   - `VITE_USE_MOCK`: `false` (Production build uchun qat'iy talab).
+5. **Deploy** tugmasini bosing.
 
 ---
 
-## ⌨️ Klaviatura Qaynoq Tugmalari (Shortcuts)
+## 🗄️ Baza Zaxirasi va Migratsiya Tartibi
 
-| Tugma | Vazifasi |
-|---|---|
-| `⌘ + K` yoki `Ctrl + K` | Universal Apple Spotlight qidiruvni ochish |
-| `[` | Yon panelni yig'ish / ochish (Sidebar toggle) |
-| `Esc` | Ochiq modal, qidiruv yoki oynani yopish |
+Ishlab chiqarishda (Production) ma'lumotlarni xavfsiz yangilash qat'iy tartibda amalga oshiriladi:
+
+### 1-Qadam: Zaxira nusxa olish (pg_dump)
+Har qanday deploy yoki migratsiyadan oldin zaxira oling:
+```bash
+pg_dump -U postgres -d dentuz -F c -b -v -f "dentuz_backup_$(date +%Y%m%d).dump"
+```
+
+### 2-Qadam: Migratsiyalarni tekshirish va ishga tushirish
+```bash
+# Migratsiyalar holatini ko'rish
+npm --prefix backend run migrate:status
+
+# Yangi migratsiyalarni xavfsiz qo'llash
+npm --prefix backend run migrate
+
+# Zarurat bo'lsa oxirgi migratsiyani orqaga qaytarish
+npm --prefix backend run migrate:undo
+```
+
+### 3-Qadam: Yangi kodni deploy qilish
+Backend avtomatik ishga tushganda `assertNoPendingMigrations()` orqali bazaning tayyorligini tasdiqlaydi.
+
+---
+
+## 👑 Birinchi SuperAdmin Akkauntini Yaratish
+
+Yangi bazaga tizim egalari (SuperAdmin) kirishi uchun maxsus xavfsiz skript mavjud:
+
+```bash
+# Standart yoki env dagi parametrlar bilan yaratish
+cd backend
+node scripts/seed_supabase_superadmin.js
+```
+*Skript mavjud foydalanuvchini yangilaydi yoki xavfsiz parol xeshi (bcrypt 12 raund) bilan yangi `superadmin` akkaunt yaratadi.*
+
+---
+
+## 🧪 Avtomatlashtirilgan Xavfsizlik Testlari
+
+Har qanday o'zgarishdan so'ng barcha xavfsizlik va tenant qatlamlarini tekshiring:
+
+```bash
+# Barcha 23 ta xavfsizlik testlarini ishga tushirish
+npm --prefix backend run test:security
+```
+Testlar quyidagilarni avtomatik sinovdan o'tkazadi:
+- BOLA / Broken Access Control (`/api/clinics/*`)
+- Ruxsatsiz tibbiy fayllarga kirishning oldini olish
+- Barcha modellar bo'yicha Cross-Tenant IDOR testlari (Bemor, Kvitansiya, To'lov, Odontogramma, Davolash rejasi, Laboratoriya, Inventar)
+- `/auth/register` orqali superadmin huquqini noqonuniy olishni rad etish
+- Shifokorlar o'rtasida begona tibbiy yozuvlarni tahrirlashdan himoya
+- Concurrent Refresh Token Rotation (20s Grace Window)
+- Swagger Basic Auth va `/api/health` 2-soniyalik timeoutli DB tekshiruvi
+
+---
+
+## 📄 Til Siyosati
+
+DentUz tizimi xalqaro va milliy standartlarga mos ravishda **faqat O'zbek (`uz`) va Ingliz (`en`)** tillarini qo'llab-quvvatlaydi. Rus tili qo'llanilmaydi.
 
 ---
 
 ## 📄 Litsenziya
-
-Ushbu loyiha MIT litsenziyasi asosida tarqatiladi. Batafsil ma'lumot uchun `LICENSE` fayliga qarang.
+Ushbu loyiha maxfiy va xususiy mulk hisoblanadi. Ruxsatsiz nusxa ko'chirish qat'iyan taqiqlanadi.

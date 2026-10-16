@@ -1,0 +1,93 @@
+# Render Blueprint Specification for DentUz Multi-tenant Dental Platform
+# https://render.com/docs/blueprint-spec
+
+services:
+  # 1. Main Backend Web Service (Express REST API)
+  - type: web
+    name: dentuz-backend
+    env: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm run migrate && npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: VERCEL_PREVIEW_PREFIX
+        sync: false
+      - key: STORAGE_DRIVER
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: STORAGE_BUCKET
+        value: medical-records
+      - key: BOT_ENABLED
+        value: "false"
+      - key: ENABLE_SWAGGER
+        value: "false"
+      - key: SWAGGER_USER
+        sync: false
+      - key: SWAGGER_PASS
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_ADMIN_CHAT_ID
+        sync: false
+
+  # 2. Dedicated Background Telegram Bot Worker (Optional)
+  # Uncomment or activate only when interactive bot polling is needed.
+  # Keeps polling completely isolated from web request cycles.
+  - type: worker
+    name: dentuz-bot
+    env: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm run bot
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_ENABLED
+        value: "true"
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: dentuz-backend
+          envVarKey: DATABASE_URL
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: dentuz-backend
+          envVarKey: JWT_SECRET
+      - key: JWT_REFRESH_SECRET
+        fromService:
+          type: web
+          name: dentuz-backend
+          envVarKey: JWT_REFRESH_SECRET
+      - key: TELEGRAM_BOT_TOKEN
+        fromService:
+          type: web
+          name: dentuz-backend
+          envVarKey: TELEGRAM_BOT_TOKEN
+      - key: TELEGRAM_ADMIN_CHAT_ID
+        fromService:
+          type: web
+          name: dentuz-backend
+          envVarKey: TELEGRAM_ADMIN_CHAT_ID

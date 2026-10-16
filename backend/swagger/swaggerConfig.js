@@ -58,6 +58,26 @@ const options = {
 
 const swaggerSpec = swaggerJsDoc(options);
 
+const basicAuthMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="DentUz Swagger API Docs"');
+    return res.status(401).send('Avtorizatsiya talab qilinadi.');
+  }
+
+  const base64Credentials = authHeader.split(' ')[1];
+  const [username, password] = Buffer.from(base64Credentials, 'base64').toString('utf8').split(':');
+  const validUser = process.env.SWAGGER_USER || 'admin';
+  const validPass = process.env.SWAGGER_PASS || 'dentuz2026';
+
+  if (username === validUser && password === validPass) {
+    return next();
+  }
+
+  res.setHeader('WWW-Authenticate', 'Basic realm="DentUz Swagger API Docs"');
+  return res.status(401).send('Login yoki parol noto\'g\'ri.');
+};
+
 const setupSwagger = (app) => {
   const isProduction = process.env.NODE_ENV === 'production';
   const enableSwagger = process.env.ENABLE_SWAGGER === 'true';
@@ -73,8 +93,14 @@ const setupSwagger = (app) => {
     return;
   }
 
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // If in production with ENABLE_SWAGGER=true, enforce HTTP Basic Authentication
+  const middlewares = [];
+  if (isProduction && enableSwagger) {
+    middlewares.push(basicAuthMiddleware);
+  }
+
+  app.use('/api-docs', ...middlewares, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/api/docs', ...middlewares, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
 
-module.exports = { setupSwagger, swaggerSpec };
+module.exports = { setupSwagger, swaggerSpec, basicAuthMiddleware };

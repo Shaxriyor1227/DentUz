@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import apiClient from '../../api/client';
 import Logo from '../../components/Logo/Logo';
 import styles from './Login.module.css';
 
@@ -29,6 +30,11 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Pre-emptively warm up Render server on login page load
+  useEffect(() => {
+    apiClient.warmUpServer();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

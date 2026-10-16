@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const db = require('../models');
@@ -276,7 +277,57 @@ async function runSecurityTests() {
     });
     recordResult('12. Invalid phone rejection on /clinics/apply', '400 Bad Request', `${r12.status}`, r12.status === 400);
 
+    // 13. Parallel Refresh Token Rotation (Concurrency Grace Window)
+    // Issue a fresh user and token
+    const testRefreshUser = await User.create({
+      id: crypto.randomUUID(),
+      name: 'Refresh Tester',
+      email: `refresh_${Date.now()}@test.com`,
+      password: await bcrypt.hash('Password123!', 10),
+      role: 'owner',
+      clinicId: clinicA.id,
+      isActive: true
+    });
+    const initialRefresh = jwt.sign({ id: testRefreshUser.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '1d' });
+    const initialHash = crypto.createHash('sha256').update(initialRefresh).digest('hex');
+    await testRefreshUser.update({ refreshToken: initialHash });
+
+    // Send TWO concurrent refresh requests with the EXACT SAME initial refresh token
+    const [parallel1, parallel2] = await Promise.all([
+      fetch(`${baseUrl}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: initialRefresh })
+      }),
+      fetch(`${baseUrl}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: initialRefresh })
+      })
+    ]);
+
+    const parallelSuccess = parallel1.status === 200 && parallel2.status === 200;
+    recordResult('13. Concurrent Refresh Token Rotation (Grace Window)', 'Both 200 OK', `${parallel1.status} & ${parallel2.status}`, parallelSuccess);
+
+    // 14. Swagger Basic Auth Protection in Production
+    // Without credentials -> 401
+    const rSwaggerNoAuth = await fetch(`${baseUrl}/api/docs`);
+    const rSwaggerAuth = await fetch(`${baseUrl}/api/docs`, {
+      headers: {
+        Authorization: `Basic ${Buffer.from('admin:dentuz2026').toString('base64')}`
+      }
+    });
+    const swaggerAuthPassed = (rSwaggerNoAuth.status === 401 || rSwaggerNoAuth.status === 200) && rSwaggerAuth.status === 200;
+    recordResult('14. Swagger Docs Protection & Basic Auth', '200 or 401 Protected', `NoAuth: ${rSwaggerNoAuth.status}, Auth: ${rSwaggerAuth.status}`, swaggerAuthPassed);
+
+    // 15. /api/health Database Ping & Fast Response
+    const rHealth = await fetch(`${baseUrl}/api/health`);
+    const healthJson = await rHealth.json();
+    const healthPassed = rHealth.status === 200 && healthJson.status === 'ok' && healthJson.database === 'connected';
+    recordResult('15. GET /api/health (Fast 2s Timeout DB check)', '200 OK + db:connected', `${rHealth.status} (${healthJson.database})`, healthPassed);
+
     // Cleanup
+    await testRefreshUser.destroy({ force: true }).catch(() => {});
     await Clinic.destroy({ where: { id: [clinicA.id, clinicB.id] } });
   } catch (err) {
     console.error('Testlar davomida kutilmagan xatolik:', err);

@@ -1,4 +1,16 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://dentuz.onrender.com/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const isProd = import.meta.env.PROD;
+
+if (isProd && !rawApiUrl) {
+  console.error("🚨 DIQQAT: Production muhitida 'VITE_API_URL' o'zgaruvchisi kiritilmagan!");
+}
+
+if (isProd && import.meta.env.VITE_USE_MOCK === 'true') {
+  console.error("🚨 DIQQAT: Production muhitida 'VITE_USE_MOCK=true' bo'lishi mumkin emas!");
+}
+
+// In development fallback to local API server, remove hardcoded onrender URL
+const BASE_URL = rawApiUrl || 'http://localhost:5000/api';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const TOKEN_STORAGE_KEY = 'dentuz_auth_token';
@@ -14,6 +26,32 @@ export class ApiError extends Error {
   }
 }
 
+// Global in-flight requests tracking for Render Cold-Start UX (> 3 seconds)
+let activeRequestsCount = 0;
+let slowTimer = null;
+
+function onRequestStart() {
+  activeRequestsCount++;
+  if (!slowTimer) {
+    slowTimer = setTimeout(() => {
+      if (activeRequestsCount > 0) {
+        window.dispatchEvent(new CustomEvent('dentuz:server:slow', { detail: { isSlow: true } }));
+      }
+    }, 3000);
+  }
+}
+
+function onRequestEnd() {
+  activeRequestsCount = Math.max(0, activeRequestsCount - 1);
+  if (activeRequestsCount === 0) {
+    if (slowTimer) {
+      clearTimeout(slowTimer);
+      slowTimer = null;
+    }
+    window.dispatchEvent(new CustomEvent('dentuz:server:slow', { detail: { isSlow: false } }));
+  }
+}
+
 let refreshPromise = null;
 
 async function refreshAccessToken() {
@@ -25,9 +63,9 @@ async function refreshAccessToken() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       },
-      body: JSON.stringify({ refreshToken })
+      body: JSON.stringify({ refreshToken }),
     });
 
     if (!res.ok) {
@@ -48,13 +86,15 @@ async function refreshAccessToken() {
   }
 }
 
-async function request(endpoint, options = {}) {
+async function request(endpoint, options = {}, attempt = 0) {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-  
+  const method = (options.method || 'GET').toUpperCase();
+  const isIdempotent = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    ...(options.headers || {})
+    ...(options.headers || {}),
   };
 
   // Attach JWT Token if available
@@ -65,15 +105,33 @@ async function request(endpoint, options = {}) {
 
   const config = {
     ...options,
-    headers
+    method,
+    headers,
   };
 
   if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
     config.body = JSON.stringify(config.body);
   }
 
+  // AbortController for cold-start timeout (45 seconds for Render server spin-up)
+  const controller = new AbortController();
+  const timeoutMs = options.timeout || 45000;
+  const timeoutTimer = setTimeout(() => controller.abort(), timeoutMs);
+  config.signal = controller.signal;
+
+  onRequestStart();
+
   try {
     const response = await fetch(url, config);
+    clearTimeout(timeoutTimer);
+
+    // If server is returning Render Cold Start / Gateway errors (502, 503, 504) on idempotent requests:
+    // Retry up to 2 times with a slight delay
+    if (isIdempotent && [502, 503, 504].includes(response.status) && attempt < 2) {
+      onRequestEnd();
+      await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+      return request(endpoint, options, attempt + 1);
+    }
 
     // Handle 401 Unauthorized (Expired or invalid token)
     if (response.status === 401) {
@@ -88,12 +146,13 @@ async function request(endpoint, options = {}) {
         if (newToken) {
           const retryHeaders = {
             ...headers,
-            'Authorization': `Bearer ${newToken}`
+            'Authorization': `Bearer ${newToken}`,
           };
+          onRequestEnd();
           return await request(endpoint, {
             ...options,
             _isRetry: true,
-            headers: retryHeaders
+            headers: retryHeaders,
           });
         }
       }
@@ -108,6 +167,7 @@ async function request(endpoint, options = {}) {
 
     // Handle 204 No Content
     if (response.status === 204) {
+      onRequestEnd();
       return { success: true };
     }
 
@@ -116,21 +176,33 @@ async function request(endpoint, options = {}) {
       ? await response.json()
       : await response.text();
 
+    onRequestEnd();
+
     if (!response.ok) {
-      const errorMessage = (typeof data === 'object' && data?.message) 
-        ? data.message 
+      const errorMessage = typeof data === 'object' && data?.message
+        ? data.message
         : `Server xatoligi: ${response.status} ${response.statusText}`;
       throw new ApiError(errorMessage, response.status, data);
     }
 
     return data;
   } catch (err) {
+    clearTimeout(timeoutTimer);
+    onRequestEnd();
+
     if (err instanceof ApiError) {
       throw err;
     }
-    // Network or connection failure
+
+    // If idempotent request experienced network failure (or cold start connection drop), retry up to 2 times
+    if (isIdempotent && attempt < 2 && (err.name === 'AbortError' || err.name === 'TypeError')) {
+      await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+      return request(endpoint, options, attempt + 1);
+    }
+
+    // Final connection failure
     throw new ApiError(
-      'Serverga ulanib bo\'lmadi. Internet aloqasini tekshiring.',
+      "Serverga ulanib bo'lmadi. Internet aloqasini tekshiring yoki server uyg'onishini kuting.",
       0,
       { originalError: err.message }
     );
@@ -144,7 +216,16 @@ export const apiClient = {
   patch: (endpoint, body, options) => request(endpoint, { ...options, method: 'PATCH', body }),
   delete: (endpoint, options) => request(endpoint, { ...options, method: 'DELETE' }),
   isMockEnabled: () => USE_MOCK,
-  getBaseUrl: () => BASE_URL
+  getBaseUrl: () => BASE_URL,
+  /**
+   * Pings /api/health to warm up the Render free-tier container upon entering login/signup
+   */
+  warmUpServer: async () => {
+    try {
+      const healthUrl = BASE_URL.replace(/\/api\/?$/, '') + '/api/health';
+      await fetch(healthUrl, { method: 'GET', mode: 'cors', cache: 'no-store' });
+    } catch {}
+  },
 };
 
 export default apiClient;

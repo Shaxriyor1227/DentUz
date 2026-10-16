@@ -10,25 +10,11 @@ const rateLimit = require('express-rate-limit');
 dotenv.config();
 
 const logger = require('./utils/logger');
+const { validateEnvironment } = require('./config/validateEnv');
+const { assertNoPendingMigrations } = require('./config/migrator');
 
-// Fail-fast validation for mandatory environment variables
-const requiredEnvVars = ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
-const missingVars = requiredEnvVars.filter((v) => !process.env[v]);
-
-if (missingVars.length > 0) {
-  logger.error('========================================================================');
-  logger.error(`KRITIK XAVFSIZLIK XATOSI: Majburiy muhit o'zgaruvchilari topilmadi: ${missingVars.join(', ')}`);
-  logger.error('Server ishga tushirilmadi. Iltimos, backend/.env faylida ushbu kalitlarni belgilang.');
-  logger.error('========================================================================');
-  process.exit(1);
-}
-
-if (process.env.JWT_SECRET.length < 32) {
-  logger.error('========================================================================');
-  logger.error('KRITIK XAVFSIZLIK XATOSI: JWT_SECRET kamida 32 ta belgidan iborat bo\'lishi shart!');
-  logger.error('========================================================================');
-  process.exit(1);
-}
+// Validate mandatory environment variables (fails fast if invalid)
+validateEnvironment();
 
 const { setupSwagger } = require('./swagger/swaggerConfig');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -137,6 +123,33 @@ const generalApiLimiter = rateLimit({
     message: "Juda ko'p so'rov yuborildi. Iltimos, keyinroq qayta urinib ko'ring.",
   },
 });
+// Health / Uptime public endpoint with fast database connectivity check (timeout: 2000ms)
+// Placed before generalApiLimiter so external uptime monitors (UptimeRobot) are never blocked
+app.get('/api/health', async (req, res) => {
+  try {
+    const pingPromise = db.sequelize.authenticate();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Baza ulanishi vaqti tugadi (2s timeout)')), 2000)
+    );
+    await Promise.race([pingPromise, timeoutPromise]);
+
+    res.status(200).json({
+      status: 'ok',
+      uptime: Math.floor(process.uptime()),
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development',
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'degraded',
+      database: 'disconnected',
+      error: err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 app.use('/api', generalApiLimiter);
 
 setupSwagger(app);
@@ -152,25 +165,6 @@ app.get('/', (req, res) => {
 
 app.head('/', (req, res) => {
   res.status(200).end();
-});
-
-// Health / Uptime public endpoint with fast database connectivity check
-app.get('/api/health', async (req, res) => {
-  try {
-    await db.sequelize.authenticate();
-    res.json({
-      status: 'ok',
-      database: 'connected',
-      timestamp: new Date().toISOString(),
-      env: process.env.NODE_ENV || 'development',
-    });
-  } catch (dbErr) {
-    res.status(503).json({
-      status: 'degraded',
-      database: 'disconnected',
-      timestamp: new Date().toISOString(),
-    });
-  }
 });
 
 // Authentication routes (login, register, refresh are public with rate-limiting; me, logout are authenticated)
@@ -212,6 +206,9 @@ const start = async () => {
   try {
     await db.sequelize.authenticate();
     logger.info('PostgreSQL ulanish muvaffaqiyatli');
+
+    // Verify all database migrations are applied before accepting requests
+    await assertNoPendingMigrations();
 
     // In production, disable sequelize.sync({ alter: true }) to prevent data loss or lockups.
     // In development, sync is allowed.

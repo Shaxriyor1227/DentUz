@@ -1,33 +1,44 @@
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const { randomUUID } = require('crypto');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-const SUPABASE_URL = 'postgresql://postgres.aufmxtluidprpxagisuf:27112007noyabR%40@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
+const dbUrl = process.env.DATABASE_URL;
 
-const sequelize = new Sequelize(SUPABASE_URL, {
+if (!dbUrl) {
+  console.error("❌ Xatolik: DATABASE_URL muhit o'zgaruvchisi topilmadi. backend/.env faylini tekshiring.");
+  process.exit(1);
+}
+
+const sequelize = new Sequelize(dbUrl, {
   dialect: 'postgres',
   logging: false,
-  dialectOptions: {
+  dialectOptions: dbUrl.includes('localhost') ? {} : {
     ssl: {
       require: true,
-      rejectUnauthorized: false
-    }
-  }
+      rejectUnauthorized: false,
+    },
+  },
 });
 
 async function main() {
-  console.log('Connecting to Supabase...');
+  console.log('Connecting to PostgreSQL database via DATABASE_URL...');
   await sequelize.authenticate();
-  console.log('Connected!');
+  console.log('✅ Baza bilan aloqa o\'rnatildi!');
 
-  const hashedPassword = await bcrypt.hash('27112007noyabR@', 12);
+  const adminEmail = process.env.ADMIN_SEED_EMAIL || 'admin@dentuz.uz';
+  const adminUsername = process.env.ADMIN_SEED_USERNAME || 'superadmin';
+  const adminPassword = process.env.ADMIN_SEED_PASSWORD || 'DentUzSuperAdmin2026!';
+
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const now = new Date();
   const id = randomUUID();
 
   // Create or Update Superadmin
   const [existing] = await sequelize.query(
     'SELECT id, email, username FROM users WHERE email = :email OR username = :username',
-    { replacements: { email: 'shaxriyorrozmamatov@dentuz.uz', username: 'shaxriyorrozmamatov' } }
+    { replacements: { email: adminEmail, username: adminUsername } }
   );
 
   if (existing.length > 0) {
@@ -35,7 +46,7 @@ async function main() {
       'UPDATE users SET password = :password, role = :role, "isActive" = true, "updatedAt" = :now WHERE id = :id',
       { replacements: { password: hashedPassword, role: 'superadmin', now, id: existing[0].id } }
     );
-    console.log('Updated existing superadmin in Supabase:', existing[0].email);
+    console.log(`✅ Mavjud SuperAdmin yangilandi: ${existing[0].email} (role: superadmin)`);
   } else {
     await sequelize.query(
       `INSERT INTO users (id, name, "shortName", title, email, username, password, role, "isActive", "createdAt", "updatedAt")
@@ -43,29 +54,26 @@ async function main() {
       {
         replacements: {
           id,
-          name: 'Shaxriyor Rozmamatov',
-          shortName: 'Sh. Rozmamatov',
-          title: 'Bosh Boshqaruvchi • SuperAdmin',
-          email: 'shaxriyorrozmamatov@dentuz.uz',
-          username: 'shaxriyorrozmamatov',
+          name: 'Platforma SuperAdmin',
+          shortName: 'SuperAdmin',
+          title: 'Tizim Boshqaruvchisi',
+          email: adminEmail,
+          username: adminUsername,
           password: hashedPassword,
           role: 'superadmin',
           isActive: true,
           createdAt: now,
-          updatedAt: now
-        }
+          updatedAt: now,
+        },
       }
     );
-    console.log('Created NEW superadmin in Supabase: shaxriyorrozmamatov');
+    console.log(`✅ Yangi SuperAdmin yaratildi: ${adminEmail} (login: ${adminUsername})`);
   }
 
-  // Double check
-  const [users] = await sequelize.query('SELECT id, email, username, role FROM users');
-  console.log('Users now in Supabase:', users);
   process.exit(0);
 }
 
-main().catch(err => {
-  console.error('Failed:', err.message);
+main().catch((err) => {
+  console.error('❌ SuperAdmin yaratishda xatolik:', err);
   process.exit(1);
 });

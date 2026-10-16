@@ -33,6 +33,8 @@ const Finance = lazy(() => import('./pages/Finance/Finance'));
 const Settings = lazy(() => import('./pages/Settings/Settings'));
 const SuperAdmin = lazy(() => import('./pages/SuperAdmin/SuperAdmin'));
 
+import ServerWarmupBanner from './components/ServerWarmupBanner/ServerWarmupBanner';
+
 function PageFallback() {
   return (
     <div style={{ padding: '24px 0', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -48,6 +50,7 @@ export default function App() {
       <AuthProvider>
         <SidebarProvider>
           <BrowserRouter>
+            <ServerWarmupBanner />
             <Suspense fallback={<PageFallback />}>
               <Routes>
                 {/* Public Marketing Route */}
