@@ -1,6 +1,5 @@
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-
 const path = require('path');
 
 const options = {
@@ -12,7 +11,7 @@ const options = {
       description: 'DentUz Dental Clinic Management System — REST API documentation',
     },
     servers: [
-      { url: 'http://localhost:5000', description: 'Development server' },
+      { url: process.env.VITE_API_URL || 'http://localhost:5000', description: 'API server' },
     ],
     components: {
       securitySchemes: {
@@ -60,6 +59,20 @@ const options = {
 const swaggerSpec = swaggerJsDoc(options);
 
 const setupSwagger = (app) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const enableSwagger = process.env.ENABLE_SWAGGER === 'true';
+
+  // In production, Swagger is disabled by default unless explicitly enabled via ENABLE_SWAGGER=true
+  if (isProduction && !enableSwagger) {
+    app.use(['/api/docs', '/api-docs'], (req, res) => {
+      res.status(404).json({
+        success: false,
+        message: 'API hujjatlari production muhitida xavfsizlik maqsadida o\'chirilgan (ENABLE_SWAGGER=true bilan yoqish mumkin)',
+      });
+    });
+    return;
+  }
+
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };

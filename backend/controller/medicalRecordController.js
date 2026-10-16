@@ -5,28 +5,15 @@ const { Op } = require('sequelize');
 const multer = require('multer');
 const { getPagination, getPagingData } = require('../utils/pagination');
 const { withTenantScope } = require('../utils/tenantScope');
+const storageService = require('../services/storageService');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/medical'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `MR-${Date.now()}${ext}`);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowed = /jpeg|jpg|png|webp|pdf|dcm/;
-  const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
-  cb(null, allowed.test(ext));
-};
-
-exports.upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 },
+// Use memoryStorage so we can perform magic bytes validation on raw buffer
+const uploadMiddleware = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB per file limit
 }).array('attachments', 10);
+
+exports.upload = uploadMiddleware;
 
 exports.createMedicalRecord = async (req, res) => {
   const { error } = validateMedicalRecord(req.body);
@@ -53,13 +40,28 @@ exports.createMedicalRecord = async (req, res) => {
     }
 
     let attachments = req.body.attachments || [];
+    if (typeof attachments === 'string') {
+      try { attachments = JSON.parse(attachments); } catch {}
+    }
+    if (!Array.isArray(attachments)) attachments = [];
+
+    // Process uploaded files with magic-bytes validation & secure storage
     if (req.files && req.files.length > 0) {
-      const uploaded = req.files.map((f) => ({
-        name: f.originalname,
-        url:  `/uploads/medical/${f.filename}`,
-        type: f.mimetype,
-      }));
-      attachments = [...attachments, ...uploaded];
+      for (const f of req.files) {
+        const saved = await storageService.saveFile({
+          buffer: f.buffer,
+          originalName: f.originalname,
+          mimeType: f.mimetype,
+        });
+        attachments.push({
+          id: saved.id,
+          name: saved.originalName,
+          storedFilename: saved.storedFilename,
+          type: saved.mimeType,
+          size: saved.size,
+          url: `/api/medical-records/files/${saved.storedFilename}`,
+        });
+      }
     }
 
     const record = await MedicalRecord.create({
@@ -144,14 +146,41 @@ exports.updateMedicalRecord = async (req, res) => {
     });
     if (!record) return res.status(404).json({ success: false, message: 'Tibbiy yozuv topilmadi' });
 
+    // Doctor ownership check: A doctor can only modify records created by them
+    if (req.user && req.user.role === 'doctor') {
+      const doctorProfile = await Doctor.findOne({
+        where: withTenantScope(req, { userId: req.user.id })
+      });
+      if (doctorProfile && record.doctorId !== doctorProfile.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Ruxsat yo'q: Boshqa shifokorga tegishli tibbiy yozuvni tahrirlash taqiqlanadi"
+        });
+      }
+    }
+
     let attachments = req.body.attachments || record.attachments || [];
+    if (typeof attachments === 'string') {
+      try { attachments = JSON.parse(attachments); } catch {}
+    }
+    if (!Array.isArray(attachments)) attachments = [];
+
     if (req.files && req.files.length > 0) {
-      const uploaded = req.files.map((f) => ({
-        name: f.originalname,
-        url:  `/uploads/medical/${f.filename}`,
-        type: f.mimetype,
-      }));
-      attachments = [...attachments, ...uploaded];
+      for (const f of req.files) {
+        const saved = await storageService.saveFile({
+          buffer: f.buffer,
+          originalName: f.originalname,
+          mimeType: f.mimetype,
+        });
+        attachments.push({
+          id: saved.id,
+          name: saved.originalName,
+          storedFilename: saved.storedFilename,
+          type: saved.mimeType,
+          size: saved.size,
+          url: `/api/medical-records/files/${saved.storedFilename}`,
+        });
+      }
     }
 
     delete req.body.clinicId;
@@ -200,9 +229,68 @@ exports.deleteMedicalRecord = async (req, res) => {
     });
     if (!record) return res.status(404).json({ success: false, message: 'Tibbiy yozuv topilmadi' });
 
+    // Doctor ownership check on delete
+    if (req.user && req.user.role === 'doctor') {
+      const doctorProfile = await Doctor.findOne({
+        where: withTenantScope(req, { userId: req.user.id })
+      });
+      if (doctorProfile && record.doctorId !== doctorProfile.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Ruxsat yo'q: Boshqa shifokorga tegishli tibbiy yozuvni o'chirish taqiqlanadi"
+        });
+      }
+    }
+
     await record.destroy();
     res.status(200).json({ success: true, message: 'Tibbiy yozuv o\'chirildi' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Secure file retrieval endpoint:
+ * GET /api/medical-records/:id/files/:fileId
+ * - Authenticated & Tenant Scoped
+ * - Cache-Control: private, no-store
+ * - Content-Disposition with safe sanitized filename
+ */
+exports.getAttachmentFile = async (req, res) => {
+  try {
+    const { id, fileId } = req.params;
+
+    // Check if :id is a medical record ID or a direct file query
+    const record = await MedicalRecord.findOne({
+      where: withTenantScope(req, { id }),
+    });
+
+    if (!record) {
+      return res.status(404).json({ success: false, message: 'Tibbiy yozuv topilmadi yoki boshqa klinikaga tegishli' });
+    }
+
+    const attachments = record.attachments || [];
+    const target = attachments.find(
+      (a) => a.id === fileId || a.storedFilename === fileId || (a.url && a.url.includes(fileId))
+    );
+
+    const storedFilename = target?.storedFilename || fileId;
+    const fileData = await storageService.getFile(storedFilename);
+
+    if (!fileData) {
+      return res.status(404).json({ success: false, message: 'Fayl topilmadi' });
+    }
+
+    const downloadName = target?.name || target?.originalName || storedFilename;
+    const mimeType = target?.type || fileData.mimeType || 'application/octet-stream';
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(downloadName)}"`);
+    res.setHeader('Cache-Control', 'private, no-store, max-age=0, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+
+    return res.send(fileData.buffer);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 };

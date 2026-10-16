@@ -4,9 +4,9 @@ const rateLimit = require("express-rate-limit");
 const authController = require("../controller/authController");
 const { authenticate } = require("../middleware/auth");
 const { validate } = require("../middleware/validate");
-const { validateUser, validateLogin } = require("../validations/userValidation");
+const { validateRegistration, validateLogin } = require("../validations/userValidation");
 
-// Rate limiter: max 10 requests per 15 minutes per IP + identifier
+// Rate limiter for login: max 10 requests per 15 minutes per IP + identifier
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -18,6 +18,15 @@ const loginLimiter = rateLimit({
   },
   validate: false,
   message: { success: false, message: 'Juda ko\'p login urinishlari. 15 daqiqadan keyin qayta urinib ko\'ring.' },
+});
+
+// Rate limiter for token refresh: max 30 requests per 15 minutes per IP
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Juda ko\'p token yangilash so\'rovlari. Iltimos, keyinroq qayta urinib ko\'ring.' },
 });
 
 /**
@@ -32,7 +41,7 @@ const loginLimiter = rateLimit({
  * /api/auth/register:
  *   post:
  *     tags: [Auth]
- *     summary: Register a new user
+ *     summary: Yangi klinika egasini ro'yxatdan o'tkazish
  *     requestBody:
  *       required: true
  *       content:
@@ -53,26 +62,22 @@ const loginLimiter = rateLimit({
  *               password:
  *                 type: string
  *                 example: Password123!
- *               role:
- *                 type: string
- *                 enum: [owner, doctor, receptionist, nurse]
- *                 example: owner
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: Ro'yxatdan o'tish muvaffaqiyatli
  *       400:
- *         description: Email exists or validation error
- *       500:
- *         description: Server error
+ *         description: Validatsiya xatosi yoki zaif parol
+ *       409:
+ *         description: Email allaqachon mavjud
  */
-router.post("/register", loginLimiter, validate(validateUser), authController.register);
+router.post("/register", loginLimiter, validate(validateRegistration), authController.register);
 
 /**
  * @swagger
  * /api/auth/login:
  *   post:
  *     tags: [Auth]
- *     summary: User login
+ *     summary: Tizimga kirish
  *     requestBody:
  *       required: true
  *       content:
@@ -91,11 +96,11 @@ router.post("/register", loginLimiter, validate(validateUser), authController.re
  *                 example: Password123!
  *     responses:
  *       200:
- *         description: Login successful with JWT token and user info
+ *         description: Login muvaffaqiyatli
  *       401:
- *         description: Invalid credentials
- *       500:
- *         description: Server error
+ *         description: Noto'g'ri login yoki parol
+ *       429:
+ *         description: Bloklandi (brute-force)
  */
 router.post("/login", loginLimiter, validate(validateLogin), authController.login);
 
@@ -104,7 +109,7 @@ router.post("/login", loginLimiter, validate(validateLogin), authController.logi
  * /api/auth/refresh:
  *   post:
  *     tags: [Auth]
- *     summary: Refresh JWT access token
+ *     summary: Access tokenni yangilash (Refresh Token Rotation)
  *     requestBody:
  *       required: true
  *       content:
@@ -118,29 +123,21 @@ router.post("/login", loginLimiter, validate(validateLogin), authController.logi
  *                 type: string
  *     responses:
  *       200:
- *         description: New access and refresh tokens returned
- *       400:
- *         description: Refresh token is required
+ *         description: Yangi tokenlar
  *       401:
- *         description: Invalid or expired refresh token
- *       500:
- *         description: Server error
+ *         description: Token yaroqsiz yoki qayta ishlatilgan
  */
-router.post("/refresh", authController.refresh);
+router.post("/refresh", refreshLimiter, authController.refresh);
 
 /**
  * @swagger
  * /api/auth/logout:
  *   post:
  *     tags: [Auth]
- *     summary: Logout user
+ *     summary: Tizimdan chiqish (sessiyani bekor qilish)
  *     responses:
  *       200:
- *         description: Successfully logged out
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
+ *         description: Muvaffaqiyatli chiqildi
  */
 router.post("/logout", authenticate, authController.logout);
 
@@ -149,12 +146,10 @@ router.post("/logout", authenticate, authController.logout);
  * /api/auth/me:
  *   get:
  *     tags: [Auth]
- *     summary: Get profile of logged-in user
+ *     summary: Joriy foydalanuvchi ma'lumotlarini olish
  *     responses:
  *       200:
- *         description: User profile data
- *       401:
- *         description: Unauthorized
+ *         description: Foydalanuvchi profili
  */
 router.get("/me", authenticate, authController.me);
 

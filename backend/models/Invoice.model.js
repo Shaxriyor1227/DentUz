@@ -54,6 +54,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'invoices',
+      timestamps: true,
+      paranoid: true,
     }
   );
 

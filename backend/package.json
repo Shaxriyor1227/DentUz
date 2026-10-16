@@ -7,6 +7,10 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "bot": "node scripts/runBot.js",
+    "migrate": "node config/migrator.js up",
+    "migrate:undo": "node config/migrator.js down",
+    "migrate:status": "node config/migrator.js status",
+    "test:security": "node scripts/security_tests.js",
     "db:sync": "node scripts/syncDb.js",
     "db:seed": "node scripts/seedDb.js"
   },
@@ -28,6 +32,7 @@
     "sequelize": "^6.37.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "umzug": "^3.8.3",
     "uuid": "^10.0.0",
     "winston": "^3.13.0"
   },

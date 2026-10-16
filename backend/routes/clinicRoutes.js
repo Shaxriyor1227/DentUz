@@ -1,10 +1,23 @@
 const express = require("express");
 const router = express.Router();
+const rateLimit = require("express-rate-limit");
 const clinicController = require("../controller/clinicController");
 const { validate } = require("../middleware/validate");
 const { validateClinic } = require("../validations/clinicValidation");
+const { authenticate, authorize } = require("../middleware/auth");
+const { tenantMiddleware } = require("../middleware/tenantMiddleware");
 
-const { authenticate } = require("../middleware/auth");
+// Rate-limiter for public application endpoint: max 5 requests per hour per IP
+const applyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Arizalar soni oshib ketdi. Iltimos, 1 soatdan keyin qayta urinib ko'ring.",
+  },
+});
 
 /**
  * @swagger
@@ -30,7 +43,7 @@ const { authenticate } = require("../middleware/auth");
  *                 example: DentUz Klinikasi
  *               phone:
  *                 type: string
- *                 example: +998 90 123 45 67
+ *                 example: +998901234567
  *               chairsCount:
  *                 type: string
  *                 example: 1-3
@@ -41,37 +54,39 @@ const { authenticate } = require("../middleware/auth");
  *       201:
  *         description: Ariza muvaffaqiyatli qabul qilindi va saqlandi
  *       400:
- *         description: Ism va telefon raqami majburiy
+ *         description: Ism va telefon raqami majburiy yoki telefon formati noto'g'ri
+ *       429:
+ *         description: Juda ko'p so'rov yuborildi
  *       500:
  *         description: Server xatosi
  */
-router.post("/clinics/apply", clinicController.submitApplication);
+router.post("/clinics/apply", applyLimiter, clinicController.submitApplication);
 
-// All other clinic routes require authentication
-router.use(authenticate);
+// All subsequent routes require authentication and tenant isolation
+router.use(authenticate, tenantMiddleware);
 
 /**
  * @swagger
  * /api/clinics:
  *   get:
  *     tags: [Clinics]
- *     summary: Barcha klinikalarni olish
+ *     summary: Barcha klinikalarni olish (Faqat SuperAdmin)
  *     responses:
  *       200:
  *         description: Klinikalar ro'yxati
+ *       403:
+ *         description: Ruxsat yo'q
  *       500:
  *         description: Server xatosi
  */
-router.get("/clinics", clinicController.getClinics);
-
-
+router.get("/clinics", authorize('superadmin'), clinicController.getClinics);
 
 /**
  * @swagger
  * /api/clinics/applications:
  *   get:
  *     tags: [Clinics]
- *     summary: Barcha klinika ulanish arizalarini olish (Admin)
+ *     summary: Barcha klinika ulanish arizalarini olish (Faqat SuperAdmin)
  *     parameters:
  *       - in: query
  *         name: status
@@ -82,32 +97,19 @@ router.get("/clinics", clinicController.getClinics);
  *     responses:
  *       200:
  *         description: Barcha tushgan arizalar ro'yxati
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 count:
- *                   type: integer
- *                   example: 5
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
+ *       403:
+ *         description: Ruxsat yo'q
  *       500:
  *         description: Server xatosi
  */
-router.get("/clinics/applications", clinicController.getApplications);
+router.get("/clinics/applications", authorize('superadmin'), clinicController.getApplications);
 
 /**
  * @swagger
  * /api/clinics/applications/{id}/status:
  *   patch:
  *     tags: [Clinics]
- *     summary: Ariza holatini yangilash (Admin)
+ *     summary: Ariza holatini yangilash (Faqat SuperAdmin)
  *     parameters:
  *       - in: path
  *         name: id
@@ -132,19 +134,21 @@ router.get("/clinics/applications", clinicController.getApplications);
  *     responses:
  *       200:
  *         description: Ariza holati yangilandi
+ *       403:
+ *         description: Ruxsat yo'q
  *       404:
  *         description: Ariza topilmadi
  *       500:
  *         description: Server xatosi
  */
-router.patch("/clinics/applications/:id/status", clinicController.updateApplicationStatus);
+router.patch("/clinics/applications/:id/status", authorize('superadmin'), clinicController.updateApplicationStatus);
 
 /**
  * @swagger
  * /api/clinics/{id}:
  *   get:
  *     tags: [Clinics]
- *     summary: ID bo'yicha klinikani olish
+ *     summary: ID bo'yicha klinikani olish (SuperAdmin yoki ushbu klinika xodimi)
  *     parameters:
  *       - in: path
  *         name: id
@@ -155,12 +159,14 @@ router.patch("/clinics/applications/:id/status", clinicController.updateApplicat
  *     responses:
  *       200:
  *         description: Klinika ma'lumotlari
+ *       403:
+ *         description: Boshqa klinikaga kirish taqiqlangan
  *       404:
  *         description: Topilmadi
  *       500:
  *         description: Server xatosi
  */
-router.get("/clinics/:id", clinicController.getClinicById);
+router.get("/clinics/:id", authorize('superadmin', 'owner', 'administrator', 'doctor'), clinicController.getClinicById);
 
 /**
  * @swagger
@@ -178,17 +184,19 @@ router.get("/clinics/:id", clinicController.getClinicById);
  *     responses:
  *       200:
  *         description: Statistika (users, patients, appointments, invoices soni)
+ *       403:
+ *         description: Boshqa klinika statistikasiga kirish taqiqlanadi
  *       500:
  *         description: Server xatosi
  */
-router.get("/clinics/:id/stats", clinicController.getClinicStats);
+router.get("/clinics/:id/stats", authorize('superadmin', 'owner', 'administrator'), clinicController.getClinicStats);
 
 /**
  * @swagger
  * /api/clinics:
  *   post:
  *     tags: [Clinics]
- *     summary: Yangi klinika yaratish
+ *     summary: Yangi klinika yaratish (Faqat SuperAdmin)
  *     requestBody:
  *       required: true
  *       content:
@@ -219,17 +227,19 @@ router.get("/clinics/:id/stats", clinicController.getClinicStats);
  *         description: Klinika yaratildi
  *       400:
  *         description: Noto'g'ri ma'lumot
+ *       403:
+ *         description: Faqat superadmin
  *       500:
  *         description: Server xatosi
  */
-router.post("/clinics", validate(validateClinic), clinicController.createClinic);
+router.post("/clinics", authorize('superadmin'), validate(validateClinic), clinicController.createClinic);
 
 /**
  * @swagger
  * /api/clinics/{id}:
  *   put:
  *     tags: [Clinics]
- *     summary: Klinikani yangilash
+ *     summary: Klinikani yangilash (SuperAdmin yoki Klinika Rahbari)
  *     parameters:
  *       - in: path
  *         name: id
@@ -260,19 +270,21 @@ router.post("/clinics", validate(validateClinic), clinicController.createClinic)
  *         description: Yangilandi
  *       400:
  *         description: Noto'g'ri ma'lumot
+ *       403:
+ *         description: Ruxsat yo'q
  *       404:
  *         description: Topilmadi
  *       500:
  *         description: Server xatosi
  */
-router.put("/clinics/:id", validate(validateClinic), clinicController.updateClinic);
+router.put("/clinics/:id", authorize('superadmin', 'owner'), validate(validateClinic), clinicController.updateClinic);
 
 /**
  * @swagger
  * /api/clinics/{id}:
  *   delete:
  *     tags: [Clinics]
- *     summary: Klinikani o'chirish
+ *     summary: Klinikani o'chirish (Faqat SuperAdmin)
  *     parameters:
  *       - in: path
  *         name: id
@@ -283,12 +295,13 @@ router.put("/clinics/:id", validate(validateClinic), clinicController.updateClin
  *     responses:
  *       200:
  *         description: O'chirildi
+ *       403:
+ *         description: Faqat superadmin
  *       404:
  *         description: Topilmadi
  *       500:
  *         description: Server xatosi
  */
-router.delete("/clinics/:id", clinicController.deleteClinic);
+router.delete("/clinics/:id", authorize('superadmin'), clinicController.deleteClinic);
 
 module.exports = router;
-

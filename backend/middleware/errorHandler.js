@@ -1,22 +1,29 @@
+const logger = require('../utils/logger');
 
 /**
  * Global error handler — must be registered LAST in app.js.
  * Handles all error types with consistent JSON responses.
+ * Never leaks stack traces or internal DB error details in production.
  */
 const errorHandler = (err, req, res, next) => {
-  // Log full error in development, minimal in production
-  if (process.env.NODE_ENV !== 'production') {
-    console.error('[ERROR]', err);
-  } else {
-    console.error(`[ERROR] ${err.name}: ${err.message}`);
-  }
+  const isProduction = process.env.NODE_ENV === 'production';
+  const requestId = req.headers['x-request-id'] || req.id;
+
+  logger.error(err.message, {
+    requestId,
+    name: err.name,
+    code: err.code,
+    stack: isProduction ? undefined : err.stack,
+    url: req.originalUrl,
+    method: req.method,
+  });
 
   // Sequelize validation / unique constraint errors
   if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
     return res.status(422).json({
       success: false,
       message: 'Validatsiya xatosi',
-      errors: err.errors.map((e) => ({ field: e.path, message: e.message })),
+      errors: err.errors ? err.errors.map((e) => ({ field: e.path, message: e.message })) : [],
     });
   }
 
@@ -28,7 +35,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // JWT errors (in case they bubble up)
+  // JWT errors
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({ success: false, message: 'Token noto\'g\'ri' });
   }
@@ -41,11 +48,15 @@ const errorHandler = (err, req, res, next) => {
     return res.status(413).json({ success: false, message: 'Fayl hajmi 10 MB dan oshmasligi kerak' });
   }
 
-  // Generic errors
   const status = err.statusCode || err.status || 500;
+  // In production, mask internal 500 errors to avoid information disclosure
+  const message = status === 500 && isProduction
+    ? 'Ichki server xatosi yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.'
+    : (err.message || 'Ichki server xatosi');
+
   res.status(status).json({
     success: false,
-    message: err.message || 'Ichki server xatosi',
+    message,
   });
 };
 

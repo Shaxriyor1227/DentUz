@@ -1,0 +1,299 @@
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+const db = require('../models');
+const {
+  Clinic, User, Doctor, Patient, Appointment, Invoice, Payment,
+  MedicalRecord, TreatmentPlan, LabOrder, Inventory, ClinicApplication
+} = db;
+
+const app = require('../app');
+
+function generateToken(userId, role, clinicId) {
+  return jwt.sign({ id: userId, role, clinicId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+async function runSecurityTests() {
+  console.log('===============================================================');
+  console.log('      DENTUZ XAVFSIZLIK VA TENANT ISOLYATSIYASI TESTLARI       ');
+  console.log('===============================================================');
+
+  // Start test server on ephemeral port
+  const server = await new Promise((resolve) => {
+    const s = app.listen(0, () => resolve(s));
+  });
+  const port = server.address().port;
+  const baseUrl = `http://127.0.0.1:${port}`;
+  console.log(`Test server ishlamoqda: ${baseUrl}\n`);
+
+  let passed = 0;
+  let failed = 0;
+  const results = [];
+
+  const recordResult = (name, expected, actual, isSuccess) => {
+    if (isSuccess) {
+      passed++;
+      results.push({ Test: name, Kutilgan: expected, 'Haqiqiy natija': actual, Holat: '✅ O\'TDI' });
+    } else {
+      failed++;
+      results.push({ Test: name, Kutilgan: expected, 'Haqiqiy natija': actual, Holat: '❌ XATO' });
+    }
+  };
+
+  let clinicA, clinicB, receptionistA, doctorA, doctorA2, docProfileA, docProfileA2, ownerA, ownerB, patientB, invB, payB, medB, planB, labB, itemB;
+
+  try {
+    // 1. Fixtures setup
+    clinicA = await Clinic.create({ name: `SecurityTest_A_${Date.now()}` });
+    clinicB = await Clinic.create({ name: `SecurityTest_B_${Date.now()}` });
+
+    receptionistA = await User.create({
+      name: 'Sec Receptionist A',
+      email: `rec_sec_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'receptionist',
+      clinicId: clinicA.id,
+    });
+
+    doctorA = await User.create({
+      name: 'Sec Doctor A',
+      email: `doc1_sec_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'doctor',
+      clinicId: clinicA.id,
+    });
+    docProfileA = await Doctor.create({ userId: doctorA.id, clinicId: clinicA.id, specialization: 'Terapevt' });
+
+    doctorA2 = await User.create({
+      name: 'Sec Doctor A2',
+      email: `doc2_sec_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'doctor',
+      clinicId: clinicA.id,
+    });
+    docProfileA2 = await Doctor.create({ userId: doctorA2.id, clinicId: clinicA.id, specialization: 'Ortodont' });
+
+    ownerA = await User.create({
+      name: 'Sec Owner A',
+      email: `owner_sec_a_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'owner',
+      clinicId: clinicA.id,
+    });
+
+    ownerB = await User.create({
+      name: 'Sec Owner B',
+      email: `owner_sec_b_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'owner',
+      clinicId: clinicB.id,
+    });
+    const docProfileB = await Doctor.create({ userId: ownerB.id, clinicId: clinicB.id, specialization: 'Terapevt B' });
+
+    patientB = await Patient.create({
+      id: `P-SEC-B_${Date.now().toString().slice(-4)}`,
+      name: 'Patient Beta Sec',
+      clinicId: clinicB.id,
+    });
+
+    invB = await Invoice.create({
+      id: `INV-SEC-B_${Date.now().toString().slice(-4)}`,
+      patientId: patientB.id,
+      patient: patientB.name,
+      amount: 1000000,
+      clinicId: clinicB.id,
+    });
+
+    payB = await Payment.create({
+      invoiceId: invB.id,
+      patientId: patientB.id,
+      amount: 500000,
+      receiptNumber: `RCP-SEC-B_${Date.now()}`,
+      clinicId: clinicB.id,
+    });
+
+    medB = await MedicalRecord.create({
+      patientId: patientB.id,
+      doctorId: docProfileB.id,
+      complaints: 'Beta secret medical info',
+      diagnosis: 'Pulpitis',
+      attachments: [{ id: 'file-1', storedFilename: 'test-secret.pdf', originalName: 'secret.pdf' }],
+      clinicId: clinicB.id,
+    });
+
+    planB = await TreatmentPlan.create({
+      id: `TP-SEC-B_${Date.now().toString().slice(-4)}`,
+      patientId: patientB.id,
+      doctorId: docProfileB.id,
+      title: 'Plan B',
+      clinicId: clinicB.id,
+    });
+
+    labB = await LabOrder.create({
+      patientId: patientB.id,
+      doctorId: docProfileB.id,
+      technicianName: 'Lab Beta',
+      workType: 'zirconia_crown',
+      dueDate: '2026-12-31',
+      clinicId: clinicB.id,
+    });
+
+    itemB = await Inventory.create({
+      name: 'Inventory B',
+      clinicId: clinicB.id,
+    });
+
+    const tokenRecA = generateToken(receptionistA.id, receptionistA.role, clinicA.id);
+    const tokenDocA = generateToken(doctorA.id, doctorA.role, clinicA.id);
+    const tokenDocA2 = generateToken(doctorA2.id, doctorA2.role, clinicA.id);
+    const tokenOwnerA = generateToken(ownerA.id, ownerA.role, clinicA.id);
+
+    // 1. GET /api/clinics (Non-superadmin should be 403)
+    const r1 = await fetch(`${baseUrl}/api/clinics`, { headers: { Authorization: `Bearer ${tokenRecA}` } });
+    recordResult('1. GET /api/clinics (Receptionist token)', '403 Forbidden', `${r1.status}`, r1.status === 403);
+
+    // 2. GET /api/clinics/:id (Clinic B via Clinic A token should be 403)
+    const r2 = await fetch(`${baseUrl}/api/clinics/${clinicB.id}`, { headers: { Authorization: `Bearer ${tokenRecA}` } });
+    recordResult('2. GET /api/clinics/:id (Boshqa klinika)', '403 Forbidden', `${r2.status}`, r2.status === 403);
+
+    // 3. DELETE /api/clinics/:id (Non-superadmin should be 403)
+    const r3 = await fetch(`${baseUrl}/api/clinics/${clinicB.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tokenOwnerA}` } });
+    recordResult('3. DELETE /api/clinics/:id (Owner token)', '403 Forbidden', `${r3.status}`, r3.status === 403);
+
+    // 4. GET /api/clinics/applications (Non-superadmin should be 403)
+    const r4 = await fetch(`${baseUrl}/api/clinics/applications`, { headers: { Authorization: `Bearer ${tokenRecA}` } });
+    recordResult('4. GET /api/clinics/applications', '403 Forbidden', `${r4.status}`, r4.status === 403);
+
+    // 5. GET /uploads/medical/test.pdf without token should return 404 (static uploads directory removed)
+    const r5 = await fetch(`${baseUrl}/uploads/medical/test.pdf`);
+    recordResult('5. GET /uploads/medical/* ochiq statik papka', '404 Route topilmadi', `${r5.status}`, r5.status === 404);
+
+    // 6. Secure file retrieval: GET /api/medical-records/:id/files/:fileId
+    // Without token: 401
+    const r6a = await fetch(`${baseUrl}/api/medical-records/${medB.id}/files/file-1`);
+    recordResult('6a. GET /api/medical-records/:id/files/:fileId (Tokensiz)', '401 Unauthorized', `${r6a.status}`, r6a.status === 401);
+
+    // Cross-tenant file access (Clinic A tries to get Clinic B file): 404
+    const r6b = await fetch(`${baseUrl}/api/medical-records/${medB.id}/files/file-1`, { headers: { Authorization: `Bearer ${tokenDocA}` } });
+    recordResult('6b. Cross-tenant GET medical file (Klinika B fayli)', '404 Not Found', `${r6b.status}`, r6b.status === 404);
+
+    // 7. IDOR cross-tenant resource tests:
+    const idorChecks = [
+      { name: 'Patient', url: `/api/patients/${patientB.id}`, token: tokenRecA },
+      { name: 'Invoice', url: `/api/finance/invoices/${invB.id}`, token: tokenOwnerA },
+      { name: 'Payment', url: `/api/payments/${payB.id}`, token: tokenOwnerA },
+      { name: 'MedicalRecord', url: `/api/medical-records/${medB.id}`, token: tokenDocA },
+      { name: 'Odontogram', url: `/api/odontogram/${patientB.id}`, token: tokenDocA },
+      { name: 'TreatmentPlan', url: `/api/treatment-plans/${planB.id}`, token: tokenDocA },
+      { name: 'LabOrder', url: `/api/lab-orders/${labB.id}`, token: tokenDocA },
+      { name: 'Inventory', url: `/api/inventory/${itemB.id}`, token: tokenOwnerA },
+    ];
+
+    for (const c of idorChecks) {
+      const res = await fetch(`${baseUrl}${c.url}`, { headers: { Authorization: `Bearer ${c.token}` } });
+      recordResult(`7. IDOR: GET ${c.name} B from A`, '404 Not Found', `${res.status}`, res.status === 404);
+    }
+
+    // 8. Privilege Escalation Prevention on /api/auth/register
+    const r8 = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Hacker Super',
+        email: `hacker_${Date.now()}@test.com`,
+        password: 'Password123!',
+        role: 'superadmin'
+      })
+    });
+    recordResult('8. POST /api/auth/register (role: superadmin)', '400 yoki 403', `${r8.status}`, r8.status === 400 || r8.status === 403);
+
+    // 9. Doctor A2 editing Doctor A1's medical record: 403 Forbidden
+    const r9 = await fetch(`${baseUrl}/api/medical-records/${medB.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenDocA2}` },
+      body: JSON.stringify({
+        patientId: patientB.id,
+        doctorId: docProfileA2.id,
+        complaints: 'Hacked record'
+      })
+    });
+    // For medB (Clinic B), it's 404 because of tenantScope. Let's also test on Doctor A1's record:
+    const patientA = await Patient.create({ id: `P-A_${Date.now().toString().slice(-4)}`, name: 'Patient A', clinicId: clinicA.id });
+    const medA = await MedicalRecord.create({
+      patientId: patientA.id,
+      doctorId: docProfileA.id,
+      complaints: 'Doc A original record',
+      diagnosis: 'Caries',
+      clinicId: clinicA.id,
+    });
+    const r9b = await fetch(`${baseUrl}/api/medical-records/${medA.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenDocA2}` },
+      body: JSON.stringify({
+        patientId: patientA.id,
+        doctorId: docProfileA2.id,
+        complaints: 'Doc A2 attempt to modify Doc A1 record',
+        diagnosis: 'Caries'
+      })
+    });
+    recordResult('9. Doctor A2 updating Doctor A1 record', '403 Forbidden', `${r9b.status}`, r9b.status === 403);
+
+    // 10. Weak password rejection (< 8 characters): 400 Bad Request
+    const r10 = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Weak Pass User',
+        email: `weak_${Date.now()}@test.com`,
+        password: 'weak'
+      })
+    });
+    recordResult('10. Weak password (<8 chars) rejection', '400 Bad Request', `${r10.status}`, r10.status === 400);
+
+    // 11. Honeypot check on /api/clinics/apply
+    const r11 = await fetch(`${baseUrl}/api/clinics/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Bot User',
+        phone: '+998901234567',
+        website: 'http://spam.com'
+      })
+    });
+    recordResult('11. Honeypot bot protection on /clinics/apply', '400 Bad Request', `${r11.status}`, r11.status === 400);
+
+    // 12. Invalid phone format check on /api/clinics/apply
+    const r12 = await fetch(`${baseUrl}/api/clinics/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Valid Name',
+        phone: '12345'
+      })
+    });
+    recordResult('12. Invalid phone rejection on /clinics/apply', '400 Bad Request', `${r12.status}`, r12.status === 400);
+
+    // Cleanup
+    await Clinic.destroy({ where: { id: [clinicA.id, clinicB.id] } });
+  } catch (err) {
+    console.error('Testlar davomida kutilmagan xatolik:', err);
+  } finally {
+    server.close();
+  }
+
+  console.table(results);
+  console.log(`\nJami testlar: ${results.length} | O'tdi: ${passed} | Xato: ${failed}`);
+
+  if (failed > 0) {
+    console.error('❌ Xavfsizlik testlarida xatoliklar aniqlandi!');
+    process.exit(1);
+  } else {
+    console.log('🎉 Barcha xavfsizlik va tenant izolatsiyasi testlari muvaffaqiyatli o\'tdi!');
+    process.exit(0);
+  }
+}
+
+runSecurityTests();

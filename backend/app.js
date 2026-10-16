@@ -1,22 +1,35 @@
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
-// Fail-fast validation for critical JWT environment variables
-if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
-  console.error('========================================================================');
-  console.error('KRITIK XAVFSIZLIK XATOSI: JWT_SECRET yoki JWT_REFRESH_SECRET topilmadi!');
-  console.error('Server ishga tushirilmadi. Iltimos, backend/.env faylida ushbu kalitlarni belgilang.');
-  console.error('========================================================================');
+const logger = require('./utils/logger');
+
+// Fail-fast validation for mandatory environment variables
+const requiredEnvVars = ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
+const missingVars = requiredEnvVars.filter((v) => !process.env[v]);
+
+if (missingVars.length > 0) {
+  logger.error('========================================================================');
+  logger.error(`KRITIK XAVFSIZLIK XATOSI: Majburiy muhit o'zgaruvchilari topilmadi: ${missingVars.join(', ')}`);
+  logger.error('Server ishga tushirilmadi. Iltimos, backend/.env faylida ushbu kalitlarni belgilang.');
+  logger.error('========================================================================');
   process.exit(1);
 }
 
-const rateLimit = require('express-rate-limit');
+if (process.env.JWT_SECRET.length < 32) {
+  logger.error('========================================================================');
+  logger.error('KRITIK XAVFSIZLIK XATOSI: JWT_SECRET kamida 32 ta belgidan iborat bo\'lishi shart!');
+  logger.error('========================================================================');
+  process.exit(1);
+}
+
 const { setupSwagger } = require('./swagger/swaggerConfig');
 const { errorHandler } = require('./middleware/errorHandler');
 const { authenticate } = require('./middleware/auth');
@@ -45,38 +58,72 @@ const app = express();
 // Trust reverse proxy (Render.com, Nginx, Cloudflare) for accurate client IP identification in rate-limiters
 app.set('trust proxy', 1);
 
-app.use(helmet({ crossOriginResourcePolicy: false }));
+// Security Headers: Helmet with API-safe policies
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // APIs return JSON; CSP configured on frontend CDN
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+  })
+);
 app.use(compression());
 
-// Whitelist CORS configuration
-const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:5173')
+// Request ID and Request Logging Middleware
+app.use((req, res, next) => {
+  const reqId = req.headers['x-request-id'] || crypto.randomUUID();
+  req.id = reqId;
+  res.setHeader('X-Request-Id', reqId);
+  next();
+});
+
+// Whitelist CORS configuration — Wildcard vercel.app domains removed
+const allowedOrigins = (
+  process.env.CORS_ORIGINS ||
+  process.env.CLIENT_URL ||
+  'http://localhost:3000,http://localhost:3001,http://localhost:5173'
+)
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser requests (mobile, server-to-server, curl, uptime monitor)
-    if (!origin) return callback(null, true);
-    if (
-      allowedOrigins.includes(origin) ||
-      allowedOrigins.includes('*') ||
-      origin.endsWith('.vercel.app') ||
-      origin.includes('vercel.app')
-    ) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS bloklandi: Ushbu domendan so'rov qabul qilinmaydi (${origin})`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser requests (mobile, server-to-server, curl, uptime monitor)
+      if (!origin) return callback(null, true);
+
+      // Check exact whitelisted origins
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+
+      // Explicit, optional Vercel Preview URL matching if configured via VERCEL_PREVIEW_PREFIX
+      const previewPrefix = process.env.VERCEL_PREVIEW_PREFIX;
+      if (
+        previewPrefix &&
+        origin.startsWith(`https://${previewPrefix}`) &&
+        origin.endsWith('.vercel.app')
+      ) {
+        return callback(null, true);
+      }
+
+      logger.warn(`CORS bloklandi: Ushbu domendan so'rov rad etildi (${origin})`);
+      return callback(
+        new Error(`CORS bloklandi: Ushbu domendan so'rov qabul qilinmaydi (${origin})`)
+      );
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Request-Id'],
+  })
+);
 app.options('*', cors());
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Lowered payload limit to 1MB (file attachments are streamed via multer)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// NOTE: app.use('/uploads', express.static(...)) removed for medical data protection!
+// Files are served securely via GET /api/medical-records/:id/files/:fileId with auth & tenant checks.
 
 // General soft rate-limiter for all /api endpoints (max 600 req per 15 min per IP)
 const generalApiLimiter = rateLimit({
@@ -85,7 +132,10 @@ const generalApiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
-  message: { success: false, message: 'Juda ko\'p so\'rov yuborildi. Iltimos, keyinroq qayta urinib ko\'ring.' }
+  message: {
+    success: false,
+    message: "Juda ko'p so'rov yuborildi. Iltimos, keyinroq qayta urinib ko'ring.",
+  },
 });
 app.use('/api', generalApiLimiter);
 
@@ -96,7 +146,7 @@ app.get('/', (req, res) => {
     status: 'ok',
     service: 'DentUz API',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -104,15 +154,29 @@ app.head('/', (req, res) => {
   res.status(200).end();
 });
 
-// Health / Uptime public endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
+// Health / Uptime public endpoint with fast database connectivity check
+app.get('/api/health', async (req, res) => {
+  try {
+    await db.sequelize.authenticate();
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development',
+    });
+  } catch (dbErr) {
+    res.status(503).json({
+      status: 'degraded',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // Authentication routes (login, register, refresh are public with rate-limiting; me, logout are authenticated)
 app.use('/api/auth', authRoutes);
 
-// Clinic routes (/api/clinics/apply is public for clinic registration; others authenticated)
+// Clinic routes (/api/clinics/apply is public for clinic registration; other routes authenticated & tenant-scoped)
 app.use('/api', clinicRoutes);
 
 // Protected application modules - ALL require valid JWT authentication & tenant isolation
@@ -134,7 +198,10 @@ app.use('/api', authenticate, tenantMiddleware, inventoryRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Route topilmadi: ${req.method} ${req.originalUrl}` });
+  res.status(404).json({
+    success: false,
+    message: `Route topilmadi: ${req.method} ${req.originalUrl}`,
+  });
 });
 
 app.use(errorHandler);
@@ -144,38 +211,57 @@ const PORT = process.env.PORT || 5000;
 const start = async () => {
   try {
     await db.sequelize.authenticate();
-    console.log('PostgreSQL ulanish muvaffaqiyatli');
+    logger.info('PostgreSQL ulanish muvaffaqiyatli');
 
-    await db.sequelize.sync({ alter: true });
-    console.log('Barcha modellar sinxronlashtirildi');
+    // In production, disable sequelize.sync({ alter: true }) to prevent data loss or lockups.
+    // In development, sync is allowed.
+    if (process.env.NODE_ENV !== 'production') {
+      await db.sequelize.sync({ alter: true });
+      logger.info('Barcha modellar sinxronlashtirildi (development sync)');
+    } else {
+      logger.info('Production muhiti: sequelize.sync() o\'chirilgan, migratsiyalar ishlatiladi.');
+    }
 
-    app.listen(PORT, () => {
-      console.log(`DentUz API http://localhost:${PORT} portida ishlamoqda`);
-      console.log(`Swagger docs: http://localhost:${PORT}/api/docs`);
+    const server = app.listen(PORT, () => {
+      logger.info(`DentUz API http://localhost:${PORT} portida ishlamoqda`);
+      if (process.env.ENABLE_SWAGGER === 'true' || process.env.NODE_ENV !== 'production') {
+        logger.info(`Swagger docs: http://localhost:${PORT}/api/docs`);
+      }
 
-      // 2027-style Interactive Telegram Bot
-      try {
-        const bot = require('./services/telegramBot');
-        bot.startPolling();
-      } catch (botErr) {
-        console.warn('Bot start error:', botErr.message);
+      // Telegram Bot: Separated from web server. Only starts if explicitly enabled via BOT_ENABLED=true
+      if (process.env.BOT_ENABLED === 'true') {
+        try {
+          const bot = require('./services/telegramBot');
+          bot.startPolling();
+          logger.info('Interactive Telegram Bot ishga tushirildi (BOT_ENABLED=true)');
+        } catch (botErr) {
+          logger.warn('Bot start error:', { message: botErr.message });
+        }
       }
     });
+
+    return server;
   } catch (err) {
-    console.error('Server ishga tushmadi:', err);
+    logger.error('Server ishga tushmadi:', err);
     process.exit(1);
   }
 };
 
-start();
+if (require.main === module) {
+  start();
+}
 
 const gracefulShutdown = () => {
   try {
-    const bot = require('./services/telegramBot');
-    bot.stopPolling();
+    if (process.env.BOT_ENABLED === 'true') {
+      const bot = require('./services/telegramBot');
+      bot.stopPolling();
+    }
   } catch {}
   process.exit(0);
 };
 
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
+
+module.exports = app;

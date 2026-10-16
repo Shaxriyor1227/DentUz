@@ -58,6 +58,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'patients',
+      timestamps: true,
+      paranoid: true,
     }
   );
 

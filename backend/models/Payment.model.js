@@ -53,6 +53,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       tableName: 'payments',
       timestamps: true,
+      paranoid: true,
     }
   );
 

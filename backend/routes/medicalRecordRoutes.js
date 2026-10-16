@@ -243,4 +243,33 @@ router.put(
  */
 router.delete('/medical-records/:id', authorize('owner', 'doctor'), medicalRecordController.deleteMedicalRecord);
 
+/**
+ * @swagger
+ * /api/medical-records/{id}/files/{fileId}:
+ *   get:
+ *     tags: [MedicalRecords]
+ *     summary: Autentifikatsiyalangan va xavfsiz tibbiy faylni olish (Cache-Control no-store)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Medical Record ID
+ *       - in: path
+ *         name: fileId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Attachment ID or stored filename
+ *     responses:
+ *       200:
+ *         description: Fayl ma'lumot oqimi
+ *       403:
+ *         description: Boshqa klinika fayliga kirish taqiqlanadi
+ *       404:
+ *         description: Fayl topilmadi
+ */
+router.get('/medical-records/:id/files/:fileId', authorize('owner', 'doctor', 'administrator'), medicalRecordController.getAttachmentFile);
+
 module.exports = router;
