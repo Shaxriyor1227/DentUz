@@ -1144,7 +1144,7 @@ export default function Finance() {
                   <input
                     type="text"
                     className={styles.appleAmountInput}
-                    value={paymentForm.amount ? Number(paymentForm.amount).toLocaleString('ru-RU') : ''}
+                    value={paymentForm.amount ? Number(paymentForm.amount).toLocaleString(i18n.language?.startsWith('en') ? 'en-US' : 'uz-UZ') : ''}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/\D/g, '');
                       setPaymentForm((prev) => ({ ...prev, amount: raw }));

@@ -37,6 +37,7 @@ const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const labOrderRoutes = require('./routes/labOrderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
+const auditLogRoutes = require('./routes/auditLogRoutes');
 const { tenantMiddleware } = require('./middleware/tenantMiddleware');
 
 const app = express();
@@ -187,6 +188,7 @@ app.use('/api', authenticate, tenantMiddleware, paymentRoutes);
 app.use('/api', authenticate, tenantMiddleware, medicalRecordRoutes);
 app.use('/api', authenticate, tenantMiddleware, labOrderRoutes);
 app.use('/api', authenticate, tenantMiddleware, inventoryRoutes);
+app.use('/api', authenticate, tenantMiddleware, auditLogRoutes);
 
 // SuperAdmin module - requires valid JWT authentication + superadmin role
 app.use('/api/superadmin', superAdminRoutes);

@@ -153,4 +153,34 @@ router.post("/logout", authenticate, authController.logout);
  */
 router.get("/me", authenticate, authController.me);
 
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Parolni o'zgartirish
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Parol muvaffaqiyatli yangilandi
+ *       400:
+ *         description: Noto'g'ri joriy parol yoki zaif yangi parol
+ */
+router.post("/change-password", authenticate, authController.changePassword);
+
 module.exports = router;

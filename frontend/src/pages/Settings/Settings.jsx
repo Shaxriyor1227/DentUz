@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { teamApi } from '../../api/teamApi';
 import { servicesApi } from '../../api/servicesApi';
+import { auditLogsApi } from '../../api/auditLogsApi';
+import apiClient from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
+import { useFormatters } from '../../hooks/useFormatters';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Settings.module.css';
 
@@ -189,6 +194,9 @@ function formatPrice(n) {
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
+  const { user, hasRole } = useAuth();
+  const { formatDateTime } = useFormatters();
+  const isOwnerOrAdmin = hasRole(['owner', 'administrator', 'superadmin']);
 
   usePageMeta(
     isEn ? 'Practice Settings' : 'Klinika Sozlamalari',
@@ -207,6 +215,11 @@ export default function Settings() {
   const [showPermModal, setShowPermModal] = useState(null); // member obj
   const [showDeleteModal, setShowDeleteModal] = useState(null); // member obj to delete
   const [newMember, setNewMember] = useState({ name: '', title: '', role: 'Shifokor', email: '', phone: '+998 ', branch: 'Markaziy Klinika' });
+
+  // Staff Password Reset by Owner
+  const [resetPassTarget, setResetPassTarget] = useState(null);
+  const [resetPassLoading, setResetPassLoading] = useState(false);
+  const [tempPasswordIssued, setTempPasswordIssued] = useState(null);
 
   // Clinic
   const [clinicData, setClinicData] = useState(() => {
@@ -243,10 +256,23 @@ export default function Settings() {
   const [smsTemplates, setSmsTemplates] = useState(MOCK_SMS_TEMPLATES);
   const [editTemplate, setEditTemplate] = useState(null);
 
-  // Security
+  // Security & Password Change
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [passLoading, setPassLoading] = useState(false);
+  const [passError, setPassError] = useState('');
   const [twoFactor, setTwoFactor] = useState(true);
   const [passSuccess, setPassSuccess] = useState(false);
+
+  // Audit Logs
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditTotalPages, setAuditTotalPages] = useState(1);
+  const [auditActionFilter, setAuditActionFilter] = useState('');
+  const [auditSearch, setAuditSearch] = useState('');
 
   // Backup
   const [backupLoading, setBackupLoading] = useState(false);
@@ -339,17 +365,96 @@ export default function Settings() {
     setTimeout(() => setClinicSaved(false), 3000);
   };
 
-  const handleSavePassword = (e) => {
+  const handleSavePassword = async (e) => {
     e.preventDefault();
+    setPassError('');
     if (passwords.newPass !== passwords.confirm) {
-      showToast('error', isEn ? 'Error' : 'Xatolik', isEn ? 'New passwords do not match!' : 'Yangi parollar mos kelmadi!');
+      const msg = isEn ? 'New passwords do not match!' : 'Yangi parollar bir xil emas!';
+      setPassError(msg);
+      showToast('error', isEn ? 'Error' : 'Xatolik', msg);
       return;
     }
-    setPassSuccess(true);
-    setPasswords({ current: '', newPass: '', confirm: '' });
-    showToast('success', isEn ? 'Password Updated' : 'Parol o\'zgartirildi', isEn ? 'Password has been updated securely.' : 'Yangi parol muvaffaqiyatli saqlandi.');
-    setTimeout(() => setPassSuccess(false), 3000);
+    if (passwords.newPass.length < 8) {
+      const msg = isEn ? 'Password must be at least 8 characters long.' : 'Parol kamida 8 ta belgidan iborat bo\'lishi shart.';
+      setPassError(msg);
+      showToast('error', isEn ? 'Weak password' : 'Oddiy parol', msg);
+      return;
+    }
+    setPassLoading(true);
+    try {
+      const res = await apiClient.post('/auth/change-password', {
+        currentPassword: passwords.current,
+        newPassword: passwords.newPass,
+      });
+      if (res && res.success) {
+        setPassSuccess(true);
+        setPasswords({ current: '', newPass: '', confirm: '' });
+        showToast('success', isEn ? 'Password Updated' : 'Parol o\'zgartirildi', res.message || (isEn ? 'Password has been updated securely.' : 'Yangi parol muvaffaqiyatli saqlandi.'));
+        setTimeout(() => setPassSuccess(false), 4000);
+      } else {
+        const msg = res?.message || (isEn ? 'Failed to update password' : 'Parolni yangilashda xatolik');
+        setPassError(msg);
+        showToast('error', isEn ? 'Error' : 'Xatolik', msg);
+      }
+    } catch (err) {
+      const msg = err?.message || (isEn ? 'Current password incorrect or policy error' : 'Joriy parol noto\'g\'ri yoki yangi parol talablariga mos kelmadi');
+      setPassError(msg);
+      showToast('error', isEn ? 'Error' : 'Xatolik', msg);
+    } finally {
+      setPassLoading(false);
+    }
   };
+
+  const handleConfirmResetStaffPassword = async () => {
+    if (!resetPassTarget) return;
+    setResetPassLoading(true);
+    try {
+      const res = await teamApi.resetPassword(resetPassTarget.id);
+      const tempPass = res?.data?.temporaryPassword || res?.temporaryPassword;
+      setTempPasswordIssued({
+        member: resetPassTarget,
+        password: tempPass,
+      });
+      showToast(
+        'success',
+        isEn ? 'Temporary Password Issued' : 'Vaqtinchalik parol berildi',
+        isEn
+          ? `Temporary password issued for ${resetPassTarget.name}.`
+          : `${resetPassTarget.name} uchun yangi vaqtinchalik parol berildi.`
+      );
+    } catch (err) {
+      showToast('error', isEn ? 'Error' : 'Xatolik', err?.message || (isEn ? 'Failed to reset password' : 'Parolni tiklashda xatolik yuz berdi'));
+    } finally {
+      setResetPassLoading(false);
+      setResetPassTarget(null);
+    }
+  };
+
+  const loadAuditLogs = async (page = 1, action = '', search = '') => {
+    setAuditLoading(true);
+    try {
+      const res = await auditLogsApi.getAuditLogs({
+        page,
+        limit: 15,
+        action: action || undefined,
+        search: search || undefined,
+      });
+      if (res && res.data) {
+        setAuditLogs(res.data);
+        setAuditTotalPages(res.totalPages || 1);
+      }
+    } catch (err) {
+      console.warn('Audit logs load failed:', err);
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'audit' && isOwnerOrAdmin) {
+      loadAuditLogs(auditPage, auditActionFilter, auditSearch);
+    }
+  }, [activeTab, auditPage, auditActionFilter, isOwnerOrAdmin]);
 
   const handleSaveService = async (e) => {
     e.preventDefault();
@@ -426,6 +531,7 @@ export default function Settings() {
     { id: 'sms',       icon: 'sms',              label: isEn ? 'SMS Templates' : 'SMS Shablonlar' },
     { id: 'security',  icon: 'shield',           label: isEn ? 'Security & 2FA' : 'Xavfsizlik' },
     { id: 'backup',    icon: 'backup',           label: isEn ? 'Database Backup' : 'Backup' },
+    ...(isOwnerOrAdmin ? [{ id: 'audit', icon: 'manage_history', label: isEn ? 'Audit Log' : 'Faoliyat jurnali' }] : []),
   ];
 
   return (
@@ -690,6 +796,16 @@ export default function Settings() {
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>manage_accounts</span>
                               </button>
+                              {isOwnerOrAdmin && (
+                                <button
+                                  type="button"
+                                  className={styles.actionBtn}
+                                  title={isEn ? "Issue temporary password" : "Vaqtinchalik parol berish"}
+                                  onClick={() => setResetPassTarget(member)}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-cyan-hover)' }}>key</span>
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
@@ -921,36 +1037,114 @@ export default function Settings() {
           ══════════════════════════════════════════ */}
           {activeTab === 'security' && (
             <div className={styles.tabContent}>
-              <h2 className={styles.tabTitle}>Xavfsizlik</h2>
-              <p className={styles.tabSub} style={{ marginBottom: 24 }}>Parol va ikki bosqichli tasdiqlashni sozlang</p>
+              <h2 className={styles.tabTitle}>{isEn ? 'Account Security & Access' : 'Xavfsizlik'}</h2>
+              <p className={styles.tabSub} style={{ marginBottom: 24 }}>
+                {isEn ? 'Update your personal credentials and manage sessions' : 'Parol va akkaunt xavfsizligini sozlang'}
+              </p>
 
               {/* Change password */}
               <div className={styles.card}>
                 <div className={styles.cardSectionTitle}>
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lock</span>
-                  Parolni o'zgartirish
+                  {isEn ? 'Change Password' : 'Parolni o\'zgartirish'}
                 </div>
-                <form onSubmit={handleSavePassword} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 420 }}>
+                <form onSubmit={handleSavePassword} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 440 }}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Joriy parol</label>
-                    <input type="password" className={styles.input} placeholder="••••••••" value={passwords.current}
-                      onChange={e => setPasswords({ ...passwords, current: e.target.value })} required />
+                    <label className={styles.formLabel}>{isEn ? 'Current Password' : 'Joriy parol'}</label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showCurrentPass ? 'text' : 'password'}
+                        className={styles.input}
+                        placeholder="••••••••"
+                        value={passwords.current}
+                        onChange={e => setPasswords({ ...passwords, current: e.target.value })}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggleBtn}
+                        onClick={() => setShowCurrentPass(!showCurrentPass)}
+                        tabIndex={-1}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                          {showCurrentPass ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
+
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Yangi parol</label>
-                    <input type="password" className={styles.input} placeholder="Kamida 8 ta belgi" value={passwords.newPass}
-                      onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} required />
+                    <label className={styles.formLabel}>{isEn ? 'New Password' : 'Yangi parol'}</label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showNewPass ? 'text' : 'password'}
+                        className={styles.input}
+                        placeholder={isEn ? 'At least 8 characters' : 'Kamida 8 ta belgi'}
+                        value={passwords.newPass}
+                        onChange={e => setPasswords({ ...passwords, newPass: e.target.value })}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggleBtn}
+                        onClick={() => setShowNewPass(!showNewPass)}
+                        tabIndex={-1}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                          {showNewPass ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
+
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Yangi parolni takrorlang</label>
-                    <input type="password" className={styles.input} placeholder="Parolni qayta kiriting" value={passwords.confirm}
-                      onChange={e => setPasswords({ ...passwords, confirm: e.target.value })} required />
+                    <label className={styles.formLabel}>{isEn ? 'Confirm New Password' : 'Yangi parolni takrorlang'}</label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showConfirmPass ? 'text' : 'password'}
+                        className={styles.input}
+                        placeholder={isEn ? 'Re-enter new password' : 'Parolni qayta kiriting'}
+                        value={passwords.confirm}
+                        onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggleBtn}
+                        onClick={() => setShowConfirmPass(!showConfirmPass)}
+                        tabIndex={-1}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                          {showConfirmPass ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
+
+                  {passError && (
+                    <div style={{ color: 'var(--color-danger)', fontSize: 12, fontWeight: 500 }}>
+                      ⚠️ {passError}
+                    </div>
+                  )}
+
                   <div className={styles.formActions}>
-                    {passSuccess && <span className={styles.successLabel}>✓ Parol o'zgartirildi</span>}
-                    <button type="submit" className={styles.btnPrimary}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span>
-                      Yangilash
+                    {passSuccess && (
+                      <span className={styles.successLabel}>
+                        ✓ {isEn ? 'Password changed successfully' : 'Parol muvaffaqiyatli o\'zgartirildi'}
+                      </span>
+                    )}
+                    <button type="submit" className={styles.btnPrimary} disabled={passLoading}>
+                      {passLoading ? (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: 16, animation: 'spin 1s linear infinite' }}>refresh</span>
+                          {isEn ? 'Updating...' : 'Yangilanmoqda...'}
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span>
+                          {isEn ? 'Update Password' : 'Yangilash'}
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -1143,6 +1337,142 @@ export default function Settings() {
             </div>
           )}
 
+          {/* ══════════════════════════════════════════
+              TAB: AUDIT LOG (FAOLIYAT JURNALI)
+          ══════════════════════════════════════════ */}
+          {activeTab === 'audit' && isOwnerOrAdmin && (
+            <div className={styles.tabContent}>
+              <div className={styles.tabHeader}>
+                <div>
+                  <h2 className={styles.tabTitle}>{isEn ? 'Security & Activity Audit Log' : 'Faoliyat Jurnali'}</h2>
+                  <p className={styles.tabSub}>{isEn ? 'Immutable audit record of user logins, password changes, and system operations' : 'Tizimga kirish, parol tiklash va amallarning xavfsiz auditi'}</p>
+                </div>
+              </div>
+
+              {/* Filter strip */}
+              <div className={styles.filterStrip}>
+                <div className={styles.searchBox}>
+                  <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
+                  <input
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder={isEn ? "Search by user email, IP, or resource..." : "Foydalanuvchi, IP yoki resurs..."}
+                    value={auditSearch}
+                    onChange={(e) => {
+                      setAuditSearch(e.target.value);
+                      setAuditPage(1);
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    className={styles.input}
+                    style={{ height: 38, padding: '0 12px', fontSize: 13 }}
+                    value={auditActionFilter}
+                    onChange={(e) => {
+                      setAuditActionFilter(e.target.value);
+                      setAuditPage(1);
+                    }}
+                  >
+                    <option value="">{isEn ? 'All Actions' : 'Barcha amallar'}</option>
+                    <option value="AUTH_LOGIN">AUTH_LOGIN</option>
+                    <option value="AUTH_LOGOUT">AUTH_LOGOUT</option>
+                    <option value="AUTH_PASSWORD_CHANGE">AUTH_PASSWORD_CHANGE</option>
+                    <option value="STAFF_PASSWORD_RESET">STAFF_PASSWORD_RESET</option>
+                    <option value="PATIENT_CREATE">PATIENT_CREATE</option>
+                    <option value="PAYMENT_RECORD">PAYMENT_RECORD</option>
+                  </select>
+                  <button
+                    type="button"
+                    className={styles.btnOutline}
+                    style={{ height: 38, padding: '0 12px' }}
+                    onClick={() => loadAuditLogs(auditPage, auditActionFilter, auditSearch)}
+                    title={isEn ? "Refresh" : "Yangilash"}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className={styles.card} style={{ padding: 0, overflowX: 'auto' }}>
+                {auditLoading ? (
+                  <div style={{ padding: 24 }}><SkeletonLoader type="table" count={5} /></div>
+                ) : auditLogs.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>history_toggle_off</span>
+                    <p>{isEn ? 'No audit log entries found' : 'Audit yozuvlari topilmadi'}</p>
+                  </div>
+                ) : (
+                  <table className={styles.auditTable}>
+                    <thead>
+                      <tr>
+                        <th>{isEn ? 'TIMESTAMP' : 'SANA VA VAQT'}</th>
+                        <th>{isEn ? 'USER' : 'FOYDALANUVCHI'}</th>
+                        <th>{isEn ? 'ACTION' : 'AMAL'}</th>
+                        <th>{isEn ? 'RESOURCE' : 'RESURS'}</th>
+                        <th>{isEn ? 'IP ADDRESS' : 'IP MANZIL'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map((log) => (
+                        <tr key={log.id}>
+                          <td style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+                            {formatDateTime(log.createdAt)}
+                          </td>
+                          <td>
+                            <div style={{ fontWeight: 600, fontSize: 13 }}>{log.userEmail || (isEn ? 'System' : 'Tizim')}</div>
+                            <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', textTransform: 'capitalize' }}>
+                              {log.userRole || '—'}
+                            </div>
+                          </td>
+                          <td>
+                            <span className={styles.auditBadge}>
+                              {log.action}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+                            {log.resource} {log.resourceId ? `#${log.resourceId}` : ''}
+                          </td>
+                          <td style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)' }}>
+                            {log.ip || '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {/* Pagination */}
+                <div className={styles.paginationContainer}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                    {isEn ? `Page ${auditPage} of ${auditTotalPages}` : `${auditPage}-sahifa, jami ${auditTotalPages}`}
+                  </div>
+                  <div className={styles.paginationActions}>
+                    <button
+                      type="button"
+                      className={styles.pageBtn}
+                      disabled={auditPage <= 1 || auditLoading}
+                      onClick={() => setAuditPage((p) => Math.max(1, p - 1))}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_left</span>
+                      {isEn ? 'Previous' : 'Oldingi'}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.pageBtn}
+                      disabled={auditPage >= auditTotalPages || auditLoading}
+                      onClick={() => setAuditPage((p) => p + 1)}
+                    >
+                      {isEn ? 'Next' : 'Keyingi'}
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_right</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -1202,44 +1532,101 @@ export default function Settings() {
       {/* ══════════════════════════════════════════
           MODAL: Xodimni o'chirishni tasdiqlash
       ══════════════════════════════════════════ */}
-      {showDeleteModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowDeleteModal(null)}>
-          <div className={styles.modalBox} style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
-            <div className={styles.deleteModalIcon}>
-              <span className="material-symbols-outlined">person_remove</span>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <h3 className={styles.modalTitle} style={{ marginBottom: 8 }}>
-                Xodimni chiqarishni tasdiqlang
-              </h3>
-              <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-                <strong style={{ color: 'var(--color-text-primary)' }}>{showDeleteModal.name}</strong> ({showDeleteModal.role})
-                ni jamoadan chiqarishni xohlaysizmi?
-                <br />
-                Bu amalni qaytarib bo'lmaydi.
-              </p>
-            </div>
-            <div className={styles.modalFooter} style={{ justifyContent: 'center', gap: 12 }}>
-              <button
-                type="button"
-                className={styles.btnOutline}
-                style={{ minWidth: 120 }}
-                onClick={() => setShowDeleteModal(null)}
-              >
-                Bekor qilish
+      {/* ══════════════════════════════════════════
+          CONFIRM DIALOGS: Xodim o'chirish va Parol tiklash
+      ══════════════════════════════════════════ */}
+      <ConfirmDialog
+        open={Boolean(showDeleteModal)}
+        title={isEn ? 'Remove Team Member' : 'Xodimni chiqarishni tasdiqlang'}
+        message={
+          isEn
+            ? `Are you sure you want to remove ${showDeleteModal?.name} (${showDeleteModal?.role}) from the team? This action cannot be undone.`
+            : `${showDeleteModal?.name} (${showDeleteModal?.role}) ni jamoadan chiqarishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.`
+        }
+        confirmText={isEn ? 'Remove' : 'Ha, chiqarish'}
+        cancelText={isEn ? 'Cancel' : 'Bekor qilish'}
+        isDanger={true}
+        onConfirm={() => {
+          setTeam((prev) => prev.filter((m) => m.id !== showDeleteModal.id));
+          showToast(
+            'info',
+            isEn ? 'Removed' : "O'chirildi",
+            isEn ? `${showDeleteModal.name} was removed from the team.` : `${showDeleteModal.name} jamoadan chiqarildi.`
+          );
+          setShowDeleteModal(null);
+        }}
+        onCancel={() => setShowDeleteModal(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(resetPassTarget)}
+        title={isEn ? 'Issue Temporary Password' : 'Vaqtinchalik parol berish'}
+        message={
+          isEn
+            ? `Issue a new temporary password for ${resetPassTarget?.name}? Existing sessions will be terminated and password change will be mandatory on login.`
+            : `${resetPassTarget?.name} uchun yangi vaqtinchalik parol berilsinmi? Xodimning barcha mavjud seanslari yakunlanadi va keyingi kirishda yangi shaxsiy parol o'rnatishi majburiy bo'ladi.`
+        }
+        confirmText={isEn ? 'Generate & Issue' : 'Parol berish'}
+        cancelText={isEn ? 'Cancel' : 'Bekor qilish'}
+        isDanger={false}
+        icon="info"
+        loading={resetPassLoading}
+        onConfirm={handleConfirmResetStaffPassword}
+        onCancel={() => setResetPassTarget(null)}
+      />
+
+      {/* Modal: Temporary Password Generated Display */}
+      {tempPasswordIssued && (
+        <div className={styles.modalOverlay} onClick={() => setTempPasswordIssued(null)}>
+          <div className={styles.modalBox} style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-cyan-hover)' }}>key</span>
+                <h3 className={styles.modalTitle}>{isEn ? 'Temporary Password Generated' : 'Vaqtinchalik parol yaratildi'}</h3>
+              </div>
+              <button type="button" className={styles.modalClose} onClick={() => setTempPasswordIssued(null)}>
+                <span className="material-symbols-outlined">close</span>
               </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                {isEn
+                  ? `Provide this temporary password to ${tempPasswordIssued.member?.name}. Upon sign-in, the system will require them to set a new personal password.`
+                  : `Ushbu vaqtinchalik parolni ${tempPasswordIssued.member?.name} ga taqdim eting. Tizimga kirgach, xodim darhol yangi shaxsiy parol o'rnatishi shart bo'ladi.`}
+              </p>
+              <div style={{
+                background: 'var(--color-surface-container-low)',
+                border: '1px dashed var(--color-cyan-hover)',
+                borderRadius: 10,
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--color-text-primary)' }}>
+                  {tempPasswordIssued.password}
+                </span>
+                <button
+                  type="button"
+                  className={styles.btnOutline}
+                  style={{ height: 32, padding: '0 12px', fontSize: 12 }}
+                  onClick={() => {
+                    navigator.clipboard?.writeText(tempPasswordIssued.password);
+                    showToast('success', isEn ? 'Copied' : 'Nusxa olindi', isEn ? 'Password copied to clipboard' : 'Parol buferga nusxalandi');
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>content_copy</span>
+                  {isEn ? 'Copy' : 'Nusxa olish'}
+                </button>
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
               <button
                 type="button"
-                className={styles.btnDeleteConfirm}
-                style={{ minWidth: 120 }}
-                onClick={() => {
-                  setTeam(prev => prev.filter(m => m.id !== showDeleteModal.id));
-                  showToast('info', "O'chirildi", `${showDeleteModal.name} jamoadan chiqarildi.`);
-                  setShowDeleteModal(null);
-                }}
+                className={styles.btnPrimary}
+                onClick={() => setTempPasswordIssued(null)}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
-                Ha, chiqarish
+                {isEn ? 'Done' : 'Tushunarli'}
               </button>
             </div>
           </div>

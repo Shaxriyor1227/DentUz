@@ -91,9 +91,11 @@ async function request(endpoint, options = {}, attempt = 0) {
   const method = (options.method || 'GET').toUpperCase();
   const isIdempotent = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
 
+  const lang = (typeof window !== 'undefined' && localStorage.getItem('dentuz_lang')) || 'uz';
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Accept-Language': lang,
     ...(options.headers || {}),
   };
 
@@ -182,7 +184,11 @@ async function request(endpoint, options = {}, attempt = 0) {
       const errorMessage = typeof data === 'object' && data?.message
         ? data.message
         : `Server xatoligi: ${response.status} ${response.statusText}`;
-      throw new ApiError(errorMessage, response.status, data);
+      const err = new ApiError(errorMessage, response.status, data);
+      if (typeof data === 'object' && data?.code) {
+        err.code = data.code;
+      }
+      throw err;
     }
 
     return data;

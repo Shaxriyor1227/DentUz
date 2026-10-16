@@ -6,6 +6,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useSidebar } from '../../context/SidebarContext';
 import { patientsApi } from '../../api/patientsApi';
 import { notificationsApi } from '../../api/notificationsApi';
+import Toast from '../Toast/Toast';
 import styles from './TopBar.module.css';
 
 
@@ -83,6 +84,7 @@ export default function TopBar() {
   };
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [toast, setToast] = useState({ open: false, title: '', message: '', type: 'info' });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const itemRefs = useRef({});
@@ -174,7 +176,12 @@ export default function TopBar() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert(i18n.language === 'uz' ? 'Rasm hajmi 5MB dan oshmasligi kerak' : 'Image size must be under 5MB');
+        setToast({
+          open: true,
+          title: i18n.language === 'uz' ? 'Xatolik' : 'Error',
+          message: i18n.language === 'uz' ? 'Rasm hajmi 5MB dan oshmasligi kerak' : 'Image size must be under 5MB',
+          type: 'error'
+        });
         return;
       }
       const reader = new FileReader();
@@ -937,6 +944,13 @@ export default function TopBar() {
           </div>
         </div>
       )}
+      <Toast
+        open={toast.open}
+        title={toast.title}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ open: false })}
+      />
     </>
   );
 }

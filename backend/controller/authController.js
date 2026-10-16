@@ -249,3 +249,68 @@ exports.logout = async (req, res) => {
 exports.me = (req, res) => {
   res.status(200).json({ success: true, data: req.user });
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: 'Joriy parol va yangi parol kiritilishi shart',
+      });
+    }
+
+    const user = await User.scope('withSecrets').findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, code: 'USER_NOT_FOUND', message: 'Foydalanuvchi topilmadi' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        code: 'AUTH_CURRENT_PASSWORD_INCORRECT',
+        message: 'Joriy parol noto\'g\'ri kiritildi',
+      });
+    }
+
+    // Strong password policy: at least 8 chars, at least one letter and one number
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        code: 'AUTH_PASSWORD_WEAK',
+        message: 'Parol kamida 8 ta belgidan iborat bo\'lishi, kamida bitta harf va bitta raqamni o\'z ichiga olishi shart',
+      });
+    }
+
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    user.refreshToken = null; // Invalidate other active sessions
+    await user.save();
+
+    // Log to AuditLog
+    const { logAudit } = require('../utils/auditLogger');
+    await logAudit({
+      req,
+      action: 'CHANGE_PASSWORD',
+      resource: 'user',
+      resourceId: user.id,
+    });
+
+    const { access, refresh } = signTokens(user.id);
+    user.refreshToken = hashRefreshToken(refresh);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      code: 'AUTH_PASSWORD_CHANGED',
+      message: 'Parol muvaffaqiyatli yangilandi',
+      token: access,
+      refreshToken: refresh,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, code: 'INTERNAL_SERVER_ERROR', message: err.message });
+  }
+};

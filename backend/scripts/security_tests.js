@@ -326,6 +326,53 @@ async function runSecurityTests() {
     const healthPassed = rHealth.status === 200 && healthJson.status === 'ok' && healthJson.database === 'connected';
     recordResult('15. GET /api/health (Fast 2s Timeout DB check)', '200 OK + db:connected', `${rHealth.status} (${healthJson.database})`, healthPassed);
 
+    // 16. POST /api/auth/change-password (Stage 3)
+    const rChangeWrong = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenOwnerA}` },
+      body: JSON.stringify({ currentPassword: 'WrongPassword!', newPassword: 'NewValidPassword123!' })
+    });
+    const rChangeWeak = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenOwnerA}` },
+      body: JSON.stringify({ currentPassword: 'Password123!', newPassword: '123' })
+    });
+    const rChangeValid = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenOwnerA}` },
+      body: JSON.stringify({ currentPassword: 'Password123!', newPassword: 'NewValidPassword123!' })
+    });
+    const changePassed = rChangeWrong.status === 400 && rChangeWeak.status === 400 && rChangeValid.status === 200;
+    recordResult('16. POST /api/auth/change-password validation & security', '400, 400, 200', `${rChangeWrong.status}, ${rChangeWeak.status}, ${rChangeValid.status}`, changePassed);
+
+    // 17. POST /api/team/:id/reset-password (Stage 3 Staff Reset & Cross-Tenant)
+    const rResetByRec = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenRecA}` }
+    });
+    const rResetCross = await fetch(`${baseUrl}/api/team/${ownerB.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenOwnerA}` }
+    });
+    const rResetValid = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenOwnerA}` }
+    });
+    const resetJson = await rResetValid.json();
+    const resetPassed = rResetByRec.status === 403 && (rResetCross.status === 404 || rResetCross.status === 403) && rResetValid.status === 200 && resetJson.data?.temporaryPassword;
+    recordResult('17. POST /api/team/:id/reset-password (Owner only & Cross-tenant)', '403, 404, 200', `${rResetByRec.status}, ${rResetCross.status}, ${rResetValid.status}`, resetPassed);
+
+    // 18. GET /api/audit-logs (Stage 3 RBAC & Tenant Scoping)
+    const rAuditNoAuth = await fetch(`${baseUrl}/api/audit-logs`);
+    const rAuditDoc = await fetch(`${baseUrl}/api/audit-logs`, {
+      headers: { Authorization: `Bearer ${tokenDocA}` }
+    });
+    const rAuditOwner = await fetch(`${baseUrl}/api/audit-logs`, {
+      headers: { Authorization: `Bearer ${tokenOwnerA}` }
+    });
+    const auditPassed = rAuditNoAuth.status === 401 && rAuditDoc.status === 403 && rAuditOwner.status === 200;
+    recordResult('18. GET /api/audit-logs RBAC & Tenant Scoping', '401, 403, 200', `${rAuditNoAuth.status}, ${rAuditDoc.status}, ${rAuditOwner.status}`, auditPassed);
+
     // Cleanup
     await testRefreshUser.destroy({ force: true }).catch(() => {});
     await Clinic.destroy({ where: { id: [clinicA.id, clinicB.id] } });

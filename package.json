@@ -6,6 +6,8 @@
     "dev:backend": "npm --prefix backend run dev",
     "bot": "npm --prefix backend run bot",
     "build": "npm --prefix frontend install && npm --prefix frontend run build",
-    "preview": "npm --prefix frontend run preview"
+    "preview": "npm --prefix frontend run preview",
+    "i18n:check": "node frontend/scripts/check_i18n.js",
+    "test:security": "npm --prefix backend run test:security"
   }
 }

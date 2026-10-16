@@ -1,35 +1,33 @@
 /**
- * Formats numbers into Uzbek Sum format with non-breaking spaces (e.g. 4 850 000 UZS)
- * @param {number} amount
- * @param {boolean} includeSuffix
- * @returns {string}
+ * Standalone Intl formatters for non-React contexts or utilities (UZ / EN only).
  */
-export function formatUZS(amount, includeSuffix = true) {
-  if (amount === undefined || amount === null) return '0 UZS';
-  const parts = Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
-  return includeSuffix ? `${parts}\u00A0UZS` : parts;
+
+export function formatUZS(amount, includeSuffix = true, lang = 'uz') {
+  if (amount === undefined || amount === null || isNaN(Number(amount))) {
+    return includeSuffix ? (lang === 'en' ? 'UZS 0' : "0 so'm") : '0';
+  }
+  const locale = lang === 'en' ? 'en-US' : 'uz-UZ';
+  const formatted = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.round(Number(amount)));
+  if (!includeSuffix) return formatted;
+  return lang === 'en' ? `UZS ${formatted}` : `${formatted} so'm`;
 }
 
-/**
- * Format a date object or ISO string to standard clinical display (e.g. 24-may, 2024)
- * @param {string|Date} dateVal
- * @returns {string}
- */
-export function formatUzbekDate(dateVal) {
+export function formatUzbekDate(dateVal, lang = 'uz') {
   if (!dateVal) return '';
-  const d = new Date(dateVal);
-  const months = [
-    'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
-    'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'
-  ];
-  return `${d.getDate()}-${months[d.getMonth()]}, ${d.getFullYear()}`;
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return String(dateVal);
+    const locale = lang === 'en' ? 'en-US' : 'uz-UZ';
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(d);
+  } catch {
+    return String(dateVal);
+  }
 }
 
-/**
- * Returns initials from full name (e.g. "Anvar Qosimov" -> "AQ")
- * @param {string} name
- * @returns {string}
- */
 export function getInitials(name) {
   if (!name) return 'DU';
   const parts = name.trim().split(/\s+/);
@@ -37,28 +35,33 @@ export function getInitials(name) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-/**
- * Format date for financial transactions and invoice lists
- * @param {string|Date} val
- * @param {string} lang
- * @returns {string}
- */
 export function formatFinanceDate(val, lang = 'uz') {
   if (!val) return '—';
-  if (typeof val === 'string' && val.includes('-') && !val.includes('T')) return val;
   try {
     const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    const isEn = lang === 'en';
-    const day = d.getDate();
-    const monthsUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
-    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = (isEn ? monthsEn : monthsUz)[d.getMonth()];
-    const year = d.getFullYear();
-    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return `${day}-${month}, ${year}${time !== '00:00' ? ` • ${time}` : ''}`;
+    if (isNaN(d.getTime())) return String(val);
+    const locale = lang === 'en' ? 'en-US' : 'uz-UZ';
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(d);
   } catch {
-    return val;
+    return String(val);
   }
 }
 
+export function formatPhone(phoneStr) {
+  if (!phoneStr) return '—';
+  const clean = phoneStr.replace(/\D/g, '');
+  if (clean.length === 12 && clean.startsWith('998')) {
+    return `+998 ${clean.slice(3, 5)} ${clean.slice(5, 8)} ${clean.slice(8, 10)} ${clean.slice(10, 12)}`;
+  }
+  if (clean.length === 9) {
+    return `+998 ${clean.slice(0, 2)} ${clean.slice(2, 5)} ${clean.slice(5, 7)} ${clean.slice(7, 9)}`;
+  }
+  return phoneStr;
+}

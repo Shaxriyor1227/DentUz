@@ -161,6 +161,7 @@ export default function PatientProfile() {
   const [xrayBrightness, setXrayBrightness] = useState(100);
   const [xrayContrast, setXrayContrast] = useState(120);
   const [showRuler, setShowRuler] = useState(false);
+  const [failedImages, setFailedImages] = useState({});
 
   // Billing states
   const [invoices, setInvoices] = useState(INITIAL_INVOICES);
@@ -922,12 +923,26 @@ export default function PatientProfile() {
                 }}
               >
                 <div className={styles.xrayThumb}>
-                  <img src={item.img} alt={item.title} className={styles.xrayImgMock} />
-                  <div className={styles.xrayZoomIcon}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
-                      zoom_in
-                    </span>
-                  </div>
+                  {failedImages[item.id] ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '130px', background: 'var(--color-surface-container-low)', padding: '12px', textAlign: 'center', color: 'var(--color-text-secondary)', gap: '6px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '28px', color: 'var(--color-danger)' }}>broken_image</span>
+                      <span style={{ fontSize: '11px', lineHeight: 1.3 }}>{i18n.language === 'en' ? 'File does not exist, please re-upload' : 'Fayl mavjud emas, qayta yuklang'}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src={item.img}
+                        alt={item.title}
+                        className={styles.xrayImgMock}
+                        onError={() => setFailedImages((prev) => ({ ...prev, [item.id]: true }))}
+                      />
+                      <div className={styles.xrayZoomIcon}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
+                          zoom_in
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className={styles.xrayInfo}>
                   <span className={styles.xrayTitle}>{item.title}</span>
@@ -1251,19 +1266,32 @@ export default function PatientProfile() {
                 cursor: 'grab'
               }}
             >
-              <img
-                src={selectedXray.img}
-                alt={selectedXray.title}
-                style={{
-                  maxHeight: '420px',
-                  maxWidth: '92%',
-                  borderRadius: '10px',
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-                  transform: `scale(${xrayZoom})`,
-                  filter: `invert(${xrayInvert ? 1 : 0}) contrast(${xrayContrast}%) brightness(${xrayBrightness}%)`,
-                  transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease'
-                }}
-              />
+              {failedImages[selectedXray.id] ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center', color: '#fff', gap: '12px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '54px', color: '#ef4444' }}>broken_image</span>
+                  <div style={{ fontSize: '16px', fontWeight: 600 }}>
+                    {i18n.language === 'en' ? 'File does not exist, please re-upload' : 'Fayl mavjud emas, qayta yuklang'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-mono)' }}>
+                    404 Not Found • {selectedXray.img}
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={selectedXray.img}
+                  alt={selectedXray.title}
+                  onError={() => setFailedImages((prev) => ({ ...prev, [selectedXray.id]: true }))}
+                  style={{
+                    maxHeight: '420px',
+                    maxWidth: '92%',
+                    borderRadius: '10px',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
+                    transform: `scale(${xrayZoom})`,
+                    filter: `invert(${xrayInvert ? 1 : 0}) contrast(${xrayContrast}%) brightness(${xrayBrightness}%)`,
+                    transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease'
+                  }}
+                />
+              )}
 
               {/* Dental Calibration Ruler Overlay */}
               {showRuler && (

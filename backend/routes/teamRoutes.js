@@ -211,4 +211,28 @@ router.put("/team/:id", authorize('owner'), validate(validateUser), teamControll
  */
 router.delete("/team/:id", authorize('owner'), teamController.removeMember);
 
+/**
+ * @swagger
+ * /api/team/{id}/reset-password:
+ *   post:
+ *     tags: [Team]
+ *     summary: Klinika egasi (Owner) tomonidan xodim parolini tiklash
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Vaqtinchalik parol berildi
+ *       403:
+ *         description: Ruxsat berilmagan
+ *       404:
+ *         description: Xodim topilmadi
+ */
+router.post("/team/:id/reset-password", authorize('owner'), teamController.resetStaffPassword);
+
 module.exports = router;

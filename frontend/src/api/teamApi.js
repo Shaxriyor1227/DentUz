@@ -153,5 +153,25 @@ export const teamApi = {
     };
     teamMembers.push(created);
     return created;
+  },
+
+  async resetPassword(memberId) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.post(`/team/${memberId}/reset-password`);
+        return res;
+      } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
+        throw e;
+      }
+    }
+    await new Promise((r) => setTimeout(r, 200));
+    return {
+      success: true,
+      data: {
+        temporaryPassword: `DentUz#${Math.random().toString(36).slice(-6)}T`,
+        mustChangePassword: true,
+      }
+    };
   }
 };

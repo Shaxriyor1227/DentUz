@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './DataTable.module.css';
 
 export default function DataTable({
@@ -6,9 +7,12 @@ export default function DataTable({
   data = [],
   keyField = 'id',
   onRowClick,
-  emptyMessage = 'Ma\'lumot topilmadi',
+  emptyMessage,
   className = ''
 }) {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith('en');
+  const resolvedEmptyMessage = emptyMessage || (isEn ? 'No data found' : "Ma'lumot topilmadi");
   return (
     <div className={`${styles.tableContainer} ${className}`}>
       <div className={styles.scrollArea}>
@@ -34,7 +38,7 @@ export default function DataTable({
                     <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
                       inbox
                     </span>
-                    <div className={styles.emptyText}>{emptyMessage}</div>
+                    <div className={styles.emptyText}>{resolvedEmptyMessage}</div>
                   </div>
                 </td>
               </tr>

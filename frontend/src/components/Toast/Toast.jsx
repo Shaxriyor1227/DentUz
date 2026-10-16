@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './Toast.module.css';
 
 export default function Toast({
   open,
-  title = 'Muvaffaqiyatli bajarildi',
+  title,
   message,
   type = 'success',
   duration = 3500,
   onClose
 }) {
+  const { i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith('en');
+  const defaultTitle = title || (type === 'error' ? (isEn ? 'Error' : 'Xatolik') : (isEn ? 'Successfully completed' : 'Muvaffaqiyatli bajarildi'));
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
 

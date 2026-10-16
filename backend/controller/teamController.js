@@ -135,3 +135,57 @@ exports.searchMember = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+exports.resetStaffPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.scope('withSecrets').findOne({
+      where: withTenantScope(req, { id }),
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, code: 'USER_NOT_FOUND', message: 'Xodim topilmadi' });
+    }
+
+    if (user.role === 'superadmin') {
+      return res.status(403).json({ success: false, code: 'AUTH_FORBIDDEN', message: 'Ushbu foydalanuvchi parolini tiklab bo\'lmaydi' });
+    }
+
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const tempPassword = `DentUz#${randomNum}T`;
+
+    user.password = tempPassword;
+    user.mustChangePassword = true;
+    user.refreshToken = null;
+    await user.save();
+
+    const { logAudit } = require('../utils/auditLogger');
+    await logAudit({
+      req,
+      action: 'RESET_STAFF_PASSWORD',
+      resource: 'user',
+      resourceId: user.id,
+      metadata: { staffEmail: user.email, staffName: user.name, staffRole: user.role },
+    });
+
+    return res.status(200).json({
+      success: true,
+      code: 'AUTH_TEMP_PASSWORD_ISSUED',
+      message: 'Xodim uchun vaqtinchalik parol muvaffaqiyatli berildi',
+      data: {
+        temporaryPassword: tempPassword,
+        mustChangePassword: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+      temporaryPassword: tempPassword,
+      mustChangePassword: true,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, code: 'INTERNAL_SERVER_ERROR', message: err.message });
+  }
+};

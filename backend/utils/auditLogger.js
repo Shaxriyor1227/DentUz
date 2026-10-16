@@ -36,4 +36,4 @@ async function recordAuditLog({ req, action, resource, resourceId, metadata = {}
   }
 }
 
-module.exports = { recordAuditLog };
+module.exports = { recordAuditLog, logAudit: recordAuditLog };
