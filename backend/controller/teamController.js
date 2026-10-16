@@ -1,8 +1,32 @@
+const crypto = require('crypto');
 const { User, Doctor, Clinic } = require('../models');
 const { validateUser } = require('../validations/userValidation');
 const { Op } = require('sequelize');
 const { getPagination, getPagingData } = require('../utils/pagination');
 const { withTenantScope } = require('../utils/tenantScope');
+
+const ROLE_HIERARCHY = {
+  superadmin: 100,
+  owner: 80,
+  administrator: 60,
+  doctor: 40,
+  accountant: 40,
+  nurse: 20,
+  receptionist: 20,
+};
+
+function generateSecureTempPassword(length = 14) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+  const bytes = crypto.randomBytes(length * 2);
+  let pass = '';
+  for (let i = 0; i < bytes.length && pass.length < length; i++) {
+    pass += chars[bytes[i] % chars.length];
+  }
+  if (!/[A-Z]/.test(pass)) pass = 'A' + pass.slice(1);
+  if (!/[a-z]/.test(pass)) pass = pass.slice(0, 1) + 'a' + pass.slice(2);
+  if (!/[0-9]/.test(pass)) pass = pass.slice(0, 2) + '9' + pass.slice(3);
+  return pass;
+}
 
 exports.getTeam = async (req, res) => {
   try {
@@ -147,18 +171,45 @@ exports.resetStaffPassword = async (req, res) => {
       return res.status(404).json({ success: false, code: 'USER_NOT_FOUND', message: 'Xodim topilmadi' });
     }
 
-    if (user.role === 'superadmin') {
-      return res.status(403).json({ success: false, code: 'AUTH_FORBIDDEN', message: 'Ushbu foydalanuvchi parolini tiklab bo\'lmaydi' });
+    // 1. Cannot reset own password via this endpoint
+    if (req.user?.id === user.id) {
+      return res.status(403).json({
+        success: false,
+        code: 'AUTH_FORBIDDEN',
+        message: "O'z parolingizni bu yerdan tiklay olmaysiz. Sozlamalar -> Xavfsizlik bo'limidan foydalaning.",
+      });
     }
 
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const tempPassword = `DentUz#${randomNum}T`;
+    // 2. Cannot reset superadmin or owner passwords via team endpoint
+    if (user.role === 'superadmin' || user.role === 'owner') {
+      return res.status(403).json({
+        success: false,
+        code: 'AUTH_FORBIDDEN',
+        message: 'Klinika egasi yoki Superadmin parolini tiklash taqiqlangan',
+      });
+    }
+
+    // 3. Role hierarchy check: requester rank must be strictly higher than target rank
+    const requesterRank = ROLE_HIERARCHY[req.user?.role] || 0;
+    const targetRank = ROLE_HIERARCHY[user.role] || 0;
+
+    if (requesterRank <= targetRank) {
+      return res.status(403).json({
+        success: false,
+        code: 'AUTH_FORBIDDEN',
+        message: 'Faqat o\'zingizdan quyi darajadagi xodimlar parolini tiklay olasiz (teng yoki yuqori rollarga ruxsat berilmagan)',
+      });
+    }
+
+    // 4. Secure temporary password: at least 14 chars with crypto.randomBytes, no prefix, letters + numbers
+    const tempPassword = generateSecureTempPassword(14);
 
     user.password = tempPassword;
     user.mustChangePassword = true;
-    user.refreshToken = null;
+    user.refreshToken = null; // Revoke old sessions
     await user.save();
 
+    // 5. Audit log without logging password
     const { logAudit } = require('../utils/auditLogger');
     await logAudit({
       req,
@@ -168,6 +219,7 @@ exports.resetStaffPassword = async (req, res) => {
       metadata: { staffEmail: user.email, staffName: user.name, staffRole: user.role },
     });
 
+    // 6. Return temporary password ONCE in response
     return res.status(200).json({
       success: true,
       code: 'AUTH_TEMP_PASSWORD_ISSUED',

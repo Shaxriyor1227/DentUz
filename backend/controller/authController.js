@@ -133,9 +133,16 @@ exports.login = async (req, res) => {
       phone: user.phone,
       avatarUrl: user.avatarUrl,
       isActive: user.isActive,
+      mustChangePassword: Boolean(user.mustChangePassword),
     };
 
-    res.status(200).json({ success: true, token: access, refreshToken: refresh, data: userPayload });
+    res.status(200).json({
+      success: true,
+      token: access,
+      refreshToken: refresh,
+      data: userPayload,
+      mustChangePassword: Boolean(user.mustChangePassword),
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

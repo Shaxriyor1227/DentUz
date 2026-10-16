@@ -137,8 +137,20 @@ export default function Calendar() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // View Mode: 'day' | 'week' | 'month'
-  const [viewMode, setViewMode] = useState('week');
+  // View Mode: 'day' | 'week' | 'month' | 'chairs' (auto-defaults to 'day' on mobile)
+  const [viewMode, setViewMode] = useState(() => 
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'day' : 'week'
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode((curr) => (curr === 'week' ? 'day' : curr));
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Active Anchor Date: dynamic local date (Uzbekistan / current system date)
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -1254,7 +1266,7 @@ export default function Calendar() {
                                 >
                                   <span className={styles.chairsEmptyAddBtn}>
                                     <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>add</span>
-                                    <span>Qabul</span>
+                                    <span>{i18n.language === 'en' ? 'Book' : 'Qabul'}</span>
                                   </span>
                                 </div>
                               ) : (
@@ -1342,7 +1354,7 @@ export default function Calendar() {
                   <span className={`material-symbols-outlined ${styles.fieldIcon}`}>call</span>
                   <input
                     type="tel"
-                    placeholder="+998 xx xxx xx xx"
+                    placeholder="+998 90 123 45 67"
                     value={newApt.patientPhone}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -1618,7 +1630,7 @@ export default function Calendar() {
                   <span className={`material-symbols-outlined ${styles.fieldIcon}`}>call</span>
                   <input
                     type="tel"
-                    placeholder="+998 xx xxx xx xx"
+                    placeholder="+998 90 123 45 67"
                     value={newApt.patientPhone}
                     onChange={(e) => {
                       const val = e.target.value;

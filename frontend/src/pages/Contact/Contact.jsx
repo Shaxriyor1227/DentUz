@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../components/Icon/Icon';
+import { formatPhoneInput } from '../../utils/formatters';
 import styles from './Contact.module.css';
 
 export default function Contact() {
@@ -18,7 +19,8 @@ export default function Contact() {
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const val = e.target.name === 'phone' ? formatPhoneInput(e.target.value) : e.target.value;
+    setFormData((prev) => ({ ...prev, [e.target.name]: val }));
   };
 
   const handleSubmit = async (e) => {
@@ -237,7 +239,7 @@ export default function Contact() {
                         name="phone"
                         type="tel"
                         required
-                        placeholder="+998 (90) 123-45-67"
+                        placeholder="+998 90 123 45 67"
                         value={formData.phone}
                         onChange={handleChange}
                         className={styles.input}
@@ -256,10 +258,10 @@ export default function Contact() {
                       onChange={handleChange}
                       className={styles.select}
                     >
-                      <option value="1">1 ta kreslo (Yakka shifokor)</option>
-                      <option value="2-3">2 - 3 ta kreslo (Kichik klinika)</option>
-                      <option value="4-6">4 - 6 ta kreslo (O'rta klinika)</option>
-                      <option value="7+">7+ kreslo (Tarmoq yoki yirik markaz)</option>
+                      <option value="1">{isEn ? '1 chair (Solo practitioner)' : '1 ta kreslo (Yakka shifokor)'}</option>
+                      <option value="2-3">{isEn ? '2 - 3 chairs (Small clinic)' : '2 - 3 ta kreslo (Kichik klinika)'}</option>
+                      <option value="4-6">{isEn ? '4 - 6 chairs (Medium clinic)' : "4 - 6 ta kreslo (O'rta klinika)"}</option>
+                      <option value="7+">{isEn ? '7+ chairs (Network or large center)' : '7+ kreslo (Tarmoq yoki yirik markaz)'}</option>
                     </select>
                   </div>
 

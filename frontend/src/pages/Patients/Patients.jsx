@@ -7,6 +7,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import { downloadText } from '../../utils/downloadHelper';
+import { formatPhoneInput } from '../../utils/formatters';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Patients.module.css';
 
@@ -712,7 +713,7 @@ export default function Patients() {
                 <input
                   required
                   type="text"
-                  placeholder="masalan, Shavkat Karimov"
+                  placeholder={i18n.language === 'en' ? 'e.g. John Doe' : 'masalan, Shavkat Karimov'}
                   value={newPatient.name}
                   onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
                   className={styles.modalInput}
@@ -728,7 +729,7 @@ export default function Patients() {
                   type="text"
                   placeholder="+998 90 123 45 67"
                   value={newPatient.phone}
-                  onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
+                  onChange={(e) => setNewPatient({ ...newPatient, phone: formatPhoneInput(e.target.value) })}
                   className={styles.modalInput}
                 />
               </div>
@@ -739,7 +740,7 @@ export default function Patients() {
                 </label>
                 <input
                   type="text"
-                  placeholder="masalan, Penitsillin, Lidokain"
+                  placeholder={i18n.language === 'en' ? 'e.g. Penicillin, Lidocaine' : 'masalan, Penitsillin, Lidokain'}
                   value={newPatient.allergies}
                   onChange={(e) => setNewPatient({ ...newPatient, allergies: e.target.value })}
                   className={styles.modalInput}

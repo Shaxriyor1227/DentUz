@@ -65,3 +65,31 @@ export function formatPhone(phoneStr) {
   }
   return phoneStr;
 }
+
+/**
+ * Live typing mask for Uzbekistan phone inputs: +998 XX XXX XX XX
+ */
+export function formatPhoneInput(value) {
+  if (!value) return '';
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('998')) {
+    digits = digits.slice(3);
+  }
+  digits = digits.slice(0, 9); // Max 9 digits
+
+  let formatted = '+998';
+  if (digits.length > 0) {
+    formatted += ' ' + digits.slice(0, 2);
+  }
+  if (digits.length > 2) {
+    formatted += ' ' + digits.slice(2, 5);
+  }
+  if (digits.length > 5) {
+    formatted += ' ' + digits.slice(5, 7);
+  }
+  if (digits.length > 7) {
+    formatted += ' ' + digits.slice(7, 9);
+  }
+  return formatted;
+}
+

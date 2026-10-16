@@ -233,6 +233,6 @@ router.delete("/team/:id", authorize('owner'), teamController.removeMember);
  *       404:
  *         description: Xodim topilmadi
  */
-router.post("/team/:id/reset-password", authorize('owner'), teamController.resetStaffPassword);
+router.post("/team/:id/reset-password", authorize('owner', 'administrator'), teamController.resetStaffPassword);
 
 module.exports = router;

@@ -9,6 +9,7 @@ import { useFormatters } from '../../hooks/useFormatters';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import { formatPhoneInput } from '../../utils/formatters';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Settings.module.css';
 
@@ -734,7 +735,8 @@ export default function Settings() {
                     <p>{isEn ? 'No staff members found' : 'Xodim topilmadi'}</p>
                   </div>
                 ) : (
-                  <table className={styles.staffTable}>
+                  <div className={styles.tableWrapper}>
+                    <table className={styles.staffTable}>
                     <thead>
                       <tr>
                         <th>{isEn ? 'MEMBER' : 'XODIM'}</th>
@@ -820,6 +822,7 @@ export default function Settings() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 )}
               </div>
             </div>
@@ -868,7 +871,7 @@ export default function Settings() {
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder="Xizmat qidirish..."
+                    placeholder={isEn ? 'Search services...' : 'Xizmat qidirish...'}
                     value={serviceSearch}
                     onChange={e => setServiceSearch(e.target.value)}
                   />
@@ -876,13 +879,14 @@ export default function Settings() {
               </div>
 
               <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
+                <div className={styles.tableWrapper}>
                 <table className={styles.staffTable}>
                   <thead>
                     <tr>
-                      <th>Xizmat nomi</th>
-                      <th>Kategoriya</th>
-                      <th>Davomiyligi</th>
-                      <th>Narx</th>
+                      <th>{isEn ? 'SERVICE NAME' : 'XIZMAT NOMI'}</th>
+                      <th>{isEn ? 'CATEGORY' : 'KATEGORIYA'}</th>
+                      <th>{isEn ? 'DURATION' : 'DAVOMIYLIGI'}</th>
+                      <th>{isEn ? 'PRICE' : 'NARX'}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -891,7 +895,7 @@ export default function Settings() {
                       <tr key={svc.id}>
                         <td style={{ fontWeight: 600 }}>{svc.name}</td>
                         <td><span className={styles.catBadge}>{svc.category}</span></td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{svc.duration} daq</td>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{svc.duration} {isEn ? 'min' : 'daq'}</td>
                         <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--color-cyan-hover)' }}>
                           {formatPrice(svc.price)}
                         </td>
@@ -900,6 +904,7 @@ export default function Settings() {
                             <button
                               type="button"
                               className={styles.actionBtn}
+                              title={isEn ? 'Edit service' : 'Xizmatni tahrirlash'}
                               onClick={() => {
                                 setEditService(svc);
                                 setServiceForm({ category: svc.category, name: svc.name, duration: svc.duration, price: String(svc.price) });
@@ -911,7 +916,7 @@ export default function Settings() {
                             <button
                               type="button"
                               className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                              title="Xizmatni o'chirish"
+                              title={isEn ? 'Delete service' : "Xizmatni o'chirish"}
                               onClick={() => setShowDeleteServiceModal(svc)}
                             >
                               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
@@ -922,6 +927,7 @@ export default function Settings() {
                     ))}
                   </tbody>
                 </table>
+                </div>
                 {filteredServices.length === 0 && (
                   <div className={styles.emptyState}>
                     <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>search_off</span>
@@ -1491,28 +1497,29 @@ export default function Settings() {
             <form onSubmit={handleAddMember} className={styles.modalForm}>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>To'liq ismi *</label>
-                  <input required className={styles.input} placeholder="Sardor Ismoilov" value={newMember.name}
+                  <label className={styles.formLabel}>{isEn ? 'Full Name *' : "To'liq ismi *"}</label>
+                  <input required className={styles.input} placeholder={isEn ? 'e.g. John Doe' : 'Sardor Ismoilov'} value={newMember.name}
                     onChange={e => setNewMember({ ...newMember, name: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Mutaxassislik</label>
-                  <input className={styles.input} placeholder="Tish shifokori" value={newMember.title}
+                  <label className={styles.formLabel}>{isEn ? 'Specialization' : 'Mutaxassislik'}</label>
+                  <input className={styles.input} placeholder={isEn ? 'Dentist' : 'Tish shifokori'} value={newMember.title}
                     onChange={e => setNewMember({ ...newMember, title: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Rol</label>
+                  <label className={styles.formLabel}>{isEn ? 'Role' : 'Rol'}</label>
                   <select className={styles.input} value={newMember.role} onChange={e => setNewMember({ ...newMember, role: e.target.value })}>
-                    <option>Shifokor</option>
-                    <option>Hamshira</option>
-                    <option>Administrator</option>
-                    <option>Assistent</option>
+                    <option value="doctor">{isEn ? 'Doctor' : 'Shifokor'}</option>
+                    <option value="nurse">{isEn ? 'Nurse' : 'Hamshira'}</option>
+                    <option value="administrator">{isEn ? 'Administrator' : 'Administrator'}</option>
+                    <option value="receptionist">{isEn ? 'Receptionist' : 'Qabulxona'}</option>
+                    <option value="accountant">{isEn ? 'Accountant' : 'Buxgalter'}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Telefon</label>
-                  <input className={styles.input} value={newMember.phone}
-                    onChange={e => setNewMember({ ...newMember, phone: e.target.value })} />
+                  <label className={styles.formLabel}>{isEn ? 'Phone' : 'Telefon'}</label>
+                  <input className={styles.input} placeholder="+998 90 123 45 67" value={newMember.phone}
+                    onChange={e => setNewMember({ ...newMember, phone: formatPhoneInput(e.target.value) })} />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Email</label>
@@ -1827,30 +1834,30 @@ export default function Settings() {
             <form onSubmit={handleSaveService} className={styles.modalForm}>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>Xizmat nomi *</label>
-                  <input required className={styles.input} placeholder="Karies davolash" value={serviceForm.name}
+                  <label className={styles.formLabel}>{isEn ? 'Service Name *' : 'Xizmat nomi *'}</label>
+                  <input required className={styles.input} placeholder={isEn ? 'e.g. Caries treatment' : 'Karies davolash'} value={serviceForm.name}
                     onChange={e => setServiceForm({ ...serviceForm, name: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Kategoriya</label>
+                  <label className={styles.formLabel}>{isEn ? 'Category' : 'Kategoriya'}</label>
                   <select className={styles.input} value={serviceForm.category} onChange={e => setServiceForm({ ...serviceForm, category: e.target.value })}>
                     {SERVICE_CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Davomiyligi (daqiqa)</label>
+                  <label className={styles.formLabel}>{isEn ? 'Duration (minutes)' : 'Davomiyligi (daqiqa)'}</label>
                   <input type="number" min="5" className={styles.input} value={serviceForm.duration}
                     onChange={e => setServiceForm({ ...serviceForm, duration: Number(e.target.value) })} />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>Narx (so'm) *</label>
+                  <label className={styles.formLabel}>{isEn ? 'Price (UZS) *' : "Narx (so'm) *"}</label>
                   <input required type="number" min="0" className={styles.input} placeholder="250000" value={serviceForm.price}
                     onChange={e => setServiceForm({ ...serviceForm, price: e.target.value })} />
                 </div>
               </div>
               <div className={styles.modalFooter}>
-                <button type="button" className={styles.btnOutline} onClick={() => setShowServiceModal(false)}>Bekor qilish</button>
-                <button type="submit" className={styles.btnPrimary}>{editService ? 'Yangilash' : 'Qo\'shish'}</button>
+                <button type="button" className={styles.btnOutline} onClick={() => setShowServiceModal(false)}>{isEn ? 'Cancel' : 'Bekor qilish'}</button>
+                <button type="submit" className={styles.btnPrimary}>{editService ? (isEn ? 'Update' : 'Yangilash') : (isEn ? 'Add' : "Qo'shish")}</button>
               </div>
             </form>
           </div>

@@ -171,7 +171,8 @@ export function AuthProvider({ children }) {
             email: data.data?.email || data.user?.email || identifier,
             clinic: data.data?.clinic?.name || data.user?.clinic?.name || 'DentUz Markaziy Klinika',
             phone: data.data?.phone || data.user?.phone || '',
-            avatar: data.data?.avatarUrl || data.user?.avatarUrl || null
+            avatar: data.data?.avatarUrl || data.user?.avatarUrl || null,
+            mustChangePassword: Boolean(data.data?.mustChangePassword ?? data.mustChangePassword)
           };
 
           setToken(data.token);

@@ -35,6 +35,21 @@ const authenticate = async (req, res, next) => {
     }
 
     req.user = user;
+
+    if (user.mustChangePassword === true) {
+      const originalUrl = req.originalUrl || req.url || '';
+      const allowed = ['/auth/change-password', '/auth/logout', '/auth/me'].some((path) =>
+        originalUrl.includes(path)
+      );
+      if (!allowed) {
+        return res.status(403).json({
+          success: false,
+          code: 'MUST_CHANGE_PASSWORD',
+          message: "Xavfsizlik talabi: Boshqa amallarni bajarishdan oldin parolingizni o'zgartirishingiz shart",
+        });
+      }
+    }
+
     return next();
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import Logo from '../../components/Logo/Logo';
 import Icon from '../../components/Icon/Icon';
+import { formatPhoneInput } from '../../utils/formatters';
 import styles from './SuperAdmin.module.css';
 
 // Sleek Custom Dropdown (No native OS select box glitches)
@@ -2195,7 +2196,7 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
                         required
                         placeholder="+998 90 123 45 67"
                         value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, phone: formatPhoneInput(e.target.value) })}
                       />
                     </div>
 
@@ -2416,7 +2417,7 @@ Iltimos, birinchi marta kirgach, xavfsizlik uchun parolingizni yangilab oling.`;
                       type="text"
                       placeholder="+998 90 000 00 00"
                       value={userFormData.phone}
-                      onChange={(e) => setUserFormData({ ...userFormData, phone: e.target.value })}
+                      onChange={(e) => setUserFormData({ ...userFormData, phone: formatPhoneInput(e.target.value) })}
                     />
                   </div>
 

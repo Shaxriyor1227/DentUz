@@ -85,6 +85,22 @@ async function runSecurityTests() {
       clinicId: clinicA.id,
     });
 
+    adminA1 = await User.create({
+      name: 'Sec Admin A1',
+      email: `admin1_sec_a_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'administrator',
+      clinicId: clinicA.id,
+    });
+
+    adminA2 = await User.create({
+      name: 'Sec Admin A2',
+      email: `admin2_sec_a_${Date.now()}@test.com`,
+      password: 'Password123!',
+      role: 'administrator',
+      clinicId: clinicA.id,
+    });
+
     ownerB = await User.create({
       name: 'Sec Owner B',
       email: `owner_sec_b_${Date.now()}@test.com`,
@@ -151,6 +167,8 @@ async function runSecurityTests() {
     const tokenDocA = generateToken(doctorA.id, doctorA.role, clinicA.id);
     const tokenDocA2 = generateToken(doctorA2.id, doctorA2.role, clinicA.id);
     const tokenOwnerA = generateToken(ownerA.id, ownerA.role, clinicA.id);
+    const tokenAdminA1 = generateToken(adminA1.id, adminA1.role, clinicA.id);
+    const tokenAdminA2 = generateToken(adminA2.id, adminA2.role, clinicA.id);
 
     // 1. GET /api/clinics (Non-superadmin should be 403)
     const r1 = await fetch(`${baseUrl}/api/clinics`, { headers: { Authorization: `Bearer ${tokenRecA}` } });
@@ -345,22 +363,48 @@ async function runSecurityTests() {
     const changePassed = rChangeWrong.status === 400 && rChangeWeak.status === 400 && rChangeValid.status === 200;
     recordResult('16. POST /api/auth/change-password validation & security', '400, 400, 200', `${rChangeWrong.status}, ${rChangeWeak.status}, ${rChangeValid.status}`, changePassed);
 
-    // 17. POST /api/team/:id/reset-password (Stage 3 Staff Reset & Cross-Tenant)
-    const rResetByRec = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
+    // 17. POST /api/team/:id/reset-password (Role Hierarchy & Crypto TempPass)
+    // 17a: Administrator -> Owner (403)
+    const rAdminToOwner = await fetch(`${baseUrl}/api/team/${ownerA.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenAdminA1}` }
+    });
+    // 17b: Administrator -> Another Administrator (403 equal rank)
+    const rAdminToAdmin = await fetch(`${baseUrl}/api/team/${adminA2.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenAdminA1}` }
+    });
+    // 17c: Doctor / Receptionist -> Reset (403)
+    const rDocToReset = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokenDocA}` }
+    });
+    const rRecToReset = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${tokenRecA}` }
     });
-    const rResetCross = await fetch(`${baseUrl}/api/team/${ownerB.id}/reset-password`, {
+    // 17d: Owner -> Cross-tenant clinic staff (404)
+    const rOwnerCross = await fetch(`${baseUrl}/api/team/${ownerB.id}/reset-password`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${tokenOwnerA}` }
     });
-    const rResetValid = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
+    // 17e: Owner -> Clinic doctor (200 with secure crypto temporary password)
+    const rOwnerToDoc = await fetch(`${baseUrl}/api/team/${doctorA.id}/reset-password`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${tokenOwnerA}` }
     });
-    const resetJson = await rResetValid.json();
-    const resetPassed = rResetByRec.status === 403 && (rResetCross.status === 404 || rResetCross.status === 403) && rResetValid.status === 200 && resetJson.data?.temporaryPassword;
-    recordResult('17. POST /api/team/:id/reset-password (Owner only & Cross-tenant)', '403, 404, 200', `${rResetByRec.status}, ${rResetCross.status}, ${rResetValid.status}`, resetPassed);
+    const resetJson = await rOwnerToDoc.json();
+    const tempPass = resetJson.data?.temporaryPassword || resetJson.temporaryPassword;
+    const isCryptoSecure = typeof tempPass === 'string' && tempPass.length >= 12 && !tempPass.startsWith('DentUz#') && /[A-Za-z]/.test(tempPass) && /[0-9]/.test(tempPass);
+
+    const hierarchyPassed = rAdminToOwner.status === 403 &&
+                            rAdminToAdmin.status === 403 &&
+                            rDocToReset.status === 403 &&
+                            rRecToReset.status === 403 &&
+                            rOwnerCross.status === 404 &&
+                            rOwnerToDoc.status === 200 &&
+                            isCryptoSecure;
+    recordResult('17. POST /api/team/:id/reset-password Role Hierarchy & Crypto TempPass', '403, 403, 403, 404, 200 (secure)', `${rAdminToOwner.status}, ${rAdminToAdmin.status}, ${rRecToReset.status}, ${rOwnerCross.status}, ${rOwnerToDoc.status}`, hierarchyPassed);
 
     // 18. GET /api/audit-logs (Stage 3 RBAC & Tenant Scoping)
     const rAuditNoAuth = await fetch(`${baseUrl}/api/audit-logs`);
@@ -372,6 +416,43 @@ async function runSecurityTests() {
     });
     const auditPassed = rAuditNoAuth.status === 401 && rAuditDoc.status === 403 && rAuditOwner.status === 200;
     recordResult('18. GET /api/audit-logs RBAC & Tenant Scoping', '401, 403, 200', `${rAuditNoAuth.status}, ${rAuditDoc.status}, ${rAuditOwner.status}`, auditPassed);
+
+    // 19. mustChangePassword Lifecycle & Gatekeeper
+    // 19a: Login with temporary password returns mustChangePassword: true
+    const rLoginTemp = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: doctorA.email, password: tempPass })
+    });
+    const loginTempJson = await rLoginTemp.json();
+    const docToken = loginTempJson.token;
+    const flagReturned = rLoginTemp.status === 200 && (loginTempJson.mustChangePassword === true || loginTempJson.data?.mustChangePassword === true);
+
+    // 19b: API requests other than change-password/logout/me blocked with 403 MUST_CHANGE_PASSWORD
+    const rBlockedApi = await fetch(`${baseUrl}/api/patients`, {
+      headers: { Authorization: `Bearer ${docToken}` }
+    });
+    const blockedJson = await rBlockedApi.json();
+    const isBlocked = rBlockedApi.status === 403 && blockedJson.code === 'MUST_CHANGE_PASSWORD';
+
+    // 19c: User updates password via POST /api/auth/change-password
+    const rChangeMust = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${docToken}` },
+      body: JSON.stringify({ currentPassword: tempPass, newPassword: 'DoctorNewSecret2026!' })
+    });
+    const changeMustJson = await rChangeMust.json();
+    const newDocToken = changeMustJson.token || docToken;
+    const changeAllowed = rChangeMust.status === 200;
+
+    // 19d: Subsequent API request succeeds after password change (flag cleared)
+    const rAllowedApi = await fetch(`${baseUrl}/api/patients`, {
+      headers: { Authorization: `Bearer ${newDocToken}` }
+    });
+    const apiAllowed = rAllowedApi.status === 200;
+
+    const lifecyclePassed = flagReturned && isBlocked && changeAllowed && apiAllowed;
+    recordResult('19. mustChangePassword full lifecycle & API gatekeeper', 'Login flag: true, Blocked: 403, Changed: 200, Resumed: 200', `${flagReturned ? 'true' : 'false'}, ${rBlockedApi.status}, ${rChangeMust.status}, ${rAllowedApi.status}`, lifecyclePassed);
 
     // Cleanup
     await testRefreshUser.destroy({ force: true }).catch(() => {});

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../../components/Logo/Logo';
+import { formatPhoneInput } from '../../utils/formatters';
 import styles from './Signup.module.css';
 
 // Crisp inline SVGs
@@ -270,9 +271,9 @@ export default function Signup() {
                 type="tel"
                 required
                 className={styles.input}
-                placeholder="+998 (90) 123-45-67"
+                placeholder="+998 90 123 45 67"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
               />
             </div>
           </div>
