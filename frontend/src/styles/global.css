@@ -30,7 +30,7 @@ body {
 
 /* Enforce Inter for headings, labels, body text, inputs, buttons */
 h1, h2, h3, h4, h5, h6,
-p, span, label, button, input, select, textarea, th, td {
+p, span:not(.material-symbols-outlined), label, button, input, select, textarea, th, td {
   font-family: var(--font-body);
 }
 
@@ -65,14 +65,23 @@ input, select, textarea {
 
 /* Material Symbols alignment helper */
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  vertical-align: middle;
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
   line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Prevent icons from blocking render when font not yet loaded */
-  font-display: block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
 }
 
 .material-symbols-outlined.fill {
