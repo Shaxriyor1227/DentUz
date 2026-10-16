@@ -5,10 +5,10 @@ import { ThemeProvider } from './context/ThemeContext';
 import { SidebarProvider } from './context/SidebarContext';
 import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader';
 
-// Layouts — loaded eagerly since they are shared shells
+// Layouts — PublicLayout is eager for instant first paint; authenticated layouts are code-split
 import PublicLayout from './layouts/PublicLayout/PublicLayout';
-import AuthLayout from './layouts/AuthLayout/AuthLayout';
-import AppLayout from './layouts/AppLayout/AppLayout';
+const AuthLayout = lazy(() => import('./layouts/AuthLayout/AuthLayout'));
+const AppLayout = lazy(() => import('./layouts/AppLayout/AppLayout'));
 
 import ProtectedRoute from './components/RoleGuard/ProtectedRoute';
 

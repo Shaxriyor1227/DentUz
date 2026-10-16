@@ -107,9 +107,10 @@ exports.getAppointments = async (req, res) => {
 
     const { count, rows } = await Appointment.findAndCountAll({
       where,
+      distinct: true,
       include: [
-        { model: Patient, as: 'patient' },
-        { model: Doctor,  as: 'doctor'  },
+        { model: Patient, as: 'patient', attributes: ['id', 'name', 'phone', 'avatarUrl'] },
+        { model: Doctor,  as: 'doctor',  attributes: ['id', 'userId', 'specialization', 'cabinetNumber'] },
       ],
       order: [['date', 'ASC'], ['time', 'ASC']],
       limit: lim,

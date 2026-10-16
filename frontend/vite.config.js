@@ -94,7 +94,7 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       minify: 'esbuild',
       cssMinify: true,
-      chunkSizeWarningLimit: 700,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           // Manual chunk splitting for isolated heavy libraries

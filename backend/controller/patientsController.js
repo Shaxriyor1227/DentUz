@@ -57,26 +57,31 @@ exports.getPatients = async (req, res) => {
 
     where = withTenantScope(req, where);
 
-    const [allCount, todayCount, scheduledCount, debtorCount] = await Promise.all([
-      Patient.count({ where: withTenantScope(req) }),
-      Patient.count({ where: withTenantScope(req, { status: 'today' }) }),
-      Patient.count({ where: withTenantScope(req, { status: 'scheduled' }) }),
-      Patient.count({
-        where: withTenantScope(req, {
-          [Op.or]: [
-            { status: 'debtor' },
-            { balance: { [Op.lt]: 0 } },
-          ],
-        }),
-      }),
-    ]);
+    // High-performance single-pass conditional aggregation
+    const clinicId = req.clinicId;
+    const countsResult = await Patient.sequelize.query(`
+      SELECT
+        COUNT(*)::int AS "all",
+        COUNT(*) FILTER (WHERE status = 'today')::int AS "today",
+        COUNT(*) FILTER (WHERE status = 'scheduled')::int AS "scheduled",
+        COUNT(*) FILTER (WHERE status = 'debtor' OR balance < 0)::int AS "debtor"
+      FROM "patients"
+      WHERE "clinicId" = :clinicId
+        AND "deletedAt" IS NULL
+    `, {
+      replacements: { clinicId },
+      type: Patient.sequelize.QueryTypes.SELECT,
+    });
+
+    const countsRow = countsResult?.[0] || countsResult || {};
+    const allCount = Number(countsRow.all || 0);
+    const todayCount = Number(countsRow.today || 0);
+    const scheduledCount = Number(countsRow.scheduled || 0);
+    const debtorCount = Number(countsRow.debtor || 0);
 
     const { count, rows } = await Patient.findAndCountAll({
       where,
-      include: [
-        { model: Appointment, as: 'appointments' },
-        { model: Odontogram, as: 'odontogram' },
-      ],
+      distinct: true,
       order: [['createdAt', 'DESC']],
       limit: lim,
       offset,

@@ -52,7 +52,16 @@ app.use(
     crossOriginResourcePolicy: { policy: 'same-origin' },
   })
 );
-app.use(compression());
+app.use(
+  compression({
+    level: 6,
+    threshold: 1024,
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) return false;
+      return compression.filter(req, res);
+    },
+  })
+);
 
 // Request ID and Request Logging Middleware
 app.use((req, res, next) => {
