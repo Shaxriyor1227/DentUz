@@ -93,3 +93,18 @@ export function formatPhoneInput(value) {
   return formatted;
 }
 
+/**
+ * Normalizes phone number before submitting to backend API: +998XXXXXXXXX (no spaces)
+ */
+export function normalizePhone(phoneStr) {
+  if (!phoneStr) return '';
+  const digits = String(phoneStr).replace(/\D/g, '');
+  if (digits.startsWith('998') && digits.length === 12) {
+    return '+' + digits;
+  }
+  if (digits.length === 9) {
+    return '+998' + digits;
+  }
+  return '+' + digits;
+}
+

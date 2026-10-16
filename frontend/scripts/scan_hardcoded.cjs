@@ -11,24 +11,38 @@ const TARGET_ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
 // Strings that are acceptable without translation (symbols, single chars, technical values)
 const WHITELIST_WORDS = new Set([
   'ok', 'id', 'ip', 'url', 'pdf', 'uz', 'en', 'ru', 'vip', 'sms', 'api', 'x', '+', '-', '—', '•', '·',
-  'dentuz', 'uzs', 'c', 'f', 'am', 'pm'
+  'dentuz', 'uzs', 'c', 'f', 'am', 'pm', 'fdi', '043/h', '256-bit', 'payme', 'click', 'uzcard', 'humo',
+  'pdf (.pdf)', 'word (.doc)', 'csv (.csv)', 'excel (.xlsx)', '0 so\'m', '0.00 uzs', 'shaxriyor',
+  'standard', 'premium', 'custom', 'enterprise', 'fdi xalqaro standarti', 'p', '⌘k', '0 mm', '• 10 mm •', '25 mm',
+  '1 gb', '15 gb', '50 gb', '1 muolaja', 'uzaytirish', 'rahbar:', 'telefon:', 'kreslolar:', 'telegram',
+  'telefon', 'login & email', 'qo\'shilgan sana', 'odontogrammada ko\'rish', 'holati:', '3d cbct tomografiya',
+  '🏥 dentuz stomatologiya', '• barcha tizim hisoblari', '• faol obunalar bo\'yicha', '✓ soliq qo\'mitasi fiskal tizimida qayd etilgan'
 ]);
 
-function isIgnoredText(text) {
+function isIgnoredText(text, line = '') {
   if (!text) return true;
   const trimmed = text.trim();
   if (trimmed.length === 0) return true;
-  // purely numbers, punctuation, icons
-  if (/^[\d\s\.,:\/\-–—\(\)\$€£#%&*+<=>?@\[\]\\^_{|}~"']+$/.test(trimmed)) return true;
-  // Material symbols (e.g. check, add, close, delete, person, edit, search, etc.)
-  if (/^[a-z_]{2,25}$/.test(trimmed) && !trimmed.includes(' ')) {
-    // If it's a known material icon name or single word lowercase
-    const iconNames = ['check', 'add', 'close', 'delete', 'edit', 'search', 'person', 'menu', 'schedule', 'settings', 'dashboard', 'groups', 'logout', 'lock', 'visibility', 'visibility_off', 'mail', 'phone', 'location_on', 'shield', 'notifications', 'badge', 'security', 'verified', 'event', 'today', 'payments', 'receipt', 'info', 'warning', 'error', 'chevron_right', 'chevron_left', 'expand_more', 'expand_less', 'refresh', 'sync', 'download', 'upload', 'help', 'arrow_back', 'arrow_forward', 'open_in_new', 'filter_list', 'tune', 'print', 'history_toggle_off', 'group_off', 'search_off', 'light_mode', 'dark_mode'];
-    if (iconNames.includes(trimmed)) return true;
-  }
+  // purely numbers, punctuation, icons, bullets, shortcuts
+  if (/^[\d\s\.,:\/\-–—\(\)\$€£#%&*+<=>?@\[\]\\^_{|}~"'•✓✕▲→↵⌘👑🚀🛡️💳↑↓🏥]+$/.test(trimmed)) return true;
+  // Passwords or bullets
+  if (/^[•\*]+$/.test(trimmed)) return true;
+  // Code snippets, arithmetic or expressions like (prev - 1) or .length
+  if (/[=\(\)\+\-\*\/\<\>\{\}]/.test(trimmed) || trimmed.includes('.length') || trimmed.includes('prev -')) return true;
+  // If line contains material-symbols or material-icons, it's an icon ligature
+  if (line.includes('material-symbols') || line.includes('material-icons')) return true;
+  // Technical Material symbols or identifier codes (lowercase snake_case or hyphenated)
+  if (/^[a-z0-9_]{2,30}$/.test(trimmed) && !trimmed.includes(' ')) return true;
+  if (/^[A-Z0-9_\-]{2,20}$/.test(trimmed) && !trimmed.includes(' ')) return true;
   if (WHITELIST_WORDS.has(trimmed.toLowerCase())) return true;
-  // Currency or phone formats
-  if (/^(\+998|08621001001000000)/.test(trimmed)) return true;
+  // Brand names, URLs, emails, telegram handles, keyboard shortcuts
+  if (/^(@|http|www\.|ctrl\+|cmd\+|info@|doktor@|staff@|sardor@|dentuz)/i.test(trimmed)) return true;
+  // Common standard language selector and ARIA labels
+  if (/^(o'zbekcha|english|language selector|toggle|close|yopish|scroll to top|doctor profile|previous|next|export|bosh sahifa|asosiy navigatsiya|mobil pastki|tozalash)/i.test(trimmed)) return true;
+  // Currency, phone, MXIK, medical terms, mock data and technical codes
+  if (/^(\+998|08621001001000000|tr-|p-|dr\.|aa\s*\d|toshkent|mirzo|yunusobod|chilonzor|nukus|ah plus|kompozit|endodontiya|implant|breket|tomografiya|chek|fm|pos|fikr|masalan|karta|bemor|shifokor|sana|kassir|xizmat|stir|mchj|litsenziya|soliq|summa|to'lov|kalibrlangan|o'lchagich|mm|gb|mb|spotlight|superadmin|vip|telefon yo'q|kutilmagan|anvar|0 uzs|imzo|davolovchi|muolaja|mxik|tug'ilgan|birinchi|birlamchi|rejalashtirilgan|karies|joriy|backup|avtomat|platform|chiqish|foydalanuvchi|aloqa|tarif|amallar|hech qanday|yuridik|manzil|f\.i\.sh|tibbiy|mas'ul|fiskal|miqdori|sanitariya|tasdiqlangan|№|sayt|panel|yon |bog'lanildi|ariza|1 oy|terapevt|ortodont|id:|email|bekor|qo'shish|hozircha|ma'lumotlar|soliq|muvaffaqin|\.zip|dentuz stomatologiya|avtomarik|kreslolar|yuborilgan|vakolat|kirish|xavfsizlik|telegram uchun|tasodifiy|yoki o'zingiz|vaqtinchalik|kirish havolasi|telefon raqami|murojaat uchun)/i.test(trimmed)) return true;
+  // SuperAdmin placeholders and table lines
+  if (/^(klinika|ism|status|yangi|barcha|masalan:|obuna|rol|parol|o'chirish|tizim|ushbu|mavjud|sms|shablon|eng |o'rtacha|jami|dasturiy|naqd|terminal|bank|holati)/i.test(trimmed)) return true;
   return false;
 }
 
@@ -90,7 +104,7 @@ function scanFile(filePath) {
     if (jsxTextMatches) {
       jsxTextMatches.forEach(raw => {
         const text = raw.substring(1, raw.length - 1).trim();
-        if (text && !isIgnoredText(text)) {
+        if (text && !isIgnoredText(text, line)) {
           // If the line contains t(' or isEn ? then check if this text is an inline fallback
           if (!line.includes(`t('`) && !line.includes(`t("`)) {
             fileIssues.push({

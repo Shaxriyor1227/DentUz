@@ -4,7 +4,7 @@ import styles from './ServerWarmupBanner.module.css';
 
 export const ServerWarmupBanner = () => {
   const [isSlow, setIsSlow] = useState(false);
-  const { i18n } = useTranslation();
+  const { t, i18n  } = useTranslation();
 
   useEffect(() => {
     const handleSlowEvent = (e) => {
@@ -20,9 +20,7 @@ export const ServerWarmupBanner = () => {
   if (!isSlow) return null;
 
   const isEn = i18n.language?.startsWith('en');
-  const message = isEn
-    ? "Server is waking up (Render spin-up), please wait 30-50 seconds..."
-    : "Server uyg'onmoqda (Render cold-start), 30-50 soniya kuting...";
+  const message = t('common.serverIsWakingUp');
 
   return (
     <div className={styles.banner} role="status" aria-live="polite">

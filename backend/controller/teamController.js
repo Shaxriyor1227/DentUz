@@ -87,8 +87,11 @@ exports.addMember = async (req, res) => {
   if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
   try {
+    const rawPassword = req.body.password || (crypto.randomBytes(8).toString('hex') + 'Aa1!');
     const user = await User.create({
       ...req.body,
+      password: rawPassword,
+      mustChangePassword: !req.body.password,
       clinicId: req.clinicId,
     });
     res.status(201).json({ success: true, data: user });

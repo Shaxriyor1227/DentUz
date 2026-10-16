@@ -10,9 +10,9 @@ export default function Toast({
   duration = 3500,
   onClose
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n  } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
-  const defaultTitle = title || (type === 'error' ? (isEn ? 'Error' : 'Xatolik') : (isEn ? 'Successfully completed' : 'Muvaffaqiyatli bajarildi'));
+  const defaultTitle = title || (type === 'error' ? t('common.error_1') : t('common.successfullyCompleted'));
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
 

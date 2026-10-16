@@ -11,74 +11,56 @@ export default function Features() {
   const ALL_MODULES = [
     {
       icon: 'calendar_month',
-      title: isEn ? 'Smart Operatory Calendar' : 'Aqlli Taqvim va Kreslolar Grafigi',
-      desc: isEn
-        ? 'Real-time drag & drop scheduler, multi-chair occupancy tracking, SMS auto-reminders to reduce no-shows.'
-        : 'Shifokorlar va kreslolar bandligini bir ekranda boshqaring. Bemorlarga avtomatik SMS eslatmalar yuboring.',
-      badge: isEn ? 'Core Module' : 'Asosiy Modul',
+      title: t('features.smartOperatoryCalendar'),
+      desc: t('features.realTimeDragDrop'),
+      badge: t('features.coreModule'),
     },
     {
       icon: 'dentistry',
-      title: isEn ? 'FDI Digital Odontogram' : 'FDI Raqamli Odontogramma',
-      desc: isEn
-        ? '5-surface anatomical charting, 30+ pathology presets (caries, crowns, implants, endodontics) with instant visual updates.'
-        : '5 ta anatomik yuza bo\'yicha tish xaritasi. 30 dan ortiq tashxis holatlarini bir marta bosishda belgilang.',
+      title: t('features.fdiDigitalOdontogram'),
+      desc: t('features.5SurfaceAnatomicalCharting'),
       badge: 'FDI Standard',
     },
     {
       icon: 'clinical_notes',
-      title: isEn ? 'Electronic Health Record (043/h)' : 'Elektron Bemor Kartasi (043/h)',
-      desc: isEn
-        ? 'Fully compliant with national healthcare standards. Medical history, anamnesis, allergies, and treatment stages.'
-        : 'O\'zbekiston SSV 043/h shakliga to\'liq mos. Kasallik tarixi, anamnez, allergiyalar va davolash rejalari.',
+      title: t('features.electronicHealthRecord043'),
+      desc: t('features.fullyCompliantWithNational'),
       badge: 'SSV 043/h',
     },
     {
       icon: 'account_balance_wallet',
-      title: isEn ? 'Billing, Invoicing & Cash Desk' : 'Moliya va Kassa Balansi',
-      desc: isEn
-        ? 'Track income & expenses, accept Payme, Click, cards, and cash. Doctor KPI commissions calculated in seconds.'
-        : 'Kassa tushumi va xarajatlar monitoringi. Payme, Click va naqd to\'lovlar. Shifokorlar oylik ulushi soniyada hisoblanadi.',
+      title: t('features.billingInvoicingCashDesk'),
+      desc: t('features.trackIncomeExpensesAccept'),
       badge: 'Payme / Click',
     },
     {
       icon: 'radiology',
-      title: isEn ? 'Radiograph Archive & 3D CBCT' : 'Rentgen Arxiv va 3D Tomografiya',
-      desc: isEn
-        ? 'Store panoramic OPG, periapical bitewings, and CBCT scans directly in the patient dossier with DICOM viewer support.'
-        : 'OPG, viziograf va 3D CBCT tasvirlarini bemor profilida xavfsiz saqlang va tezkor ko\'ring.',
+      title: t('features.radiographArchive3dCbct'),
+      desc: t('features.storePanoramicOpgPeriapical'),
       badge: 'Cloud Storage',
     },
     {
       icon: 'biotech',
-      title: isEn ? 'Dental Lab Work Orders' : 'Tish Texnik Laboratoriyasi',
-      desc: isEn
-        ? 'Send digital laboratory work orders for zirconia, PFM crowns, and aligners. Track production deadlines and fitting dates.'
-        : 'Sirkoniy, metall-keramika va ortodontik qoliplarni laboratoriyaga yuboring va tayyorlik muddatini nazorat qiling.',
+      title: t('features.dentalLabWorkOrders'),
+      desc: t('features.sendDigitalLaboratoryWork'),
       badge: 'Lab Orders',
     },
     {
       icon: 'sms',
-      title: isEn ? 'Automated SMS Notification Service' : 'Avtomatik SMS Bildirishnomalar',
-      desc: isEn
-        ? 'Send automated visit confirmations, reminder alerts 2 hours prior, and holiday greetings with high delivery rates.'
-        : 'Qabuldan 2 soat oldin avtomatik SMS, rejalashtirilgan tekshiruvlar va bayram tabriklarini avtomatlashtiring.',
+      title: t('features.automatedSmsNotificationService'),
+      desc: t('features.sendAutomatedVisitConfirmations'),
       badge: 'Auto-SMS',
     },
     {
       icon: 'inventory_2',
-      title: isEn ? 'Dental Supplies & Inventory' : 'Klinika Moddiy Omborxonasi',
-      desc: isEn
-        ? 'Real-time consumable tracking, minimum stock threshold alerts, and automated write-offs during clinical procedures.'
-        : 'Plomba ashyolari, anestetiklar va sterilizatsiya materiallari qoldig\'ini real vaqtda hisoblab boring.',
+      title: t('features.dentalSuppliesInventory'),
+      desc: t('features.realTimeConsumableTracking'),
       badge: 'Inventory',
     },
     {
       icon: 'analytics',
-      title: isEn ? 'Clinical Analytics & Reporting' : 'Klinika Analitikasi va Hisobotlar',
-      desc: isEn
-        ? 'Interactive revenue growth graphs, patient retention metrics, popular procedures, and practitioner performance KPIs.'
-        : 'Oylik daromad o\'sishi, bemorlar oqimi, eng talabgir xizmatlar va shifokorlar reytingi bo\'yicha to\'liq tahlil.',
+      title: t('features.clinicalAnalyticsReporting'),
+      desc: t('features.interactiveRevenueGrowthGraphs'),
       badge: 'Reports',
     },
   ];
@@ -92,31 +74,29 @@ export default function Features() {
       <section className={styles.heroSection}>
         <div className={styles.pageBadge}>
           <span className={styles.badgeEmoji}>🚀</span>
-          <span>{isEn ? 'A New Era for Dental Clinics' : 'Stomatologiyada yangi davr'}</span>
+          <span>{t('features.aNewEraFor')}</span>
         </div>
 
         <h1 className={styles.pageTitle}>
           <span className={styles.titleLine1}>
-            {isEn ? 'Dental Software' : 'Stomatologiya Boshqaruvi'}
+            {t('features.dentalSoftware')}
           </span>
           <span className={styles.titleLine2}>
-            {isEn ? 'Your Practice on One Platform' : 'Butun Klinikangiz Yagona Tizimda'}
+            {t('features.yourPracticeOnOne')}
           </span>
         </h1>
 
         <p className={styles.pageSubtitle}>
-          {isEn
-            ? 'From patient registration to financial reports — manage all your dental clinic operations from a single platform, securely and efficiently.'
-            : 'Bemorlar ro‘yxatidan kassa va tish xaritasigacha — barcha klinika operatsiyalarini yagona, xavfsiz va qulay bulutli platformada boshqaring.'}
+          {t('features.fromPatientRegistrationTo')}
         </p>
 
         <div className={styles.heroCtaRow}>
           <Link to="/contact" className={styles.primaryCta}>
-            <span>{isEn ? 'Start for Free' : '14 kun bepul boshlash'}</span>
+            <span>{t('features.startForFree')}</span>
             <span className={styles.ctaArrow}>→</span>
           </Link>
           <a href="#features-grid" className={styles.secondaryCta}>
-            <span>{isEn ? 'Learn More' : 'Imkoniyatlar bilan tanishish'}</span>
+            <span>{t('features.learnMore')}</span>
           </a>
         </div>
       </section>
@@ -131,9 +111,9 @@ export default function Features() {
               <h2 className={styles.storyHeading}>{t('homepage.stories.story1.title')}</h2>
               <p className={styles.storyBody}>{t('homepage.stories.story1.body')}</p>
               <ul className={styles.storyBulletList}>
-                <li>✓ {isEn ? 'Multi-chair operatory grid' : 'Ko\'p kresloli interaktiv grafik'}</li>
-                <li>✓ {isEn ? 'SMS appointment confirmation' : 'Bemorga avtomatik SMS eslatma'}</li>
-                <li>✓ {isEn ? 'Color-coded procedure statuses' : 'Rangli muolaja holatlari'}</li>
+                <li>✓ {t('features.multiChairOperatoryGrid')}</li>
+                <li>✓ {t('features.smsAppointmentConfirmation')}</li>
+                <li>✓ {t('features.colorCodedProcedureStatuses')}</li>
               </ul>
             </div>
 
@@ -146,16 +126,16 @@ export default function Features() {
                 <div className={styles.scheduleItem}>
                   <span className={styles.scheduleTime}>09:00</span>
                   <div className={styles.scheduleInfo}>
-                    <div className={styles.scheduleDoctor}>{isEn ? 'Dr. Azimov • Caries therapy' : 'Dr. Azimov • Karies davolash'}</div>
-                    <div className={styles.schedulePatient}>{isEn ? 'Patient: Anvar Qosimov' : 'Bemor: Anvar Qosimov'}</div>
+                    <div className={styles.scheduleDoctor}>{t('features.drAzimovCariesTherapy')}</div>
+                    <div className={styles.schedulePatient}>{t('features.patientAnvarQosimov')}</div>
                   </div>
                   <span className={styles.scheduleBadgeDone}>{t('common.completed')}</span>
                 </div>
                 <div className={`${styles.scheduleItem} ${styles.scheduleItemActive}`}>
                   <span className={`${styles.scheduleTime} ${styles.scheduleTimeActive}`}>14:00</span>
                   <div className={styles.scheduleInfo}>
-                    <div className={styles.scheduleDoctor}>{isEn ? 'Dr. Saidova • Air-Flow scaling' : 'Dr. Saidova • Air-Flow tozalash'}</div>
-                    <div className={styles.schedulePatient}>{isEn ? 'Patient: Nilufar Rahimova' : 'Bemor: Nilufar Rahimova'}</div>
+                    <div className={styles.scheduleDoctor}>{t('features.drSaidovaAirFlow')}</div>
+                    <div className={styles.schedulePatient}>{t('features.patientNilufarRahimova')}</div>
                   </div>
                   <span className={styles.scheduleBadgeProgress}>{t('common.inProgress')}</span>
                 </div>
@@ -172,7 +152,7 @@ export default function Features() {
                 <div className={styles.patientAvatar}>AQ</div>
                 <div>
                   <div className={styles.patientName}>Anvar Qosimov</div>
-                  <div className={styles.patientMeta}>ID: P-1042 • {isEn ? '34 yrs' : '34 yosh'}</div>
+                  <div className={styles.patientMeta}>ID: P-1042 • {t('features.34Yrs')}</div>
                 </div>
               </div>
               <div className={styles.allergyAlert}>
@@ -189,9 +169,9 @@ export default function Features() {
               <h2 className={styles.storyHeading}>{t('homepage.stories.story2.title')}</h2>
               <p className={styles.storyBody}>{t('homepage.stories.story2.body')}</p>
               <ul className={styles.storyBulletList}>
-                <li>✓ {isEn ? 'SSV Form 043/h compliant' : 'SSV 043/h shakliga to\'liq mos'}</li>
-                <li>✓ {isEn ? 'Critical allergy warning banner' : 'Allergiya va xavf signallari'}</li>
-                <li>✓ {isEn ? 'Chronological dental timeline' : 'Xronologik davolash bosqichlari'}</li>
+                <li>✓ {t('features.ssvForm043H')}</li>
+                <li>✓ {t('features.criticalAllergyWarningBanner')}</li>
+                <li>✓ {t('features.chronologicalDentalTimeline')}</li>
               </ul>
             </div>
           </div>
@@ -205,9 +185,9 @@ export default function Features() {
               <h2 className={styles.storyHeading}>{t('homepage.stories.story3.title')}</h2>
               <p className={styles.storyBody}>{t('homepage.stories.story3.body')}</p>
               <ul className={styles.storyBulletList}>
-                <li>✓ {isEn ? 'Payme, Click, card & cash' : 'Payme, Click, Uzcard va naqd to\'lovlar'}</li>
-                <li>✓ {isEn ? 'Automatic doctor KPI bonus calculation' : 'Shifokorlar oylik ulushini avto-hisoblash'}</li>
-                <li>✓ {isEn ? 'Official printable thermal receipts' : 'Kvitansiya va chek chop etish'}</li>
+                <li>✓ {t('features.paymeClickCardCash')}</li>
+                <li>✓ {t('features.automaticDoctorKpiBonus')}</li>
+                <li>✓ {t('features.officialPrintableThermalReceipts')}</li>
               </ul>
             </div>
 
@@ -224,7 +204,7 @@ export default function Features() {
               <div className={styles.financeBreakdown}>
                 <span>Payme/Click: 65%</span>
                 <span>Uzcard/Humo: 20%</span>
-                <span>{isEn ? 'Cash: 15%' : 'Naqd: 15%'}</span>
+                <span>{t('features.cash15')}</span>
               </div>
             </div>
           </div>
@@ -234,9 +214,9 @@ export default function Features() {
       {/* ── 9 Modules Comprehensive Grid ── */}
       <section className={styles.gridSection} id="features-grid">
         <div className={styles.gridHeader}>
-          <span className={styles.pageBadge}>{isEn ? 'Full Capabilities' : 'Barcha Modullar'}</span>
+          <span className={styles.pageBadge}>{t('features.fullCapabilities')}</span>
           <h2 className={styles.gridTitle}>
-            {isEn ? 'Complete Dental Practice Ecosystem' : 'Klinikangiz Uchun Mukammal Ekotizim'}
+            {t('features.completeDentalPracticeEcosystem')}
           </h2>
         </div>
 
@@ -260,12 +240,10 @@ export default function Features() {
       <section className={styles.bottomCtaSection}>
         <div className={styles.bottomCtaCard}>
           <h2 className={styles.bottomCtaTitle}>
-            {isEn ? 'Experience DentUz in Your Operatories Today' : 'DentUz Tizimini Bugunoq Klinikangizda Sinab Ko\'ring'}
+            {t('features.experienceDentuzInYour')}
           </h2>
           <p className={styles.bottomCtaSub}>
-            {isEn
-              ? 'No credit card required. 14 days free with full access to all 9 modules.'
-              : 'Bank kartasi talab qilinmaydi. Barcha 9 ta modul 14 kun davomida to\'liq bepul ochiladi.'}
+            {t('features.noCreditCardRequired')}
           </p>
           <Link to="/contact" className={styles.ctaBannerBtn}>
             {t('homepage.hero.startFree')} →

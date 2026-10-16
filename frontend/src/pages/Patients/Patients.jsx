@@ -7,7 +7,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import { downloadText } from '../../utils/downloadHelper';
-import { formatPhoneInput } from '../../utils/formatters';
+import { formatPhoneInput, formatPhone, normalizePhone } from '../../utils/formatters';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Patients.module.css';
 
@@ -126,7 +126,7 @@ export default function Patients() {
       setToast({
         open: true,
         type: 'success',
-        title: isEn ? 'Excel Export Successful' : 'Excel (.xlsx) yuklab olindi',
+        title: t('patients.excelExportSuccessful'),
         message: isEn
           ? `${allPatients.length} patient records exported with full styles and formatting.`
           : `${allPatients.length} ta bemor ma'lumotlari to'liq Excel (.xlsx) jadvaliga yuklandi.`
@@ -136,8 +136,8 @@ export default function Patients() {
       setToast({
         open: true,
         type: 'error',
-        title: isEn ? 'Export failed' : 'Eksportda xatolik',
-        message: err.message || (isEn ? 'Could not export Excel file.' : 'Excel faylini yaratib bo\'lmadi.')
+        title: t('patients.exportFailed'),
+        message: err.message || t('patients.couldNotExportExcel')
       });
     } finally {
       setExporting(false);
@@ -164,14 +164,14 @@ export default function Patients() {
     const rows = allPatients.map((p) => {
       const balanceNum = p.balance ? -Math.abs(Number(p.balance)) : 0;
       const statusText = balanceNum < 0
-        ? (isEn ? 'Has Debt' : 'Qarzdorlik bor')
-        : (isEn ? 'Settled' : 'To\'langan');
+        ? t('patients.hasDebt')
+        : t('patients.settled');
       return [
         `"${p.id || ''}"`,
         `"${(p.name || '').replace(/"/g, '""')}"`,
         `"${p.phone || ''}"`,
         `"${(p.lastVisit || '') + (p.lastProcedure ? ' - ' + p.lastProcedure : '')}"`,
-        `"${p.nextVisit || (isEn ? 'Not scheduled' : 'Rejalashtirilmagan')}"`,
+        `"${p.nextVisit || t('patients.notScheduled')}"`,
         balanceNum,
         `"${statusText}"`
       ];
@@ -184,7 +184,7 @@ export default function Patients() {
     setToast({
       open: true,
       type: 'success',
-      title: isEn ? 'Export completed' : 'Eksport muvaffaqiyatli yakunlandi',
+      title: t('patients.exportCompleted'),
       message: isEn
         ? `${allPatients.length} patient records exported to CSV.`
         : `${allPatients.length} ta bemor ma'lumotlari CSV fayliga yuklab olindi.`
@@ -213,8 +213,8 @@ export default function Patients() {
       setToast({
         open: true,
         type: 'success',
-        title: i18n.language === 'en' ? 'Word Document Downloaded' : 'Word (.doc) fayli yuklandi',
-        message: i18n.language === 'en' ? `${allPatients.length} patient records saved as Word document.` : `${allPatients.length} ta bemor ro'yxati Word hujjatiga yuklandi.`
+        title: t('patients.wordDocumentDownloaded'),
+        message: t('patients.wordSaved', { count: allPatients.length })
       });
     } catch (err) {
       console.error(err);
@@ -224,9 +224,13 @@ export default function Patients() {
   const handleAddPatient = async (e) => {
     e.preventDefault();
     if (!newPatient.name.trim()) return;
-    const created = await patientsApi.create(newPatient);
+    const payload = {
+      ...newPatient,
+      phone: normalizePhone(newPatient.phone)
+    };
+    const created = await patientsApi.create(payload);
     setShowAddModal(false);
-    setNewPatient({ name: '', phone: '+998 ', allergies: '', notes: '' });
+    setNewPatient({ name: '', phone: '', allergies: '', notes: '' });
     setToast({
       open: true,
       type: 'success',
@@ -286,13 +290,13 @@ export default function Patients() {
             <span className={styles.patientSubDetail}>
               {p.allergies
                 ? <span style={{ color: 'var(--color-warning, #F59E0B)', fontWeight: 500 }}>⚠️ {p.allergies}</span>
-                : <span style={{ color: 'var(--color-text-muted)' }}>{i18n.language === 'en' ? 'No allergies' : 'Allergiya yo\'q'}</span>
+                : <span style={{ color: 'var(--color-text-muted)' }}>{t('patients.noAllergies')}</span>
               }
             </span>
           </div>
         </div>
 
-        <div className={styles.phoneCell}>{p.phone}</div>
+        <div className={styles.phoneCell}>{formatPhone(p.phone)}</div>
 
         <div className={styles.visitCell}>
           <span className={styles.visitDate}>{p.lastVisit}</span>
@@ -374,14 +378,14 @@ export default function Patients() {
               className={styles.exportBtn}
               onClick={handleExportExcel}
               disabled={exporting}
-              title={i18n.language === 'en' ? 'Download as Excel (.xlsx)' : 'Excel (.xlsx) formatida yuklab olish'}
+              title={t('patients.downloadAsExcelXlsx')}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
                 table_view
               </span>
               <span>
                 {exporting
-                  ? (i18n.language === 'en' ? 'Exporting...' : 'Yuklanmoqda...')
+                  ? t('patients.exporting')
                   : t('patients.exportExcel', 'Eksport (Excel)')}
               </span>
             </button>
@@ -389,7 +393,7 @@ export default function Patients() {
               type="button"
               className={styles.exportMenuTrigger}
               onClick={() => setShowExportMenu(!showExportMenu)}
-              title={i18n.language === 'en' ? 'More export formats' : 'Boshqa formatlar'}
+              title={t('patients.moreExportFormats')}
               aria-label="Export options"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -410,12 +414,10 @@ export default function Patients() {
                   </span>
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>
-                      Excel (.xlsx) <span className={styles.recommendedBadge}>{i18n.language === 'en' ? 'Recommended' : 'Tavsiya'}</span>
+                      Excel (.xlsx) <span className={styles.recommendedBadge}>{t('patients.recommended')}</span>
                     </div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Styled table, auto column widths, colors & totals'
-                        : 'Chiroyli dizayn, ustun kengliklari, ranglar va jami hisoblar'}
+                      {t('patients.styledTableAutoColumn')}
                     </div>
                   </div>
                 </button>
@@ -431,9 +433,7 @@ export default function Patients() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>PDF (.pdf)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Official printable document with stamp area'
-                        : 'Rasmiy klinika blankasi, imzo va muhr o\'rni bilan'}
+                      {t('patients.officialPrintableDocumentWith')}
                     </div>
                   </div>
                 </button>
@@ -449,9 +449,7 @@ export default function Patients() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>Word (.doc)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Editable document for Microsoft Word / WPS Writer'
-                        : 'Tahrirlash va hisobot uchun Word formati'}
+                      {t('patients.editableDocumentForMicrosoft')}
                     </div>
                   </div>
                 </button>
@@ -467,9 +465,7 @@ export default function Patients() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>CSV (.csv)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Standard raw tabular data for spreadsheets'
-                        : 'Universal matnli ma\'lumotlar jadvali'}
+                      {t('patients.standardRawTabularData')}
                     </div>
                   </div>
                 </button>
@@ -543,7 +539,7 @@ export default function Patients() {
           <div className={styles.tableScrollContainer}>
             <div className={styles.tableInner}>
               <div className={styles.tableHeader}>
-                <span>{i18n.language === 'en' ? 'Patient & ID' : 'Bemor va ID'}</span>
+                <span>{t('patients.patientId')}</span>
                 <span>{t('patients.table.phone')}</span>
                 <span>{t('patients.table.lastVisit')}</span>
                 <span>{t('patients.table.nextVisit')}</span>
@@ -655,7 +651,7 @@ export default function Patients() {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>call</span>
-                          <span>{p.phone}</span>
+                          <span>{formatPhone(p.phone)}</span>
                         </a>
                       ) : (
                         <span style={{ color: 'var(--color-text-muted)' }}>Telefon yo'q</span>
@@ -713,7 +709,7 @@ export default function Patients() {
                 <input
                   required
                   type="text"
-                  placeholder={i18n.language === 'en' ? 'e.g. John Doe' : 'masalan, Shavkat Karimov'}
+                  placeholder={t('patients.eGJohnDoe')}
                   value={newPatient.name}
                   onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
                   className={styles.modalInput}
@@ -740,7 +736,7 @@ export default function Patients() {
                 </label>
                 <input
                   type="text"
-                  placeholder={i18n.language === 'en' ? 'e.g. Penicillin, Lidocaine' : 'masalan, Penitsillin, Lidokain'}
+                  placeholder={t('patients.eGPenicillinLidocaine')}
                   value={newPatient.allergies}
                   onChange={(e) => setNewPatient({ ...newPatient, allergies: e.target.value })}
                   className={styles.modalInput}

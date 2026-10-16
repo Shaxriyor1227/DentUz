@@ -11,19 +11,19 @@ export default function EmptyState({
   isError = false,
   className = '',
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n  } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
 
   const defaultTitle = isError
-    ? (isEn ? 'Something went wrong' : 'Kutilmagan xatolik yuz berdi')
-    : (isEn ? 'No data found' : "Ma'lumot topilmadi");
+    ? t('common.somethingWentWrong')
+    : t('common.noDataFound');
 
   const defaultDesc = isError
-    ? (isEn ? 'Please check your connection or try again.' : 'Iltimos, internet aloqasini tekshiring yoki qayta urinib ko\'ring.')
-    : (isEn ? 'There are currently no items in this list.' : 'Ushbu bo\'limda hozircha hech qanday ma\'lumot mavjud emas.');
+    ? t('common.pleaseCheckYourConnection')
+    : t('common.thereAreCurrentlyNo');
 
   const defaultAction = isError
-    ? (isEn ? 'Try again' : 'Qayta urinish')
+    ? t('common.tryAgain')
     : null;
 
   return (

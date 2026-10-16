@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../components/Icon/Icon';
-import { formatPhoneInput } from '../../utils/formatters';
+import { formatPhoneInput, normalizePhone } from '../../utils/formatters';
 import styles from './Contact.module.css';
 
 export default function Contact() {
@@ -31,15 +31,21 @@ export default function Contact() {
     setStatus('submitting');
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const payload = {
+        ...formData,
+        phone: normalizePhone(formData.phone)
+      };
       const res = await fetch(`${baseUrl}/clinics/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         setStatus('success');
       } else {
-        setStatus('success'); // Foydalanuvchiga ijobiy bildirishnoma berish
+        const errData = await res.json().catch(() => ({}));
+        console.warn('Contact submission warning:', errData);
+        setStatus('success');
       }
     } catch {
       setStatus('success');
@@ -56,18 +62,16 @@ export default function Contact() {
       <section className={styles.heroSection}>
         <div className={styles.badge}>
           <Icon name="support_agent" size={16} />
-          <span>{isEn ? 'Direct Support & Consultation' : 'Murojaat va Konsultatsiya'}</span>
+          <span>{t('contact.directSupportConsultation')}</span>
         </div>
         <h1 className={styles.heroTitle}>
-          {isEn ? 'We are always ready to help' : 'Biz bilan bog\'laning, '}
+          {t('contact.weAreAlwaysReady')}
           <span className={styles.gradientText}>
-            {isEn ? 'your clinic thrive' : 'har doim tayyormiz'}
+            {t('contact.yourClinicThrive')}
           </span>
         </h1>
         <p className={styles.heroSubtitle}>
-          {isEn
-            ? 'Have questions about DentUz? Request a personalized live demonstration or reach our engineering support team directly.'
-            : 'DentUz tizimi bo\'yicha savollaringiz bormi? Mutaxassisimiz bilan bepul demo taqdimot belgilang yoki to\'g\'ridan-to\'g\'ri bog\'laning.'}
+          {t('contact.haveQuestionsAboutDentuz')}
         </p>
       </section>
 
@@ -78,12 +82,10 @@ export default function Contact() {
           <div className={styles.infoCol}>
             <div className={styles.infoCard}>
               <h2 className={styles.infoCardTitle}>
-                {isEn ? 'Direct Communication Channels' : 'Aloqa kanallari'}
+                {t('contact.directCommunicationChannels')}
               </h2>
               <p className={styles.infoCardDesc}>
-                {isEn
-                  ? 'Our support specialists respond in under 5 minutes during working hours.'
-                  : 'Mutaxassislarimiz ish vaqtida o\'rtacha 5 daqiqa ichida javob berishadi.'}
+                {t('contact.ourSupportSpecialistsRespond')}
               </p>
 
               <div className={styles.contactList}>
@@ -92,7 +94,7 @@ export default function Contact() {
                     <Icon name="call" size={20} />
                   </div>
                   <div className={styles.itemContent}>
-                    <span className={styles.itemLabel}>{isEn ? 'Single Contact Center' : 'Yagona aloqa markazi'}</span>
+                    <span className={styles.itemLabel}>{t('contact.singleContactCenter')}</span>
                     <span className={styles.itemValue}>+998 (71) 200-88-44</span>
                   </div>
                 </a>
@@ -102,7 +104,7 @@ export default function Contact() {
                     <Icon name="send" size={20} />
                   </div>
                   <div className={styles.itemContent}>
-                    <span className={styles.itemLabel}>{isEn ? 'Telegram Support Desk' : 'Telegram rasmiy ko\'mak'}</span>
+                    <span className={styles.itemLabel}>{t('contact.telegramSupportDesk')}</span>
                     <span className={styles.itemValue}>@DentUz_Support</span>
                   </div>
                 </a>
@@ -112,7 +114,7 @@ export default function Contact() {
                     <Icon name="mail" size={20} />
                   </div>
                   <div className={styles.itemContent}>
-                    <span className={styles.itemLabel}>{isEn ? 'Email Inquiries' : 'Elektron pochta'}</span>
+                    <span className={styles.itemLabel}>{t('contact.emailInquiries')}</span>
                     <span className={styles.itemValue}>info@dentuz.uz</span>
                   </div>
                 </a>
@@ -122,9 +124,9 @@ export default function Contact() {
                     <Icon name="schedule" size={20} />
                   </div>
                   <div className={styles.itemContent}>
-                    <span className={styles.itemLabel}>{isEn ? 'Operating Hours' : 'Ish vaqti'}</span>
+                    <span className={styles.itemLabel}>{t('contact.operatingHours')}</span>
                     <span className={styles.itemValue}>
-                      {isEn ? 'Mon - Sat: 09:00 - 19:00 (Emergency: 24/7)' : 'Dush - Shan: 09:00 - 19:00 (Favqulodda: 24/7)'}
+                      {t('contact.monSat0900')}
                     </span>
                   </div>
                 </div>
@@ -135,12 +137,12 @@ export default function Contact() {
             <div className={styles.officesCard}>
               <h3 className={styles.officesTitle}>
                 <Icon name="apartment" size={20} />
-                <span>{isEn ? 'Offices in Uzbekistan' : 'O\'zbekistondagi ofislarimiz'}</span>
+                <span>{t('contact.officesInUzbekistan')}</span>
               </h3>
               
               <div className={styles.officeItem}>
-                <div className={styles.officeBadge}>{isEn ? 'Headquarters' : 'Bosh ofis'}</div>
-                <h4 className={styles.officeCity}>{isEn ? 'Tashkent' : 'Toshkent shahri'}</h4>
+                <div className={styles.officeBadge}>{t('contact.headquarters')}</div>
+                <h4 className={styles.officeCity}>{t('contact.tashkent')}</h4>
                 <p className={styles.officeAddress}>
                   <Icon name="location_on" size={16} />
                   <span>Yunusobod tumani, Amir Temur shoh ko'chasi, 107-B uy (IT Park)</span>
@@ -148,8 +150,8 @@ export default function Contact() {
               </div>
 
               <div className={styles.officeItem}>
-                <div className={styles.officeBadge}>{isEn ? 'Branch' : 'Filial'}</div>
-                <h4 className={styles.officeCity}>{isEn ? 'Samarkand' : 'Samarqand shahri'}</h4>
+                <div className={styles.officeBadge}>{t('contact.branch')}</div>
+                <h4 className={styles.officeCity}>{t('contact.samarkand')}</h4>
                 <p className={styles.officeAddress}>
                   <Icon name="location_on" size={16} />
                   <span>Mirzo Ulug'bek ko'chasi, 42-uy, "Registon Biznes Markazi"</span>
@@ -163,12 +165,10 @@ export default function Contact() {
             <div className={styles.formCard}>
               <div className={styles.formHeader}>
                 <h2 className={styles.formTitle}>
-                  {isEn ? 'Request a Free Live Demo' : 'Bepul taqdimot va konsultatsiya'}
+                  {t('contact.requestAFreeLive')}
                 </h2>
                 <p className={styles.formDesc}>
-                  {isEn
-                    ? 'Fill out the form below. We will demonstrate how DentUz transforms your clinic workflows within 20 minutes.'
-                    : 'Quyidagi shaklni to\'ldiring. Mutaxassisimiz siz bilan bog\'lanib, tizim imkoniyatlarini 20 daqiqada namoyish etib beradi.'}
+                  {t('contact.fillOutTheForm')}
                 </p>
               </div>
 
@@ -178,7 +178,7 @@ export default function Contact() {
                     <Icon name="check_circle" size={48} />
                   </div>
                   <h3 className={styles.successTitle}>
-                    {isEn ? 'Request Received!' : 'So\'rovingiz qabul qilindi!'}
+                    {t('contact.requestReceived')}
                   </h3>
                   <p className={styles.successDesc}>
                     {isEn
@@ -193,21 +193,21 @@ export default function Contact() {
                     }}
                     className={styles.resetBtn}
                   >
-                    {isEn ? 'Send another message' : 'Boshqa xabar yuborish'}
+                    {t('contact.sendAnotherMessage')}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className={styles.form}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel} htmlFor="contactName">
-                      {isEn ? 'Your Full Name *' : 'Ism-sharifingiz *'}
+                      {t('contact.yourFullName')}
                     </label>
                     <input
                       id="contactName"
                       name="name"
                       type="text"
                       required
-                      placeholder={isEn ? 'Dr. Jasur Azimov' : 'Masalan: Dr. Jasur Azimov'}
+                      placeholder={t('contact.drJasurAzimov')}
                       value={formData.name}
                       onChange={handleChange}
                       className={styles.input}
@@ -217,13 +217,13 @@ export default function Contact() {
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label className={styles.formLabel} htmlFor="clinicName">
-                        {isEn ? 'Clinic Name' : 'Klinika nomi'}
+                        {t('contact.clinicName')}
                       </label>
                       <input
                         id="clinicName"
                         name="clinicName"
                         type="text"
-                        placeholder={isEn ? 'Tashkent Dental Care' : 'Masalan: Toshkent Dental Clinic'}
+                        placeholder={t('contact.tashkentDentalCare')}
                         value={formData.clinicName}
                         onChange={handleChange}
                         className={styles.input}
@@ -232,7 +232,7 @@ export default function Contact() {
 
                     <div className={styles.formGroup}>
                       <label className={styles.formLabel} htmlFor="contactPhone">
-                        {isEn ? 'Phone Number *' : 'Telefon raqamingiz *'}
+                        {t('contact.phoneNumber')}
                       </label>
                       <input
                         id="contactPhone"
@@ -249,7 +249,7 @@ export default function Contact() {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel} htmlFor="chairsCount">
-                      {isEn ? 'Number of Dental Chairs' : 'Kreslolar soni'}
+                      {t('contact.numberOfDentalChairs')}
                     </label>
                     <select
                       id="chairsCount"
@@ -258,25 +258,23 @@ export default function Contact() {
                       onChange={handleChange}
                       className={styles.select}
                     >
-                      <option value="1">{isEn ? '1 chair (Solo practitioner)' : '1 ta kreslo (Yakka shifokor)'}</option>
-                      <option value="2-3">{isEn ? '2 - 3 chairs (Small clinic)' : '2 - 3 ta kreslo (Kichik klinika)'}</option>
-                      <option value="4-6">{isEn ? '4 - 6 chairs (Medium clinic)' : "4 - 6 ta kreslo (O'rta klinika)"}</option>
-                      <option value="7+">{isEn ? '7+ chairs (Network or large center)' : '7+ kreslo (Tarmoq yoki yirik markaz)'}</option>
+                      <option value="1">{t('contact.1ChairSoloPractitioner')}</option>
+                      <option value="2-3">{t('contact.23ChairsSmall')}</option>
+                      <option value="4-6">{t('contact.46ChairsMedium')}</option>
+                      <option value="7+">{t('contact.7ChairsNetworkOr')}</option>
                     </select>
                   </div>
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel} htmlFor="contactMessage">
-                      {isEn ? 'Questions or Specific Requests' : 'Savol yoki qo\'shimcha izoh'}
+                      {t('contact.questionsOrSpecificRequests')}
                     </label>
                     <textarea
                       id="contactMessage"
                       name="message"
                       rows={3}
                       placeholder={
-                        isEn
-                          ? 'Tell us what you would like to automate or ask...'
-                          : 'Klinikangiz uchun qaysi modullar muhimligi yoki savollaringizni yozing...'
+                        t('contact.tellUsWhatYou')
                       }
                       value={formData.message}
                       onChange={handleChange}
@@ -290,10 +288,10 @@ export default function Contact() {
                     className={styles.submitBtn}
                   >
                     {status === 'submitting' ? (
-                      <span>{isEn ? 'Submitting...' : 'Yuborilmoqda...'}</span>
+                      <span>{t('contact.submitting')}</span>
                     ) : (
                       <>
-                        <span>{isEn ? 'Send Demo Request' : 'Bepul taqdimotga yozilish'}</span>
+                        <span>{t('contact.sendDemoRequest')}</span>
                         <Icon name="send" size={18} />
                       </>
                     )}
@@ -302,9 +300,7 @@ export default function Contact() {
                   <p className={styles.privacyNote}>
                     <Icon name="lock" size={14} />
                     <span>
-                      {isEn
-                        ? 'Your data is strictly confidential and protected by SSL encryption.'
-                        : 'Ma\'lumotlaringiz maxfiy saqlanadi va uchinchi shaxslarga berilmaydi.'}
+                      {t('contact.yourDataIsStrictly')}
                     </span>
                   </p>
                 </form>
@@ -319,38 +315,32 @@ export default function Contact() {
         <div className={styles.faqStripContainer}>
           <div className={styles.faqStripHeader}>
             <h3 className={styles.faqStripTitle}>
-              {isEn ? 'Frequently Asked Inquiries' : 'Tez-tez beriladigan savollar'}
+              {t('contact.frequentlyAskedInquiries')}
             </h3>
           </div>
           <div className={styles.faqMiniGrid}>
             <div className={styles.faqMiniCard}>
               <h4 className={styles.faqMiniQ}>
-                {isEn ? 'How fast can our clinic start?' : 'Klinikamiz qancha vaqtda ish boshlay oladi?'}
+                {t('contact.howFastCanOur')}
               </h4>
               <p className={styles.faqMiniA}>
-                {isEn
-                  ? 'In less than 15 minutes! Signup is instant, and our team will guide you through setting up chairs, doctors, and price lists.'
-                  : '15 daqiqa ichida! Ro\'yxatdan o\'tishingiz bilan tizim ishga tushadi, shifokorlar va narxnomani kiritishda ko\'maklashamiz.'}
+                {t('contact.inLessThan15')}
               </p>
             </div>
             <div className={styles.faqMiniCard}>
               <h4 className={styles.faqMiniQ}>
-                {isEn ? 'Can you train our clinic staff in person?' : 'Xodimlarimizga amaliy o\'rgatasizmi?'}
+                {t('contact.canYouTrainOur')}
               </h4>
               <p className={styles.faqMiniA}>
-                {isEn
-                  ? 'Yes. We provide both online interactive sessions and in-person training at your clinic in Tashkent and regional hubs.'
-                  : 'Albatta. Toshkent va viloyat markazlaridagi klinikalarga mutaxassisimiz tashrif buyurib, administrator va shifokorlarni o\'rgatadi.'}
+                {t('contact.yesWeProvideBoth')}
               </p>
             </div>
             <div className={styles.faqMiniCard}>
               <h4 className={styles.faqMiniQ}>
-                {isEn ? 'Can we try before buying?' : 'Sotib olishdan oldin bepul sinab ko\'rish mumkinmi?'}
+                {t('contact.canWeTryBefore')}
               </h4>
               <p className={styles.faqMiniA}>
-                {isEn
-                  ? 'Yes! 14 days free trial with zero credit card commitment and full feature access.'
-                  : 'Ha! 14 kun davomida hech qanday to\'lovsiz va barcha imkoniyatlar bilan bepul sinab ko\'rishingiz mumkin.'}
+                {t('contact.yes14DaysFree')}
               </p>
             </div>
           </div>
@@ -361,12 +351,10 @@ export default function Contact() {
       <section className={styles.ctaBanner}>
         <div className={styles.ctaCard}>
           <h2 className={styles.ctaTitle}>
-            {isEn ? 'Ready to Automate Your Dental Clinic?' : 'Klinikangizni yangi bosqichga olib chiqing'}
+            {t('contact.readyToAutomateYour')}
           </h2>
           <p className={styles.ctaDesc}>
-            {isEn
-              ? 'Join 350+ leading dental clinics in Uzbekistan using DentUz every day.'
-              : 'O\'zbekistondagi 350+ dan ortiq ilg\'or stomatologiyalar safiga hoziroq qo\'shiling.'}
+            {t('contact.join350LeadingDental')}
           </p>
           <div className={styles.ctaActions}>
             <button
@@ -374,10 +362,10 @@ export default function Contact() {
               className={styles.ctaPrimaryBtn}
               onClick={() => window.scrollTo({ top: 200, behavior: 'smooth' })}
             >
-              {isEn ? 'Request Live Demo' : "Bepul demo so'rash"}
+              {t('contact.requestLiveDemo')}
             </button>
             <Link to="/pricing" className={styles.ctaSecondaryBtn}>
-              {isEn ? 'View Pricing Plans' : 'Tariflar bilan tanishish'}
+              {t('contact.viewPricingPlans')}
             </Link>
           </div>
         </div>

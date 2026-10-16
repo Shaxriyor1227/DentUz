@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../../components/Logo/Logo';
-import { formatPhoneInput } from '../../utils/formatters';
+import { formatPhoneInput, normalizePhone } from '../../utils/formatters';
 import styles from './Signup.module.css';
 
 // Crisp inline SVGs
@@ -140,6 +140,7 @@ export default function Signup() {
       name: doctorName || 'Yangi shifokor',
       clinic: clinicName || 'Mening Klinikam',
       role: roleTitle,
+      phone: normalizePhone(phone),
     });
     navigate('/dashboard');
   };
@@ -321,7 +322,7 @@ export default function Signup() {
                 ))}
               </div>
               <span className={styles.strengthLabel}>
-                {strength <= 1 ? (isEn ? 'Weak' : 'Oddiy') : strength <= 3 ? (isEn ? 'Medium' : "O'rtacha") : (isEn ? 'Strong password' : 'Kuchli parol')}
+                {strength <= 1 ? t('auth.weak') : strength <= 3 ? t('auth.medium') : t('auth.strongPassword')}
               </span>
             </div>
           )}

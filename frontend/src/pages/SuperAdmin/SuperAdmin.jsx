@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import Logo from '../../components/Logo/Logo';
 import Icon from '../../components/Icon/Icon';
-import { formatPhoneInput } from '../../utils/formatters';
+import { formatPhoneInput, normalizePhone, formatPhone } from '../../utils/formatters';
 import styles from './SuperAdmin.module.css';
 
 // Sleek Custom Dropdown (No native OS select box glitches)
@@ -335,10 +335,14 @@ export default function SuperAdmin() {
     e.preventDefault();
     setModalLoading(true);
     try {
+      const payload = {
+        ...formData,
+        phone: normalizePhone(formData.phone)
+      };
       const res = await authFetch(`${baseUrl}/superadmin/clinics/onboard`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -360,10 +364,14 @@ export default function SuperAdmin() {
     e.preventDefault();
     setModalLoading(true);
     try {
+      const payload = {
+        ...userFormData,
+        phone: normalizePhone(userFormData.phone)
+      };
       const res = await authFetch(`${baseUrl}/superadmin/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userFormData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok && data.success) {

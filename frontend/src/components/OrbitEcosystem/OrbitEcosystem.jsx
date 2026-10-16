@@ -104,7 +104,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
   const satellites = [
     {
       id: 'lab',
-      label: isEn ? 'Laboratory' : 'Laboratoriya',
+      label: t('common.laboratory'),
       icon: <LabIcon />,
       color: '#8B5CF6',
       bg: 'rgba(139, 92, 246, 0.15)',
@@ -112,7 +112,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'support',
-      label: isEn ? 'Support' : 'Jonli yordam',
+      label: t('common.support'),
       icon: <SupportIcon />,
       color: '#06B6D4',
       bg: 'rgba(6, 182, 212, 0.15)',
@@ -120,7 +120,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'patients',
-      label: isEn ? 'Patients' : 'Bemorlar',
+      label: t('common.patients'),
       icon: <PatientsIcon />,
       color: '#0284C7',
       bg: 'rgba(2, 132, 199, 0.15)',
@@ -128,7 +128,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'processes',
-      label: isEn ? 'Processes' : 'Jarayonlar',
+      label: t('common.processes'),
       icon: <ProcessesIcon />,
       color: '#F59E0B',
       bg: 'rgba(245, 158, 11, 0.15)',
@@ -136,7 +136,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'inventory',
-      label: isEn ? 'Inventory' : 'Omborxona',
+      label: t('common.inventory'),
       icon: <InventoryIcon />,
       color: '#EA580C',
       bg: 'rgba(234, 88, 12, 0.15)',
@@ -144,7 +144,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'treatments',
-      label: isEn ? 'Treatments' : 'Muolajalar',
+      label: t('common.treatments'),
       icon: <TreatmentIcon />,
       color: '#10B981',
       bg: 'rgba(16, 185, 129, 0.15)',
@@ -152,7 +152,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'appointments',
-      label: isEn ? 'Appointments' : 'Taqvim',
+      label: t('common.appointments'),
       icon: <AppointmentIcon />,
       color: '#0D9488',
       bg: 'rgba(13, 148, 136, 0.15)',
@@ -160,7 +160,7 @@ export default function OrbitEcosystem({ visualOnly = false }) {
     },
     {
       id: 'finance',
-      label: isEn ? 'Finance' : 'Moliya',
+      label: t('common.finance'),
       icon: <FinanceIcon />,
       color: '#3B82F6',
       bg: 'rgba(59, 130, 246, 0.15)',

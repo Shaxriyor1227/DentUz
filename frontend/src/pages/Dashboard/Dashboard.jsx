@@ -105,7 +105,7 @@ export default function Dashboard() {
         // 1-kreslo: Qabul jarayonida (shifokor va muolaja bilan)
         const docName = inProgressApt?.doctorName || 'Dr. Azimov Farrux';
         const patName = inProgressApt?.patientName || 'Anvar Qosimov';
-        const procName = inProgressApt?.procedure || (i18n.language === 'uz' ? 'Implantatsiya tekshiruvi' : 'Implant restoration');
+        const procName = inProgressApt?.procedure || t('dashboard.implantRestoration');
         list.push({
           id: 1,
           label: `${t('dashboard.chair')} #1`,
@@ -114,7 +114,7 @@ export default function Dashboard() {
           procedure: procName,
           doctorName: docName,
           color: '#10B981',
-          statusText: i18n.language === 'uz' ? 'Band' : 'In treatment'
+          statusText: t('dashboard.inTreatment')
         });
       } else if (i === 2) {
         // 2-kreslo: Sterilizatsiya va sanitariya
@@ -122,11 +122,11 @@ export default function Dashboard() {
           id: 2,
           label: `${t('dashboard.chair')} #2`,
           status: 'cleaning',
-          patientName: i18n.language === 'uz' ? 'Sanitariya va tozalash' : 'Sanitation',
-          procedure: i18n.language === 'uz' ? 'Sterilizatsiya (5 daq)' : 'Sterilization (5 min)',
+          patientName: t('dashboard.sanitation'),
+          procedure: t('dashboard.sterilization5Min'),
           doctorName: 'Med-hamshira',
           color: '#F59E0B',
-          statusText: i18n.language === 'uz' ? 'Tozalanmoqda' : 'Cleaning'
+          statusText: t('dashboard.cleaning')
         });
       } else if (i === 3 && pendingApts.length > 0) {
         // 3-kreslo: Navbatdagi bemor kutilmoqda
@@ -139,7 +139,7 @@ export default function Dashboard() {
           procedure: `${p1.procedure} (${p1.time})`,
           doctorName: p1.doctorName || 'Dr. Saidova Malika',
           color: '#3B82F6',
-          statusText: i18n.language === 'uz' ? 'Navbatda' : 'Queued'
+          statusText: t('dashboard.queued')
         });
       } else if (i === 4 && pendingApts.length > 1) {
         // 4-kreslo: Keyingi navbat
@@ -152,7 +152,7 @@ export default function Dashboard() {
           procedure: `${p2.procedure} (${p2.time})`,
           doctorName: p2.doctorName || 'Dr. Karimov Jamshid',
           color: '#3B82F6',
-          statusText: i18n.language === 'uz' ? 'Navbatda' : 'Queued'
+          statusText: t('dashboard.queued')
         });
       } else {
         // 5..N kreslolar: Bo'sh va tayyor
@@ -164,7 +164,7 @@ export default function Dashboard() {
           procedure: null,
           doctorName: null,
           color: '#94A3B8',
-          statusText: t('dashboard.chairIdle') || (i18n.language === 'uz' ? "Bo'sh (Tayyor)" : 'Available')
+          statusText: t('dashboard.chairIdle') || t('dashboard.available')
         });
       }
     }
@@ -177,7 +177,7 @@ export default function Dashboard() {
   const pendingCount = appointments?.filter(a => a.status === 'pending').length || 0;
   const completedCount = appointments?.filter(a => a.status === 'completed').length || 0;
 
-  const doctorGreetingName = user?.shortName || (i18n.language === 'uz' ? 'Dr. Azimov' : 'Dr. Azimov');
+  const doctorGreetingName = user?.shortName || t('dashboard.drAzimov');
 
   return (
     <div className={styles.pageContainer}>
@@ -185,7 +185,7 @@ export default function Dashboard() {
       <section className={styles.greetingSection}>
         <div>
           <h1 className={styles.greetingTitle}>
-            {i18n.language === 'uz' ? `Xayrli kun, ${doctorGreetingName}` : `Good day, ${doctorGreetingName}`}
+            {t('dashboard.greeting', { name: doctorGreetingName })}
           </h1>
           <p className={styles.greetingSubtext}>
             {formattedToday} <span style={{ margin: '0 6px', opacity: 0.4 }}>•</span>{' '}
@@ -210,7 +210,7 @@ export default function Dashboard() {
           </div>
           <div className={styles.quickActionTextGroup}>
             <span className={styles.quickActionTitle}>{t('patients.newPatient')}</span>
-            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? "Ro'yxatga olish" : 'Registration'}</span>
+            <span className={styles.quickActionSub}>{t('dashboard.registration')}</span>
           </div>
         </div>
 
@@ -226,7 +226,7 @@ export default function Dashboard() {
           </div>
           <div className={styles.quickActionTextGroup}>
             <span className={styles.quickActionTitle}>{t('calendar.newAppointment')}</span>
-            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'Taqvimga kiritish' : 'Add to schedule'}</span>
+            <span className={styles.quickActionSub}>{t('dashboard.addToSchedule')}</span>
           </div>
         </div>
 
@@ -242,7 +242,7 @@ export default function Dashboard() {
           </div>
           <div className={styles.quickActionTextGroup}>
             <span className={styles.quickActionTitle}>{t('finance.title')}</span>
-            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'Hisob-fakturalar' : 'Billing & Ledger'}</span>
+            <span className={styles.quickActionSub}>{t('dashboard.billingLedger')}</span>
           </div>
         </div>
 
@@ -258,7 +258,7 @@ export default function Dashboard() {
           </div>
           <div className={styles.quickActionTextGroup}>
             <span className={styles.quickActionTitle}>{t('odontogram.title')}</span>
-            <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'FDI tish xaritasi' : '32-tooth chart'}</span>
+            <span className={styles.quickActionSub}>{t('dashboard.32ToothChart')}</span>
           </div>
         </div>
       </section>
@@ -272,7 +272,7 @@ export default function Dashboard() {
             </span>
             <h2 className={styles.sectionTitle}>{t('dashboard.chairOccupancy')}</h2>
             <span style={{ fontSize: '11px', color: 'var(--color-cyan)', fontWeight: 600, background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '12px' }}>
-              {clinicChairsCount} {i18n.language === 'uz' ? 'ta kreslo' : 'operatories'}
+              {clinicChairsCount} {t('dashboard.operatories')}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -344,7 +344,7 @@ export default function Dashboard() {
                     <button
                       type="button"
                       className={styles.chairAddBtn}
-                      title={i18n.language === 'uz' ? `Yangi qabul qo'shish, kreslo #${chair.id}` : `Add appointment, operatory #${chair.id}`}
+                      title={t('dashboard.addAptChair', { chair: chair.id })}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate('/calendar', { state: { openNewModal: true, chair: chair.id } });
@@ -356,7 +356,7 @@ export default function Dashboard() {
                       </span>
                     </button>
                     <span className={styles.chairIdleHint}>
-                      {i18n.language === 'uz' ? "Qabul belgilash" : "Schedule appointment"}
+                      {t('dashboard.scheduleAppointment')}
                     </span>
                   </div>
                 ) : (
@@ -402,7 +402,7 @@ export default function Dashboard() {
               <span className={styles.headerDot} />
             </div>
             <span className={styles.patientCountBadge}>
-              {loading ? '...' : `${todayCount} ${i18n.language === 'uz' ? 'ta bemor' : 'patients'}`}
+              {loading ? '...' : `${todayCount} ${t('dashboard.patients')}`}
             </span>
           </div>
 
@@ -414,7 +414,7 @@ export default function Dashboard() {
                 event_available
               </span>
               <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                {i18n.language === 'uz' ? "Bugun uchun rejalashtirilgan qabullar yo'q" : 'No appointments scheduled for today'}
+                {t('dashboard.noAppointmentsScheduledFor')}
               </p>
               <button
                 type="button"
@@ -431,7 +431,7 @@ export default function Dashboard() {
                   fontWeight: 600
                 }}
               >
-                {i18n.language === 'uz' ? "+ Yangi qabul qo'shish" : '+ Schedule Appointment'}
+                {t('dashboard.scheduleAppointment_1')}
               </button>
             </div>
           ) : (
@@ -488,22 +488,22 @@ export default function Dashboard() {
                 icon="groups"
               />
               <StatCard
-                label={i18n.language === 'uz' ? "Bugungi tushum (Kassa)" : "Today's Revenue"}
+                label={t('dashboard.todaySRevenue')}
                 value={financeStats?.todayRevenue ? Number(financeStats.todayRevenue).toLocaleString() : '2 050 000'}
                 unit={t('common.som')}
                 sparklineData={[3.8, 4.2, 5.1, 4.6, 4.85, 3.4, 2.5]}
                 sparklineColor="var(--color-mint)"
-                subtext={i18n.language === 'uz' ? "Naqd: 1 200 000 • Karta/Payme: 850 000" : "Cash: 1.2M • Card/Payme: 850K"}
+                subtext={t('dashboard.cash12mCard')}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
-                label={i18n.language === 'uz' ? "Kutilayotgan qoldiq (Debitorlik)" : "Pending Receivables"}
+                label={t('dashboard.pendingReceivables')}
                 value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '1 450 000'}
                 unit={t('common.som')}
                 sparklineData={[1.8, 1.6, 1.45, 1.5, 1.45, 1.4, 1.45]}
                 sparklineColor="#F59E0B"
-                subtext={i18n.language === 'uz' ? "Faol muolajalar bo'yicha qoldiq qarz" : "Balance due on active procedures"}
+                subtext={t('dashboard.balanceDueOnActive')}
                 isMono={true}
                 icon="pending"
               />
@@ -518,7 +518,7 @@ export default function Dashboard() {
                   {t('dashboard.weeklyRevenue')}
                 </h3>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                  {i18n.language === 'uz' ? "Jami: 28 450 000 so'm • 72 bemor" : 'Total: 28,450,000 UZS • 72 patients'}
+                  {t('dashboard.total28450000')}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '20px' }}>

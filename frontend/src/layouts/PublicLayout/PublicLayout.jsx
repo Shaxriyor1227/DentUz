@@ -228,7 +228,7 @@ export default function PublicLayout() {
                 target="_blank"
                 rel="noreferrer"
                 className={styles.itParkCard}
-                title={i18n.language === 'en' ? 'IT Park Uzbekistan Official Resident' : "IT Park O'zbekiston Rasmiy Rezidenti"}
+                title={t('common.itParkUzbekistanOfficial')}
               >
                 <div className={styles.itParkCardLeft}>
                   <div className={styles.itParkBadgeIcon}>P</div>
@@ -385,7 +385,7 @@ export default function PublicLayout() {
       <button
         className={`${styles.scrollTopBtn} ${showScrollTop ? styles.scrollTopBtnVisible : ''}`}
         onClick={scrollToTop}
-        title={i18n.language === 'en' ? 'Scroll to top' : 'Sahifa boshiga qaytish'}
+        title={t('common.scrollToTop')}
         type="button"
         aria-label="Scroll to top"
       >

@@ -12,7 +12,7 @@ exports.createAppointment = async (req, res) => {
   try {
     const payload = { ...req.body };
     if (!payload.id) {
-      payload.id = `apt-${Date.now()}`;
+      payload.id = `apt-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     }
 
     // Always enforce tenant clinicId
@@ -46,9 +46,8 @@ exports.createAppointment = async (req, res) => {
         where: withTenantScope(req, { name: payload.patientName.trim() }),
       });
       if (!foundPatient) {
-        const count = await Patient.count({ where: withTenantScope(req) });
         foundPatient = await Patient.create({
-          id: `P-${1042 + count + 1}`,
+          id: `P-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`,
           name: payload.patientName.trim(),
           phone: payload.patientPhone || '+998 90 000 00 00',
           status: 'today',
@@ -70,6 +69,8 @@ exports.createAppointment = async (req, res) => {
     }
 
     payload.patientId = patientId;
+    delete payload.patientPhone;
+    delete payload.doctor;
 
     const appointment = await Appointment.create(payload);
 
@@ -78,7 +79,7 @@ exports.createAppointment = async (req, res) => {
 
     res.status(201).json({ success: true, data: appointment });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err.errors ? err.errors.map(e => `${e.path}: ${e.message}`).join(', ') : err.message });
   }
 };
 

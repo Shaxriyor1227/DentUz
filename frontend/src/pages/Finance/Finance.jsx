@@ -238,8 +238,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'warning',
-        title: i18n.language === 'en' ? 'No records to export' : 'Eksport qilib bo\'lmadi',
-        message: i18n.language === 'en' ? 'No invoices found for the selected filter.' : 'Tanlangan filtr bo\'yicha invoyslar topilmadi.'
+        title: t('finance.noRecordsToExport'),
+        message: t('finance.noInvoicesFoundFor')
       });
       return;
     }
@@ -258,7 +258,7 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: isEn ? 'Finance Ledger Exported' : 'Moliya hisoboti (Excel) yuklandi',
+        title: t('finance.financeLedgerExported'),
         message: isEn
           ? `${filteredInvoices.length} invoices saved in styled Excel (.xlsx) file.`
           : `${filteredInvoices.length} ta invoys ma'lumotlari to'liq Excel (.xlsx) jadvaliga yuklandi.`
@@ -268,8 +268,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'error',
-        title: isEn ? 'Export failed' : 'Eksportda xatolik',
-        message: err.message || (isEn ? 'Failed to generate Excel file.' : 'Excel faylini yaratib bo\'lmadi.')
+        title: t('finance.exportFailed'),
+        message: err.message || t('finance.failedToGenerateExcel')
       });
     } finally {
       setExporting(false);
@@ -281,8 +281,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'warning',
-        title: i18n.language === 'en' ? 'No records to export' : 'Eksport qilib bo\'lmadi',
-        message: i18n.language === 'en' ? 'No invoices found for the selected filter.' : 'Tanlangan filtr bo\'yicha invoyslar topilmadi.'
+        title: t('finance.noRecordsToExport'),
+        message: t('finance.noInvoicesFoundFor')
       });
       return;
     }
@@ -297,7 +297,7 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: isEn ? 'CSV Export Completed' : 'CSV fayli yuklab olindi',
+        title: t('finance.csvExportCompleted'),
         message: isEn
           ? `${filteredInvoices.length} invoices exported to CSV format.`
           : `${filteredInvoices.length} ta invoys CSV formatida yuklab olindi.`
@@ -327,8 +327,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: i18n.language === 'en' ? 'Word Document Downloaded' : 'Word (.doc) fayli yuklandi',
-        message: i18n.language === 'en' ? `${filteredInvoices.length} invoices saved as Word document.` : `${filteredInvoices.length} ta invoys Word hujjatiga yuklandi.`
+        title: t('finance.wordDocumentDownloaded'),
+        message: t('finance.wordSaved', { count: filteredInvoices.length })
       });
     } catch (err) {
       console.error(err);
@@ -374,7 +374,7 @@ export default function Finance() {
     setToast({
       open: true,
       type: 'success',
-      title: i18n.language === 'en' ? 'Card Copied' : 'Karta raqami nusxalandi',
+      title: t('finance.cardCopied'),
       message: '9860 3501 8844 2200 (DentUz Aloqabank) buferga nusxalandi.'
     });
   };
@@ -383,7 +383,7 @@ export default function Finance() {
     setToast({
       open: true,
       type: 'success',
-      title: i18n.language === 'en' ? 'Payment Link Sent' : 'To\'lov havolasi yuborildi',
+      title: t('finance.paymentLinkSent'),
       message: `${paymentForm.patient || 'Bemor'} telefon raqamiga ${paymentForm.method} to'lov havolasi yuborildi.`
     });
   };
@@ -420,8 +420,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'warning',
-        title: i18n.language === 'en' ? 'Missing patient' : 'Bemor tanlanmadi',
-        message: i18n.language === 'en' ? 'Please enter or select a patient.' : 'Iltimos, bemor ismini kiriting.'
+        title: t('finance.missingPatient'),
+        message: t('finance.pleaseEnterOrSelect')
       });
       return;
     }
@@ -430,8 +430,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'warning',
-        title: i18n.language === 'en' ? 'Invalid amount' : 'Noto\'g\'ri summa',
-        message: i18n.language === 'en' ? 'Payment amount must be greater than zero.' : 'To\'lov summasi 0 dan katta bo\'lishi kerak.'
+        title: t('finance.invalidAmount'),
+        message: t('finance.paymentAmountMustBe')
       });
       return;
     }
@@ -476,7 +476,7 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: i18n.language === 'en' ? 'Payment Processed' : 'To\'lov muvaffaqiyatli qabul qilindi',
+        title: t('finance.paymentProcessed'),
         message: i18n.language === 'en'
           ? `Invoice #${settledId} (${formatUZS(cleanAmount)}) settled via ${paymentForm.method}.`
           : `${settledId} raqamli invoys (${formatUZS(cleanAmount)}) ${paymentForm.method} orqali to'landi.`
@@ -512,7 +512,7 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: i18n.language === 'en' ? 'Payment Collected' : 'To\'lov muvaffaqiyatli qabul qilindi',
+        title: t('finance.paymentCollected'),
         message: i18n.language === 'en'
           ? `Invoice #${newId} (${formatUZS(cleanAmount)}) has been recorded.`
           : `${paymentForm.patient} uchun ${formatUZS(cleanAmount)} miqdoridagi to'lov (${paymentForm.method}) qabul qilindi.`
@@ -634,7 +634,7 @@ export default function Finance() {
       render: (val) => <StatusPill status={val} label={val === 'paid' ? t('patientProfile.billingTab.statusPaid') : t('patientProfile.billingTab.statusPending')} />
     },
     {
-      title: i18n.language === 'en' ? 'Actions' : 'Amallar',
+      title: t('finance.actions'),
       key: 'actions',
       align: 'right',
       render: (_, row) => {
@@ -647,12 +647,12 @@ export default function Finance() {
                 e.stopPropagation();
                 handleOpenSettleModal(row);
               }}
-              title={i18n.language === 'en' ? 'Collect Payment' : "To'lovni qabul qilish"}
+              title={t('finance.collectPayment')}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
                 payments
               </span>
-              <span>{i18n.language === 'en' ? 'Pay' : "To'lash"}</span>
+              <span>{t('finance.pay')}</span>
             </button>
           );
         }
@@ -664,7 +664,7 @@ export default function Finance() {
               e.stopPropagation();
               handleViewReceipt(row);
             }}
-            title={i18n.language === 'en' ? 'Print / View Receipt' : "Kvitansiya / Chek"}
+            title={t('finance.printViewReceipt')}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
               receipt_long
@@ -682,7 +682,7 @@ export default function Finance() {
         <div>
           <div className={styles.titleArea}>
             <h1 className={styles.title}>{t('finance.title')}</h1>
-            <span className={styles.badge}>{i18n.language === 'en' ? 'Main Ledger' : 'Asosiy Balans'}</span>
+            <span className={styles.badge}>{t('finance.mainLedger')}</span>
           </div>
           <p className={styles.subtitle}>
             {t('finance.subtitle')}
@@ -728,7 +728,7 @@ export default function Finance() {
             subtext={
               stats?.label && stats.label !== 'this_month'
                 ? stats.label
-                : i18n.language === 'en' ? 'This month (Sep 2026)' : 'Shu oy (Sentabr 2026)'
+                : t('finance.thisMonthSep2026')
             }
             isMono={true}
             icon="account_balance_wallet"
@@ -742,23 +742,23 @@ export default function Finance() {
             icon="pending_actions"
           />
           <StatCard
-            label={i18n.language === 'en' ? 'Expenses' : 'Xarajatlar'}
+            label={t('finance.expenses')}
             value={stats ? formatUZS(stats.expenses || 0, false) : '—'}
             unit="so'm"
             trend={(stats?.expenses && stats.expenses > 0 && stats?.expensesGrowth !== undefined)
               ? `${stats.expensesGrowth > 0 ? '+' : ''}${stats.expensesGrowth}%`
               : undefined}
             trendPositive={stats?.expensesGrowth !== undefined ? stats.expensesGrowth < 0 : false}
-            subtext={i18n.language === 'en' ? 'vs previous period' : "o'tgan oyga nisbatan"}
+            subtext={t('finance.vsPreviousPeriod')}
             isMono={true}
             icon="shopping_cart_checkout"
           />
           <StatCard
-            label={i18n.language === 'en' ? 'Net Profit' : 'Sof foyda'}
+            label={t('finance.netProfit')}
             value={stats ? formatUZS(stats.netProfit || stats.monthlyRevenue, false) : '—'}
             unit="so'm"
             trend={stats?.netProfitGrowth !== undefined ? `+${stats.netProfitGrowth}%` : '+18.4%'}
-            subtext={i18n.language === 'en' ? 'net margin' : 'sof rentabellik'}
+            subtext={t('finance.netMargin')}
             isMono={true}
             icon="savings"
           />
@@ -779,14 +779,14 @@ export default function Finance() {
           className={`${styles.tabBtn} ${activeTab === 'paid' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('paid')}
         >
-          {i18n.language === 'en' ? 'Paid Invoices' : 'Hisob-fakturalar (To\'langan)'}
+          {t('finance.paidInvoices')}
         </button>
         <button
           type="button"
           className={`${styles.tabBtn} ${activeTab === 'pending' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('pending')}
         >
-          {i18n.language === 'en' ? 'Pending Receivables' : 'Kutilayotgan qoldiqlar'}
+          {t('finance.pendingReceivables')}
         </button>
       </div>
 
@@ -810,22 +810,22 @@ export default function Finance() {
               className={styles.exportBtn}
               onClick={handleExportExcel}
               disabled={exporting}
-              title={i18n.language === 'en' ? 'Download as Excel (.xlsx)' : 'Excel (.xlsx) formatida yuklab olish'}
+              title={t('finance.downloadAsExcelXlsx')}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
                 table_view
               </span>
               <span>
                 {exporting
-                  ? (i18n.language === 'en' ? 'Exporting...' : 'Yuklanmoqda...')
-                  : (i18n.language === 'en' ? 'Export (Excel)' : 'Eksport (Excel)')}
+                  ? t('finance.exporting')
+                  : t('finance.exportExcel')}
               </span>
             </button>
             <button
               type="button"
               className={styles.exportMenuTrigger}
               onClick={() => setShowExportMenu(!showExportMenu)}
-              title={i18n.language === 'en' ? 'More export formats' : 'Boshqa formatlar'}
+              title={t('finance.moreExportFormats')}
               aria-label="Export options"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -846,12 +846,10 @@ export default function Finance() {
                   </span>
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>
-                      Excel (.xlsx) <span className={styles.recommendedBadge}>{i18n.language === 'en' ? 'Recommended' : 'Tavsiya'}</span>
+                      Excel (.xlsx) <span className={styles.recommendedBadge}>{t('finance.recommended')}</span>
                     </div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Full ledger, KPI summary & financial totals'
-                        : 'Moliya hisoboti, KPI bloklari va jami summalar'}
+                      {t('finance.fullLedgerKpiSummary')}
                     </div>
                   </div>
                 </button>
@@ -867,9 +865,7 @@ export default function Finance() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>PDF (.pdf)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Printable financial report with stamp & sign areas'
-                        : 'Chop etish va hisobot uchun rasmiy blanka'}
+                      {t('finance.printableFinancialReportWith')}
                     </div>
                   </div>
                 </button>
@@ -885,9 +881,7 @@ export default function Finance() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>Word (.doc)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Editable financial ledger for Word & WPS Writer'
-                        : 'Tahrirlash va hisobot uchun Word hujjati'}
+                      {t('finance.editableFinancialLedgerFor')}
                     </div>
                   </div>
                 </button>
@@ -903,9 +897,7 @@ export default function Finance() {
                   <div className={styles.menuItemContent}>
                     <div className={styles.menuItemTitle}>CSV (.csv)</div>
                     <div className={styles.menuItemDesc}>
-                      {i18n.language === 'en'
-                        ? 'Standard raw tabular data for spreadsheets'
-                        : 'Universal matnli ma\'lumotlar jadvali'}
+                      {t('finance.standardRawTabularData')}
                     </div>
                   </div>
                 </button>
@@ -921,7 +913,7 @@ export default function Finance() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               add
             </span>
-            <span>{i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov'}</span>
+            <span>{t('finance.collectPayment_1')}</span>
           </button>
         </div>
       </div>
@@ -940,7 +932,7 @@ export default function Finance() {
           <div className={styles.mobileCardList}>
             {filteredInvoices.length === 0 ? (
               <div className={styles.mobileEmptyState}>
-                {i18n.language === 'en' ? 'No invoices found' : 'Hisob-fakturalar topilmadi'}
+                {t('finance.noInvoicesFound')}
               </div>
             ) : (
               filteredInvoices.map((inv) => (
@@ -952,7 +944,7 @@ export default function Finance() {
                     </div>
                     <StatusPill
                       status={inv.status}
-                      label={inv.status === 'paid' ? (i18n.language === 'en' ? 'Paid' : 'To\'langan') : (i18n.language === 'en' ? 'Pending' : 'Kutilmoqda')}
+                      label={inv.status === 'paid' ? t('finance.paid') : t('finance.pending')}
                     />
                   </div>
 
@@ -998,7 +990,7 @@ export default function Finance() {
                           className={styles.mobilePayBtn}
                           onClick={() => handleOpenCollectModal(inv)}
                         >
-                          {i18n.language === 'en' ? 'Pay' : 'To\'lash'}
+                          {t('finance.pay')}
                         </button>
                       )}
                     </div>
@@ -1026,8 +1018,8 @@ export default function Finance() {
                   <div className={styles.appleModalTitle}>
                     <span>
                       {selectedInvoice
-                        ? (i18n.language === 'en' ? 'Settle Payment' : 'To\'lovni tasdiqlash')
-                        : (i18n.language === 'en' ? 'Collect Payment' : 'Yangi to\'lov')}
+                        ? t('finance.settlePayment')
+                        : t('finance.collectPayment_1')}
                     </span>
                     {selectedInvoice && (
                       <span className={styles.appleInvoiceBadge}>
@@ -1040,9 +1032,7 @@ export default function Finance() {
                       ? (i18n.language === 'en'
                           ? `Confirm settlement for ${selectedInvoice.patient}`
                           : `${selectedInvoice.patient} hisobi bo'yicha to'lovni tasdiqlash`)
-                      : (i18n.language === 'en'
-                          ? 'Collect procedure payment & create invoice'
-                          : 'Muolaja to\'lovini qabul qilish va kassa invoysini yaratish')}
+                      : t('finance.collectProcedurePaymentCreate')}
                   </div>
                 </div>
               </div>
@@ -1082,12 +1072,12 @@ export default function Finance() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div className={styles.formGroup}>
                     <label className={styles.appleMethodLabel}>
-                      {i18n.language === 'en' ? 'Patient Name' : 'Bemor ismi'}
+                      {t('finance.patientName')}
                     </label>
                     <input
                       type="text"
                       className={styles.formInput}
-                      placeholder={i18n.language === 'en' ? 'e.g. Anvar Qosimov' : 'Masalan: Anvar Qosimov'}
+                      placeholder={t('finance.eGAnvarQosimov')}
                       value={paymentForm.patient}
                       onChange={(e) => setPaymentForm((prev) => ({ ...prev, patient: e.target.value }))}
                       required
@@ -1096,7 +1086,7 @@ export default function Finance() {
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label className={styles.appleMethodLabel}>
-                        {i18n.language === 'en' ? 'Procedure' : 'Muolaja'}
+                        {t('finance.procedure')}
                       </label>
                       <select
                         className={styles.formSelect}
@@ -1113,7 +1103,7 @@ export default function Finance() {
                     </div>
                     <div className={styles.formGroup}>
                       <label className={styles.appleMethodLabel}>
-                        {i18n.language === 'en' ? 'Doctor' : 'Shifokor'}
+                        {t('finance.doctor')}
                       </label>
                       <select
                         className={styles.formSelect}
@@ -1133,7 +1123,7 @@ export default function Finance() {
               <div className={styles.appleHeroAmountBox}>
                 <div className={styles.appleAmountHeader}>
                   <span className={styles.appleAmountLabel}>
-                    {i18n.language === 'en' ? 'Amount to pay' : 'To\'lov summasi'}
+                    {t('finance.amountToPay')}
                   </span>
                   <span className={styles.appleAmountHeaderTotal}>
                     {selectedInvoice ? formatUZS(selectedInvoice.amount) : formatUZS(Number(paymentForm.amount) || 0)}
@@ -1162,19 +1152,19 @@ export default function Finance() {
                       {
                         key: 'full',
                         percent: '100%',
-                        label: i18n.language === 'en' ? 'Full' : 'To\'liq',
+                        label: t('finance.full'),
                         amount: String(selectedInvoice.amount)
                       },
                       {
                         key: 'half',
                         percent: '50%',
-                        label: i18n.language === 'en' ? 'Half' : 'Yarmi',
+                        label: t('finance.half'),
                         amount: String(Math.round(selectedInvoice.amount * 0.5))
                       },
                       {
                         key: 'advance',
                         percent: '30%',
-                        label: i18n.language === 'en' ? 'Advance' : 'Avans',
+                        label: t('finance.advance'),
                         amount: String(Math.round(selectedInvoice.amount * 0.3))
                       }
                     ].map((chip) => (
@@ -1206,7 +1196,7 @@ export default function Finance() {
               {/* Apple Segmented Payment Method Control */}
               <div className={styles.appleMethodSection}>
                 <div className={styles.appleMethodLabel}>
-                  {i18n.language === 'en' ? 'Payment method' : 'To\'lov usuli'}
+                  {t('finance.paymentMethod')}
                 </div>
                 <div className={styles.appleSegmentGrid}>
                   {[
@@ -1214,7 +1204,7 @@ export default function Finance() {
                     { key: 'Click', label: 'Click', icon: <ClickLogo size={22} /> },
                     { key: 'Uzcard', label: 'Uzcard', icon: <UzcardLogo size={22} /> },
                     { key: 'Humo', label: 'Humo', icon: <HumoLogo size={22} /> },
-                    { key: 'Naqd', label: i18n.language === 'en' ? 'Cash' : 'Naqd pul', icon: <CashLogo size={22} /> }
+                    { key: 'Naqd', label: t('finance.cash'), icon: <CashLogo size={22} /> }
                   ].map((m) => (
                     <button
                       key={m.key}
@@ -1243,7 +1233,7 @@ export default function Finance() {
                     </div>
                     <div className={styles.appleTransferCardInfo}>
                       <span className={styles.appleTransferCardLabel}>
-                        {i18n.language === 'en' ? 'Clinic Card (Aloqabank)' : 'Klinika hisob kartasi (Aloqabank)'}
+                        {t('finance.clinicCardAloqabank')}
                       </span>
                       <strong className={styles.appleTransferCardNum}>9860 3501 8844 2200</strong>
                     </div>
@@ -1253,18 +1243,18 @@ export default function Finance() {
                       type="button"
                       className={`${styles.appleMiniBtn} ${copiedCard ? styles.appleMiniBtnCopied : ''}`}
                       onClick={handleCopyClinicCard}
-                      title={i18n.language === 'en' ? 'Copy card number' : 'Karta raqamini nusxalash'}
+                      title={t('finance.copyCardNumber')}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                         {copiedCard ? 'check' : 'content_copy'}
                       </span>
-                      <span>{copiedCard ? (i18n.language === 'en' ? 'Copied' : 'Nusxalandi') : (i18n.language === 'en' ? 'Copy' : 'Nusxa')}</span>
+                      <span>{copiedCard ? t('finance.copied') : t('finance.copy')}</span>
                     </button>
                     <button
                       type="button"
                       className={styles.appleMiniBtn}
                       onClick={handleSendPaymentSms}
-                      title={i18n.language === 'en' ? 'Send SMS payment link to patient' : 'Bemorga SMS havola yuborish'}
+                      title={t('finance.sendSmsPaymentLink')}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                         sms
@@ -1279,9 +1269,7 @@ export default function Finance() {
                     point_of_sale
                   </span>
                   <span>
-                    {i18n.language === 'en'
-                      ? 'Cash Payment: Registered in till & fiscal receipt issued'
-                      : 'Naqd to\'lov: Kassa apparatiga kirim qilinadi va fiskal chek chop etiladi'}
+                    {t('finance.cashPaymentRegisteredIn')}
                   </span>
                 </div>
               )}
@@ -1296,8 +1284,8 @@ export default function Finance() {
                 </span>
                 <span>
                   {selectedInvoice
-                    ? (i18n.language === 'en' ? 'Confirm Settlement' : 'To\'lovni tasdiqlash')
-                    : (i18n.language === 'en' ? 'Confirm Payment' : 'To\'lovni tasdiqlash')}
+                    ? t('finance.confirmSettlement')
+                    : t('finance.confirmPayment')}
                   {' '}• {formatUZS(Number(paymentForm.amount) || 0)}
                 </span>
               </button>

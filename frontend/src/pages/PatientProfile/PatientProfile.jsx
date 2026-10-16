@@ -579,7 +579,7 @@ export default function PatientProfile() {
               <div className={styles.panelField}>
                 <label className={styles.fieldLabel}>{t('patientProfile.detailsPanel.clinicalDiagnosis')}</label>
                 <div className={styles.diagBox}>
-                  {doctorDiag || (i18n.language === 'en' ? 'Enamel and dentin layer compromised. Thermal sensitivity present.' : 'Emal va dentin qatlami zararlangan. Termik sezuvchanlik mavjud.')}
+                  {doctorDiag || t('patients.enamelAndDentinLayer')}
                 </div>
               </div>
 
@@ -735,7 +735,7 @@ export default function PatientProfile() {
                     {t('patientProfile.generalAnamnesis.emergencyContact')}
                   </div>
                   <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-                    Saidova Nargiza ({i18n.language === 'en' ? 'Spouse' : 'Turmush o\'rtog\'i'})
+                    Saidova Nargiza ({t('patients.spouse')})
                   </div>
                 </div>
                 <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-cyan-hover)' }}>
@@ -774,36 +774,36 @@ export default function PatientProfile() {
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.cardiovascular')}</span>
-                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Hypertension Stage 1 (Stable, ECG normal)' : 'Gipertoniya 1-daraja (Barqaror, EKG normada)'}</span>
+                  <span className={styles.infoValue}>{t('patients.hypertensionStage1Stable')}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.diabetes')}</span>
                   <span className={styles.infoValue} style={{ color: 'var(--color-mint-text)' }}>
-                    {i18n.language === 'en' ? 'None (Last lab: 5.2 mmol/l)' : 'Yo\'q (Oxirgi tahlil: 5.2 mmol/l)'}
+                    {t('patients.noneLastLab5')}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.infectiousRisks')}</span>
                   <span className={styles.infoValue} style={{ color: 'var(--color-mint-text)' }}>
-                    {i18n.language === 'en' ? 'Negative / Cleared' : 'Inkor etiladi (Manfiy)'}
+                    {t('patients.negativeCleared')}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.surgicalHistory')}</span>
-                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Appendectomy (2018)' : '2018-yil appendektomiya'}</span>
+                  <span className={styles.infoValue}>{t('patients.appendectomy2018')}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.habits')}</span>
-                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'Non-smoker' : 'Chekmaydi'}</span>
+                  <span className={styles.infoValue}>{t('patients.nonSmoker')}</span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{t('patientProfile.generalAnamnesis.painTolerance')}</span>
-                  <span className={styles.infoValue}>{i18n.language === 'en' ? 'High tolerance, responsive to standard anesthesia' : 'Past sezuvchanlik, anesteziyaga chidamli'}</span>
+                  <span className={styles.infoValue}>{t('patients.highToleranceResponsiveTo')}</span>
                 </div>
               </div>
 
@@ -898,10 +898,8 @@ export default function PatientProfile() {
               onClick={() => setToast({
                 open: true,
                 type: 'success',
-                title: i18n.language === 'en' ? 'DICOM / PACS Integration Active' : 'DICOM / PACS Integratsiyasi Faol',
-                message: i18n.language === 'en'
-                  ? 'Direct modality sync (Port 104, AET: DENTUZ_PACS) is connected and listening.'
-                  : 'Rentgen apparati va 3D tomograf (Port 104, AET: DENTUZ_PACS) ulangan. Suratlar avtomatik qabul qilinadi.'
+                title: t('patients.dicomPacsIntegrationActive'),
+                message: t('patients.directModalitySyncPort')
               })}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -926,7 +924,7 @@ export default function PatientProfile() {
                   {failedImages[item.id] ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '130px', background: 'var(--color-surface-container-low)', padding: '12px', textAlign: 'center', color: 'var(--color-text-secondary)', gap: '6px' }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '28px', color: 'var(--color-danger)' }}>broken_image</span>
-                      <span style={{ fontSize: '11px', lineHeight: 1.3 }}>{i18n.language === 'en' ? 'File does not exist, please re-upload' : 'Fayl mavjud emas, qayta yuklang'}</span>
+                      <span style={{ fontSize: '11px', lineHeight: 1.3 }}>{t('patients.fileDoesNotExist')}</span>
                     </div>
                   ) : (
                     <>
@@ -1105,7 +1103,7 @@ export default function PatientProfile() {
                   className={styles.selectInput}
                   value={newTreatment.title}
                   onChange={(e) => setNewTreatment({ ...newTreatment, title: e.target.value })}
-                  placeholder={i18n.language === 'en' ? "e.g., Root canal obturation (Gutta-percha)" : "masalan, Tish kanalini plombalash (Guttapercha)"}
+                  placeholder={t('patients.eGRootCanal')}
                   required
                 />
               </div>
@@ -1270,7 +1268,7 @@ export default function PatientProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center', color: '#fff', gap: '12px' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '54px', color: '#ef4444' }}>broken_image</span>
                   <div style={{ fontSize: '16px', fontWeight: 600 }}>
-                    {i18n.language === 'en' ? 'File does not exist, please re-upload' : 'Fayl mavjud emas, qayta yuklang'}
+                    {t('patients.fileDoesNotExist')}
                   </div>
                   <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-mono)' }}>
                     404 Not Found • {selectedXray.img}

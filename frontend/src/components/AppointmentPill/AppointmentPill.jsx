@@ -101,7 +101,7 @@ export default function AppointmentPill({
             <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-cyan)' }}>
               schedule
             </span>
-            {appointment.time} ({appointment.duration || 45} {i18n.language === 'en' ? 'min' : 'daq'})
+            {appointment.time} ({appointment.duration || 45} {t('common.min')})
           </span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -185,7 +185,7 @@ export default function AppointmentPill({
           </div>
 
           <span className={styles.chairsDurationTag}>
-            ⏱ {appointment.duration || 45} {i18n.language === 'en' ? 'min' : 'daq'}
+            ⏱ {appointment.duration || 45} {t('common.min')}
           </span>
         </div>
       </div>

@@ -12,7 +12,7 @@ export default function DataTable({
 }) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
-  const resolvedEmptyMessage = emptyMessage || (isEn ? 'No data found' : "Ma'lumot topilmadi");
+  const resolvedEmptyMessage = emptyMessage || t('common.noDataFound');
   return (
     <div className={`${styles.tableContainer} ${className}`}>
       <div className={styles.scrollArea}>

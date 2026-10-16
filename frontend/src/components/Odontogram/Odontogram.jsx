@@ -234,10 +234,10 @@ export default function Odontogram({
         </div>
         <div className={styles.viewModeSwitch}>
           <button className={`${styles.modeBtn} ${styles.modeBtnActive}`} type="button">
-            {i18n.language === 'en' ? 'Permanent (Adult)' : 'Doimiy (Kattalar)'}
+            {t('common.permanentAdult')}
           </button>
           <button className={styles.modeBtn} type="button">
-            {i18n.language === 'en' ? 'Primary (Deciduous)' : 'Sut tishlari'}
+            {t('common.primaryDeciduous')}
           </button>
         </div>
       </div>
@@ -408,7 +408,7 @@ export default function Odontogram({
             >
               ✕
             </span>
-            <span>{t('odontogram.conditions.missing') || (i18n.language === 'en' ? 'Extracted' : 'Olingan tish')}</span>
+            <span>{t('odontogram.conditions.missing') || t('common.extracted')}</span>
           </div>
           <div className={styles.legendItem}>
             <span

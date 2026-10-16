@@ -297,16 +297,16 @@ export default function TreatmentPlan() {
             {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (P-1042)</strong>
           </span>
         </Link>
-        <StatusPill status="in_progress" label={i18n.language === 'en' ? 'Active Plan' : 'Faol reja'} />
+        <StatusPill status="in_progress" label={t('treatmentPlan.activePlan')} />
       </div>
 
       {/* 2. Header Area */}
       <div className={styles.headerCard}>
         <div className={styles.headerInfo}>
           <div className={styles.tagRow}>
-            <span className={styles.planTag}>{i18n.language === 'en' ? 'Plan' : 'Reja'} TR-8821</span>
+            <span className={styles.planTag}>{t('treatmentPlan.plan')} TR-8821</span>
             <span style={{ color: 'var(--color-border)' }}>•</span>
-            <span className={styles.protocolType}>{i18n.language === 'en' ? 'Therapeutic & Prosthetic Protocol' : 'Terapevtik va ortopedik protokol'}</span>
+            <span className={styles.protocolType}>{t('treatmentPlan.therapeuticProstheticProtocol')}</span>
           </div>
 
           <div className={styles.titleRow}>
@@ -330,11 +330,11 @@ export default function TreatmentPlan() {
           {/* Integrated progress bar directly inside headerCard */}
           <div className={styles.headerProgressRow}>
             <div className={styles.headerProgressCounts}>
-              <span>{i18n.language === 'en' ? 'Total' : 'Jami'}: <strong style={{ color: 'var(--color-text-primary)' }}>{items.length} {t('common.qty')}</strong></span>
+              <span>{t('treatmentPlan.total')}: <strong style={{ color: 'var(--color-text-primary)' }}>{items.length} {t('common.qty')}</strong></span>
               <span>•</span>
-              <span>{i18n.language === 'en' ? 'Done' : 'Bajarildi'}: <strong style={{ color: 'var(--color-mint-text)' }}>{completedCount} {t('common.qty')}</strong></span>
+              <span>{t('treatmentPlan.done')}: <strong style={{ color: 'var(--color-mint-text)' }}>{completedCount} {t('common.qty')}</strong></span>
               <span>•</span>
-              <span>{i18n.language === 'en' ? 'Pending' : 'Kutilmoqda'}: <strong style={{ color: 'var(--color-cyan-hover)' }}>{inProgressCount + scheduledCount} {t('common.qty')}</strong></span>
+              <span>{t('treatmentPlan.pending')}: <strong style={{ color: 'var(--color-cyan-hover)' }}>{inProgressCount + scheduledCount} {t('common.qty')}</strong></span>
             </div>
             <div className={styles.headerProgressBarBg}>
               <div className={styles.headerProgressBarFill} style={{ width: `${progressPercent}%` }} />
@@ -381,9 +381,7 @@ export default function TreatmentPlan() {
                 {t('odontogram.title')} — FDI Raqamli Tish Xaritasi
               </div>
               <div className={styles.odontogramSectionSub}>
-                {i18n.language === 'en'
-                  ? 'Click any tooth to inspect clinical diagnosis, plan, and link procedures'
-                  : 'Muolaja va tashxisni ko\'rish uchun tish ustiga bosing'}
+                {t('treatmentPlan.clickAnyToothTo')}
               </div>
             </div>
           </div>
@@ -400,8 +398,8 @@ export default function TreatmentPlan() {
                 </span>
                 <span>
                   {filterByTooth
-                    ? (i18n.language === 'en' ? `Filtered: #${selectedToothId}` : `Filtr: #${selectedToothId} tish`)
-                    : (i18n.language === 'en' ? `Selected: #${selectedToothId} (Filter list)` : `Tanlandi: #${selectedToothId}`)}
+                    ? t('treatmentPlan.filteredTooth', { id: selectedToothId })
+                    : t('treatmentPlan.selectedTooth', { id: selectedToothId })}
                 </span>
                 <button
                   type="button"
@@ -427,7 +425,7 @@ export default function TreatmentPlan() {
                 <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
                   assignment
                 </span>
-                <span>{i18n.language === 'en' ? 'Tooth Sheet' : 'Tish kartasi'}</span>
+                <span>{t('treatmentPlan.toothSheet')}</span>
               </button>
             )}
           </div>
@@ -461,7 +459,7 @@ export default function TreatmentPlan() {
                 )}
               </div>
               <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                {i18n.language === 'en' ? 'Status & Pricing' : 'Holat va narxlar'}
+                {t('treatmentPlan.statusPricing')}
               </span>
             </div>
 
@@ -655,10 +653,10 @@ export default function TreatmentPlan() {
                   <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#EF4444' }}>
                     medical_services
                   </span>
-                  <span>{i18n.language === 'en' ? 'Clinical Diagnosis' : 'Klinik Tashxis'}</span>
+                  <span>{t('treatmentPlan.clinicalDiagnosis')}</span>
                 </div>
                 <div className={styles.clinicalBoxText}>
-                  {chartData[selectedToothId]?.diagnosis || (i18n.language === 'en' ? 'No active pathology recorded for this tooth.' : 'Ushbu tish bo\'yicha patologiya aniqlanmagan, holati normada.')}
+                  {chartData[selectedToothId]?.diagnosis || t('treatmentPlan.noActivePathologyRecorded')}
                 </div>
               </div>
 
@@ -667,21 +665,21 @@ export default function TreatmentPlan() {
                   <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'var(--color-cyan-hover)' }}>
                     assignment
                   </span>
-                  <span>{i18n.language === 'en' ? 'Recommended Treatment Protocol' : 'Tavsiya etilgan davolash rejasi'}</span>
+                  <span>{t('treatmentPlan.recommendedTreatmentProtocol')}</span>
                 </div>
                 <div className={styles.clinicalBoxText}>
-                  {chartData[selectedToothId]?.plan || (i18n.language === 'en' ? 'Routine hygiene & observational follow-up.' : 'Profilaktik kuzatuv va gigiyena tavsiya etiladi.')}
+                  {chartData[selectedToothId]?.plan || t('treatmentPlan.routineHygieneObservationalFollow')}
                 </div>
               </div>
 
               <div className={styles.toothItemsStrip}>
                 <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}>
-                  {i18n.language === 'en' ? 'Linked Procedures' : 'Biriktirilgan muolajalar'} ({items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).length})
+                  {t('treatmentPlan.linkedProcedures')} ({items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).length})
                 </div>
 
                 {items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).length === 0 ? (
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', padding: '10px 0', fontStyle: 'italic' }}>
-                    {i18n.language === 'en' ? 'No procedures linked to this tooth in current plan.' : 'Ushbu tish bo\'yicha rejada muolaja kiritilmagan.'}
+                    {t('treatmentPlan.noProceduresLinkedTo')}
                   </div>
                 ) : (
                   items.filter(item => normalizeTooth(item.tooth) === normalizeTooth(selectedToothId)).map(proc => (
@@ -731,7 +729,7 @@ export default function TreatmentPlan() {
                     cursor: 'pointer'
                   }}
                 >
-                  {i18n.language === 'en' ? 'Filter Ledger' : 'Ro\'yxatda ko\'rsatish'}
+                  {t('treatmentPlan.filterLedger')}
                 </button>
                 <button
                   type="button"
@@ -754,7 +752,7 @@ export default function TreatmentPlan() {
                     boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)'
                   }}
                 >
-                  + {i18n.language === 'en' ? 'Add Procedure' : 'Muolaja qo\'shish'}
+                  + {t('treatmentPlan.addProcedure')}
                 </button>
               </div>
             </div>
@@ -801,7 +799,7 @@ export default function TreatmentPlan() {
                 <input
                   type="text"
                   required
-                  placeholder={i18n.language === 'en' ? "e.g., #46 Composite Restoration" : "masalan, #46 Tishni plombalash"}
+                  placeholder={t('treatmentPlan.eG46Composite')}
                   value={newStep.title}
                   onChange={(e) => setNewStep({ ...newStep, title: e.target.value })}
                   style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -810,11 +808,11 @@ export default function TreatmentPlan() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  {i18n.language === 'en' ? 'Protocol & Description' : 'Protokol va tavsif'}
+                  {t('treatmentPlan.protocolDescription')}
                 </label>
                 <textarea
                   rows={2}
-                  placeholder={i18n.language === 'en' ? "Clinical procedure details" : "Muolaja tafsilotlari"}
+                  placeholder={t('treatmentPlan.clinicalProcedureDetails')}
                   value={newStep.desc}
                   onChange={(e) => setNewStep({ ...newStep, desc: e.target.value })}
                   style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
@@ -896,24 +894,24 @@ export default function TreatmentPlan() {
                   className={`${styles.pdfActionBtn} ${styles.pdfJsonBtn}`}
                   onClick={handleExportExcel}
                   disabled={exportingExcel}
-                  title={i18n.language === 'en' ? "Download Treatment Plan as Excel (.xlsx)" : "Davolash rejasi smetasini Excel (.xlsx) formatida yuklab olish"}
+                  title={t('treatmentPlan.downloadTreatmentPlanAs')}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
                     table_view
                   </span>
-                  <span>{exportingExcel ? '...' : (i18n.language === 'en' ? 'Export Excel' : 'Excel smeta')}</span>
+                  <span>{exportingExcel ? '...' : t('treatmentPlan.exportExcel')}</span>
                 </button>
 
                 <button
                   type="button"
                   className={`${styles.pdfActionBtn} ${styles.pdfJsonBtn}`}
                   onClick={handleExportJson}
-                  title={i18n.language === 'en' ? "Download JSON payload for EHR sync" : "Backend API uchun barcha ma'lumotlarni JSON qilib yuklab olish"}
+                  title={t('treatmentPlan.downloadJsonPayloadFor')}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-cyan-hover)' }}>
                     download
                   </span>
-                  <span>{i18n.language === 'en' ? 'Export JSON' : 'JSON ma\'lumotlar'}</span>
+                  <span>{t('treatmentPlan.exportJson')}</span>
                 </button>
 
                 <button
@@ -943,7 +941,7 @@ export default function TreatmentPlan() {
 
                   <div className={styles.pdfDocMeta}>
                     <div className={styles.pdfDocTitle}>{t('treatmentPlan.pdf.docTitle')}</div>
-                    <div>{i18n.language === 'en' ? 'Document #:' : 'Hujjat №:'} <strong>TR-8821</strong></div>
+                    <div>{t('treatmentPlan.document')} <strong>TR-8821</strong></div>
                     <div>{t('treatmentPlan.date')}: <strong>18-Sentabr, 2026</strong></div>
                   </div>
                 </div>
@@ -971,12 +969,12 @@ export default function TreatmentPlan() {
                       <span className={styles.pdfDossierVal}>Dr. Jasur Azimov</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>{i18n.language === 'en' ? 'Specialty:' : 'Mutaxassislik:'}</span>
-                      <span className={styles.pdfDossierVal}>{i18n.language === 'en' ? 'Chief Doctor / Endodontist' : 'Bosh shifokor / Terapevt-Endodont'}</span>
+                      <span className={styles.pdfDossierLabel}>{t('treatmentPlan.specialty')}</span>
+                      <span className={styles.pdfDossierVal}>{t('treatmentPlan.chiefDoctorEndodontist')}</span>
                     </div>
                     <div className={styles.pdfDossierRow}>
-                      <span className={styles.pdfDossierLabel}>{i18n.language === 'en' ? 'Diagnosis:' : 'Klinik Tashxis:'}</span>
-                      <span className={styles.pdfDossierVal}>{i18n.language === 'en' ? '#16 Deep Caries & Pulpitis' : '#16 Tish chuqur kariesi va pulpiti'}</span>
+                      <span className={styles.pdfDossierLabel}>{t('treatmentPlan.diagnosis')}</span>
+                      <span className={styles.pdfDossierVal}>{t('treatmentPlan.16DeepCariesPulpitis')}</span>
                     </div>
                   </div>
                 </div>
@@ -1005,7 +1003,7 @@ export default function TreatmentPlan() {
                         <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{item.date}</td>
                         <td>
                           <span style={{ fontSize: '10.5px', fontWeight: 600, color: item.status === 'completed' ? '#059669' : item.status === 'in_progress' ? '#0891B2' : '#64748B' }}>
-                            {item.status === 'completed' ? (i18n.language === 'en' ? '✓ Completed' : '✓ Yakunlandi') : item.status === 'in_progress' ? (i18n.language === 'en' ? '● In Progress' : '● Jarayonda') : (i18n.language === 'en' ? '○ Scheduled' : '○ Rejada')}
+                            {item.status === 'completed' ? t('treatmentPlan.completed') : item.status === 'in_progress' ? t('treatmentPlan.inProgress') : t('treatmentPlan.scheduled')}
                           </span>
                         </td>
                         <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>

@@ -178,8 +178,8 @@ export default function TopBar() {
       if (file.size > 5 * 1024 * 1024) {
         setToast({
           open: true,
-          title: i18n.language === 'uz' ? 'Xatolik' : 'Error',
-          message: i18n.language === 'uz' ? 'Rasm hajmi 5MB dan oshmasligi kerak' : 'Image size must be under 5MB',
+          title: t('nav.error'),
+          message: t('nav.imageSizeMustBe'),
           type: 'error'
         });
         return;
@@ -325,9 +325,9 @@ export default function TopBar() {
   const groupedResults = useMemo(() => {
     const isEn = i18n.language === 'en';
     const categories = [
-      { key: 'patients', label: isEn ? 'Patients' : 'Bemorlar' },
-      { key: 'pages', label: isEn ? 'Pages & Sections' : "Bo'limlar" },
-      { key: 'actions', label: isEn ? 'Quick Actions' : 'Tezkor Amallar' }
+      { key: 'patients', label: t('nav.patients') },
+      { key: 'pages', label: t('nav.pagesSections') },
+      { key: 'actions', label: t('nav.quickActions') }
     ];
     return categories
       .map((cat) => ({
@@ -436,7 +436,7 @@ export default function TopBar() {
             <span className={styles.clinicTitleFull}>
               {user?.clinic && user.clinic !== 'DentUz Markaziy Klinika'
                 ? user.clinic
-                : (i18n.language === 'uz' ? 'DentUz Markaziy Klinika' : 'DentUz Central Clinic')}
+                : t('nav.dentuzCentralClinic')}
             </span>
             <span className={styles.clinicTitleShort}>DentUz</span>
           </span>
@@ -522,7 +522,7 @@ export default function TopBar() {
                   <div className={styles.notifHeaderLeft}>
                     <span className={styles.notifTitle}>{t('topbar.notificationsTitle')}</span>
                     {unreadCount > 0 && (
-                      <span className={styles.notifCountBadge}>{unreadCount} {i18n.language === 'uz' ? 'yangi' : 'new'}</span>
+                      <span className={styles.notifCountBadge}>{unreadCount} {t('nav.new')}</span>
                     )}
                   </div>
                   {unreadCount > 0 && (
@@ -553,7 +553,7 @@ export default function TopBar() {
                     className={`${styles.notifTab} ${notifFilter === 'unread' ? styles.notifTabActive : ''}`}
                     onClick={() => setNotifFilter('unread')}
                   >
-                    {i18n.language === 'uz' ? "O'qilmagan" : 'Unread'} ({unreadCount})
+                    {t('nav.unread')} ({unreadCount})
                   </button>
                 </div>
 
@@ -656,7 +656,7 @@ export default function TopBar() {
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  title={i18n.language === 'uz' ? "Rasm qo'yish / o'zgartirish (+)" : "Upload / change photo (+)"}
+                  title={t('nav.uploadChangePhoto')}
                   style={{ overflow: 'hidden', padding: 0 }}
                 >
                   <img
@@ -693,7 +693,7 @@ export default function TopBar() {
                     <div
                       className={styles.popAvatarLarge}
                       onClick={() => fileInputRef.current?.click()}
-                      title={i18n.language === 'uz' ? "Rasm yuklash uchun bosing" : "Click to change photo"}
+                      title={t('nav.clickToChangePhoto')}
                     >
                       <img
                         src={customAvatar}
@@ -714,14 +714,14 @@ export default function TopBar() {
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <span className="material-symbols-outlined" style={{ fontSize: 13 }}>photo_camera</span>
-                          <span>{i18n.language === 'uz' ? "Rasm qo'yish" : 'Upload photo'}</span>
+                          <span>{t('nav.uploadPhoto')}</span>
                         </button>
                         {customAvatar !== '/images/doctor-azimov.jpg' && (
                           <button
                             type="button"
                             className={styles.resetAvatarBtn}
                             onClick={handleResetAvatar}
-                            title={i18n.language === 'uz' ? "Asliga qaytarish" : 'Reset to default'}
+                            title={t('nav.resetToDefault')}
                           >
                             <span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>
                           </button>
@@ -735,18 +735,18 @@ export default function TopBar() {
 
                   <div className={styles.popInfoGrid}>
                     <div className={`${styles.popInfoItem} ${styles.popInfoFull}`}>
-                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Elektron pochta' : 'Email'}</span>
+                      <span className={styles.popInfoLabel}>{t('nav.email')}</span>
                       <span className={styles.popInfoValue} title={typeof user?.email === 'string' ? user.email : (user?.email?.email || 'shaxriyorrozmamatov@dentuz.uz')}>
                         {typeof user?.email === 'string' ? user.email : (user?.email?.email || 'shaxriyorrozmamatov@dentuz.uz')}
                       </span>
                     </div>
                     <div className={styles.popInfoItem}>
-                      <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Telefon raqam' : 'Phone'}</span>
+                      <span className={styles.popInfoLabel}>{t('nav.phone')}</span>
                       <span className={styles.popInfoValue}>{user?.phone || '+998 (90) 123-45-67'}</span>
                     </div>
                     {user?.role === 'superadmin' ? (
                       <div className={styles.popInfoItem}>
-                        <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Tizim roli' : 'System Role'}</span>
+                        <span className={styles.popInfoLabel}>{t('nav.systemRole')}</span>
                         <span className={styles.popRoleBadge}>
                           <span className="material-symbols-outlined" style={{ fontSize: 13 }}>verified_user</span>
                           SuperAdmin
@@ -754,7 +754,7 @@ export default function TopBar() {
                       </div>
                     ) : (
                       <div className={styles.popInfoItem}>
-                        <span className={styles.popInfoLabel}>{i18n.language === 'uz' ? 'Klinika ID' : 'Clinic ID'}</span>
+                        <span className={styles.popInfoLabel}>{t('nav.clinicId')}</span>
                         <span className={styles.popInfoValue} style={{ color: 'var(--color-cyan)', fontWeight: 700 }}>
                           #{user?.clinicId ? `DENT-${user.clinicId}` : 'DENT-778'}
                         </span>
@@ -775,7 +775,7 @@ export default function TopBar() {
                         style={{ color: '#06b6d4', fontWeight: 600, background: 'rgba(6, 182, 212, 0.08)' }}
                       >
                         <span className="material-symbols-outlined" style={{ color: '#06b6d4' }}>admin_panel_settings</span>
-                        <span>{i18n.language === 'uz' ? 'SuperAdmin Portali' : 'SuperAdmin Portal'}</span>
+                        <span>{t('nav.superadminPortal')}</span>
                         <span className="material-symbols-outlined" style={{ fontSize: 16, marginLeft: 'auto', opacity: 0.7 }}>open_in_new</span>
                       </a>
                     )}
@@ -786,7 +786,7 @@ export default function TopBar() {
                       onClick={() => setProfileOpen(false)}
                     >
                       <span className="material-symbols-outlined">tune</span>
-                      <span>{i18n.language === 'uz' ? 'Klinika va profil sozlamalari' : 'Clinic & Profile Settings'}</span>
+                      <span>{t('nav.clinicProfileSettings')}</span>
                     </Link>
 
                     {user?.role !== 'superadmin' && (
@@ -796,7 +796,7 @@ export default function TopBar() {
                         onClick={() => setProfileOpen(false)}
                       >
                         <span className="material-symbols-outlined">payments</span>
-                        <span>{i18n.language === 'uz' ? 'Shifokor ulushi va hisob-kitob' : 'Doctor KPI & Compensation'}</span>
+                        <span>{t('nav.doctorKpiCompensation')}</span>
                       </Link>
                     )}
                   </div>
@@ -814,7 +814,7 @@ export default function TopBar() {
                       }}
                     >
                       <span className="material-symbols-outlined">logout</span>
-                      <span>{i18n.language === 'uz' ? 'Tizimdan chiqish' : 'Sign Out'}</span>
+                      <span>{t('nav.signOut')}</span>
                     </button>
                   </div>
                 </div>

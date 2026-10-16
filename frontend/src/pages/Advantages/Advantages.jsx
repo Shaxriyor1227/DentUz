@@ -13,50 +13,38 @@ export default function Advantages() {
   const ADVANTAGES_LIST = [
     {
       icon: 'verified_user',
-      title: isEn ? 'SSV Form 043/h National Standard' : 'SSV 043/h Milliy Standarti',
-      desc: isEn
-        ? 'Official electronic patient health chart conforming strictly to Ministry of Health guidelines with rapid PDF export.'
-        : 'O\'zbekiston Respublikasi Sog\'liqni saqlash vazirligi tasdiqlagan 043/h shakliga 100% muvofiq rasmiy hujjat yuritish.',
+      title: t('advantages.ssvForm043H'),
+      desc: t('advantages.officialElectronicPatientHealth'),
       tag: 'SSV Standard',
     },
     {
       icon: 'gavel',
-      title: isEn ? 'Law No. 547 Privacy Protection' : 'O\'RQ-547 Maxfiylik Qonuni',
-      desc: isEn
-        ? 'Medical and personal data of all dental patients is fully protected in compliance with the Republic of Uzbekistan Law on Personal Data.'
-        : 'Bemorlarning barcha shaxsiy va klinik ma\'lumotlari O\'zR O\'RQ-547 qonuni talablari asosida qat\'iy himoyalangan.',
+      title: t('advantages.lawNo547Privacy'),
+      desc: t('advantages.medicalAndPersonalData'),
       tag: 'Legal Compliance',
     },
     {
       icon: 'lock',
-      title: isEn ? '256-Bit Banking-Grade SSL' : '256-bit Bank Darajasidagi SSL',
-      desc: isEn
-        ? 'End-to-end encrypted sessions guarantee zero data leakages, with multi-layered credential hashing and role-based access control.'
-        : 'Klinikadagi har bir operatsiya xalqaro bank darajasidagi 256-bitli SSL shifrlash va rollarga asoslangan xavfsizlik bilan himoyalangan.',
+      title: t('advantages.256BitBankingGrade'),
+      desc: t('advantages.endToEndEncrypted'),
       tag: 'High Security',
     },
     {
       icon: 'cloud_done',
-      title: isEn ? 'Local Data Centers & Nightly Backups' : 'O\'zbekiston Serverlari & Avto-Zaxira',
-      desc: isEn
-        ? 'Hosted in modern local cloud server infrastructure with automated nightly snapshots, ensuring 99.9% clinical continuity.'
-        : 'Barcha ma\'lumotlar Toshkentdagi yuqori tezlikdagi serverlarda saqlanadi. Har tunda avtomatik nusxalash (backup) amalga oshiriladi.',
+      title: t('advantages.localDataCentersNightly'),
+      desc: t('advantages.hostedInModernLocal'),
       tag: '99.9% Uptime',
     },
     {
       icon: 'devices',
-      title: isEn ? 'Universal Cross-Device Access' : 'Har Qanday Qurilmadan Tezkor Kirish',
-      desc: isEn
-        ? 'Seamless responsiveness across iPad, Android tablets, reception PCs, and doctor laptops with zero native installation required.'
-        : 'Qo\'shimcha dastur o\'rnatish shart emas. Planshet, kompyuter yoki noutbuk orqali brauzerdan bir zumda tizimga kiring.',
+      title: t('advantages.universalCrossDeviceAccess'),
+      desc: t('advantages.seamlessResponsivenessAcrossIpad'),
       tag: 'Multi-Device',
     },
     {
       icon: 'support_agent',
-      title: isEn ? '24/7 Dedicated Support & Onboarding' : '24/7 Jonli Yordam & Bepul O\'rganish',
-      desc: isEn
-        ? 'Our clinical onboarding specialists provide live phone, Telegram, and onsite assistance with free patient roster data migration.'
-        : 'Eski dasturlardan yoki Excel jadvallaridan bemorlar bazasini bepul ko\'chirib beramiz. 24/7 jonli qo\'llab-quvvatlash xizmati.',
+      title: t('advantages.247DedicatedSupport'),
+      desc: t('advantages.ourClinicalOnboardingSpecialists'),
       tag: 'Dedicated Care',
     },
   ];
@@ -67,15 +55,13 @@ export default function Advantages() {
       <section className={styles.heroSection}>
         <div className={styles.pageBadge}>
           <span>🛡️</span>
-          <span>{isEn ? 'Clinical Advantages & Trust' : 'Klinik Afzalliklar & Kafolat'}</span>
+          <span>{t('advantages.clinicalAdvantagesTrust')}</span>
         </div>
         <h1 className={styles.pageTitle}>
-          {isEn ? 'Engineered for Reliability, Speed & Clinical Excellence' : 'Ishonchlilik, Tezlik Va Klinik Xavfsizlik'}
+          {t('advantages.engineeredForReliabilitySpeed')}
         </h1>
         <p className={styles.pageSubtitle}>
-          {isEn
-            ? 'Discover why over 120 leading dental clinics and 350+ practitioners across Uzbekistan trust DentUz as their centralized practice operating system.'
-            : 'O\'zbekiston bo\'ylab 120 dan ortiq yetakchi klinikalar va 350 dan ortiq shifokorlar DentUz tizimini tanlaganining asosiy sabablari bilan tanishing.'}
+          {t('advantages.discoverWhyOver120')}
         </p>
       </section>
 
@@ -87,9 +73,9 @@ export default function Advantages() {
       {/* ── Trust & Security Pillars ── */}
       <section className={styles.pillarsSection}>
         <div className={styles.pillarsHeader}>
-          <span className={styles.pageBadge}>{isEn ? 'Trust & Compliance' : 'Qonuniy & Texnologik Kafolat'}</span>
+          <span className={styles.pageBadge}>{t('advantages.trustCompliance')}</span>
           <h2 className={styles.pillarsTitle}>
-            {isEn ? 'Built for Serious Dental Healthcare Institutions' : 'Klinikangiz Uchun Eng Ishonchli Poydevor'}
+            {t('advantages.builtForSeriousDental')}
           </h2>
         </div>
 
@@ -137,12 +123,10 @@ export default function Advantages() {
       <section className={styles.bottomCtaSection}>
         <div className={styles.bottomCtaCard}>
           <h2 className={styles.bottomCtaTitle}>
-            {isEn ? 'Ready to Elevate Your Clinic with DentUz?' : 'Klinikangizni Yangi Bosqichga Olib Chiqing'}
+            {t('advantages.readyToElevateYour')}
           </h2>
           <p className={styles.bottomCtaSub}>
-            {isEn
-              ? 'Start your 14-day risk-free trial. Zero credit card required, instant setup.'
-              : '14 kunlik bepul sinov muddatini boshlang. Karta kiritish talab qilinmaydi.'}
+            {t('advantages.startYour14Day')}
           </p>
           <Link to="/contact" className={styles.ctaBannerBtn}>
             {t('homepage.hero.startFree')} →

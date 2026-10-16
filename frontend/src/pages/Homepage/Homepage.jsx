@@ -78,30 +78,30 @@ export default function Homepage() {
   const getToothStatus = (num) => {
     // Caries (Red)
     if (['15', '25', '47'].includes(num)) {
-      return { label: isEn ? 'Active Caries' : 'Karies', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', isCaries: true };
+      return { label: t('homepage.activeCaries'), color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', isCaries: true };
     }
     // Restored / Plomba (Green)
     if (['16', '26', '36'].includes(num)) {
-      return { label: isEn ? 'Restored (Filling)' : 'Plomba', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', isRestored: true };
+      return { label: t('homepage.restoredFilling'), color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', isRestored: true };
     }
     // Implant (Cyan - matches tokens.css --color-cyan)
     if (['14', '45'].includes(num)) {
-      return { label: isEn ? 'Dental Implant' : 'Implant', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)', isImplant: true };
+      return { label: t('homepage.dentalImplant'), color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)', isImplant: true };
     }
     // Crown / Koronka (Royal Blue #2563EB — sof ko'k, implant #06B6D4, warning #F59E0B va endo #8B5CF6 bilan chalkashmasligi uchun)
     if (['21'].includes(num)) {
-      return { label: isEn ? 'Zirconia Crown' : 'Toj (Koronka)', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', isCrown: true };
+      return { label: t('homepage.zirconiaCrown'), color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', isCrown: true };
     }
     // Root Canal / Endo / Pulpit (Purple)
     if (['27', '46'].includes(num)) {
-      return { label: isEn ? 'Root Canal (Endo)' : 'Ildiz kanali (Pulpit)', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', isEndo: true };
+      return { label: t('homepage.rootCanalEndo'), color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', isEndo: true };
     }
     // Extracted / Missing (Muted / Slate - non-color dependent dashed + cross indicator)
     if (['18', '28', '38'].includes(num)) {
-      return { label: isEn ? 'Extracted' : 'Olingan tish', color: '#94A3B8', bg: 'transparent', isExtracted: true };
+      return { label: t('homepage.extracted'), color: '#94A3B8', bg: 'transparent', isExtracted: true };
     }
     // Healthy (Default)
-    return { label: isEn ? 'Healthy' : "Sog'lom", color: '#64748B', bg: 'rgba(100, 116, 139, 0.08)' };
+    return { label: t('homepage.healthy'), color: '#64748B', bg: 'rgba(100, 116, 139, 0.08)' };
   };
 
   const currentDesc = isEn
@@ -113,39 +113,31 @@ export default function Homepage() {
   const PORTAL_SECTIONS = [
     {
       to: '/features',
-      title: isEn ? 'Features' : 'Imkoniyatlar',
-      desc: isEn
-        ? 'Deep-dive into FDI 3D odontograms, patient profiles, treatment planners, multi-chair calendars, and clinical analytics.'
-        : 'Interaktiv FDI odontogramma, to\'liq elektron bemor kartasi, ko\'p kresloli smart taqvim va kassa hisobotlari.',
+      title: t('homepage.features'),
+      desc: t('homepage.deepDiveIntoFdi'),
       icon: 'edit_note',
-      badge: isEn ? '9 Modules' : '9 ta modul',
+      badge: t('homepage.9Modules'),
     },
     {
       to: '/advantages',
-      title: isEn ? 'Advantages' : 'Afzalliklar',
-      desc: isEn
-        ? 'Discover why 350+ clinics trust DentUz: national data compliance (Law 547), 99.8% uptime, and zero downtime.'
-        : 'Nega aynan DentUz? Milliy O\'RQ-547 qonuniga muvofiqlik, 99.8% barqarorlik va 40% vaqt tejalishi.',
+      title: t('homepage.advantages'),
+      desc: t('homepage.discoverWhy350Clinics'),
       icon: 'verified_user',
-      badge: isEn ? 'Why DentUz' : 'Nega biz?',
+      badge: t('homepage.whyDentuz'),
     },
     {
       to: '/pricing',
-      title: isEn ? 'Pricing' : 'Tariflar',
-      desc: isEn
-        ? 'Simple and transparent plans starting from single-chair solo practices to multi-branch dental hospitals. 14 days free trial.'
-        : 'Yakka shifokorlardan tortib yirik klinika tarmoqlarigacha moslashuvchan narxlar. 14 kun mutlaqo bepul.',
+      title: t('homepage.pricing_1'),
+      desc: t('homepage.simpleAndTransparentPlans'),
       icon: 'credit_card_off',
-      badge: isEn ? 'From $19/mo' : '14 kun bepul',
+      badge: t('homepage.from19Mo'),
     },
     {
       to: '/contact',
-      title: isEn ? 'Contact' : 'Bog\'lanish',
-      desc: isEn
-        ? 'Speak directly with our clinical advisors in Tashkent and Samarkand or book an interactive 20-minute live demo.'
-        : 'Toshkent va Samarqanddagi mutaxassislarimiz bilan bog\'laning yoki 20 daqiqalik jonli taqdimotga yoziling.',
+      title: t('homepage.contact_1'),
+      desc: t('homepage.speakDirectlyWithOur'),
       icon: 'support_agent',
-      badge: isEn ? 'Direct Support' : '24/7 Ko\'mak',
+      badge: t('homepage.directSupport'),
     },
   ];
 
@@ -160,31 +152,29 @@ export default function Homepage() {
       <section className={styles.heroSection}>
         <div className={styles.heroBadge}>
           <Icon name="verified_user" size={16} />
-          <span>{isEn ? '#1 Dental Management Platform in Uzbekistan' : "O'zbekistonda #1 Stomatologiya Boshqaruv Tizimi"}</span>
+          <span>{t('homepage.1DentalManagementPlatform')}</span>
         </div>
 
         <h1 className={styles.heroHeadline}>
-          {isEn ? 'The Modern Operating System for' : 'Stomatologiya boshqaruvining'}{' '}
+          {t('homepage.theModernOperatingSystem')}{' '}
           <span className={styles.headlineHighlight}>
-            {isEn ? 'Dental Clinics' : 'yangi davri'}
+            {t('homepage.dentalClinics')}
           </span>
         </h1>
 
         <p className={styles.heroSubhead}>
-          {isEn
-            ? 'Electronic patient records, 3D interactive odontogram, automated financial reports, and multi-chair scheduling — all in one modern cloud platform.'
-            : 'Bemorlar kartasi, interaktiv odontogramma, kassa va shifokorlar ish jadvali — barchasi bitta qulay bulutli platformada.'}
+          {t('homepage.electronicPatientRecords3d')}
         </p>
 
         {/* Action Buttons: 1.1 aniq va tushunarli ajratilgan */}
         <div className={styles.heroActions}>
-          <Link to="/signup" className={styles.primaryCta} title={isEn ? 'Start free 14-day trial' : "14 kun bepul sinovni boshlash"}>
+          <Link to="/signup" className={styles.primaryCta} title={t('homepage.startFree14Day')}>
             <Icon name="rocket_launch" size={18} />
-            <span>{isEn ? 'Start 14-Day Free Trial' : "14 kun bepul boshlash"}</span>
+            <span>{t('homepage.start14DayFree')}</span>
           </Link>
-          <Link to="/dashboard" className={styles.secondaryCta} title={isEn ? 'Try interactive demo' : "Ro'yxatdan o'tmasdan sinab ko'rish"}>
+          <Link to="/dashboard" className={styles.secondaryCta} title={t('homepage.tryInteractiveDemo')}>
             <Icon name="play_circle" size={18} />
-            <span>{isEn ? 'Explore Interactive Demo' : "Tizimni sinab ko'rish"}</span>
+            <span>{t('homepage.exploreInteractiveDemo')}</span>
           </Link>
         </div>
 
@@ -197,36 +187,36 @@ export default function Homepage() {
             <div className={styles.canvasTop}>
               <div>
                 <div className={styles.canvasTag}>
-                  {isEn ? 'FDI WORLD DENTAL STANDARD' : 'FDI XALQARO STANDARTI'}
+                  {t('homepage.fdiWorldDentalStandard')}
                 </div>
                 <div className={styles.canvasTitle}>
-                  {isEn ? 'Interactive FDI Dental Chart (Live Clinical Demo)' : 'Interaktiv FDI Odontogramma (Jonli klinik namoyish)'}
+                  {t('homepage.interactiveFdiDentalChart')}
                 </div>
               </div>
               <div className={styles.canvasLegend} style={{ flexWrap: 'wrap', gap: '12px' }}>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#64748B' }} />
-                  {isEn ? 'Healthy' : "Sog'lom"}
+                  {t('homepage.healthy')}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#10B981' }} />
-                  {isEn ? 'Restored' : 'Plomba'}
+                  {t('homepage.restored')}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#EF4444' }} />
-                  {isEn ? 'Caries' : 'Karies'}
+                  {t('homepage.caries')}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#06B6D4' }} />
-                  {isEn ? 'Implant' : 'Implant'}
+                  {t('homepage.implant')}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#2563EB' }} />
-                  {isEn ? 'Crown' : 'Koronka'}
+                  {t('homepage.crown')}
                 </span>
                 <span className={styles.legendItem}>
                   <span className={styles.legendDot} style={{ background: '#8B5CF6' }} />
-                  {isEn ? 'Root Canal' : 'Ildiz kanali'}
+                  {t('homepage.rootCanal')}
                 </span>
                 <span className={styles.legendItem}>
                   <span
@@ -244,7 +234,7 @@ export default function Homepage() {
                   >
                     ✕
                   </span>
-                  {isEn ? 'Extracted' : 'Olingan'}
+                  {t('homepage.extracted_1')}
                 </span>
               </div>
             </div>
@@ -254,8 +244,8 @@ export default function Homepage() {
               {/* Upper Arch */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>{isEn ? 'Maxillary Arch (Upper • 18 - 28)' : "Yuqori jag' (18 - 28)"}</span>
-                  <span>{isEn ? 'Click any tooth to inspect' : 'Tekshirish uchun ustiga bosing'}</span>
+                  <span>{t('homepage.maxillaryArchUpper18')}</span>
+                  <span>{t('homepage.clickAnyToothTo')}</span>
                 </div>
                 <div className={styles.teethGrid}>
                   {HERO_UPPER_TEETH.map((tooth, idx) => {
@@ -296,7 +286,7 @@ export default function Homepage() {
               {/* Lower Arch */}
               <div>
                 <div className={styles.archRowHeader}>
-                  <span>{isEn ? 'Mandibular Arch (Lower • 48 - 38)' : "Pastki jag' (48 - 38)"}</span>
+                  <span>{t('homepage.mandibularArchLower48')}</span>
                 </div>
                 <div className={styles.teethGrid}>
                   {HERO_LOWER_TEETH.map((tooth, idx) => {
@@ -350,23 +340,23 @@ export default function Homepage() {
         <div className={styles.trustBadgeRow} style={{ flexWrap: 'wrap', gap: '14px', justifyContent: 'center' }}>
           <div className={styles.trustItem}>
             <Icon name="verified_user" size={16} />
-            <span>{isEn ? "Uzbekistan Law O'RQ-547 Compliant" : "O'zR Qonuni (O'RQ-547) ga mos"}</span>
+            <span>{t('homepage.uzbekistanLawORq')}</span>
           </div>
           <div className={styles.trustItem}>
             <Icon name="domain" size={16} />
-            <span>{isEn ? '350+ Licensed Clinics in UZ' : "O'zbekistondagi 350+ klinikalar ishonchi"}</span>
+            <span>{t('homepage.350LicensedClinicsIn')}</span>
           </div>
           <div className={styles.trustItem}>
             <Icon name="lock" size={16} />
-            <span>{isEn ? '256-bit Medical Grade SSL' : '256-bit Shifrlash & Xavfsiz Baza'}</span>
+            <span>{t('homepage.256BitMedicalGrade')}</span>
           </div>
           <div className={styles.trustItem}>
             <Icon name="cloud_done" size={16} />
-            <span>{isEn ? '99.8% Uptime (Tashkent DC)' : '99.8% Uptime (Toshkent Serverlari)'}</span>
+            <span>{t('homepage.998UptimeTashkent')}</span>
           </div>
           <div className={styles.trustItem}>
             <Icon name="credit_card_off" size={16} />
-            <span>{isEn ? 'No Credit Card Required' : '14 kun bepul • Karta talab qilinmaydi'}</span>
+            <span>{t('homepage.noCreditCardRequired')}</span>
           </div>
         </div>
       </section>
@@ -376,15 +366,13 @@ export default function Homepage() {
         <div className={styles.portalHeader}>
           <div className={styles.portalBadge}>
             <Icon name="apartment" size={15} />
-            <span>{isEn ? 'Platform Architecture' : 'Platforma arxitekturasi'}</span>
+            <span>{t('homepage.platformArchitecture')}</span>
           </div>
           <h2 className={styles.portalTitle}>
-            {isEn ? 'Explore DentUz by Category' : 'DentUz bo\'limlari bilan tanishing'}
+            {t('homepage.exploreDentuzByCategory')}
           </h2>
           <p className={styles.portalSubtitle}>
-            {isEn
-              ? 'Each section is specifically designed to provide clear, detailed insight into clinical operations, pricing, and support.'
-              : 'Har bir bo\'lim klinikangizni to\'liq avtomatlashtirish, narxlar va aloqa imkoniyatlarini batafsil yoritadi.'}
+            {t('homepage.eachSectionIsSpecifically')}
           </p>
         </div>
 
@@ -400,7 +388,7 @@ export default function Homepage() {
               </h3>
               <p className={styles.portalCardDesc}>{sec.desc}</p>
               <div className={styles.portalCardAction}>
-                <span>{isEn ? 'Open section' : 'Bo\'limga o\'tish'}</span>
+                <span>{t('homepage.openSection')}</span>
                 <span>→</span>
               </div>
             </Link>
@@ -414,15 +402,13 @@ export default function Homepage() {
           <div className={styles.orbitLeftCol}>
             <div className={styles.orbitBadge}>
               <Icon name="apartment" size={15} />
-              <span>{isEn ? 'DentUz Ecosystem' : 'DentUz Ekotizimi'}</span>
+              <span>{t('homepage.dentuzEcosystem')}</span>
             </div>
             <h2 className={styles.orbitHeading}>
-              {isEn ? 'One Unified System — All Operations Controlled' : 'Bitta tizim — barcha jarayonlar nazoratda'}
+              {t('homepage.oneUnifiedSystemAll')}
             </h2>
             <p className={styles.orbitSubtext}>
-              {isEn
-                ? 'Say goodbye to lost paper charts, notebook appointments, and financial gaps. DentUz synchronizes doctors, reception, laboratory, and patients in real time.'
-                : 'Qog\'oz daftarlar, yo\'qolgan rentgen suratlari va kassa tafovutlariga chek qo\'ying. DentUz barcha klinika jarayonlarini real vaqtda bir-biriga bog\'laydi.'}
+              {t('homepage.sayGoodbyeToLost')}
             </p>
 
             <ul className={styles.orbitFeatureList}>
@@ -431,8 +417,8 @@ export default function Homepage() {
                   <Icon name="check_circle" size={18} />
                 </div>
                 <div>
-                  <strong>{isEn ? 'Smart Scheduling & SMS Reminders' : 'Smart Taqvimi & SMS eslatmalar'}</strong>
-                  <p>{isEn ? 'Reduce patient no-shows by up to 35% with automated SMS alerts.' : 'Bemorlar kelmay qolish xavfini 35% ga qisqartiring.'}</p>
+                  <strong>{t('homepage.smartSchedulingSmsReminders')}</strong>
+                  <p>{t('homepage.reducePatientNoShows')}</p>
                 </div>
               </li>
               <li className={styles.orbitFeatureItem}>
@@ -440,8 +426,8 @@ export default function Homepage() {
                   <Icon name="check_circle" size={18} />
                 </div>
                 <div>
-                  <strong>{isEn ? 'Complete 3D Odontogram & Treatment Plans' : 'Interaktiv Odontogramma & Davolash rejasi'}</strong>
-                  <p>{isEn ? 'One-click treatment plans with transparent pricing calculations.' : 'Har bir tish holati bo\'yicha aniq narx hisob-kitobi va bosqichli reja.'}</p>
+                  <strong>{t('homepage.complete3dOdontogramTreatment')}</strong>
+                  <p>{t('homepage.oneClickTreatmentPlans')}</p>
                 </div>
               </li>
               <li className={styles.orbitFeatureItem}>
@@ -449,15 +435,15 @@ export default function Homepage() {
                   <Icon name="check_circle" size={18} />
                 </div>
                 <div>
-                  <strong>{isEn ? 'Financial Analytics & Doctor Commission' : 'Moliya va Shifokorlar foizi'}</strong>
-                  <p>{isEn ? 'Instant calculation of doctor KPI shares and daily cash collection.' : 'Shifokorlar ulushi, kunlik kassa va qarzdorliklar avtomatik hisoblanadi.'}</p>
+                  <strong>{t('homepage.financialAnalyticsDoctorCommission')}</strong>
+                  <p>{t('homepage.instantCalculationOfDoctor')}</p>
                 </div>
               </li>
             </ul>
 
             <div className={styles.orbitActions}>
               <Link to="/advantages" className={styles.orbitPrimaryBtn}>
-                {isEn ? 'Learn All Advantages' : 'Barcha afzalliklar bilan tanishish'}
+                {t('homepage.learnAllAdvantages')}
               </Link>
             </div>
           </div>
@@ -476,7 +462,7 @@ export default function Homepage() {
               <AnimatedCounter value="350+" duration={1600} />
             </div>
             <div className={styles.statLabel}>
-              {isEn ? 'Active Dental Clinics' : 'Faol stomatologiyalar'}
+              {t('homepage.activeDentalClinics')}
             </div>
           </div>
 
@@ -485,7 +471,7 @@ export default function Homepage() {
               <AnimatedCounter value="45 000+" duration={1800} />
             </div>
             <div className={styles.statLabel}>
-              {isEn ? 'Registered Patients' : 'Bemorlar elektron kartasi'}
+              {t('homepage.registeredPatients')}
             </div>
           </div>
 
@@ -494,16 +480,16 @@ export default function Homepage() {
               <AnimatedCounter value="99.8%" duration={1500} />
             </div>
             <div className={styles.statLabel}>
-              {isEn ? 'System Uptime & Stability' : 'Tizim barqarorligi'}
+              {t('homepage.systemUptimeStability')}
             </div>
           </div>
 
           <div className={styles.statCard}>
             <div className={styles.statNumber}>
-              15 <span className={styles.statUnit}>{isEn ? 'minutes' : 'daqiqa'}</span>
+              15 <span className={styles.statUnit}>{t('homepage.minutes')}</span>
             </div>
             <div className={styles.statLabel}>
-              {isEn ? 'Average Onboarding Time' : 'Tizimni ishga tushirish vaqti'}
+              {t('homepage.averageOnboardingTime')}
             </div>
           </div>
         </div>
@@ -513,19 +499,17 @@ export default function Homepage() {
       <section className={styles.ctaBannerSection}>
         <div className={styles.ctaBannerInner}>
           <h2 className={styles.ctaBannerHeadline}>
-            {isEn ? 'Ready to modernise your dental practice?' : 'Klinikangizni bugunoq yangi bosqichga olib chiqing'}
+            {t('homepage.readyToModerniseYour')}
           </h2>
           <p className={styles.ctaBannerSubhead}>
-            {isEn
-              ? 'Join 350+ clinics across Uzbekistan. Start with full features for 14 days — no card required.'
-              : "O'zbekistondagi 350+ dan ortiq yetakchi klinikalar qatoriga qo'shiling. 14 kunlik bepul sinov muddati."}
+            {t('homepage.join350ClinicsAcross')}
           </p>
           <div className={styles.ctaBannerActions}>
             <Link to="/contact" className={styles.ctaBannerBtn}>
-              {isEn ? 'Request Live Demo' : "14 kun bepul sinab ko'rish"}
+              {t('homepage.requestLiveDemo')}
             </Link>
             <Link to="/pricing" className={styles.ctaBannerOutlineBtn}>
-              {isEn ? 'View Pricing Plans' : 'Tariflar bilan tanishish'}
+              {t('homepage.viewPricingPlans')}
             </Link>
           </div>
         </div>

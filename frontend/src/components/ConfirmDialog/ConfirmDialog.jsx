@@ -47,9 +47,9 @@ export default function ConfirmDialog({
 
   if (!open) return null;
 
-  const defaultTitle = isEn ? 'Confirm action' : 'Amalni tasdiqlash';
-  const defaultCancel = isEn ? 'Cancel' : 'Bekor qilish';
-  const defaultConfirm = isEn ? 'Confirm' : 'Tasdiqlash';
+  const defaultTitle = t('common.confirmAction');
+  const defaultCancel = t('common.cancel');
+  const defaultConfirm = t('common.confirm');
 
   return (
     <div
@@ -103,7 +103,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? (isEn ? 'Processing...' : 'Bajarilmoqda...') : (confirmText || defaultConfirm)}
+            {loading ? t('common.processing') : (confirmText || defaultConfirm)}
           </button>
         </div>
       </div>

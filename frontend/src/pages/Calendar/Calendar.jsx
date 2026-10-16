@@ -5,6 +5,7 @@ import { appointmentsApi } from '../../api/appointmentsApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import AppointmentPill from '../../components/AppointmentPill/AppointmentPill';
+import { normalizePhone, formatPhone } from '../../utils/formatters';
 import styles from './Calendar.module.css';
 
 const DAY_NAMES = [
@@ -492,10 +493,10 @@ export default function Calendar() {
   }, [viewMode, currentDate, weekDays, i18n.language]);
 
   const headerBadgeText = useMemo(() => {
-    if (viewMode === 'day') return i18n.language === 'en' ? 'Daily Schedule' : 'Kunlik jadval';
-    if (viewMode === 'week') return i18n.language === 'en' ? 'Weekly View' : 'Haftalik reja';
-    if (viewMode === 'chairs') return i18n.language === 'en' ? 'Chairs / Operatories' : 'Kreslolar / Operatories';
-    return i18n.language === 'en' ? 'Monthly View' : 'Oylik reja';
+    if (viewMode === 'day') return t('calendar.dailySchedule');
+    if (viewMode === 'week') return t('calendar.weeklyView');
+    if (viewMode === 'chairs') return t('calendar.chairsOperatories');
+    return t('calendar.monthlyView');
   }, [viewMode, i18n.language]);
 
   // Open modal pre-filled with day/time slot
@@ -579,6 +580,7 @@ export default function Calendar() {
       const doc = CLINIC_DOCTORS.find((d) => d.id === newApt.doctor) || CLINIC_DOCTORS[0];
       const created = await appointmentsApi.create({
         ...newApt,
+        patientPhone: normalizePhone(newApt.patientPhone),
         doctorName: doc.name,
         color: doc.color
       });
@@ -665,7 +667,7 @@ export default function Calendar() {
               type="button"
               className={styles.navArrowBtn}
               onClick={handlePrev}
-              title={i18n.language === 'en' ? 'Previous' : 'Oldingi'}
+              title={t('calendar.previous')}
               aria-label="Previous period"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -677,7 +679,7 @@ export default function Calendar() {
               type="button"
               className={styles.navArrowBtn}
               onClick={handleNext}
-              title={i18n.language === 'en' ? 'Next' : 'Keyingi'}
+              title={t('calendar.next')}
               aria-label="Next period"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -722,7 +724,7 @@ export default function Calendar() {
               className={`${styles.viewModeBtn} ${viewMode === 'chairs' ? styles.viewModeBtnActive : ''}`}
               onClick={() => setViewMode('chairs')}
             >
-              {i18n.language === 'en' ? 'Chairs' : 'Kreslolar'}
+              {t('calendar.chairs')}
             </button>
           </div>
         </div>
@@ -903,7 +905,7 @@ export default function Calendar() {
                         setCurrentDate(day.dateObj);
                         setViewMode('day');
                       }}
-                      title={i18n.language === 'en' ? `View ${day.fullName} schedule` : `${day.fullName} kunlik jadvalini ko'rish`}
+                      title={t('calendar.viewDaySchedule', { day: day.fullName })}
                     >
                       <span className={`${styles.dayName} ${day.isToday ? styles.dayNameToday : ''}`}>
                         {day.name}
@@ -1183,7 +1185,7 @@ export default function Calendar() {
                       type="button"
                       className={`${styles.chairsDayTabCell} ${day.isSelected ? styles.chairsDayTabCellActive : ''} ${day.isToday ? styles.dayHeaderCellToday : ''}`}
                       onClick={() => setCurrentDate(day.dateObj)}
-                      title={i18n.language === 'en' ? `View ${day.fullName} schedule` : `${day.fullName} kunlik jadvalini ko'rish`}
+                      title={t('calendar.viewDaySchedule', { day: day.fullName })}
                     >
                       <span className={`${styles.dayName} ${day.isToday ? styles.dayNameToday : ''}`}>
                         {day.name}
@@ -1227,7 +1229,7 @@ export default function Calendar() {
                           <span className={styles.chairOccupancyBadge}>
                             {chairApptsToday > 0
                               ? `${chairApptsToday} ${t('common.qty')}`
-                              : (i18n.language === 'en' ? 'Empty' : "Bo'sh")}
+                              : t('calendar.empty')}
                           </span>
                         </div>
                       );
@@ -1266,7 +1268,7 @@ export default function Calendar() {
                                 >
                                   <span className={styles.chairsEmptyAddBtn}>
                                     <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>add</span>
-                                    <span>{i18n.language === 'en' ? 'Book' : 'Qabul'}</span>
+                                    <span>{t('calendar.book')}</span>
                                   </span>
                                 </div>
                               ) : (
@@ -1319,7 +1321,7 @@ export default function Calendar() {
                 type="button"
                 className={styles.modalCloseBtn}
                 onClick={() => setShowModal(false)}
-                title={i18n.language === 'en' ? 'Close (Esc)' : 'Yopish (Esc)'}
+                title={t('calendar.closeEsc')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                   close
@@ -1569,7 +1571,7 @@ export default function Calendar() {
                 </div>
                 <div>
                   <div className={styles.popoverTitle}>
-                    {i18n.language === 'en' ? 'Quick Appointment' : 'Tezkor qabul biriktirish'}
+                    {t('calendar.quickAppointment')}
                   </div>
                   <div className={styles.popoverSub}>
                     {activeDateStr}

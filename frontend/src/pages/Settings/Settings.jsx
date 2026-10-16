@@ -9,7 +9,7 @@ import { useFormatters } from '../../hooks/useFormatters';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
-import { formatPhoneInput } from '../../utils/formatters';
+import { formatPhoneInput, normalizePhone, formatPhone } from '../../utils/formatters';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Settings.module.css';
 
@@ -200,7 +200,7 @@ export default function Settings() {
   const isOwnerOrAdmin = hasRole(['owner', 'administrator', 'superadmin']);
 
   usePageMeta(
-    isEn ? 'Practice Settings' : 'Klinika Sozlamalari',
+    t('settings.practiceSettings'),
     'DentUz klinika sozlamalari: jamoa huquqlari, operatsion kreslolar soni, xizmatlar va xavfsizlik.'
   );
 
@@ -227,14 +227,14 @@ export default function Settings() {
     const savedChairs = localStorage.getItem('dentuz_clinic_chairs');
     const savedName = localStorage.getItem('dentuz_clinic_name');
     return {
-      name: savedName || (isEn ? 'DentUz Central Clinic' : 'DentUz Markaziy Klinika'),
+      name: savedName || t('settings.dentuzCentralClinic'),
       license: 'MED-UZ-2021-9988',
       director: 'Dr. Jasur Azimov',
       phone: '+998 71 200 44 22',
       extraPhone: '+998 90 842 11 00',
       email: 'info@dentuz.uz',
-      address: isEn ? 'Bunyodkor Ave 42, Chilanzar district, Tashkent' : "Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko'chasi 42-uy",
-      workingHours: isEn ? 'Monday - Saturday: 08:30 - 20:00' : 'Dushanba - Shanba: 08:30 - 20:00',
+      address: t('settings.bunyodkorAve42Chilanzar'),
+      workingHours: t('settings.mondaySaturday0830'),
       inn: '307 456 789',
       mfo: '00873',
       bankAccount: '20208000205174219001',
@@ -321,8 +321,8 @@ export default function Settings() {
     setMemberPerms(def);
     showToast(
       'info',
-      isEn ? 'Reset to Defaults' : 'Standartga qaytarildi',
-      isEn ? 'Permissions reset to role default values.' : 'Huquqlar standart rol holatiga qaytarildi.'
+      t('settings.resetToDefaults'),
+      t('settings.permissionsResetToRole')
     );
   };
 
@@ -331,7 +331,7 @@ export default function Settings() {
     setTeam(prev => prev.map(m => m.id === showPermModal.id ? { ...m, permissions: memberPerms } : m));
     showToast(
       'success',
-      isEn ? 'Permissions Saved' : 'Huquqlar saqlandi',
+      t('settings.permissionsSaved'),
       isEn
         ? `Permissions updated for ${showPermModal.name}`
         : `${showPermModal.name} uchun tizim huquqlari muvaffaqiyatli saqlandi.`
@@ -342,11 +342,15 @@ export default function Settings() {
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!newMember.name) return;
-    const added = await teamApi.addMember(newMember);
+    const payload = {
+      ...newMember,
+      phone: normalizePhone(newMember.phone)
+    };
+    const added = await teamApi.addMember(payload);
     setTeam((prev) => [...prev, added]);
     setShowAddModal(false);
-    setNewMember({ name: '', title: '', role: 'Shifokor', email: '', phone: '+998 ', branch: 'Markaziy Klinika' });
-    showToast('success', isEn ? 'Member Added' : 'Xodim qo\'shildi', isEn ? `${newMember.name} joined the practice team.` : `${newMember.name} jamoaga muvaffaqiyatli qo'shildi.`);
+    setNewMember({ name: '', title: '', role: 'Shifokor', email: '', phone: '', branch: 'Markaziy Klinika' });
+    showToast('success', t('settings.memberAdded'), t('settings.memberJoined', { name: newMember.name }));
   };
 
   const handleSaveClinic = (e) => {
@@ -358,7 +362,7 @@ export default function Settings() {
     setClinicSaved(true);
     showToast(
       'success',
-      isEn ? 'Settings Saved' : 'Saqlandi',
+      t('settings.settingsSaved'),
       isEn
         ? `Practice details and ${clinicData.chairsCount} operatory chairs updated successfully.`
         : `Klinika ma'lumotlari va ${clinicData.chairsCount} ta operatsion kreslo muvaffaqiyatli saqlandi.`
@@ -370,15 +374,15 @@ export default function Settings() {
     e.preventDefault();
     setPassError('');
     if (passwords.newPass !== passwords.confirm) {
-      const msg = isEn ? 'New passwords do not match!' : 'Yangi parollar bir xil emas!';
+      const msg = t('settings.newPasswordsDoNot');
       setPassError(msg);
-      showToast('error', isEn ? 'Error' : 'Xatolik', msg);
+      showToast('error', t('settings.error'), msg);
       return;
     }
     if (passwords.newPass.length < 8) {
-      const msg = isEn ? 'Password must be at least 8 characters long.' : 'Parol kamida 8 ta belgidan iborat bo\'lishi shart.';
+      const msg = t('settings.passwordMustBeAt');
       setPassError(msg);
-      showToast('error', isEn ? 'Weak password' : 'Oddiy parol', msg);
+      showToast('error', t('settings.weakPassword'), msg);
       return;
     }
     setPassLoading(true);
@@ -390,17 +394,17 @@ export default function Settings() {
       if (res && res.success) {
         setPassSuccess(true);
         setPasswords({ current: '', newPass: '', confirm: '' });
-        showToast('success', isEn ? 'Password Updated' : 'Parol o\'zgartirildi', res.message || (isEn ? 'Password has been updated securely.' : 'Yangi parol muvaffaqiyatli saqlandi.'));
+        showToast('success', t('settings.passwordUpdated'), res.message || t('settings.passwordHasBeenUpdated'));
         setTimeout(() => setPassSuccess(false), 4000);
       } else {
-        const msg = res?.message || (isEn ? 'Failed to update password' : 'Parolni yangilashda xatolik');
+        const msg = res?.message || t('settings.failedToUpdatePassword');
         setPassError(msg);
-        showToast('error', isEn ? 'Error' : 'Xatolik', msg);
+        showToast('error', t('settings.error'), msg);
       }
     } catch (err) {
-      const msg = err?.message || (isEn ? 'Current password incorrect or policy error' : 'Joriy parol noto\'g\'ri yoki yangi parol talablariga mos kelmadi');
+      const msg = err?.message || t('settings.currentPasswordIncorrectOr');
       setPassError(msg);
-      showToast('error', isEn ? 'Error' : 'Xatolik', msg);
+      showToast('error', t('settings.error'), msg);
     } finally {
       setPassLoading(false);
     }
@@ -418,13 +422,13 @@ export default function Settings() {
       });
       showToast(
         'success',
-        isEn ? 'Temporary Password Issued' : 'Vaqtinchalik parol berildi',
+        t('settings.temporaryPasswordIssued'),
         isEn
           ? `Temporary password issued for ${resetPassTarget.name}.`
           : `${resetPassTarget.name} uchun yangi vaqtinchalik parol berildi.`
       );
     } catch (err) {
-      showToast('error', isEn ? 'Error' : 'Xatolik', err?.message || (isEn ? 'Failed to reset password' : 'Parolni tiklashda xatolik yuz berdi'));
+      showToast('error', t('settings.error'), err?.message || t('settings.failedToResetPassword'));
     } finally {
       setResetPassLoading(false);
       setResetPassTarget(null);
@@ -467,7 +471,7 @@ export default function Settings() {
       } catch (err) {
         console.warn('Update service failed:', err);
       }
-      showToast('success', isEn ? 'Updated' : 'Yangilandi', isEn ? `${serviceForm.name} service updated.` : `${serviceForm.name} xizmati yangilandi.`);
+      showToast('success', t('settings.updated'), t('settings.serviceUpdatedMsg', { name: serviceForm.name }));
     } else {
       const newSvc = { ...serviceForm, price: Number(serviceForm.price) };
       try {
@@ -476,7 +480,7 @@ export default function Settings() {
       } catch (err) {
         setServices(prev => [...prev, { id: `srv-${Date.now()}`, ...newSvc }]);
       }
-      showToast('success', isEn ? 'Created' : 'Qo\'shildi', isEn ? `${serviceForm.name} service added to catalog.` : `${serviceForm.name} xizmati qo'shildi.`);
+      showToast('success', t('settings.created'), t('settings.serviceCreatedMsg', { name: serviceForm.name }));
     }
     setShowServiceModal(false);
     setEditService(null);
@@ -490,7 +494,7 @@ export default function Settings() {
     } catch (err) {
       console.warn('Delete service failed:', err);
     }
-    showToast('info', isEn ? 'Deleted' : 'O\'chirildi', isEn ? 'Service removed from price list.' : 'Xizmat ro\'yxatdan olib tashlandi.');
+    showToast('info', t('settings.deleted'), t('settings.serviceRemovedFromPrice'));
   };
 
   const handleToggleSms = (id) => {
@@ -501,7 +505,7 @@ export default function Settings() {
     setBackupLoading(true);
     setTimeout(() => {
       setBackupLoading(false);
-      showToast('success', isEn ? 'Backup Created' : 'Zaxira nusxa yaratildi', isEn ? 'Database backup exported securely.' : 'Ma\'lumotlar bazasi muvaffaqiyatli eksport qilindi.');
+      showToast('success', t('settings.backupCreated'), t('settings.databaseBackupExportedSecurely'));
     }, 2000);
   };
 
@@ -518,21 +522,21 @@ export default function Settings() {
   });
 
   const getRoleLabel = (role) => {
-    if (role === 'owner') return isEn ? 'Chief Physician' : 'Bosh shifokor';
-    if (role === 'doctor') return isEn ? 'Doctor' : 'Shifokor';
-    if (role === 'receptionist') return isEn ? 'Administrator' : 'Administrator';
-    if (role === 'nurse') return isEn ? 'Nurse' : 'Hamshira';
+    if (role === 'owner') return t('settings.chiefPhysician');
+    if (role === 'doctor') return t('settings.doctor');
+    if (role === 'receptionist') return t('settings.administrator');
+    if (role === 'nurse') return t('settings.nurse');
     return role;
   };
 
   const tabs = [
-    { id: 'clinic',    icon: 'business',         label: isEn ? 'Practice Info' : 'Klinika' },
-    { id: 'team',      icon: 'group',            label: isEn ? 'Staff & Roles' : 'Jamoa' },
-    { id: 'services',  icon: 'medical_services', label: isEn ? 'Services & Pricing' : 'Xizmatlar' },
-    { id: 'sms',       icon: 'sms',              label: isEn ? 'SMS Templates' : 'SMS Shablonlar' },
-    { id: 'security',  icon: 'shield',           label: isEn ? 'Security & 2FA' : 'Xavfsizlik' },
-    { id: 'backup',    icon: 'backup',           label: isEn ? 'Database Backup' : 'Backup' },
-    ...(isOwnerOrAdmin ? [{ id: 'audit', icon: 'manage_history', label: isEn ? 'Audit Log' : 'Faoliyat jurnali' }] : []),
+    { id: 'clinic',    icon: 'business',         label: t('settings.practiceInfo') },
+    { id: 'team',      icon: 'group',            label: t('settings.staffRoles') },
+    { id: 'services',  icon: 'medical_services', label: t('settings.servicesPricing') },
+    { id: 'sms',       icon: 'sms',              label: t('settings.smsTemplates') },
+    { id: 'security',  icon: 'shield',           label: t('settings.security2fa') },
+    { id: 'backup',    icon: 'backup',           label: t('settings.databaseBackup') },
+    ...(isOwnerOrAdmin ? [{ id: 'audit', icon: 'manage_history', label: t('settings.auditLog') }] : []),
   ];
 
   return (
@@ -540,15 +544,13 @@ export default function Settings() {
       <div className={styles.pageHeader}>
         <div>
           <div className={styles.headerMeta}>
-            <span className={styles.sectionBadge}>{isEn ? 'PRACTICE OS' : 'Boshqaruv paneli'}</span>
+            <span className={styles.sectionBadge}>{t('settings.practiceOs')}</span>
             <span className={styles.dot}>•</span>
-            <span className={styles.metaLabel}>{isEn ? 'Settings' : 'Sozlamalar'}</span>
+            <span className={styles.metaLabel}>{t('settings.settings')}</span>
           </div>
-          <h1 className={styles.pageTitle}>{isEn ? 'Clinic Settings' : 'Klinika Sozlamalari'}</h1>
+          <h1 className={styles.pageTitle}>{t('settings.clinicSettings')}</h1>
           <p className={styles.pageSubtitle}>
-            {isEn
-              ? 'Manage your dental practice profile, operatory chairs, staff access, services catalog, and security.'
-              : 'Klinikangiz profili, kreslolar soni, xodimlar, xizmatlar va tizim sozlamalarini boshqaring.'}
+            {t('settings.manageYourDentalPractice')}
           </p>
         </div>
       </div>
@@ -583,8 +585,8 @@ export default function Settings() {
             <div className={styles.tabContent}>
               <div className={styles.tabHeader}>
                 <div>
-                  <h2 className={styles.tabTitle}>{isEn ? 'Practice Profile & Credentials' : 'Klinika Ma\'lumotlari'}</h2>
-                  <p className={styles.tabSub}>{isEn ? 'Official clinic credentials, dental operatories, and working hours' : 'Rasmiy rekvizitlar, operatsion kreslolar va ish vaqtini sozlang'}</p>
+                  <h2 className={styles.tabTitle}>{t('settings.practiceProfileCredentials')}</h2>
+                  <p className={styles.tabSub}>{t('settings.officialClinicCredentialsDental')}</p>
                 </div>
               </div>
 
@@ -593,42 +595,42 @@ export default function Settings() {
                 <div className={styles.card}>
                   <div className={styles.cardSectionTitle}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>info</span>
-                    {isEn ? 'General Clinic Details' : 'Asosiy ma\'lumotlar'}
+                    {t('settings.generalClinicDetails')}
                   </div>
                   <div className={styles.formGrid2}>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Clinic Name' : 'Klinika nomi'}</label>
+                      <label className={styles.formLabel}>{t('settings.clinicName')}</label>
                       <input className={styles.input} value={clinicData.name} onChange={e => setClinicData({ ...clinicData, name: e.target.value })} required />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Medical License Number' : 'Litsenziya raqami'}</label>
+                      <label className={styles.formLabel}>{t('settings.medicalLicenseNumber')}</label>
                       <input className={styles.input} value={clinicData.license} onChange={e => setClinicData({ ...clinicData, license: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Medical Director (F.I.O)' : 'Rahbar F.I.O'}</label>
+                      <label className={styles.formLabel}>{t('settings.medicalDirectorFI')}</label>
                       <input className={styles.input} value={clinicData.director} onChange={e => setClinicData({ ...clinicData, director: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Working Hours' : 'Ish vaqti'}</label>
+                      <label className={styles.formLabel}>{t('settings.workingHours')}</label>
                       <input className={styles.input} value={clinicData.workingHours} onChange={e => setClinicData({ ...clinicData, workingHours: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Primary Phone' : 'Asosiy telefon'}</label>
+                      <label className={styles.formLabel}>{t('settings.primaryPhone')}</label>
                       <input className={styles.input} value={clinicData.phone} onChange={e => setClinicData({ ...clinicData, phone: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Secondary Phone' : 'Qo\'shimcha telefon'}</label>
+                      <label className={styles.formLabel}>{t('settings.secondaryPhone')}</label>
                       <input className={styles.input} value={clinicData.extraPhone} onChange={e => setClinicData({ ...clinicData, extraPhone: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Official Email' : 'Email'}</label>
+                      <label className={styles.formLabel}>{t('settings.officialEmail')}</label>
                       <input className={styles.input} type="email" value={clinicData.email} onChange={e => setClinicData({ ...clinicData, email: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
                       <label className={styles.formLabel}>
-                        {isEn ? 'Dental Operatories (Chairs)' : 'Stomatologik kreslolar soni'}
+                        {t('settings.dentalOperatoriesChairs')}
                         <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--color-cyan)', marginLeft: 6 }}>
-                          ({isEn ? 'Controls Dashboard' : 'Dashboard uchun'})
+                          ({t('settings.controlsDashboard')})
                         </span>
                       </label>
                       <input
@@ -642,7 +644,7 @@ export default function Settings() {
                     </div>
                   </div>
                   <div className={styles.formGroup} style={{ marginTop: 4 }}>
-                    <label className={styles.formLabel}>{isEn ? 'Physical Address' : 'Manzil'}</label>
+                    <label className={styles.formLabel}>{t('settings.physicalAddress')}</label>
                     <input className={styles.input} value={clinicData.address} onChange={e => setClinicData({ ...clinicData, address: e.target.value })} />
                   </div>
                 </div>
@@ -651,33 +653,33 @@ export default function Settings() {
                 <div className={styles.card}>
                   <div className={styles.cardSectionTitle}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>account_balance</span>
-                    {isEn ? 'Banking & Billing Credentials' : 'Bank rekvizitlari'}
+                    {t('settings.bankingBillingCredentials')}
                   </div>
                   <div className={styles.formGrid2}>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Tax ID (INN)' : 'INN'}</label>
+                      <label className={styles.formLabel}>{t('settings.taxIdInn')}</label>
                       <input className={styles.input} value={clinicData.inn} onChange={e => setClinicData({ ...clinicData, inn: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Bank Code (MFO)' : 'MFO'}</label>
+                      <label className={styles.formLabel}>{t('settings.bankCodeMfo')}</label>
                       <input className={styles.input} value={clinicData.mfo} onChange={e => setClinicData({ ...clinicData, mfo: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Settlement Account' : 'Hisob raqami'}</label>
+                      <label className={styles.formLabel}>{t('settings.settlementAccount')}</label>
                       <input className={styles.input} value={clinicData.bankAccount} onChange={e => setClinicData({ ...clinicData, bankAccount: e.target.value })} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>{isEn ? 'Bank Name' : 'Bank nomi'}</label>
+                      <label className={styles.formLabel}>{t('settings.bankName')}</label>
                       <input className={styles.input} value={clinicData.bankName} onChange={e => setClinicData({ ...clinicData, bankName: e.target.value })} />
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.formActions}>
-                  {clinicSaved && <span className={styles.successLabel}>✓ {isEn ? 'Saved successfully' : 'Muvaffaqiyatli saqlandi'}</span>}
+                  {clinicSaved && <span className={styles.successLabel}>✓ {t('settings.savedSuccessfully')}</span>}
                   <button type="submit" className={styles.btnPrimary}>
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
-                    {isEn ? 'Save Changes' : 'Saqlash'}
+                    {t('settings.saveChanges')}
                   </button>
                 </div>
               </form>
@@ -691,12 +693,12 @@ export default function Settings() {
             <div className={styles.tabContent}>
               <div className={styles.tabHeader}>
                 <div>
-                  <h2 className={styles.tabTitle}>{isEn ? 'Team & Role Permissions' : 'Jamoa va Huquqlar'}</h2>
-                  <p className={styles.tabSub}>{isEn ? 'Add medical team members and configure role-based access' : 'Xodimlarni qo\'shing va ularning tizim huquqlarini sozlang'}</p>
+                  <h2 className={styles.tabTitle}>{t('settings.teamRolePermissions')}</h2>
+                  <p className={styles.tabSub}>{t('settings.addMedicalTeamMembers')}</p>
                 </div>
                 <button type="button" className={styles.btnPrimary} onClick={() => setShowAddModal(true)}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
-                  {isEn ? '+ Add Team Member' : 'Xodim qo\'shish'}
+                  {t('settings.addTeamMember')}
                 </button>
               </div>
 
@@ -707,7 +709,7 @@ export default function Settings() {
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder={isEn ? "Search staff by name, title, or email..." : "Xodim qidirish..."}
+                    placeholder={t('settings.searchStaffByName')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -715,11 +717,11 @@ export default function Settings() {
                 <div className={styles.metaChips}>
                   <div className={styles.chip}>
                     <span className={styles.dotGreen} />
-                    <span>{isEn ? 'Active' : 'Faol'}</span>
+                    <span>{t('settings.active')}</span>
                     <strong>{team.filter(m => m.status === 'online').length}</strong>
                   </div>
                   <div className={styles.chip}>
-                    <span>{isEn ? 'Total Staff' : 'Jami xodim'}</span>
+                    <span>{t('settings.totalStaff')}</span>
                     <strong>{team.length} / 10</strong>
                   </div>
                 </div>
@@ -732,19 +734,19 @@ export default function Settings() {
                 ) : filteredTeam.length === 0 ? (
                   <div className={styles.emptyState}>
                     <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>group_off</span>
-                    <p>{isEn ? 'No staff members found' : 'Xodim topilmadi'}</p>
+                    <p>{t('settings.noStaffMembersFound')}</p>
                   </div>
                 ) : (
                   <div className={styles.tableWrapper}>
                     <table className={styles.staffTable}>
                     <thead>
                       <tr>
-                        <th>{isEn ? 'MEMBER' : 'XODIM'}</th>
-                        <th>{isEn ? 'ROLE' : 'ROL'}</th>
-                        <th>{isEn ? 'CONTACT' : 'KONTAKT'}</th>
-                        <th>{isEn ? 'BRANCH' : 'FILIAL'}</th>
-                        <th>{isEn ? 'STATUS' : 'HOLAT'}</th>
-                        <th>{isEn ? 'ACTIONS' : 'AMALLAR'}</th>
+                        <th>{t('settings.member')}</th>
+                        <th>{t('settings.role')}</th>
+                        <th>{t('settings.contact')}</th>
+                        <th>{t('settings.branch')}</th>
+                        <th>{t('settings.status')}</th>
+                        <th>{t('settings.actions')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -775,17 +777,17 @@ export default function Settings() {
                           <td>
                             <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}>
                               <div>{member.email}</div>
-                              <div style={{ color: 'var(--color-text-secondary)' }}>{member.phone}</div>
+                              <div style={{ color: 'var(--color-text-secondary)' }}>{formatPhone(member.phone)}</div>
                             </div>
                           </td>
                           <td style={{ fontSize: 12 }}>
                             {member.branch === 'Markaziy Klinika'
-                              ? (isEn ? 'Central Clinic' : 'Markaziy Klinika')
+                              ? t('settings.centralClinic')
                               : member.branch}
                           </td>
                           <td>
                             <span className={`${styles.statusBadge} ${member.status === 'online' ? styles.statusOnline : styles.statusOffline}`}>
-                              {member.status === 'online' ? (isEn ? 'Active' : 'Faol') : (isEn ? 'Offline' : 'Oflayn')}
+                              {member.status === 'online' ? t('settings.active') : t('settings.offline')}
                             </span>
                           </td>
                           <td>
@@ -793,7 +795,7 @@ export default function Settings() {
                               <button
                                 type="button"
                                 className={styles.actionBtn}
-                                title={isEn ? "Permissions" : "Huquqlar"}
+                                title={t('settings.permissions')}
                                 onClick={() => handleOpenPermModal(member)}
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>manage_accounts</span>
@@ -802,7 +804,7 @@ export default function Settings() {
                                 <button
                                   type="button"
                                   className={styles.actionBtn}
-                                  title={isEn ? "Issue temporary password" : "Vaqtinchalik parol berish"}
+                                  title={t('settings.issueTemporaryPassword')}
                                   onClick={() => setResetPassTarget(member)}
                                 >
                                   <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-cyan-hover)' }}>key</span>
@@ -811,7 +813,7 @@ export default function Settings() {
                               <button
                                 type="button"
                                 className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                                title={isEn ? "Remove member" : "Jamoadan chiqarish"}
+                                title={t('settings.removeMember')}
                                 onClick={() => setShowDeleteModal(member)}
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_remove</span>
@@ -871,7 +873,7 @@ export default function Settings() {
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder={isEn ? 'Search services...' : 'Xizmat qidirish...'}
+                    placeholder={t('settings.searchServices')}
                     value={serviceSearch}
                     onChange={e => setServiceSearch(e.target.value)}
                   />
@@ -883,10 +885,10 @@ export default function Settings() {
                 <table className={styles.staffTable}>
                   <thead>
                     <tr>
-                      <th>{isEn ? 'SERVICE NAME' : 'XIZMAT NOMI'}</th>
-                      <th>{isEn ? 'CATEGORY' : 'KATEGORIYA'}</th>
-                      <th>{isEn ? 'DURATION' : 'DAVOMIYLIGI'}</th>
-                      <th>{isEn ? 'PRICE' : 'NARX'}</th>
+                      <th>{t('settings.serviceName')}</th>
+                      <th>{t('settings.category')}</th>
+                      <th>{t('settings.duration')}</th>
+                      <th>{t('settings.price')}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -895,7 +897,7 @@ export default function Settings() {
                       <tr key={svc.id}>
                         <td style={{ fontWeight: 600 }}>{svc.name}</td>
                         <td><span className={styles.catBadge}>{svc.category}</span></td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{svc.duration} {isEn ? 'min' : 'daq'}</td>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{svc.duration} {t('settings.min')}</td>
                         <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--color-cyan-hover)' }}>
                           {formatPrice(svc.price)}
                         </td>
@@ -904,7 +906,7 @@ export default function Settings() {
                             <button
                               type="button"
                               className={styles.actionBtn}
-                              title={isEn ? 'Edit service' : 'Xizmatni tahrirlash'}
+                              title={t('settings.editService')}
                               onClick={() => {
                                 setEditService(svc);
                                 setServiceForm({ category: svc.category, name: svc.name, duration: svc.duration, price: String(svc.price) });
@@ -916,7 +918,7 @@ export default function Settings() {
                             <button
                               type="button"
                               className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                              title={isEn ? 'Delete service' : "Xizmatni o'chirish"}
+                              title={t('settings.deleteService')}
                               onClick={() => setShowDeleteServiceModal(svc)}
                             >
                               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
@@ -1043,20 +1045,20 @@ export default function Settings() {
           ══════════════════════════════════════════ */}
           {activeTab === 'security' && (
             <div className={styles.tabContent}>
-              <h2 className={styles.tabTitle}>{isEn ? 'Account Security & Access' : 'Xavfsizlik'}</h2>
+              <h2 className={styles.tabTitle}>{t('settings.accountSecurityAccess')}</h2>
               <p className={styles.tabSub} style={{ marginBottom: 24 }}>
-                {isEn ? 'Update your personal credentials and manage sessions' : 'Parol va akkaunt xavfsizligini sozlang'}
+                {t('settings.updateYourPersonalCredentials')}
               </p>
 
               {/* Change password */}
               <div className={styles.card}>
                 <div className={styles.cardSectionTitle}>
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lock</span>
-                  {isEn ? 'Change Password' : 'Parolni o\'zgartirish'}
+                  {t('settings.changePassword')}
                 </div>
                 <form onSubmit={handleSavePassword} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 440 }}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>{isEn ? 'Current Password' : 'Joriy parol'}</label>
+                    <label className={styles.formLabel}>{t('settings.currentPassword')}</label>
                     <div className={styles.passwordInputWrapper}>
                       <input
                         type={showCurrentPass ? 'text' : 'password'}
@@ -1080,12 +1082,12 @@ export default function Settings() {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>{isEn ? 'New Password' : 'Yangi parol'}</label>
+                    <label className={styles.formLabel}>{t('settings.newPassword')}</label>
                     <div className={styles.passwordInputWrapper}>
                       <input
                         type={showNewPass ? 'text' : 'password'}
                         className={styles.input}
-                        placeholder={isEn ? 'At least 8 characters' : 'Kamida 8 ta belgi'}
+                        placeholder={t('settings.atLeast8Characters')}
                         value={passwords.newPass}
                         onChange={e => setPasswords({ ...passwords, newPass: e.target.value })}
                         required
@@ -1104,12 +1106,12 @@ export default function Settings() {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>{isEn ? 'Confirm New Password' : 'Yangi parolni takrorlang'}</label>
+                    <label className={styles.formLabel}>{t('settings.confirmNewPassword')}</label>
                     <div className={styles.passwordInputWrapper}>
                       <input
                         type={showConfirmPass ? 'text' : 'password'}
                         className={styles.input}
-                        placeholder={isEn ? 'Re-enter new password' : 'Parolni qayta kiriting'}
+                        placeholder={t('settings.reEnterNewPassword')}
                         value={passwords.confirm}
                         onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
                         required
@@ -1136,19 +1138,19 @@ export default function Settings() {
                   <div className={styles.formActions}>
                     {passSuccess && (
                       <span className={styles.successLabel}>
-                        ✓ {isEn ? 'Password changed successfully' : 'Parol muvaffaqiyatli o\'zgartirildi'}
+                        ✓ {t('settings.passwordChangedSuccessfully')}
                       </span>
                     )}
                     <button type="submit" className={styles.btnPrimary} disabled={passLoading}>
                       {passLoading ? (
                         <>
                           <span className="material-symbols-outlined" style={{ fontSize: 16, animation: 'spin 1s linear infinite' }}>refresh</span>
-                          {isEn ? 'Updating...' : 'Yangilanmoqda...'}
+                          {t('settings.updating')}
                         </>
                       ) : (
                         <>
                           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span>
-                          {isEn ? 'Update Password' : 'Yangilash'}
+                          {t('settings.updatePassword')}
                         </>
                       )}
                     </button>
@@ -1350,8 +1352,8 @@ export default function Settings() {
             <div className={styles.tabContent}>
               <div className={styles.tabHeader}>
                 <div>
-                  <h2 className={styles.tabTitle}>{isEn ? 'Security & Activity Audit Log' : 'Faoliyat Jurnali'}</h2>
-                  <p className={styles.tabSub}>{isEn ? 'Immutable audit record of user logins, password changes, and system operations' : 'Tizimga kirish, parol tiklash va amallarning xavfsiz auditi'}</p>
+                  <h2 className={styles.tabTitle}>{t('settings.securityActivityAuditLog')}</h2>
+                  <p className={styles.tabSub}>{t('settings.immutableAuditRecordOf')}</p>
                 </div>
               </div>
 
@@ -1362,7 +1364,7 @@ export default function Settings() {
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder={isEn ? "Search by user email, IP, or resource..." : "Foydalanuvchi, IP yoki resurs..."}
+                    placeholder={t('settings.searchByUserEmail')}
                     value={auditSearch}
                     onChange={(e) => {
                       setAuditSearch(e.target.value);
@@ -1380,7 +1382,7 @@ export default function Settings() {
                       setAuditPage(1);
                     }}
                   >
-                    <option value="">{isEn ? 'All Actions' : 'Barcha amallar'}</option>
+                    <option value="">{t('settings.allActions')}</option>
                     <option value="AUTH_LOGIN">AUTH_LOGIN</option>
                     <option value="AUTH_LOGOUT">AUTH_LOGOUT</option>
                     <option value="AUTH_PASSWORD_CHANGE">AUTH_PASSWORD_CHANGE</option>
@@ -1393,7 +1395,7 @@ export default function Settings() {
                     className={styles.btnOutline}
                     style={{ height: 38, padding: '0 12px' }}
                     onClick={() => loadAuditLogs(auditPage, auditActionFilter, auditSearch)}
-                    title={isEn ? "Refresh" : "Yangilash"}
+                    title={t('settings.refresh')}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
                   </button>
@@ -1407,17 +1409,17 @@ export default function Settings() {
                 ) : auditLogs.length === 0 ? (
                   <div className={styles.emptyState}>
                     <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>history_toggle_off</span>
-                    <p>{isEn ? 'No audit log entries found' : 'Audit yozuvlari topilmadi'}</p>
+                    <p>{t('settings.noAuditLogEntries')}</p>
                   </div>
                 ) : (
                   <table className={styles.auditTable}>
                     <thead>
                       <tr>
-                        <th>{isEn ? 'TIMESTAMP' : 'SANA VA VAQT'}</th>
-                        <th>{isEn ? 'USER' : 'FOYDALANUVCHI'}</th>
-                        <th>{isEn ? 'ACTION' : 'AMAL'}</th>
-                        <th>{isEn ? 'RESOURCE' : 'RESURS'}</th>
-                        <th>{isEn ? 'IP ADDRESS' : 'IP MANZIL'}</th>
+                        <th>{t('settings.timestamp')}</th>
+                        <th>{t('settings.user')}</th>
+                        <th>{t('settings.action')}</th>
+                        <th>{t('settings.resource')}</th>
+                        <th>{t('settings.ipAddress')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1427,7 +1429,7 @@ export default function Settings() {
                             {formatDateTime(log.createdAt)}
                           </td>
                           <td>
-                            <div style={{ fontWeight: 600, fontSize: 13 }}>{log.userEmail || (isEn ? 'System' : 'Tizim')}</div>
+                            <div style={{ fontWeight: 600, fontSize: 13 }}>{log.userEmail || t('settings.system')}</div>
                             <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', textTransform: 'capitalize' }}>
                               {log.userRole || '—'}
                             </div>
@@ -1452,7 +1454,7 @@ export default function Settings() {
                 {/* Pagination */}
                 <div className={styles.paginationContainer}>
                   <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                    {isEn ? `Page ${auditPage} of ${auditTotalPages}` : `${auditPage}-sahifa, jami ${auditTotalPages}`}
+                    {t('common.pageOfTotal', { page: auditPage, total: auditTotalPages })}
                   </div>
                   <div className={styles.paginationActions}>
                     <button
@@ -1462,7 +1464,7 @@ export default function Settings() {
                       onClick={() => setAuditPage((p) => Math.max(1, p - 1))}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_left</span>
-                      {isEn ? 'Previous' : 'Oldingi'}
+                      {t('settings.previous')}
                     </button>
                     <button
                       type="button"
@@ -1470,7 +1472,7 @@ export default function Settings() {
                       disabled={auditPage >= auditTotalPages || auditLoading}
                       onClick={() => setAuditPage((p) => p + 1)}
                     >
-                      {isEn ? 'Next' : 'Keyingi'}
+                      {t('settings.next')}
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_right</span>
                     </button>
                   </div>
@@ -1497,27 +1499,27 @@ export default function Settings() {
             <form onSubmit={handleAddMember} className={styles.modalForm}>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>{isEn ? 'Full Name *' : "To'liq ismi *"}</label>
-                  <input required className={styles.input} placeholder={isEn ? 'e.g. John Doe' : 'Sardor Ismoilov'} value={newMember.name}
+                  <label className={styles.formLabel}>{t('settings.fullName')}</label>
+                  <input required className={styles.input} placeholder={t('settings.eGJohnDoe')} value={newMember.name}
                     onChange={e => setNewMember({ ...newMember, name: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>{isEn ? 'Specialization' : 'Mutaxassislik'}</label>
-                  <input className={styles.input} placeholder={isEn ? 'Dentist' : 'Tish shifokori'} value={newMember.title}
+                  <label className={styles.formLabel}>{t('settings.specialization')}</label>
+                  <input className={styles.input} placeholder={t('settings.dentist')} value={newMember.title}
                     onChange={e => setNewMember({ ...newMember, title: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>{isEn ? 'Role' : 'Rol'}</label>
+                  <label className={styles.formLabel}>{t('settings.role_1')}</label>
                   <select className={styles.input} value={newMember.role} onChange={e => setNewMember({ ...newMember, role: e.target.value })}>
-                    <option value="doctor">{isEn ? 'Doctor' : 'Shifokor'}</option>
-                    <option value="nurse">{isEn ? 'Nurse' : 'Hamshira'}</option>
-                    <option value="administrator">{isEn ? 'Administrator' : 'Administrator'}</option>
-                    <option value="receptionist">{isEn ? 'Receptionist' : 'Qabulxona'}</option>
-                    <option value="accountant">{isEn ? 'Accountant' : 'Buxgalter'}</option>
+                    <option value="doctor">{t('settings.doctor')}</option>
+                    <option value="nurse">{t('settings.nurse')}</option>
+                    <option value="administrator">{t('settings.administrator')}</option>
+                    <option value="receptionist">{t('settings.receptionist')}</option>
+                    <option value="accountant">{t('settings.accountant')}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>{isEn ? 'Phone' : 'Telefon'}</label>
+                  <label className={styles.formLabel}>{t('settings.phone')}</label>
                   <input className={styles.input} placeholder="+998 90 123 45 67" value={newMember.phone}
                     onChange={e => setNewMember({ ...newMember, phone: formatPhoneInput(e.target.value) })} />
                 </div>
@@ -1544,20 +1546,20 @@ export default function Settings() {
       ══════════════════════════════════════════ */}
       <ConfirmDialog
         open={Boolean(showDeleteModal)}
-        title={isEn ? 'Remove Team Member' : 'Xodimni chiqarishni tasdiqlang'}
+        title={t('settings.removeTeamMember')}
         message={
           isEn
             ? `Are you sure you want to remove ${showDeleteModal?.name} (${showDeleteModal?.role}) from the team? This action cannot be undone.`
             : `${showDeleteModal?.name} (${showDeleteModal?.role}) ni jamoadan chiqarishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.`
         }
-        confirmText={isEn ? 'Remove' : 'Ha, chiqarish'}
-        cancelText={isEn ? 'Cancel' : 'Bekor qilish'}
+        confirmText={t('settings.remove')}
+        cancelText={t('settings.cancel')}
         isDanger={true}
         onConfirm={() => {
           setTeam((prev) => prev.filter((m) => m.id !== showDeleteModal.id));
           showToast(
             'info',
-            isEn ? 'Removed' : "O'chirildi",
+            t('settings.removed'),
             isEn ? `${showDeleteModal.name} was removed from the team.` : `${showDeleteModal.name} jamoadan chiqarildi.`
           );
           setShowDeleteModal(null);
@@ -1567,14 +1569,14 @@ export default function Settings() {
 
       <ConfirmDialog
         open={Boolean(resetPassTarget)}
-        title={isEn ? 'Issue Temporary Password' : 'Vaqtinchalik parol berish'}
+        title={t('settings.issueTemporaryPassword_1')}
         message={
           isEn
             ? `Issue a new temporary password for ${resetPassTarget?.name}? Existing sessions will be terminated and password change will be mandatory on login.`
             : `${resetPassTarget?.name} uchun yangi vaqtinchalik parol berilsinmi? Xodimning barcha mavjud seanslari yakunlanadi va keyingi kirishda yangi shaxsiy parol o'rnatishi majburiy bo'ladi.`
         }
-        confirmText={isEn ? 'Generate & Issue' : 'Parol berish'}
-        cancelText={isEn ? 'Cancel' : 'Bekor qilish'}
+        confirmText={t('settings.generateIssue')}
+        cancelText={t('settings.cancel')}
         isDanger={false}
         icon="info"
         loading={resetPassLoading}
@@ -1589,7 +1591,7 @@ export default function Settings() {
             <div className={styles.modalHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-cyan-hover)' }}>key</span>
-                <h3 className={styles.modalTitle}>{isEn ? 'Temporary Password Generated' : 'Vaqtinchalik parol yaratildi'}</h3>
+                <h3 className={styles.modalTitle}>{t('settings.temporaryPasswordGenerated')}</h3>
               </div>
               <button type="button" className={styles.modalClose} onClick={() => setTempPasswordIssued(null)}>
                 <span className="material-symbols-outlined">close</span>
@@ -1619,11 +1621,11 @@ export default function Settings() {
                   style={{ height: 32, padding: '0 12px', fontSize: 12 }}
                   onClick={() => {
                     navigator.clipboard?.writeText(tempPasswordIssued.password);
-                    showToast('success', isEn ? 'Copied' : 'Nusxa olindi', isEn ? 'Password copied to clipboard' : 'Parol buferga nusxalandi');
+                    showToast('success', t('settings.copied'), t('settings.passwordCopiedToClipboard'));
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 14 }}>content_copy</span>
-                  {isEn ? 'Copy' : 'Nusxa olish'}
+                  {t('settings.copy')}
                 </button>
               </div>
             </div>
@@ -1633,7 +1635,7 @@ export default function Settings() {
                 className={styles.btnPrimary}
                 onClick={() => setTempPasswordIssued(null)}
               >
-                {isEn ? 'Done' : 'Tushunarli'}
+                {t('settings.done')}
               </button>
             </div>
           </div>
@@ -1698,10 +1700,10 @@ export default function Settings() {
               fontSize: 12
             }}>
               <span style={{ color: 'var(--color-text-secondary)' }}>
-                {isEn ? 'Permissions access:' : 'Tizim huquqlari:'}
+                {t('settings.permissionsAccess')}
               </span>
               <span style={{ fontWeight: 600, color: 'var(--color-cyan, #0891b2)' }}>
-                {Object.values(memberPerms).filter(Boolean).length} / {PERM_DEFINITIONS.length} {isEn ? 'active' : 'faol'}
+                {Object.values(memberPerms).filter(Boolean).length} / {PERM_DEFINITIONS.length} {t('settings.active_1')}
               </span>
             </div>
 
@@ -1746,7 +1748,7 @@ export default function Settings() {
                 onClick={handleResetPerms}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>restart_alt</span>
-                {isEn ? 'Reset' : 'Standart'}
+                {t('settings.reset')}
               </button>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button 
@@ -1755,7 +1757,7 @@ export default function Settings() {
                   style={{ fontSize: 12, padding: '6px 12px' }}
                   onClick={() => setShowPermModal(null)}
                 >
-                  {isEn ? 'Cancel' : 'Bekor qilish'}
+                  {t('settings.cancel')}
                 </button>
                 <button 
                   type="button" 
@@ -1764,7 +1766,7 @@ export default function Settings() {
                   onClick={handleSavePerms}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 15 }}>check</span>
-                  {isEn ? 'Save' : 'Saqlash'}
+                  {t('settings.save')}
                 </button>
               </div>
             </div>
@@ -1834,30 +1836,30 @@ export default function Settings() {
             <form onSubmit={handleSaveService} className={styles.modalForm}>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>{isEn ? 'Service Name *' : 'Xizmat nomi *'}</label>
-                  <input required className={styles.input} placeholder={isEn ? 'e.g. Caries treatment' : 'Karies davolash'} value={serviceForm.name}
+                  <label className={styles.formLabel}>{t('settings.serviceName_1')}</label>
+                  <input required className={styles.input} placeholder={t('settings.eGCariesTreatment')} value={serviceForm.name}
                     onChange={e => setServiceForm({ ...serviceForm, name: e.target.value })} />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>{isEn ? 'Category' : 'Kategoriya'}</label>
+                  <label className={styles.formLabel}>{t('settings.category_1')}</label>
                   <select className={styles.input} value={serviceForm.category} onChange={e => setServiceForm({ ...serviceForm, category: e.target.value })}>
                     {SERVICE_CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>{isEn ? 'Duration (minutes)' : 'Davomiyligi (daqiqa)'}</label>
+                  <label className={styles.formLabel}>{t('settings.durationMinutes')}</label>
                   <input type="number" min="5" className={styles.input} value={serviceForm.duration}
                     onChange={e => setServiceForm({ ...serviceForm, duration: Number(e.target.value) })} />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label className={styles.formLabel}>{isEn ? 'Price (UZS) *' : "Narx (so'm) *"}</label>
+                  <label className={styles.formLabel}>{t('settings.priceUzs')}</label>
                   <input required type="number" min="0" className={styles.input} placeholder="250000" value={serviceForm.price}
                     onChange={e => setServiceForm({ ...serviceForm, price: e.target.value })} />
                 </div>
               </div>
               <div className={styles.modalFooter}>
-                <button type="button" className={styles.btnOutline} onClick={() => setShowServiceModal(false)}>{isEn ? 'Cancel' : 'Bekor qilish'}</button>
-                <button type="submit" className={styles.btnPrimary}>{editService ? (isEn ? 'Update' : 'Yangilash') : (isEn ? 'Add' : "Qo'shish")}</button>
+                <button type="button" className={styles.btnOutline} onClick={() => setShowServiceModal(false)}>{t('settings.cancel')}</button>
+                <button type="submit" className={styles.btnPrimary}>{editService ? t('settings.update') : t('settings.add')}</button>
               </div>
             </form>
           </div>
