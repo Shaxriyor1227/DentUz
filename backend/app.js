@@ -92,13 +92,8 @@ app.use(
         return callback(null, true);
       }
 
-      // Explicit, optional Vercel Preview URL matching if configured via VERCEL_PREVIEW_PREFIX
-      const previewPrefix = process.env.VERCEL_PREVIEW_PREFIX;
-      if (
-        previewPrefix &&
-        origin.startsWith(`https://${previewPrefix}`) &&
-        origin.endsWith('.vercel.app')
-      ) {
+      // Allow DentUz Vercel deployments (production and preview branches like dent-uz-pa4p.vercel.app)
+      if (/^https:\/\/(dentuz|dent-uz)[a-z0-9-]*\.vercel\.app$/i.test(origin)) {
         return callback(null, true);
       }
 
