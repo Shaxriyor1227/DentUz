@@ -155,6 +155,20 @@ router.get("/me", authenticate, authController.me);
 
 /**
  * @swagger
+ * /api/auth/profile:
+ *   put:
+ *     tags: [Auth]
+ *     summary: Foydalanuvchi profil ma'lumotlarini (ism, rasm, telefon) yangilash
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil yangilandi
+ */
+router.put("/profile", authenticate, authController.updateProfile);
+
+/**
+ * @swagger
  * /api/auth/change-password:
  *   post:
  *     tags: [Auth]

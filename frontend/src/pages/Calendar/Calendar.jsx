@@ -6,6 +6,7 @@ import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import AppointmentPill from '../../components/AppointmentPill/AppointmentPill';
 import { normalizePhone, formatPhone } from '../../utils/formatters';
+import { useAuth } from '../../hooks/useAuth';
 import styles from './Calendar.module.css';
 
 const DAY_NAMES = [
@@ -133,6 +134,7 @@ function formatUzbekPhone(value) {
 
 export default function Calendar() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [appointments, setAppointments] = useState([]);
@@ -213,12 +215,13 @@ export default function Calendar() {
   // Chairs View & Apple Quick-Add Popover State
   const [quickAddSlot, setQuickAddSlot] = useState(null); // { chair, time, date }
 
-  // TODO: totalChairs hozircha faqat shu brauzerda saqlanadi (localStorage), keyinchalik Clinic.totalChairs backend maydoniga ko'chirilishi kerak
   const totalChairs = useMemo(() => {
+    const fromUser = user?.chairsCount || user?.clinicInfo?.chairsCount || user?.clinic?.chairsCount;
+    if (fromUser && Number(fromUser) > 0) return Number(fromUser);
     const saved = localStorage.getItem('dentuz_clinic_chairs');
-    const parsed = saved ? parseInt(saved, 10) : 7;
-    return isNaN(parsed) || parsed < 1 ? 7 : parsed;
-  }, []);
+    const parsed = saved ? parseInt(saved, 10) : 1;
+    return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+  }, [user]);
 
   // Operatory chairs list: union of range(1, totalChairs) and any chair numbers present in appointments for active day
   const operatoryChairs = useMemo(() => {

@@ -7,6 +7,7 @@ import { useSidebar } from '../../context/SidebarContext';
 import { patientsApi } from '../../api/patientsApi';
 import { notificationsApi } from '../../api/notificationsApi';
 import Toast from '../Toast/Toast';
+import apiClient from '../../api/client';
 import styles from './TopBar.module.css';
 
 
@@ -71,7 +72,7 @@ function mapServerNotification(n) {
 
 export default function TopBar() {
   const { t, i18n } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { collapsed, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
@@ -168,11 +169,30 @@ export default function TopBar() {
     };
   }, []);
 
-  const [customAvatar, setCustomAvatar] = useState(() => {
-    return localStorage.getItem('dentuz_custom_avatar') || '/images/doctor-azimov.jpg';
-  });
+  // Get user initials for default badge
+  const getUserInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
-  const handleAvatarUpload = (e) => {
+  const userInitials = useMemo(() => getUserInitials(user?.name || user?.shortName), [user?.name, user?.shortName]);
+
+  // Per-user avatar: isolated by user?.id so doctor, receptionist and owner do not mix up
+  const currentAvatar = useMemo(() => {
+    if (user?.avatar) return user.avatar;
+    if (user?.avatarUrl) return user.avatarUrl;
+    if (user?.id) {
+      try {
+        const cached = localStorage.getItem(`dentuz_avatar_${user.id}`);
+        if (cached) return cached;
+      } catch {}
+    }
+    return null;
+  }, [user?.id, user?.avatar, user?.avatarUrl]);
+
+  const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -185,14 +205,38 @@ export default function TopBar() {
         return;
       }
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         const base64 = event.target?.result;
         if (typeof base64 === 'string') {
-          setCustomAvatar(base64);
+          if (user?.id) {
+            try {
+              localStorage.setItem(`dentuz_avatar_${user.id}`, base64);
+            } catch (err) {
+              console.warn('LocalStorage avatar save error:', err);
+            }
+          }
+          if (updateUser) {
+            updateUser({ avatar: base64, avatarUrl: base64 });
+          }
           try {
-            localStorage.setItem('dentuz_custom_avatar', base64);
+            const token = localStorage.getItem('dentuz_auth_token');
+            const baseUrl = apiClient.getBaseUrl();
+            await fetch(`${baseUrl}/auth/profile`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ avatarUrl: base64 })
+            });
+            setToast({
+              open: true,
+              title: 'Muvaffaqiyatli',
+              message: 'Profilingiz rasmi yangilandi',
+              type: 'success'
+            });
           } catch (err) {
-            console.warn('LocalStorage avatar save error:', err);
+            console.warn('Profile avatar update backend sync:', err);
           }
         }
       };
@@ -200,11 +244,27 @@ export default function TopBar() {
     }
   };
 
-  const handleResetAvatar = (e) => {
+  const handleResetAvatar = async (e) => {
     e.stopPropagation();
-    setCustomAvatar('/images/doctor-azimov.jpg');
+    if (user?.id) {
+      try {
+        localStorage.removeItem(`dentuz_avatar_${user.id}`);
+      } catch {}
+    }
+    if (updateUser) {
+      updateUser({ avatar: null, avatarUrl: null });
+    }
     try {
-      localStorage.removeItem('dentuz_custom_avatar');
+      const token = localStorage.getItem('dentuz_auth_token');
+      const baseUrl = apiClient.getBaseUrl();
+      await fetch(`${baseUrl}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatarUrl: null })
+      });
     } catch {}
   };
 
@@ -659,11 +719,32 @@ export default function TopBar() {
                   title={t('nav.uploadChangePhoto')}
                   style={{ overflow: 'hidden', padding: 0 }}
                 >
-                  <img
-                    src={customAvatar}
-                    alt={user?.name || 'Dr. Jasur Azimov'}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
-                  />
+                  {currentAvatar ? (
+                    <img
+                      src={currentAvatar}
+                      alt={user?.name || 'Foydalanuvchi'}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'linear-gradient(135deg, var(--color-cyan, #06b6d4) 0%, #3b82f6 100%)',
+                        color: '#ffffff',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        letterSpacing: '0.5px',
+                        borderRadius: '9999px',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {userInitials}
+                    </div>
+                  )}
                   {/* Telegram-style hover overlay with + */}
                   <div className={styles.avatarHoverOverlay}>
                     <span className={styles.avatarPlusIcon}>+</span>
@@ -671,11 +752,9 @@ export default function TopBar() {
                   <span className={styles.onlineBadge} />
                 </div>
                 <div className={styles.userInfo}>
-                  <span className={styles.userName}>{user?.shortName || 'Dr. Azimov'}</span>
+                  <span className={styles.userName}>{user?.shortName || user?.name || 'Foydalanuvchi'}</span>
                   <span className={styles.userRole}>
-                    {i18n.language === 'uz'
-                      ? (user?.title || "Bosh shifokor • Implantolog")
-                      : (user?.titleEn || "Chief Physician • Implantologist")}
+                    {user?.title || (user?.role === 'doctor' ? (i18n.language === 'uz' ? 'Shifokor-stomatolog' : 'Doctor Dentist') : user?.role === 'receptionist' ? (i18n.language === 'uz' ? "Qabulxona ma'muri" : 'Receptionist') : (i18n.language === 'uz' ? "Bosh shifokor • Implantolog" : "Chief Physician"))}
                   </span>
                 </div>
                 <span className={`material-symbols-outlined ${styles.profileChevron} ${profileOpen ? styles.profileChevronOpen : ''}`}>
@@ -695,18 +774,38 @@ export default function TopBar() {
                       onClick={() => fileInputRef.current?.click()}
                       title={t('nav.clickToChangePhoto')}
                     >
-                      <img
-                        src={customAvatar}
-                        alt={user?.name || 'Dr. Jasur Azimov'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
+                      {currentAvatar ? (
+                        <img
+                          src={currentAvatar}
+                          alt={user?.name || 'Foydalanuvchi'}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'linear-gradient(135deg, var(--color-cyan, #06b6d4) 0%, #3b82f6 100%)',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: '22px',
+                            letterSpacing: '1px',
+                            userSelect: 'none'
+                          }}
+                        >
+                          {userInitials}
+                        </div>
+                      )}
                       <div className={styles.popAvatarHoverOverlay}>
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>photo_camera</span>
                       </div>
                     </div>
                     <div className={styles.popDoctorMeta}>
-                      <div className={styles.popDoctorName}>{user?.name || 'Dr. Jasur Azimov'}</div>
-                      <div className={styles.popDoctorRole}>{user?.title || 'Bosh shifokor • Stomatolog'}</div>
+                      <div className={styles.popDoctorName}>{user?.name || user?.shortName || 'Foydalanuvchi'}</div>
+                      <div className={styles.popDoctorRole}>{user?.title || (user?.role === 'doctor' ? (i18n.language === 'uz' ? 'Shifokor-stomatolog' : 'Doctor Dentist') : user?.role === 'receptionist' ? (i18n.language === 'uz' ? "Qabulxona ma'muri" : 'Receptionist') : (i18n.language === 'uz' ? 'Bosh shifokor • Klinika rahbari' : 'Chief Physician'))}</div>
                       <div className={styles.avatarActionsRow}>
                         <button
                           type="button"
@@ -716,7 +815,7 @@ export default function TopBar() {
                           <span className="material-symbols-outlined" style={{ fontSize: 13 }}>photo_camera</span>
                           <span>{t('nav.uploadPhoto')}</span>
                         </button>
-                        {customAvatar !== '/images/doctor-azimov.jpg' && (
+                        {currentAvatar && (
                           <button
                             type="button"
                             className={styles.resetAvatarBtn}

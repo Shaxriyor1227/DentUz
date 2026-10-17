@@ -168,15 +168,21 @@ exports.getStats = async (req, res) => {
 
     const baseWhere = withTenantScope(req, { date: { [Op.between]: [start, end] } });
 
-    const [paidSum, pendingSum, pendingCount] = await Promise.all([
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const todayEnd   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const todayWhere = withTenantScope(req, { date: { [Op.between]: [todayStart, todayEnd] }, status: 'paid' });
+
+    const [paidSum, pendingSum, pendingCount, todaySum] = await Promise.all([
       Invoice.sum('amount', { where: { ...baseWhere, status: 'paid' } }),
       Invoice.sum('amount', { where: { ...baseWhere, status: { [Op.in]: ['pending', 'partial'] } } }),
       Invoice.count({ where: { ...baseWhere, status: { [Op.in]: ['pending', 'partial'] } } }),
+      Invoice.sum('amount', { where: todayWhere }),
     ]);
 
     res.status(200).json({
       success: true,
       data: {
+        todayRevenue:    todaySum   || 0,
         monthlyRevenue:  paidSum    || 0,
         pendingPayments: pendingSum || 0,
         pendingCount:    pendingCount || 0,

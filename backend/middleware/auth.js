@@ -1,6 +1,6 @@
 
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, Clinic } = require('../models');
 
 /**
  * authenticate — verifies JWT from Authorization header.
@@ -29,7 +29,9 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Token noto\'g\'ri' });
     }
 
-    const user = await User.findByPk(decoded.id);
+    const user = await User.findByPk(decoded.id, {
+      include: [{ model: Clinic, as: 'clinic' }],
+    });
     if (!user || user.isActive === false) {
       return res.status(401).json({ success: false, message: 'Foydalanuvchi topilmadi yoki hisob faol emas' });
     }

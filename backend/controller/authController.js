@@ -257,6 +257,47 @@ exports.me = (req, res) => {
   res.status(200).json({ success: true, data: req.user });
 };
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      include: [{ model: Clinic, as: 'clinic' }],
+    });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Foydalanuvchi topilmadi' });
+    }
+
+    const { name, shortName, phone, avatarUrl, title } = req.body;
+    if (name !== undefined) user.name = name;
+    if (shortName !== undefined) user.shortName = shortName;
+    if (phone !== undefined) user.phone = phone;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    if (title !== undefined) user.title = title;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profil muvaffaqiyatli yangilandi',
+      data: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        shortName: user.shortName,
+        title: user.title,
+        email: user.email,
+        role: user.role,
+        clinicId: user.clinicId,
+        clinic: user.clinic,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        isActive: user.isActive,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

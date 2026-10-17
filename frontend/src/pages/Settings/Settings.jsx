@@ -226,22 +226,35 @@ export default function Settings() {
   const [clinicData, setClinicData] = useState(() => {
     const savedChairs = localStorage.getItem('dentuz_clinic_chairs');
     const savedName = localStorage.getItem('dentuz_clinic_name');
+    const chairs = user?.chairsCount || user?.clinicInfo?.chairsCount || (savedChairs ? Number(savedChairs) : 1);
     return {
-      name: savedName || t('settings.dentuzCentralClinic'),
+      name: savedName || user?.clinic || t('settings.dentuzCentralClinic'),
       license: 'MED-UZ-2021-9988',
-      director: 'Dr. Jasur Azimov',
-      phone: '+998 71 200 44 22',
+      director: user?.name || 'Dr. Jasur Azimov',
+      phone: user?.phone || '+998 71 200 44 22',
       extraPhone: '+998 90 842 11 00',
-      email: 'info@dentuz.uz',
+      email: typeof user?.email === 'string' ? user.email : 'info@dentuz.uz',
       address: t('settings.bunyodkorAve42Chilanzar'),
       workingHours: t('settings.mondaySaturday0830'),
       inn: '307 456 789',
       mfo: '00873',
       bankAccount: '20208000205174219001',
       bankName: 'Xalq Banki',
-      chairsCount: savedChairs ? Number(savedChairs) : 7,
+      chairsCount: chairs,
     };
   });
+
+  useEffect(() => {
+    const chairs = user?.chairsCount || user?.clinicInfo?.chairsCount;
+    if (chairs) {
+      setClinicData(prev => ({
+        ...prev,
+        chairsCount: Number(chairs) || prev.chairsCount,
+        name: user?.clinic || prev.name,
+      }));
+    }
+  }, [user]);
+
   const [clinicSaved, setClinicSaved] = useState(false);
 
   // Services

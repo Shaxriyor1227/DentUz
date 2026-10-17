@@ -130,6 +130,47 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) {
       localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      // Fetch latest profile from backend to ensure chairsCount, clinic info, and avatar are always in sync
+      const fetchCurrentMe = async () => {
+        try {
+          const baseUrl = apiClient.getBaseUrl();
+          const res = await fetch(`${baseUrl}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+          if (res.ok) {
+            const result = await res.json();
+            if (result && result.success && result.data) {
+              const u = result.data;
+              const clinicObj = u.clinic || {};
+              const chairsCount = Number(clinicObj.chairsCount || u.chairsCount || 1);
+              setUser(prev => ({
+                ...(prev || {}),
+                id: u.id || prev?.id,
+                name: u.name || prev?.name,
+                username: u.username || prev?.username,
+                shortName: u.shortName || prev?.shortName || u.name,
+                title: u.title || prev?.title,
+                role: u.role || prev?.role,
+                email: u.email || prev?.email,
+                clinic: clinicObj.name || prev?.clinic || 'DentUz Markaziy Klinika',
+                clinicId: u.clinicId || clinicObj.id || prev?.clinicId,
+                clinicInfo: clinicObj,
+                chairsCount: chairsCount,
+                phone: u.phone || prev?.phone,
+                avatar: u.avatarUrl || prev?.avatar || null,
+                avatarUrl: u.avatarUrl || prev?.avatarUrl || null,
+                mustChangePassword: Boolean(u.mustChangePassword)
+              }));
+            }
+          }
+        } catch (e) {
+          // Silent fallback on network issues
+        }
+      };
+      fetchCurrentMe();
     } else {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
     }
@@ -161,6 +202,8 @@ export function AuthProvider({ children }) {
       if (res.ok) {
         const data = await res.json();
         if (data && data.success && data.token) {
+          const clinicObj = data.data?.clinic || data.user?.clinic || {};
+          const chairsCount = Number(clinicObj.chairsCount || data.data?.chairsCount || data.user?.chairsCount || 1);
           const userPayload = {
             id: data.data?.id || data.user?.id || 'usr-real',
             name: data.data?.name || data.user?.name || identifier,
@@ -169,9 +212,13 @@ export function AuthProvider({ children }) {
             title: data.data?.title || data.user?.title || 'Stomatolog',
             role: data.data?.role || data.user?.role || ROLES.OWNER,
             email: data.data?.email || data.user?.email || identifier,
-            clinic: data.data?.clinic?.name || data.user?.clinic?.name || 'DentUz Markaziy Klinika',
+            clinic: clinicObj.name || data.data?.clinic?.name || data.user?.clinic?.name || 'DentUz Markaziy Klinika',
+            clinicId: data.data?.clinicId || clinicObj.id || null,
+            clinicInfo: clinicObj,
+            chairsCount: chairsCount,
             phone: data.data?.phone || data.user?.phone || '',
             avatar: data.data?.avatarUrl || data.user?.avatarUrl || null,
+            avatarUrl: data.data?.avatarUrl || data.user?.avatarUrl || null,
             mustChangePassword: Boolean(data.data?.mustChangePassword ?? data.mustChangePassword)
           };
 
@@ -235,6 +282,13 @@ export function AuthProvider({ children }) {
     return allowedRoles.includes(user.role);
   };
 
+  const updateUser = (updater) => {
+    setUser((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      return next;
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -244,6 +298,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         setUser,
+        updateUser,
         switchRole,
         canAccess,
         hasRole,

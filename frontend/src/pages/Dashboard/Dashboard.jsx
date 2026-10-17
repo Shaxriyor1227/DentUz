@@ -81,11 +81,17 @@ export default function Dashboard() {
 
   const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
 
-  // 2.3 Dinamik Kreslolar: Telegram bot yoki sozlamalardan kelgan klinika kreslolari soni (masalan 7 ta)
+  // Dinamik Kreslolar: foydalanuvchi klinikasi uchun belgilangan kreslolar soni
   const [clinicChairsCount, setClinicChairsCount] = React.useState(() => {
-    const saved = localStorage.getItem('dentuz_clinic_chairs');
-    return saved ? parseInt(saved, 10) : (user?.chairsCount || 7);
+    return user?.chairsCount || user?.clinicInfo?.chairsCount || user?.clinic?.chairsCount || 1;
   });
+
+  React.useEffect(() => {
+    const count = user?.chairsCount || user?.clinicInfo?.chairsCount || user?.clinic?.chairsCount;
+    if (count) {
+      setClinicChairsCount(count);
+    }
+  }, [user]);
 
   const handleChairsChange = (newCount) => {
     const clamped = Math.max(1, Math.min(12, newCount));
@@ -97,65 +103,27 @@ export default function Dashboard() {
 
   const chairs = React.useMemo(() => {
     const list = [];
-    const inProgressApt = appointments?.find(a => a.status === 'in_progress');
-    const pendingApts = appointments?.filter(a => a.status === 'pending') || [];
+    const apts = Array.isArray(appointments) ? appointments : [];
 
     for (let i = 1; i <= clinicChairsCount; i++) {
-      if (i === 1) {
-        // 1-kreslo: Qabul jarayonida (shifokor va muolaja bilan)
-        const docName = inProgressApt?.doctorName || 'Dr. Azimov Farrux';
-        const patName = inProgressApt?.patientName || 'Anvar Qosimov';
-        const procName = inProgressApt?.procedure || t('dashboard.implantRestoration');
+      // Find appointment specifically assigned to chair i or matching status
+      const chairApt = apts.find(a => parseInt(a.chair, 10) === i) ||
+                       (i === 1 ? apts.find(a => a.status === 'in_progress') : null);
+
+      if (chairApt) {
+        const isActive = chairApt.status === 'in_progress';
+        const isReserved = chairApt.status === 'pending' || chairApt.status === 'confirmed';
         list.push({
-          id: 1,
-          label: `${t('dashboard.chair')} #1`,
-          status: 'active',
-          patientName: patName,
-          procedure: procName,
-          doctorName: docName,
-          color: '#10B981',
-          statusText: t('dashboard.inTreatment')
-        });
-      } else if (i === 2) {
-        // 2-kreslo: Sterilizatsiya va sanitariya
-        list.push({
-          id: 2,
-          label: `${t('dashboard.chair')} #2`,
-          status: 'cleaning',
-          patientName: t('dashboard.sanitation'),
-          procedure: t('dashboard.sterilization5Min'),
-          doctorName: 'Med-hamshira',
-          color: '#F59E0B',
-          statusText: t('dashboard.cleaning')
-        });
-      } else if (i === 3 && pendingApts.length > 0) {
-        // 3-kreslo: Navbatdagi bemor kutilmoqda
-        const p1 = pendingApts[0];
-        list.push({
-          id: 3,
-          label: `${t('dashboard.chair')} #3`,
-          status: 'reserved',
-          patientName: p1.patientName,
-          procedure: `${p1.procedure} (${p1.time})`,
-          doctorName: p1.doctorName || 'Dr. Saidova Malika',
-          color: '#3B82F6',
-          statusText: t('dashboard.queued')
-        });
-      } else if (i === 4 && pendingApts.length > 1) {
-        // 4-kreslo: Keyingi navbat
-        const p2 = pendingApts[1];
-        list.push({
-          id: 4,
-          label: `${t('dashboard.chair')} #4`,
-          status: 'reserved',
-          patientName: p2.patientName,
-          procedure: `${p2.procedure} (${p2.time})`,
-          doctorName: p2.doctorName || 'Dr. Karimov Jamshid',
-          color: '#3B82F6',
-          statusText: t('dashboard.queued')
+          id: i,
+          label: `${t('dashboard.chair')} #${i}`,
+          status: isActive ? 'active' : isReserved ? 'reserved' : 'idle',
+          patientName: chairApt.patientName || chairApt.patient?.name || t('dashboard.inTreatment'),
+          procedure: chairApt.procedure ? `${chairApt.procedure} ${chairApt.time ? `(${chairApt.time})` : ''}` : t('dashboard.inTreatment'),
+          doctorName: chairApt.doctorName || chairApt.doctor?.name,
+          color: isActive ? '#10B981' : '#3B82F6',
+          statusText: isActive ? t('dashboard.inTreatment') : t('dashboard.queued')
         });
       } else {
-        // 5..N kreslolar: Bo'sh va tayyor
         list.push({
           id: i,
           label: `${t('dashboard.chair')} #${i}`,
@@ -171,13 +139,13 @@ export default function Dashboard() {
     return list;
   }, [clinicChairsCount, appointments, i18n.language, t]);
 
-  // 2.1 Aniq va uyg'unlashgan hisoblagichlar
+  // Aniq va uyg'unlashgan hisoblagichlar
   const todayCount = appointments?.length || 0;
   const inProgressCount = appointments?.filter(a => a.status === 'in_progress').length || 0;
   const pendingCount = appointments?.filter(a => a.status === 'pending').length || 0;
   const completedCount = appointments?.filter(a => a.status === 'completed').length || 0;
 
-  const doctorGreetingName = user?.shortName || t('dashboard.drAzimov');
+  const doctorGreetingName = user?.shortName || user?.name || (i18n.language === 'uz' ? 'Shifokor' : 'Doctor');
 
   return (
     <div className={styles.pageContainer}>
@@ -489,21 +457,21 @@ export default function Dashboard() {
               />
               <StatCard
                 label={t('dashboard.todaySRevenue')}
-                value={financeStats?.todayRevenue ? Number(financeStats.todayRevenue).toLocaleString() : '2 050 000'}
+                value={financeStats?.todayRevenue != null ? Number(financeStats.todayRevenue).toLocaleString() : (canAccess('finance') ? '0' : '—')}
                 unit={t('common.som')}
-                sparklineData={[3.8, 4.2, 5.1, 4.6, 4.85, 3.4, 2.5]}
+                sparklineData={[0, 0, 0, 0, 0, 0, 0]}
                 sparklineColor="var(--color-mint)"
-                subtext={t('dashboard.cash12mCard')}
+                subtext={financeStats?.todayRevenue ? t('dashboard.cash12mCard') : (i18n.language === 'uz' ? "Kassa tushumi" : "Daily revenue")}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
                 label={t('dashboard.pendingReceivables')}
-                value={financeStats?.pendingPayments ? Number(financeStats.pendingPayments).toLocaleString() : '1 450 000'}
+                value={financeStats?.pendingPayments != null ? Number(financeStats.pendingPayments).toLocaleString() : (canAccess('finance') ? '0' : '—')}
                 unit={t('common.som')}
-                sparklineData={[1.8, 1.6, 1.45, 1.5, 1.45, 1.4, 1.45]}
+                sparklineData={[0, 0, 0, 0, 0, 0, 0]}
                 sparklineColor="#F59E0B"
-                subtext={t('dashboard.balanceDueOnActive')}
+                subtext={financeStats?.pendingPayments ? t('dashboard.balanceDueOnActive') : (i18n.language === 'uz' ? "Qarzdorliklar mavjud emas" : "No debt")}
                 isMono={true}
                 icon="pending"
               />
@@ -518,7 +486,7 @@ export default function Dashboard() {
                   {t('dashboard.weeklyRevenue')}
                 </h3>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                  {t('dashboard.total28450000')}
+                  {financeStats?.monthlyRevenue ? `${Number(financeStats.monthlyRevenue).toLocaleString()} ${t('common.som')}` : (i18n.language === 'uz' ? "Haftalik daromad dinamikasi" : "Weekly revenue dynamics")}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '20px' }}>
