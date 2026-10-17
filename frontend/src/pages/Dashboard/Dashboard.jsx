@@ -10,8 +10,8 @@ import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import styles from './Dashboard.module.css';
 
-// 7-day revenue & patients inflow metrics dynamically aligned with current week
-function getWeeklyChartData(lang = 'uz') {
+// 7-day metrics dynamically aligned with current week
+function getWeeklyChartData(lang = 'uz', appointments = [], financeStats = null, isFinanceUser = false) {
   const now = new Date();
   const dayOfWeek = now.getDay();
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -26,30 +26,43 @@ function getWeeklyChartData(lang = 'uz') {
   const dayLabelsEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const dayLabels = lang === 'uz' ? dayLabelsUz : dayLabelsEn;
 
-  const mockData = [
-    { rev: '3.8M', pts: 9, hp: 65 },
-    { rev: '4.2M', pts: 11, hp: 74 },
-    { rev: '5.1M', pts: 14, hp: 88 },
-    { rev: '4.6M', pts: 12, hp: 78 },
-    { rev: '4.85M', pts: 13, hp: 84 },
-    { rev: '3.4M', pts: 8, hp: 55 },
-    { rev: '2.5M', pts: 5, hp: 40 }
-  ];
-
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const aptList = Array.isArray(appointments) ? appointments : [];
 
   return dayLabels.map((label, idx) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + idx);
     const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    return {
-      day: label,
-      date: `${d.getDate()}-${monthShort[d.getMonth()]}`,
-      revenue: mockData[idx].rev,
-      patients: mockData[idx].pts,
-      heightPercent: mockData[idx].hp,
-      isToday: dStr === todayStr
-    };
+    const isToday = dStr === todayStr;
+
+    if (isFinanceUser) {
+      const todayRev = isToday ? Number(financeStats?.todayRevenue || 0) : 0;
+      let displayVal = '0';
+      if (todayRev >= 1000000) {
+        displayVal = `${(todayRev / 1000000).toFixed(1)}M`;
+      } else if (todayRev > 0) {
+        displayVal = `${Math.round(todayRev / 1000)}K`;
+      }
+      return {
+        day: label,
+        date: `${d.getDate()}-${monthShort[d.getMonth()]}`,
+        value: displayVal,
+        tooltip: `${d.getDate()}-${monthShort[d.getMonth()]}: ${todayRev.toLocaleString()} ${lang === 'uz' ? "so'm" : 'UZS'}`,
+        heightPercent: todayRev > 0 ? Math.min(100, Math.max(16, (todayRev / 5000000) * 100)) : 8,
+        isToday
+      };
+    } else {
+      // Clinical view for Doctors / Nurses
+      const count = isToday ? aptList.length : 0;
+      return {
+        day: label,
+        date: `${d.getDate()}-${monthShort[d.getMonth()]}`,
+        value: `${count}`,
+        tooltip: `${d.getDate()}-${monthShort[d.getMonth()]}: ${count} ${lang === 'uz' ? 'ta qabul' : 'appointments'}`,
+        heightPercent: count > 0 ? Math.min(100, Math.max(18, count * 16)) : 8,
+        isToday
+      };
+    }
   });
 }
 
@@ -79,7 +92,11 @@ export default function Dashboard() {
   const formatDateEn = (d) => d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const formattedToday = i18n.language === 'uz' ? formatDateUz(today) : formatDateEn(today);
 
-  const weeklyData = React.useMemo(() => getWeeklyChartData(i18n.language), [i18n.language]);
+  const isFinanceUser = canAccess('finance');
+  const weeklyData = React.useMemo(
+    () => getWeeklyChartData(i18n.language, appointments, financeStats, isFinanceUser),
+    [i18n.language, appointments, financeStats, isFinanceUser]
+  );
 
   // Dinamik Kreslolar: foydalanuvchi klinikasi uchun belgilangan kreslolar soni
   const [clinicChairsCount, setClinicChairsCount] = React.useState(() => {
@@ -198,21 +215,39 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div
-          className={styles.quickActionBtn}
-          style={{ '--btn-idx': 2, '--btn-accent': '#F59E0B', '--btn-accent-bg': 'rgba(245,158,11,0.12)' }}
-          onClick={() => navigate('/finance')}
-          role="button"
-          tabIndex={0}
-        >
-          <div className={styles.quickActionIconBox} style={{ color: '#F59E0B', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-            <span className="material-symbols-outlined">receipt_long</span>
+        {isFinanceUser ? (
+          <div
+            className={styles.quickActionBtn}
+            style={{ '--btn-idx': 2, '--btn-accent': '#F59E0B', '--btn-accent-bg': 'rgba(245,158,11,0.12)' }}
+            onClick={() => navigate('/finance')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className={styles.quickActionIconBox} style={{ color: '#F59E0B', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+              <span className="material-symbols-outlined">receipt_long</span>
+            </div>
+            <div className={styles.quickActionTextGroup}>
+              <span className={styles.quickActionTitle}>{t('finance.title')}</span>
+              <span className={styles.quickActionSub}>{t('dashboard.billingLedger')}</span>
+            </div>
           </div>
-          <div className={styles.quickActionTextGroup}>
-            <span className={styles.quickActionTitle}>{t('finance.title')}</span>
-            <span className={styles.quickActionSub}>{t('dashboard.billingLedger')}</span>
+        ) : (
+          <div
+            className={styles.quickActionBtn}
+            style={{ '--btn-idx': 2, '--btn-accent': '#06B6D4', '--btn-accent-bg': 'rgba(6,182,212,0.12)' }}
+            onClick={() => navigate('/treatment-plan')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className={styles.quickActionIconBox} style={{ color: '#06B6D4', background: 'rgba(6,182,212,0.12)', border: '1px solid rgba(6,182,212,0.25)' }}>
+              <span className="material-symbols-outlined">assignment</span>
+            </div>
+            <div className={styles.quickActionTextGroup}>
+              <span className={styles.quickActionTitle}>{i18n.language === 'uz' ? 'Davolash rejalari' : 'Treatment Plans'}</span>
+              <span className={styles.quickActionSub}>{i18n.language === 'uz' ? 'Muolajalar ketma-ketligi' : 'Procedures workflow'}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           className={styles.quickActionBtn}
@@ -437,16 +472,16 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: Stacked Stat Cards (2.4 Aniq Moliyaviy taqsimot) + Weekly Chart */}
+        {/* RIGHT COLUMN: Stacked Stat Cards + Weekly Dynamic Chart */}
         <div className={styles.statsColumn}>
           {loading ? (
             <SkeletonLoader type="stat" count={3} direction="vertical" />
-          ) : (
+          ) : isFinanceUser ? (
             <>
               <StatCard
                 label={t('dashboard.todayStats')}
                 value={String(todayCount)}
-                sparklineData={weeklyData.map((d) => d.patients)}
+                sparklineData={[0, 0, 0, 0, 0, 0, todayCount]}
                 sparklineColor="var(--color-cyan)"
                 subtext={
                   i18n.language === 'uz'
@@ -457,40 +492,75 @@ export default function Dashboard() {
               />
               <StatCard
                 label={t('dashboard.todaySRevenue')}
-                value={financeStats?.todayRevenue != null ? Number(financeStats.todayRevenue).toLocaleString() : (canAccess('finance') ? '0' : '—')}
+                value={Number(financeStats?.todayRevenue || 0).toLocaleString()}
                 unit={t('common.som')}
-                sparklineData={[0, 0, 0, 0, 0, 0, 0]}
+                sparklineData={[0, 0, 0, 0, 0, 0, Number(financeStats?.todayRevenue || 0)]}
                 sparklineColor="var(--color-mint)"
-                subtext={financeStats?.todayRevenue ? t('dashboard.cash12mCard') : (i18n.language === 'uz' ? "Kassa tushumi" : "Daily revenue")}
+                subtext={financeStats?.todayRevenue ? t('dashboard.cash12mCard') : (i18n.language === 'uz' ? "Bugungi kassa tushumi" : "Today's revenue")}
                 isMono={true}
                 icon="payments"
               />
               <StatCard
                 label={t('dashboard.pendingReceivables')}
-                value={financeStats?.pendingPayments != null ? Number(financeStats.pendingPayments).toLocaleString() : (canAccess('finance') ? '0' : '—')}
+                value={Number(financeStats?.pendingPayments || 0).toLocaleString()}
                 unit={t('common.som')}
-                sparklineData={[0, 0, 0, 0, 0, 0, 0]}
+                sparklineData={[0, 0, 0, 0, 0, 0, Number(financeStats?.pendingPayments || 0)]}
                 sparklineColor="#F59E0B"
                 subtext={financeStats?.pendingPayments ? t('dashboard.balanceDueOnActive') : (i18n.language === 'uz' ? "Qarzdorliklar mavjud emas" : "No debt")}
                 isMono={true}
                 icon="pending"
               />
             </>
+          ) : (
+            <>
+              <StatCard
+                label={t('dashboard.todayStats')}
+                value={String(todayCount)}
+                sparklineData={[0, 0, 0, 0, 0, 0, todayCount]}
+                sparklineColor="var(--color-cyan)"
+                subtext={
+                  i18n.language === 'uz'
+                    ? `${inProgressCount} ta jarayonda, ${pendingCount} ta navbatda`
+                    : `${inProgressCount} in progress, ${pendingCount} waiting`
+                }
+                icon="groups"
+              />
+              <StatCard
+                label={i18n.language === 'uz' ? "Bajarilgan muolajalar" : "Completed Procedures"}
+                value={String(completedCount)}
+                sparklineData={[0, 0, 0, 0, 0, 0, completedCount]}
+                sparklineColor="var(--color-mint)"
+                subtext={i18n.language === 'uz' ? "Bugun yakunlangan qabullar" : "Procedures completed today"}
+                icon="check_circle"
+              />
+              <StatCard
+                label={i18n.language === 'uz' ? "Kutilayotgan navbat" : "Waiting Queue"}
+                value={String(pendingCount)}
+                sparklineData={[0, 0, 0, 0, 0, 0, pendingCount]}
+                sparklineColor="#F59E0B"
+                subtext={i18n.language === 'uz' ? "Qabulga tayyor bemorlar" : "Patients waiting for turn"}
+                icon="hourglass_top"
+              />
+            </>
           )}
 
-          {/* 7-day Mini Inflow Dynamic Chart */}
+          {/* 7-day Dynamic Inflow/Workload Chart */}
           <div className={styles.chartCard}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                  {t('dashboard.weeklyRevenue')}
+                  {isFinanceUser
+                    ? t('dashboard.weeklyRevenue')
+                    : (i18n.language === 'uz' ? "Haftalik qabullar monitoringi" : "Weekly Appointments Monitoring")}
                 </h3>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                  {financeStats?.monthlyRevenue ? `${Number(financeStats.monthlyRevenue).toLocaleString()} ${t('common.som')}` : (i18n.language === 'uz' ? "Haftalik daromad dinamikasi" : "Weekly revenue dynamics")}
+                  {isFinanceUser
+                    ? (financeStats?.monthlyRevenue ? `${Number(financeStats.monthlyRevenue).toLocaleString()} ${t('common.som')} (Oylik)` : (i18n.language === 'uz' ? "Haftalik tushum dinamikasi" : "Weekly revenue dynamics"))
+                    : (i18n.language === 'uz' ? "Hafta davomidagi qabullar taqsimoti" : "Weekly appointments load")}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-cyan-hover)', fontSize: '20px' }}>
-                trending_up
+                {isFinanceUser ? 'trending_up' : 'monitoring'}
               </span>
             </div>
 
@@ -501,12 +571,14 @@ export default function Dashboard() {
                   className={styles.chartBarCol}
                   style={{ '--bar-idx': idx }}
                 >
-                  <span className={styles.chartValTooltip}>{item.revenue}</span>
+                  <span className={styles.chartValTooltip}>
+                    {item.value} {(!isFinanceUser && i18n.language === 'uz') ? 'ta' : ''}
+                  </span>
                   <div className={styles.chartBarTrack}>
                     <div
                       className={`${styles.chartBarFill} ${item.isToday ? styles.chartBarFillToday : ''}`}
                       style={{ height: `${item.heightPercent}%` }}
-                      title={`${item.day} (${item.date}): ${item.revenue} ${t('common.som')}`}
+                      title={item.tooltip}
                     />
                   </div>
                   <span className={styles.chartDayLabel}>{item.day}</span>
