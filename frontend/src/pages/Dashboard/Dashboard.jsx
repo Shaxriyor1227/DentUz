@@ -217,7 +217,7 @@ export default function Dashboard() {
         <div
           className={styles.quickActionBtn}
           style={{ '--btn-idx': 3, '--btn-accent': '#8B5CF6', '--btn-accent-bg': 'rgba(139,92,246,0.12)' }}
-          onClick={() => navigate('/patients/1042')}
+          onClick={() => navigate('/treatment-plan')}
           role="button"
           tabIndex={0}
         >

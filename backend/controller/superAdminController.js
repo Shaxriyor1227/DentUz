@@ -252,6 +252,23 @@ exports.onboardClinic = async (req, res) => {
     const expiresAt = new Date();
     expiresAt.setMonth(expiresAt.getMonth() + 1); // 1 oylik faol litsenziya
 
+    let parsedChairs = 1;
+    if (typeof chairsCount === 'number') {
+      parsedChairs = chairsCount;
+    } else if (typeof chairsCount === 'string') {
+      const trimmed = chairsCount.trim();
+      if (trimmed === '1-3' || trimmed === '1 - 3' || trimmed.includes('1-3')) parsedChairs = 3;
+      else if (trimmed === '4-6' || trimmed === '4 - 6' || trimmed.includes('4-6')) parsedChairs = 5;
+      else if (trimmed.startsWith('7')) parsedChairs = 7;
+      else {
+        const matches = trimmed.match(/\d+/g);
+        if (matches && matches.length > 0) {
+          parsedChairs = Math.max(...matches.map(n => parseInt(n, 10)));
+        }
+      }
+    }
+    if (!parsedChairs || parsedChairs < 1) parsedChairs = 1;
+
     // 1. Klinikani yaratish
     const clinic = await Clinic.create(
       {
@@ -262,7 +279,7 @@ exports.onboardClinic = async (req, res) => {
         subscriptionPlan,
         status: 'active',
         subscriptionExpiresAt: expiresAt,
-        chairsCount: parseInt(chairsCount, 10) || 1,
+        chairsCount: parsedChairs,
         ownerName: ownerName.trim(),
         email: email.trim().toLowerCase(),
       },

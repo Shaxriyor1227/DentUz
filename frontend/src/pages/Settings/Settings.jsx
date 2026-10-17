@@ -195,7 +195,7 @@ function formatPrice(n) {
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
-  const { user, hasRole } = useAuth();
+  const { user, hasRole, updateUser } = useAuth();
   const { formatDateTime } = useFormatters();
   const isOwnerOrAdmin = hasRole(['owner', 'administrator', 'superadmin']);
 
@@ -366,12 +366,44 @@ export default function Settings() {
     showToast('success', t('settings.memberAdded'), t('settings.memberJoined', { name: newMember.name }));
   };
 
-  const handleSaveClinic = (e) => {
+  const handleSaveClinic = async (e) => {
     e.preventDefault();
     try {
       localStorage.setItem('dentuz_clinic_chairs', clinicData.chairsCount);
       localStorage.setItem('dentuz_clinic_name', clinicData.name);
     } catch {}
+
+    const clinicId = user?.clinicId || user?.clinicInfo?.id;
+    if (clinicId) {
+      try {
+        await apiClient.put(`/clinics/${clinicId}`, {
+          name: clinicData.name,
+          address: clinicData.address,
+          phone: clinicData.phone,
+          workingHours: clinicData.workingHours,
+          chairsCount: Number(clinicData.chairsCount),
+        });
+      } catch (err) {
+        console.warn('Failed to persist clinic update to API:', err);
+      }
+    }
+
+    if (updateUser) {
+      updateUser({
+        ...user,
+        clinic: clinicData.name,
+        chairsCount: Number(clinicData.chairsCount),
+        clinicInfo: {
+          ...(user?.clinicInfo || {}),
+          name: clinicData.name,
+          address: clinicData.address,
+          phone: clinicData.phone,
+          workingHours: clinicData.workingHours,
+          chairsCount: Number(clinicData.chairsCount),
+        },
+      });
+    }
+
     setClinicSaved(true);
     showToast(
       'success',

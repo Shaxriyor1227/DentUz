@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { patientsApi } from '../../api/patientsApi';
 import { odontogramApi } from '../../api/odontogramApi';
 import { medicalRecordsApi } from '../../api/medicalRecordsApi';
+import { financeApi } from '../../api/financeApi';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
@@ -140,7 +141,7 @@ export default function PatientProfile() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // History states
-  const [treatments, setTreatments] = useState(INITIAL_TREATMENTS);
+  const [treatments, setTreatments] = useState([]);
   const [showAddTreatmentModal, setShowAddTreatmentModal] = useState(false);
   const [newTreatment, setNewTreatment] = useState({
     tooth: '16-tish',
@@ -155,6 +156,7 @@ export default function PatientProfile() {
   const [toast, setToast] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // X-Ray viewer lightbox states (Apple Pro Dark Room)
+  const [xrayGallery, setXrayGallery] = useState([]);
   const [selectedXray, setSelectedXray] = useState(null);
   const [xrayZoom, setXrayZoom] = useState(1);
   const [xrayInvert, setXrayInvert] = useState(false);
@@ -164,7 +166,7 @@ export default function PatientProfile() {
   const [failedImages, setFailedImages] = useState({});
 
   // Billing states
-  const [invoices, setInvoices] = useState(INITIAL_INVOICES);
+  const [invoices, setInvoices] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('1200000');
   const [paymentMethod, setPaymentMethod] = useState('Payme');
@@ -173,25 +175,28 @@ export default function PatientProfile() {
   // Load patient & odontogram & medical records
   useEffect(() => {
     async function load() {
+      if (!id) return;
       setLoading(true);
       try {
-        const [pat, chart, recs] = await Promise.all([
-          patientsApi.getById(id || '1042').catch(() => null),
-          odontogramApi.getChart(id || '1042').catch(() => ({})),
-          medicalRecordsApi.getByPatient(id || '1042').catch(() => null)
+        const isDemo1042 = (id === '1042' || id === 'P-1042');
+        const [pat, chart, recs, invList] = await Promise.all([
+          patientsApi.getById(id).catch(() => (isDemo1042 ? { id: 'P-1042', name: 'Anvar Qosimov', phone: '+998 90 842 11 00', birthdate: '14.08.1989', age: 34 } : null)),
+          odontogramApi.getChart(id).catch(() => ({})),
+          medicalRecordsApi.getByPatient(id).catch(() => (isDemo1042 ? INITIAL_TREATMENTS : [])),
+          financeApi.getInvoices({ patientId: id }).catch(() => (isDemo1042 ? INITIAL_INVOICES : []))
         ]);
         if (pat) setPatient(pat);
         if (chart) setChartData(chart);
-        if (recs && recs.length > 0) {
-          setTreatments(recs);
-        }
+        setTreatments(Array.isArray(recs) && recs.length > 0 ? recs : (isDemo1042 ? INITIAL_TREATMENTS : []));
+        setInvoices(Array.isArray(invList) && invList.length > 0 ? invList : (isDemo1042 ? INITIAL_INVOICES : []));
+        setXrayGallery(isDemo1042 ? XRAY_GALLERY : []);
 
         const initialTooth = chart && (chart['16'] || (Object.keys(chart).length > 0 ? chart[Object.keys(chart)[0]] : null));
         if (initialTooth) {
           setSelectedToothId(initialTooth.id);
-          setToothStatus(initialTooth.status);
-          setDoctorDiag(initialTooth.diagnosis);
-          setDoctorPlan(initialTooth.plan);
+          setToothStatus(initialTooth.status || 'healthy');
+          setDoctorDiag(initialTooth.diagnosis || '');
+          setDoctorPlan(initialTooth.plan || '');
         }
       } catch (err) {
         console.error(err);
@@ -305,6 +310,36 @@ export default function PatientProfile() {
     );
   }
 
+  if (!loading && !patient && id !== '1042' && id !== 'P-1042') {
+    return (
+      <div className={styles.pageContainer}>
+        <div className={styles.breadcrumbRow}>
+          <Link to="/patients" className={styles.backLink}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              arrow_back
+            </span>
+            <span>{t('patientProfile.backToList')}</span>
+          </Link>
+        </div>
+        <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--color-bg-surface)', borderRadius: '16px', border: '1px solid var(--color-border)', marginTop: '20px' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--color-text-secondary)', marginBottom: '16px', display: 'inline-block' }}>
+            person_off
+          </span>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+            {t('patientProfile.patientNotFound') || 'Bemor topilmadi'}
+          </h2>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '24px' }}>
+            Kiritilgan ID ({id}) bo'yicha bemor tizimda mavjud emas yoki o'chirilgan bo'lishi mumkin.
+          </p>
+          <Link to="/patients" className={styles.btnPrimary} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
+            Bemorlar ro'yxatiga qaytish
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const initials = patient?.name
     ? patient.name
         .split(' ')
@@ -312,10 +347,10 @@ export default function PatientProfile() {
         .join('')
         .slice(0, 2)
         .toUpperCase()
-    : 'AQ';
+    : '--';
 
-  const totalBilled = invoices.reduce((acc, c) => acc + c.amount, 0);
-  const totalPaid = invoices.filter((i) => i.status === 'paid').reduce((acc, c) => acc + c.amount, 0);
+  const totalBilled = invoices.reduce((acc, c) => acc + (c.amount || 0), 0);
+  const totalPaid = invoices.filter((i) => i.status === 'paid').reduce((acc, c) => acc + (c.amount || 0), 0);
   const remainingDebt = Math.max(0, totalBilled - totalPaid);
 
   return (
@@ -328,10 +363,12 @@ export default function PatientProfile() {
           </span>
           <span>{t('patientProfile.backToList')}</span>
         </Link>
-        <div className={styles.lastVisitBadge}>
-          <span>{t('patientProfile.lastVisitLabel')}</span>
-          <span className={styles.dateChip}>{patient?.lastVisit || '18-Sentabr, 2026'}</span>
-        </div>
+        {patient?.lastVisit && (
+          <div className={styles.lastVisitBadge}>
+            <span>{t('patientProfile.lastVisitLabel')}</span>
+            <span className={styles.dateChip}>{patient.lastVisit}</span>
+          </div>
+        )}
       </div>
 
       {/* 2. Patient Summary Dossier Card */}
@@ -344,32 +381,42 @@ export default function PatientProfile() {
 
           <div className={styles.identityMeta}>
             <div className={styles.nameRow}>
-              <h1 className={styles.patientFullName}>{patient?.name || 'Anvar Qosimov'}</h1>
-              <span className={styles.idBadge}>{patient?.id || 'P-1042'}</span>
+              <h1 className={styles.patientFullName}>{patient?.name || t('common.patient')}</h1>
+              <span className={styles.idBadge}>{patient?.id || id}</span>
               <span className={styles.regularBadge}>{t('patientProfile.regularPatient')}</span>
             </div>
 
             <div className={styles.contactRow}>
-              <span className={`${styles.contactItem} ${styles.contactItemMono}`}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-cyan-hover)' }}>
-                  call
+              {patient?.phone && (
+                <span className={`${styles.contactItem} ${styles.contactItemMono}`}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-cyan-hover)' }}>
+                    call
+                  </span>
+                  {patient.phone}
                 </span>
-                {patient?.phone || '+998 90 842 11 00'}
-              </span>
-              <span className={styles.separatorDot} />
-              <span className={styles.contactItem}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-text-secondary)' }}>
-                  cake
-                </span>
-                {patient?.birthdate || '14.08.1989'} ({patient?.age || 34} {t('patientProfile.yearsOld')})
-              </span>
-              <span className={styles.separatorDot} />
-              <span className={styles.allergyBadge}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                  warning
-                </span>
-                {t('patientProfile.allergyPrefix')} {patient?.allergies || 'Penitsillin'}
-              </span>
+              )}
+              {patient?.birthdate && (
+                <>
+                  <span className={styles.separatorDot} />
+                  <span className={styles.contactItem}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-text-secondary)' }}>
+                      cake
+                    </span>
+                    {patient.birthdate} {patient.age ? `(${patient.age} ${t('patientProfile.yearsOld')})` : ''}
+                  </span>
+                </>
+              )}
+              {patient?.allergies && patient.allergies !== "Yo'q" && (
+                <>
+                  <span className={styles.separatorDot} />
+                  <span className={styles.allergyBadge}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                      warning
+                    </span>
+                    {t('patientProfile.allergyPrefix')} {patient.allergies}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -848,7 +895,20 @@ export default function PatientProfile() {
               </button>
             </div>
 
-            {treatments.map((tr) => (
+            {treatments.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 16px', color: 'var(--color-text-secondary)', background: 'var(--color-surface-container-low)', borderRadius: '12px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '42px', opacity: 0.45, marginBottom: '8px', color: 'var(--color-cyan)' }}>
+                  medical_services
+                </span>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  Muolajalar tarixi mavjud emas
+                </p>
+                <p style={{ fontSize: '12px', marginTop: '4px' }}>
+                  Ushbu bemor uchun hali muolajalar kiritilmagan. Yuqoridagi tugma orqali yangi muolaja qo'shishingiz mumkin.
+                </p>
+              </div>
+            ) : (
+              treatments.map((tr) => (
               <div key={tr.id} className={styles.timelineCard}>
                 <div className={styles.timelineTop}>
                   <div className={styles.timelineDateRow}>
@@ -876,7 +936,7 @@ export default function PatientProfile() {
                   </div>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       )}
@@ -910,7 +970,20 @@ export default function PatientProfile() {
           </div>
 
           <div className={styles.xrayGrid}>
-            {XRAY_GALLERY.map((item) => (
+            {xrayGallery.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 16px', color: 'var(--color-text-secondary)', background: 'var(--color-surface-container-low)', borderRadius: '12px', gridColumn: '1 / -1' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '42px', opacity: 0.45, marginBottom: '8px', color: 'var(--color-cyan)' }}>
+                  radiology
+                </span>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  Rentgen va tomografiya suratlari mavjud emas
+                </p>
+                <p style={{ fontSize: '12px', marginTop: '4px' }}>
+                  Ushbu bemor uchun viziografiya yoki CBCT suratlari yuklanmagan.
+                </p>
+              </div>
+            ) : (
+              xrayGallery.map((item) => (
               <div
                 key={item.id}
                 className={styles.xrayCard}
@@ -950,7 +1023,7 @@ export default function PatientProfile() {
                   </div>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       )}
@@ -1022,7 +1095,19 @@ export default function PatientProfile() {
                   </tr>
                 </thead>
                 <tbody>
-                  {invoices.map((inv) => (
+                  {invoices.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--color-text-secondary)' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '36px', opacity: 0.45, marginBottom: '8px', color: 'var(--color-cyan)' }}>
+                          receipt_long
+                        </span>
+                        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                          Hisob-fakturalar va to'lovlar mavjud emas
+                        </p>
+                      </td>
+                    </tr>
+                  ) : (
+                    invoices.map((inv) => (
                     <tr key={inv.id} style={{ borderBottom: '1px solid var(--color-border-subtle)' }}>
                       <td style={{ padding: '12px 16px', fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-cyan-hover)' }}>
                         {inv.id}
@@ -1057,7 +1142,7 @@ export default function PatientProfile() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>

@@ -48,7 +48,7 @@ const { authorize } = require("../middleware/auth");
  *       500:
  *         description: Server error
  */
-router.get("/team", authorize('owner', 'administrator', 'accountant'), teamController.getTeam);
+router.get("/team", authorize('owner', 'administrator', 'accountant', 'doctor', 'receptionist', 'nurse'), teamController.getTeam);
 
 /**
  * @swagger
@@ -117,7 +117,7 @@ router.post("/team", authorize('owner'), validate(validateUser), teamController.
  *       500:
  *         description: Server error
  */
-router.get("/team/search", authorize('owner', 'administrator', 'accountant'), teamController.searchMember);
+router.get("/team/search", authorize('owner', 'administrator', 'accountant', 'doctor', 'receptionist', 'nurse'), teamController.searchMember);
 
 /**
  * @swagger
@@ -142,7 +142,7 @@ router.get("/team/search", authorize('owner', 'administrator', 'accountant'), te
  *       500:
  *         description: Server error
  */
-router.get("/team/:id", authorize('owner', 'administrator', 'accountant'), teamController.getMemberById);
+router.get("/team/:id", authorize('owner', 'administrator', 'accountant', 'doctor', 'receptionist', 'nurse'), teamController.getMemberById);
 
 /**
  * @swagger

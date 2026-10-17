@@ -299,13 +299,24 @@ export default function SuperAdmin() {
   // Open modal from an application
   const handleOpenOnboardFromApp = (app) => {
     setOnboardSuccessData(null);
+    let chairs = 3;
+    if (app.chairsCount) {
+      if (typeof app.chairsCount === 'number') chairs = app.chairsCount;
+      else if (String(app.chairsCount).includes('1-3')) chairs = 3;
+      else if (String(app.chairsCount).includes('4-6')) chairs = 5;
+      else if (String(app.chairsCount).includes('7')) chairs = 7;
+      else {
+        const m = String(app.chairsCount).match(/\d+/g);
+        if (m) chairs = Math.max(...m.map(Number));
+      }
+    }
     setFormData({
       applicationId: app.id,
       name: app.clinicName || `${app.name} Stomatologiyasi`,
       ownerName: app.name,
       email: `${app.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
       phone: app.phone,
-      chairsCount: app.chairsCount === '1-3' ? 2 : 4,
+      chairsCount: chairs || 3,
       subscriptionPlan: 'pro',
       address: 'Toshkent shahri',
       password: '',

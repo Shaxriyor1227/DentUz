@@ -12,17 +12,6 @@ import styles from './TopBar.module.css';
 
 
 const ALL_SEARCH_ITEMS = [
-  // Bemorlar
-  { id: 'p-1042', category: 'patients', type: 'Bemor', title: 'Anvar Qosimov', meta: '+998 90 842 11 00 • Karies davolash', keywords: 'p-1042 terapiya karies anvar', path: '/patients/1042', icon: 'person' },
-  { id: 'p-1043', category: 'patients', type: 'Bemor', title: 'Malika Saidova', meta: '+998 93 319 44 28 • Ortodontik ko\'rik', keywords: 'p-1043 ortopediya ortodontiya malika', path: '/patients/1043', icon: 'person' },
-  { id: 'p-1044', category: 'patients', type: 'Bemor', title: 'Jamshid Karimov', meta: '+998 97 711 09 85 • Tish tozalash', keywords: 'p-1044 jarrohlik tozalash gigiyena jamshid', path: '/patients/1044', icon: 'person' },
-  { id: 'p-1045', category: 'patients', type: 'Bemor', title: 'Nilufar Rahimova', meta: '+998 91 445 22 19 • Zoom 4 oqartirish', keywords: 'p-1045 tish oqartirish zoom nilufar', path: '/patients/1045', icon: 'person' },
-  { id: 'p-1046', category: 'patients', type: 'Bemor', title: 'Shahnoza Aliyeva', meta: '+998 91 555 88 99 • Breket tizimi', keywords: 'p-1046 ortodontiya breket shahnoza', path: '/patients/1046', icon: 'person' },
-  { id: 'p-1047', category: 'patients', type: 'Bemor', title: 'Rustam Oripov', meta: '+998 90 123 45 67 • Straumann implant', keywords: 'p-1047 implantatsiya protez rustam', path: '/patients/1047', icon: 'person' },
-  { id: 'p-1048', category: 'patients', type: 'Bemor', title: 'Nigora Zokirova', meta: '+998 94 888 22 11 • Plomba & Estetika', keywords: 'p-1048 terapiya plomba nigora', path: '/patients/1048', icon: 'person' },
-  { id: 'p-1049', category: 'patients', type: 'Bemor', title: 'Dilshod Normurodov', meta: '+998 93 111 22 33 • Ildiz kanali (Endo)', keywords: 'p-1049 endodontiya ildiz kanal dilshod', path: '/patients/1049', icon: 'person' },
-  { id: 'p-1050', category: 'patients', type: 'Bemor', title: 'Zarina Salimova', meta: '+998 90 777 55 44 • Profilaktik ko\'rik', keywords: 'p-1050 gigiyena tozalash zarina', path: '/patients/1050', icon: 'person' },
-
   // Bo'limlar
   { id: 'nav-1', category: 'pages', type: "Bo'lim", title: 'Dashboard', meta: 'Klinika tahlillari va operatsion kreslolar', keywords: 'asosiy analitika monitor kreslo boshqaruv', path: '/dashboard', icon: 'grid_view' },
   { id: 'nav-2', category: 'pages', type: "Bo'lim", title: 'Bemorlar Bazasi', meta: 'Ambulatoriya kartalari va bemorlar ro\'yxati', keywords: 'kartalar ambulatoriya bemorlar royxat', path: '/patients', icon: 'group' },
@@ -365,7 +354,7 @@ export default function TopBar() {
             icon: 'person'
           };
         })
-      : ALL_SEARCH_ITEMS.filter((item) => item.category === 'patients');
+      : [];
 
     const allItems = [...patientSource, ...STATIC_ITEMS];
 

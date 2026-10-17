@@ -328,16 +328,21 @@ export const patientsApi = {
       try {
         const res = await apiClient.get(`/patients/${id}`);
         if (res && res.data) return res.data;
+        return null;
       } catch (err) {
         if (err?.status === 401 || err?.status === 403) {
           throw err;
         }
-        console.warn('Real Patient API getById failed, fallback to local:', err.message);
+        if (err?.status === 404) {
+          return null;
+        }
+        console.warn('Real Patient API getById failed:', err.message);
+        return null;
       }
     }
     await new Promise((r) => setTimeout(r, 150));
     const patient = fullPatients.find((p) => p.id === id || p.id === `P-${id}`);
-    return patient || fullPatients[0];
+    return patient || null;
   },
 
   async create(newPatient) {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import { odontogramApi } from '../../api/odontogramApi';
 import { treatmentPlanApi } from '../../api/treatmentPlanApi';
+import { patientsApi } from '../../api/patientsApi';
+import { useAuth } from '../../hooks/useAuth';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import Toast from '../../components/Toast/Toast';
 import Logo from '../../components/Logo/Logo';
@@ -78,7 +80,13 @@ const normalizeTooth = (t) => (t ? String(t).replace('#', '').trim() : t);
 
 export default function TreatmentPlan() {
   const { t, i18n } = useTranslation();
-  const [items, setItems] = useState(INITIAL_PROCEDURES);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlPatientId = searchParams.get('patientId');
+  const { user } = useAuth();
+
+  const [patientsList, setPatientsList] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [items, setItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [openDropdownStep, setOpenDropdownStep] = useState(null);
@@ -91,18 +99,59 @@ export default function TreatmentPlan() {
   const [showToothSheet, setShowToothSheet] = useState(false);
   const [filterByTooth, setFilterByTooth] = useState(false);
 
+  // 1. Fetch clinic patients list for selector
+  useEffect(() => {
+    let active = true;
+    async function fetchPatients() {
+      try {
+        const res = await patientsApi.getAll({ pageSize: 100 });
+        if (active && res?.items && res.items.length > 0) {
+          setPatientsList(res.items);
+          if (urlPatientId) {
+            const found = res.items.find(p => p.id === urlPatientId || p.id.replace('P-', '') === urlPatientId.replace('P-', ''));
+            if (found) setSelectedPatient(found);
+            else setSelectedPatient(res.items[0]);
+          } else {
+            setSelectedPatient(res.items[0]);
+          }
+        } else if (active) {
+          // If no patients found in DB, fallback to demo patient object
+          const demoPat = { id: 'P-1042', name: 'Anvar Qosimov', phone: '+998 90 842 11 00' };
+          setPatientsList([demoPat]);
+          setSelectedPatient(demoPat);
+        }
+      } catch (err) {
+        if (active) {
+          const demoPat = { id: 'P-1042', name: 'Anvar Qosimov', phone: '+998 90 842 11 00' };
+          setPatientsList([demoPat]);
+          setSelectedPatient(demoPat);
+        }
+      }
+    }
+    fetchPatients();
+    return () => { active = false; };
+  }, [urlPatientId]);
+
+  // 2. Load Plan & Odontogram Chart for selected patient
   useEffect(() => {
     let isMounted = true;
     async function loadPlanAndChart() {
+      if (!selectedPatient?.id) return;
+      const patId = selectedPatient.id;
       try {
+        const isDemo = patId === 'P-1042' || patId === '1042';
         const [data, plans] = await Promise.all([
-          odontogramApi.getChart('P-1042'),
-          treatmentPlanApi.getAll({ patientId: 'P-1042' }).catch(() => null)
+          odontogramApi.getChart(patId),
+          treatmentPlanApi.getAll({ patientId: patId }).catch(() => null)
         ]);
         if (isMounted) {
           if (data) setChartData(data);
           if (plans && Array.isArray(plans) && plans.length > 0 && plans[0].items?.length > 0) {
             setItems(plans[0].items);
+          } else if (isDemo) {
+            setItems(INITIAL_PROCEDURES);
+          } else {
+            setItems([]);
           }
         }
       } catch (e) {
@@ -111,7 +160,7 @@ export default function TreatmentPlan() {
     }
     loadPlanAndChart();
     return () => { isMounted = false; };
-  }, []);
+  }, [selectedPatient]);
 
   const handleSelectTooth = (toothId) => {
     setSelectedToothId(toothId);
@@ -122,7 +171,7 @@ export default function TreatmentPlan() {
     title: '',
     desc: '',
     tooth: '#16',
-    date: '30-Sentabr, 2026',
+    date: 'Bugun',
     price: 500000,
     status: 'scheduled'
   });
@@ -130,10 +179,10 @@ export default function TreatmentPlan() {
   const completedCount = items.filter((p) => p.status === 'completed').length;
   const inProgressCount = items.filter((p) => p.status === 'in_progress').length;
   const scheduledCount = items.filter((p) => p.status === 'scheduled').length;
-  const totalAmount = items.reduce((acc, curr) => acc + curr.price, 0);
-  const paidAmount = 1750000;
+  const totalAmount = items.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0);
+  const paidAmount = items.filter(p => p.status === 'completed').reduce((acc, curr) => acc + (Number(curr.price) || 0), 0);
   const remainingAmount = Math.max(0, totalAmount - paidAmount);
-  const progressPercent = Math.round((completedCount / items.length) * 100);
+  const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
   const handleExportJson = () => {
     const payload = {
@@ -287,24 +336,59 @@ export default function TreatmentPlan() {
 
   return (
     <div className={styles.pageContainer}>
-      {/* 1. Breadcrumb / Context Bar */}
-      <div className={styles.breadcrumbRow}>
-        <Link to="/patients/1042" className={styles.backLink}>
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            arrow_back
-          </span>
-          <span>
-            {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov (P-1042)</strong>
-          </span>
-        </Link>
-        <StatusPill status="in_progress" label={t('treatmentPlan.activePlan')} />
+      {/* 1. Breadcrumb / Context Bar & Patient Selector */}
+      <div className={styles.breadcrumbRow} style={{ flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Link to={selectedPatient ? `/patients/${(selectedPatient.id || '').replace(/^P-/i, '')}` : '/patients'} className={styles.backLink}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              arrow_back
+            </span>
+            <span>
+              {t('patientProfile.backToList')}: <strong style={{ color: 'var(--color-text-primary)' }}>{selectedPatient?.name || 'Bemor'} ({selectedPatient?.id || '—'})</strong>
+            </span>
+          </Link>
+          <StatusPill status="in_progress" label={t('treatmentPlan.activePlan')} />
+        </div>
+
+        {patientsList.length > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>{t('treatmentPlan.patient')}:</span>
+            <select
+              value={selectedPatient?.id || ''}
+              onChange={(e) => {
+                const found = patientsList.find(p => p.id === e.target.value);
+                if (found) {
+                  setSelectedPatient(found);
+                  setSearchParams({ patientId: found.id });
+                }
+              }}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface-container-low)',
+                color: 'var(--color-text-primary)',
+                fontSize: '12px',
+                fontWeight: 600,
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {patientsList.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.id})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* 2. Header Area */}
       <div className={styles.headerCard}>
         <div className={styles.headerInfo}>
           <div className={styles.tagRow}>
-            <span className={styles.planTag}>{t('treatmentPlan.plan')} TR-8821</span>
+            <span className={styles.planTag}>{t('treatmentPlan.plan')} TR-{selectedPatient?.id ? selectedPatient.id.replace('P-', '') : '01'}</span>
             <span style={{ color: 'var(--color-border)' }}>•</span>
             <span className={styles.protocolType}>{t('treatmentPlan.therapeuticProstheticProtocol')}</span>
           </div>
@@ -318,13 +402,11 @@ export default function TreatmentPlan() {
           </div>
 
           <div className={styles.metaRow}>
-            <span>{t('treatmentPlan.patient')}: <strong style={{ color: 'var(--color-text-primary)' }}>Anvar Qosimov</strong></span>
+            <span>{t('treatmentPlan.patient')}: <strong style={{ color: 'var(--color-text-primary)' }}>{selectedPatient?.name || '—'}</strong></span>
             <span className={styles.metaSeparator}>/</span>
-            <span>ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>P-1042</strong></span>
+            <span>ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>{selectedPatient?.id || '—'}</strong></span>
             <span className={styles.metaSeparator}>/</span>
-            <span>{t('treatmentPlan.date')}: 18-Sentabr, 2026</span>
-            <span className={styles.metaSeparator}>/</span>
-            <span>{t('dashboard.doctor')}: Dr. Azimov</span>
+            <span>{t('dashboard.doctor')}: <strong>{user?.shortName || user?.name || 'Dr. Shifokor'}</strong></span>
           </div>
 
           {/* Integrated progress bar directly inside headerCard */}
