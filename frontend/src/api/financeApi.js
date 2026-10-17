@@ -284,6 +284,32 @@ export const financeApi = {
         console.warn('Real Finance API createInvoice failed:', e.message);
       }
     }
-    return { id: `INV-${Date.now()}`, ...invoiceData, status: 'paid' };
+    return { id: `INV-${Date.now()}`, ...invoiceData, status: invoiceData.status || 'paid' };
+  },
+
+  async updateStatus(id, status) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.patch(`/finance/invoices/${id}/status`, { status });
+        if (res && res.data) return res.data;
+      } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
+        console.warn('Real Finance API updateStatus failed:', e.message);
+      }
+    }
+    return { id, status };
+  },
+
+  async updateInvoice(id, invoiceData) {
+    if (!apiClient.isMockEnabled()) {
+      try {
+        const res = await apiClient.put(`/finance/invoices/${id}`, invoiceData);
+        if (res && res.data) return res.data;
+      } catch (e) {
+        if (e?.status === 401 || e?.status === 403) throw e;
+        console.warn('Real Finance API updateInvoice failed:', e.message);
+      }
+    }
+    return { id, ...invoiceData };
   }
 };

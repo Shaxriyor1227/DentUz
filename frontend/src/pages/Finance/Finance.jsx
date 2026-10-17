@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { financeApi } from '../../api/financeApi';
+import { teamApi } from '../../api/teamApi';
+import { patientsApi } from '../../api/patientsApi';
+import { useAuth } from '../../context/AuthContext';
 import StatCard from '../../components/StatCard/StatCard';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import DataTable from '../../components/DataTable/DataTable';
@@ -195,8 +198,11 @@ function getPaymentLogo(methodName, size = 18) {
 export default function Finance() {
   const { t, i18n } = useTranslation();
   usePageMeta(t('finance.title') || 'Moliya va Hisob-kitob', "DentUz klinika moliya bo'limi: tushumlar, xarajatlar, invoyslar va to'lovlar hisoboti.");
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [invoices, setInvoices] = useState([]);
+  const [clinicPatients, setClinicPatients] = useState([]);
+  const [clinicDoctors, setClinicDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('this_month');
   const [activeTab, setActiveTab] = useState('all');
@@ -211,15 +217,43 @@ export default function Finance() {
   const [receiptPrintFormat, setReceiptPrintFormat] = useState('thermal'); // 'thermal' | 'a4'
   const [copiedCard, setCopiedCard] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
-    patient: 'Anvar Qosimov',
-    patientId: '1042',
+    patient: '',
+    patientId: '',
     procedure: 'Kompozit restavratsiya',
-    doctor: 'Dr. Azimov',
-    amount: '450000',
+    doctor: '',
+    amount: '',
     method: 'Payme',
     status: 'paid',
     notes: ''
   });
+
+  // Load registered clinic doctors and patients for accountant lookup
+  useEffect(() => {
+    let isMounted = true;
+    async function loadAux() {
+      try {
+        const [teamRes, patientsRes] = await Promise.all([
+          teamApi.getTeam().catch(() => []),
+          patientsApi.getAll('', 'all', 1, 100).catch(() => ({ items: [] }))
+        ]);
+        if (!isMounted) return;
+        const docs = (teamRes || []).filter(
+          (m) => m.roleType === 'doctor' || m.roleType === 'owner' || m.role === 'Shifokor' || m.role === 'Egasi'
+        );
+        const resolvedDocs = docs.length > 0
+          ? docs
+          : [{ id: user?.id || 'doc-1', name: user?.name || 'Dr. Shifokor', title: 'Shifokor' }];
+        setClinicDoctors(resolvedDocs);
+
+        const pList = patientsRes?.items || patientsRes?.data || [];
+        setClinicPatients(Array.isArray(pList) ? pList : []);
+      } catch (err) {
+        console.warn('Finance aux data loading error:', err);
+      }
+    }
+    loadAux();
+    return () => { isMounted = false; };
+  }, [user]);
 
 
   // Close export dropdown when clicking outside
@@ -338,11 +372,11 @@ export default function Finance() {
   const handleOpenSettleModal = (inv) => {
     setSelectedInvoice(inv);
     setPaymentForm({
-      patient: inv.patient,
-      patientId: inv.patientId,
-      procedure: inv.procedure,
-      doctor: inv.doctor,
-      amount: String(inv.amount),
+      patient: inv.patient || inv.patientRecord?.name || '',
+      patientId: inv.patientId || inv.patientRecord?.id || '',
+      procedure: inv.procedure || 'Stomatologik muolaja',
+      doctor: inv.doctor || clinicDoctors[0]?.name || user?.name || 'Dr. Shifokor',
+      amount: String(inv.amount || ''),
       method: inv.method || 'Payme',
       status: 'paid',
       notes: ''
@@ -352,13 +386,14 @@ export default function Finance() {
 
   const handleOpenNewPaymentModal = () => {
     setSelectedInvoice(null);
+    const defaultDoctor = clinicDoctors[0]?.name || user?.name || 'Dr. Shifokor';
     setPaymentForm({
       patient: '',
       patientId: '',
       procedure: 'Kompozit restavratsiya',
-      doctor: 'Dr. Azimov',
-      amount: '450000',
-      method: 'Payme',
+      doctor: defaultDoctor,
+      amount: '',
+      method: 'Naqd',
       status: 'paid',
       notes: ''
     });
@@ -414,14 +449,14 @@ export default function Finance() {
     }
   };
 
-  const handleCollectSubmit = (e) => {
+  const handleCollectSubmit = async (e) => {
     e.preventDefault();
     if (!paymentForm.patient.trim()) {
       setToast({
         open: true,
         type: 'warning',
-        title: t('finance.missingPatient'),
-        message: t('finance.pleaseEnterOrSelect')
+        title: t('finance.missingPatient') || 'Bemor ko\'rsatilmadi',
+        message: t('finance.pleaseEnterOrSelect') || 'Iltimos, ro\'yxatdan bemor tanlang yoki ismini kiriting.'
       });
       return;
     }
@@ -430,8 +465,8 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'warning',
-        title: t('finance.invalidAmount'),
-        message: t('finance.paymentAmountMustBe')
+        title: t('finance.invalidAmount') || 'Noto\'g\'ri summa',
+        message: t('finance.paymentAmountMustBe') || 'To\'lov summasi 0 dan katta bo\'lishi kerak.'
       });
       return;
     }
@@ -440,12 +475,20 @@ export default function Finance() {
       const wasPending = selectedInvoice.status !== 'paid';
       const isNowPaid = paymentForm.status === 'paid';
 
+      // Persist status change to backend
+      try {
+        await financeApi.updateStatus(selectedInvoice.id, paymentForm.status);
+      } catch (err) {
+        console.warn('Backend updateStatus error:', err);
+      }
+
       setInvoices((prev) =>
         prev.map((item) =>
           item.id === selectedInvoice.id
             ? {
                 ...item,
                 patient: paymentForm.patient,
+                patientId: paymentForm.patientId || item.patientId,
                 procedure: paymentForm.procedure,
                 doctor: paymentForm.doctor,
                 method: paymentForm.method,
@@ -476,10 +519,10 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: t('finance.paymentProcessed'),
+        title: t('finance.paymentProcessed') || 'To\'lov qabul qilindi',
         message: i18n.language === 'en'
           ? `Invoice #${settledId} (${formatUZS(cleanAmount)}) settled via ${paymentForm.method}.`
-          : `${settledId} raqamli invoys (${formatUZS(cleanAmount)}) ${paymentForm.method} orqali to'landi.`
+          : `${settledId} raqamli invoys (${formatUZS(cleanAmount)}) ${paymentForm.method} orqali ${isNowPaid ? "to'landi" : "saqlandi"}.`
       });
     } else {
       const nextIdNum = invoices.length + 1;
@@ -487,6 +530,23 @@ export default function Finance() {
       const now = new Date();
       const monthsUz = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
       const dateFormatted = `${now.getDate()}-${monthsUz[now.getMonth()]}, ${now.getFullYear()} • ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // Persist new invoice to backend
+      try {
+        await financeApi.createInvoice({
+          id: newId,
+          patient: paymentForm.patient,
+          patientId: paymentForm.patientId ? (paymentForm.patientId.startsWith('P-') ? paymentForm.patientId : `P-${paymentForm.patientId}`) : null,
+          procedure: paymentForm.procedure,
+          doctor: paymentForm.doctor,
+          date: now.toISOString(),
+          method: paymentForm.method,
+          amount: cleanAmount,
+          status: paymentForm.status
+        });
+      } catch (err) {
+        console.warn('Backend createInvoice error:', err);
+      }
 
       const created = {
         id: newId,
@@ -512,7 +572,7 @@ export default function Finance() {
       setToast({
         open: true,
         type: 'success',
-        title: t('finance.paymentCollected'),
+        title: t('finance.paymentCollected') || 'To\'lov saqlandi',
         message: i18n.language === 'en'
           ? `Invoice #${newId} (${formatUZS(cleanAmount)}) has been recorded.`
           : `${paymentForm.patient} uchun ${formatUZS(cleanAmount)} miqdoridagi to'lov (${paymentForm.method}) qabul qilindi.`
@@ -1069,19 +1129,54 @@ export default function Finance() {
                   </div>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div className={styles.formGroup}>
-                    <label className={styles.appleMethodLabel}>
-                      {t('finance.patientName')}
-                    </label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      placeholder={t('finance.eGAnvarQosimov')}
-                      value={paymentForm.patient}
-                      onChange={(e) => setPaymentForm((prev) => ({ ...prev, patient: e.target.value }))}
-                      required
-                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label className={styles.appleMethodLabel}>
+                        {t('finance.patientName') || "Bemor (To'lovchi)"}
+                      </label>
+                      {clinicPatients.length > 0 && (
+                        <span style={{ fontSize: '11px', color: 'var(--color-cyan-hover)', fontWeight: 600 }}>
+                          {clinicPatients.length} ta ro'yxatdagi bemor
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        list="finance-patients-datalist"
+                        className={styles.formInput}
+                        placeholder={t('finance.eGAnvarQosimov') || "Bemor ismini tanlang yoki yangi kiriting..."}
+                        value={paymentForm.patient}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const found = clinicPatients.find(p => p.name === val || `${p.name} (${p.phone})` === val);
+                          if (found) {
+                            setPaymentForm((prev) => ({
+                              ...prev,
+                              patient: found.name,
+                              patientId: found.id?.replace(/^P-/, '') || found.id || ''
+                            }));
+                          } else {
+                            setPaymentForm((prev) => ({ ...prev, patient: val }));
+                          }
+                        }}
+                        required
+                      />
+                      <datalist id="finance-patients-datalist">
+                        {clinicPatients.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.phone ? `${p.phone} • ` : ''}ID: #{p.id}
+                          </option>
+                        ))}
+                      </datalist>
+                    </div>
+                    {paymentForm.patientId && (
+                      <div style={{ fontSize: '11.5px', color: 'var(--color-text-secondary)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#10B981' }}>check_circle</span>
+                        <span>Klinika bemori: <strong>#{paymentForm.patientId}</strong></span>
+                      </div>
+                    )}
                   </div>
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
@@ -1099,6 +1194,7 @@ export default function Finance() {
                         <option value="Implantatsiya (Straumann)">Implantatsiya (Straumann)</option>
                         <option value="Breket korreksiyasi">Breket korreksiyasi</option>
                         <option value="3D CBCT tomografiya">3D CBCT tomografiya</option>
+                        <option value="Dastlabki diagnostika & ko'rik">Dastlabki diagnostika & ko'rik</option>
                       </select>
                     </div>
                     <div className={styles.formGroup}>
@@ -1110,10 +1206,51 @@ export default function Finance() {
                         value={paymentForm.doctor}
                         onChange={(e) => setPaymentForm((prev) => ({ ...prev, doctor: e.target.value }))}
                       >
-                        <option value="Dr. Azimov">Dr. Azimov (Bosh shifokor)</option>
-                        <option value="Dr. Saidova">Dr. Saidova (Ortodont)</option>
-                        <option value="Dr. Karimov">Dr. Karimov (Jarroh-implantolog)</option>
+                        {clinicDoctors.length > 0 ? (
+                          clinicDoctors.map((doc) => (
+                            <option key={doc.id || doc.name} value={doc.name}>
+                              {doc.name} {doc.title || doc.specialty ? `(${doc.title || doc.specialty})` : ''}
+                            </option>
+                          ))
+                        ) : (
+                          <option value={user?.name || "Dr. Shifokor"}>{user?.name || "Dr. Shifokor"}</option>
+                        )}
                       </select>
+                    </div>
+                  </div>
+
+                  {/* Payment Status Segmented Control */}
+                  <div className={styles.formGroup} style={{ marginTop: '2px' }}>
+                    <label className={styles.appleMethodLabel}>
+                      {t('finance.status') || "To'lov holati"}
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className={`${styles.appleSegmentBtn} ${paymentForm.status === 'paid' ? styles.appleSegmentBtnActive : ''}`}
+                        onClick={() => setPaymentForm((prev) => ({ ...prev, status: 'paid' }))}
+                        style={paymentForm.status === 'paid' ? { borderColor: 'rgba(16, 185, 129, 0.45)', background: 'rgba(16, 185, 129, 0.12)' } : {}}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#10B981' }}>
+                          check_circle
+                        </span>
+                        <span className={styles.appleSegmentLabel} style={paymentForm.status === 'paid' ? { color: '#10B981', fontWeight: 700 } : {}}>
+                          To'landi (Paid)
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.appleSegmentBtn} ${paymentForm.status === 'pending' ? styles.appleSegmentBtnActive : ''}`}
+                        onClick={() => setPaymentForm((prev) => ({ ...prev, status: 'pending' }))}
+                        style={paymentForm.status === 'pending' ? { borderColor: 'rgba(245, 158, 11, 0.45)', background: 'rgba(245, 158, 11, 0.12)' } : {}}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#F59E0B' }}>
+                          hourglass_empty
+                        </span>
+                        <span className={styles.appleSegmentLabel} style={paymentForm.status === 'pending' ? { color: '#F59E0B', fontWeight: 700 } : {}}>
+                          Kutilmoqda (Qarz)
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </div>

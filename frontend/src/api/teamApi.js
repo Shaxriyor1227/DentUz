@@ -117,12 +117,14 @@ export const teamApi = {
               : 'DR',
             roleType: m.role,
             status: 'online',
-            branch: m.clinic?.name || 'Markaziy Klinika',
+            branch: m.clinic?.name || 'Asosiy bino',
           }));
         }
+        return [];
       } catch (e) {
         if (e?.status === 401 || e?.status === 403) throw e;
-        console.warn('Real Team API getTeam failed, fallback to local data:', e.message);
+        console.warn('Real Team API getTeam failed:', e.message);
+        return [];
       }
     }
     await new Promise((r) => setTimeout(r, 150));

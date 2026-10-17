@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { appointmentsApi } from '../../api/appointmentsApi';
+import { teamApi } from '../../api/teamApi';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import Toast from '../../components/Toast/Toast';
 import AppointmentPill from '../../components/AppointmentPill/AppointmentPill';
@@ -90,15 +91,41 @@ const TREATMENT_CATEGORIES = [
   }
 ];
 
-// Scalable list of clinic doctors
-const CLINIC_DOCTORS = [
-  { id: 'azimov', name: 'Dr. Azimov Farrux', role: 'Bosh shifokor • Stomatolog-terapevt', color: 'var(--color-mint)', initial: 'A' },
-  { id: 'saidova', name: 'Dr. Saidova Malika', role: 'Terapevt • Ortodont', color: '#3B82F6', initial: 'S' },
-  { id: 'karimov', name: 'Dr. Karimov Jamshid', role: 'Jarroh • Implantolog', color: '#F59E0B', initial: 'K' },
-  { id: 'tursunov', name: 'Dr. Tursunov Bobur', role: 'Ortoped • Gnatolog', color: '#8B5CF6', initial: 'T' },
-  { id: 'rasulova', name: 'Dr. Rasulova Nigora', role: 'Bolalar stomatologi', color: '#EC4899', initial: 'R' },
-  { id: 'xalilov', name: 'Dr. Xalilov Otabek', role: 'Endodontist • Mikroskopist', color: '#06B6D4', initial: 'X' }
-];
+const DOCTOR_PALETTE = ['var(--color-mint)', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#10B981', '#6366F1'];
+
+function mapTeamToDoctorList(teamMembers = [], currentUser = null) {
+  const rawDocs = Array.isArray(teamMembers)
+    ? teamMembers.filter(
+        (m) => m.role === 'doctor' || m.role === 'owner' || m.roleType === 'doctor' || m.roleType === 'owner'
+      )
+    : [];
+
+  const source = rawDocs.length > 0 ? rawDocs : (currentUser ? [currentUser] : []);
+
+  if (source.length === 0) {
+    return [
+      {
+        id: 'doc-1',
+        name: currentUser?.name || 'Shifokor',
+        role: currentUser?.title || 'Stomatolog-terapevt',
+        color: DOCTOR_PALETTE[0],
+        initial: currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'S'
+      }
+    ];
+  }
+
+  return source.map((m, idx) => {
+    const rawName = m.name || 'Shifokor';
+    const initial = rawName.replace(/^Dr\.\s*/i, '').charAt(0).toUpperCase() || 'D';
+    return {
+      id: String(m.id || `doc-${idx}`),
+      name: rawName.startsWith('Dr.') ? rawName : `Dr. ${rawName}`,
+      role: m.title || (m.role === 'owner' ? 'Bosh shifokor' : 'Shifokor-stomatolog'),
+      color: DOCTOR_PALETTE[idx % DOCTOR_PALETTE.length],
+      initial
+    };
+  });
+}
 
 function formatYYYYMMDD(date) {
   const y = date.getFullYear();
@@ -192,6 +219,25 @@ export default function Calendar() {
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
+  const [clinicDoctors, setClinicDoctors] = useState(() => mapTeamToDoctorList([], user));
+
+  useEffect(() => {
+    async function loadTeam() {
+      try {
+        const team = await teamApi.getTeam();
+        if (Array.isArray(team) && team.length > 0) {
+          const docs = mapTeamToDoctorList(team, user);
+          setClinicDoctors(docs);
+        } else if (user) {
+          setClinicDoctors(mapTeamToDoctorList([user], user));
+        }
+      } catch (err) {
+        console.warn('Could not load team for calendar:', err);
+      }
+    }
+    loadTeam();
+  }, [user]);
+
   const [newApt, setNewApt] = useState(() => {
     const today = new Date();
     const dayKey = DAY_NAMES[(today.getDay() + 6) % 7].key;
@@ -199,12 +245,24 @@ export default function Calendar() {
       patientName: '',
       patientPhone: '',
       procedure: 'Karies davolash',
-      doctor: 'azimov',
+      doctor: user?.id ? String(user.id) : 'doc-1',
       date: formatYYYYMMDD(today),
       day: dayKey,
       time: '12:00'
     };
   });
+
+  useEffect(() => {
+    if (clinicDoctors.length > 0) {
+      const match = clinicDoctors.find((d) => d.id === newApt.doctor);
+      if (!match) {
+        const userDoc = clinicDoctors.find((d) => d.id === String(user?.id)) || clinicDoctors[0];
+        if (userDoc) {
+          setNewApt((prev) => ({ ...prev, doctor: userDoc.id }));
+        }
+      }
+    }
+  }, [clinicDoctors, user]);
 
   // Category & Scalable Doctor Selector states
   const [selectedCategory, setSelectedCategory] = useState('terapiya');
@@ -326,26 +384,32 @@ export default function Calendar() {
 
   // Active doctor object in modal
   const activeModalDoctor = useMemo(() => {
-    return CLINIC_DOCTORS.find((d) => d.id === newApt.doctor) || CLINIC_DOCTORS[0];
-  }, [newApt.doctor]);
+    return clinicDoctors.find((d) => d.id === newApt.doctor) || clinicDoctors[0] || {
+      id: 'doc-1',
+      name: user?.name ? (user.name.startsWith('Dr.') ? user.name : `Dr. ${user.name}`) : 'Shifokor',
+      role: user?.title || 'Stomatolog-terapevt',
+      color: 'var(--color-mint)',
+      initial: 'S'
+    };
+  }, [clinicDoctors, newApt.doctor, user]);
 
   // Filtered doctors for modal dropdown search
   const filteredClinicDoctors = useMemo(() => {
-    if (!doctorSearch.trim()) return CLINIC_DOCTORS;
+    if (!doctorSearch.trim()) return clinicDoctors;
     const q = doctorSearch.toLowerCase();
-    return CLINIC_DOCTORS.filter(
+    return clinicDoctors.filter(
       (d) => d.name.toLowerCase().includes(q) || d.role.toLowerCase().includes(q)
     );
-  }, [doctorSearch]);
+  }, [doctorSearch, clinicDoctors]);
 
   // Filtered doctors for top bar dropdown search
   const filteredTopDoctors = useMemo(() => {
-    if (!topDoctorSearch.trim()) return CLINIC_DOCTORS;
+    if (!topDoctorSearch.trim()) return clinicDoctors;
     const q = topDoctorSearch.toLowerCase();
-    return CLINIC_DOCTORS.filter(
+    return clinicDoctors.filter(
       (d) => d.name.toLowerCase().includes(q) || d.role.toLowerCase().includes(q)
     );
-  }, [topDoctorSearch]);
+  }, [topDoctorSearch, clinicDoctors]);
 
   // Today string for real-time comparison
   const todayStr = useMemo(() => formatYYYYMMDD(new Date()), []);
@@ -580,12 +644,13 @@ export default function Calendar() {
     }
 
     try {
-      const doc = CLINIC_DOCTORS.find((d) => d.id === newApt.doctor) || CLINIC_DOCTORS[0];
+      const doc = clinicDoctors.find((d) => d.id === newApt.doctor) || clinicDoctors[0];
       const created = await appointmentsApi.create({
         ...newApt,
         patientPhone: normalizePhone(newApt.patientPhone),
-        doctorName: doc.name,
-        color: doc.color
+        doctor: doc ? doc.id : newApt.doctor,
+        doctorName: doc ? doc.name : (user?.name || 'Shifokor'),
+        color: doc ? doc.color : 'var(--color-mint)'
       });
       setAppointments((prev) => [...prev, created]);
       setShowModal(false);
@@ -601,7 +666,7 @@ export default function Calendar() {
         patientName: '',
         patientPhone: '',
         procedure: 'Karies davolash',
-        doctor: 'azimov',
+        doctor: user?.id ? String(user.id) : (clinicDoctors[0]?.id || 'doc-1'),
         date: formatYYYYMMDD(currentDate),
         day: 'fri',
         time: '12:00'
@@ -805,7 +870,7 @@ export default function Calendar() {
                           {t('calendar.allDoctors')}
                         </span>
                         <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                          {t('calendar.clinicTotal', { count: CLINIC_DOCTORS.length })}
+                          {t('calendar.clinicTotal', { count: clinicDoctors.length })}
                         </span>
                       </div>
                     </div>
@@ -1448,7 +1513,7 @@ export default function Calendar() {
 
                   {doctorDropdownOpen && (
                     <div className={styles.doctorMenuPopover}>
-                      {CLINIC_DOCTORS.length > 4 && (
+                      {clinicDoctors.length > 4 && (
                         <div className={styles.doctorSearchBox}>
                           <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-outline)' }}>
                             search

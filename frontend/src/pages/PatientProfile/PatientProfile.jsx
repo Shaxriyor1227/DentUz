@@ -5,6 +5,8 @@ import { patientsApi } from '../../api/patientsApi';
 import { odontogramApi } from '../../api/odontogramApi';
 import { medicalRecordsApi } from '../../api/medicalRecordsApi';
 import { financeApi } from '../../api/financeApi';
+import { teamApi } from '../../api/teamApi';
+import { useAuth } from '../../context/AuthContext';
 import Odontogram from '../../components/Odontogram/Odontogram';
 import StatusPill from '../../components/StatusPill/StatusPill';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
@@ -128,6 +130,7 @@ const INITIAL_INVOICES = [
 export default function PatientProfile() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const { user } = useAuth();
   const [patient, setPatient] = useState(null);
   const [chartData, setChartData] = useState({});
   const [selectedToothId, setSelectedToothId] = useState('16');
@@ -140,6 +143,9 @@ export default function PatientProfile() {
   const [doctorDiag, setDoctorDiag] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Clinic doctors list
+  const [clinicDoctors, setClinicDoctors] = useState([]);
+
   // History states
   const [treatments, setTreatments] = useState([]);
   const [showAddTreatmentModal, setShowAddTreatmentModal] = useState(false);
@@ -148,7 +154,7 @@ export default function PatientProfile() {
     title: '',
     materials: '',
     price: '',
-    doctor: 'Dr. J. Azimov'
+    doctor: user?.name || ''
   });
 
   // Clinical Dossier (Form 043/h) modal
@@ -207,6 +213,25 @@ export default function PatientProfile() {
     load();
   }, [id]);
 
+  // Load registered clinic doctors dynamically
+  useEffect(() => {
+    let isMounted = true;
+    teamApi.getTeam().then((members) => {
+      if (!isMounted) return;
+      const docs = (members || []).filter(
+        (m) => m.roleType === 'doctor' || m.roleType === 'owner' || m.role === 'Shifokor' || m.role === 'Egasi'
+      );
+      const resolved = docs.length > 0
+        ? docs
+        : [{ id: user?.id || 'doc-1', name: user?.name || 'Dr. Shifokor', title: 'Shifokor' }];
+      setClinicDoctors(resolved);
+      if (resolved[0]?.name) {
+        setNewTreatment((prev) => ({ ...prev, doctor: prev.doctor || resolved[0].name }));
+      }
+    }).catch((err) => console.warn('Could not load clinic doctors in PatientProfile:', err));
+    return () => { isMounted = false; };
+  }, [user]);
+
   // When user clicks a tooth in Odontogram
   const handleSelectTooth = useCallback(
     (toothId) => {
@@ -249,12 +274,13 @@ export default function PatientProfile() {
   const handleAddTreatment = async (e) => {
     e.preventDefault();
     if (!newTreatment.title) return;
+    const fallbackDoctor = clinicDoctors[0]?.name || user?.name || 'Dr. Shifokor';
     const added = {
       id: `TR-${Date.now().toString().slice(-4)}`,
       date: 'Bugun',
       tooth: newTreatment.tooth || 'Umumiy',
       title: newTreatment.title,
-      doctor: newTreatment.doctor || 'Dr. J. Azimov',
+      doctor: newTreatment.doctor || fallbackDoctor,
       materials: newTreatment.materials || 'Standart stomatologik material',
       price: Number(newTreatment.price) || 450000,
       status: 'completed',
@@ -274,7 +300,7 @@ export default function PatientProfile() {
     } catch (err) {
       console.warn('Sync medical record failed:', err);
     }
-    setNewTreatment({ tooth: '#16', title: '', materials: '', price: '', doctor: 'Dr. J. Azimov' });
+    setNewTreatment({ tooth: '#16', title: '', materials: '', price: '', doctor: fallbackDoctor });
   };
 
   // Handle new payment
@@ -1223,9 +1249,15 @@ export default function PatientProfile() {
                     value={newTreatment.doctor}
                     onChange={(e) => setNewTreatment({ ...newTreatment, doctor: e.target.value })}
                   >
-                    <option value="Dr. J. Azimov">Dr. J. Azimov</option>
-                    <option value="Dr. M. Saidova">Dr. M. Saidova</option>
-                    <option value="Dr. A. Tursunov">Dr. A. Tursunov</option>
+                    {clinicDoctors.length > 0 ? (
+                      clinicDoctors.map((doc) => (
+                        <option key={doc.id || doc.name} value={doc.name}>
+                          {doc.name} {doc.title || doc.specialty ? `(${doc.title || doc.specialty})` : ''}
+                        </option>
+                      ))
+                    ) : (
+                      <option value={user?.name || "Dr. Shifokor"}>{user?.name || "Dr. Shifokor"}</option>
+                    )}
                   </select>
                 </div>
               </div>
