@@ -1194,7 +1194,7 @@ export default function Finance() {
                         <option value="Implantatsiya (Straumann)">Implantatsiya (Straumann)</option>
                         <option value="Breket korreksiyasi">Breket korreksiyasi</option>
                         <option value="3D CBCT tomografiya">3D CBCT tomografiya</option>
-                        <option value="Dastlabki diagnostika & ko'rik">Dastlabki diagnostika & ko'rik</option>
+                        <option value="Dastlabki diagnostika & ko'rik">{t('finance.initialDiagnosticsInspection')}</option>
                       </select>
                     </div>
                     <div className={styles.formGroup}>

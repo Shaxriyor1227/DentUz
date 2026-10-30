@@ -694,7 +694,8 @@
     "cashPaymentRegisteredIn": "Naqd to'lov: Kassa apparatiga kirim qilinadi va fiskal chek chop etiladi",
     "confirmSettlement": "To'lovni tasdiqlash",
     "confirmPayment": "To'lovni tasdiqlash",
-    "wordSaved": "{{count}} ta invoys Word hujjatiga yuklandi."
+    "wordSaved": "{{count}} ta invoys Word hujjatiga yuklandi.",
+    "initialDiagnosticsInspection": "Dastlabki diagnostika & ko'rik"
   },
   "settings": {
     "sectionBadge": "Tizim sozlamalari",

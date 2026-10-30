@@ -694,7 +694,8 @@
     "cashPaymentRegisteredIn": "Cash Payment: Registered in till & fiscal receipt issued",
     "confirmSettlement": "Confirm Settlement",
     "confirmPayment": "Confirm Payment",
-    "wordSaved": "{{count}} invoices saved as Word document."
+    "wordSaved": "{{count}} invoices saved as Word document.",
+    "initialDiagnosticsInspection": "Initial Diagnostics & Consultation"
   },
   "settings": {
     "sectionBadge": "System Settings",
