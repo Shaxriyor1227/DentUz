@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { compression } from 'vite-plugin-compression2';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -23,6 +24,18 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      // Pre-generate Gzip assets
+      compression({
+        algorithm: 'gzip',
+        exclude: [/\.(br)$/, /\.(gz)$/],
+        threshold: 1024,
+      }),
+      // Pre-generate maximum Brotli compression assets
+      compression({
+        algorithm: 'brotliCompress',
+        exclude: [/\.(br)$/, /\.(gz)$/],
+        threshold: 1024,
+      }),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'robots.txt', 'sitemap.xml'],
@@ -30,12 +43,12 @@ export default defineConfig(({ mode }) => {
           name: 'DentUz - Dental Clinic Management OS',
           short_name: 'DentUz',
           description: "O'zbekistondagi zamonaviy stomatologiya klinikasi boshqaruv tizimi",
-          theme_color: '#0F172A',
+          theme_color: '#FFFFFF',
           background_color: '#F8FAFC',
           display: 'standalone',
           start_url: '/',
           scope: '/',
-          lang: 'uz',
+          lang: 'en',
           icons: [
             {
               src: '/favicon.svg',
@@ -46,7 +59,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          globPatterns: ['**/*.{js,css,html,svg,png,webp,avif,woff2}'],
           globIgnores: ['**/excel-vendor-*.js'],
           maximumFileSizeToCacheInBytes: 3000000,
           // Never intercept or cache API calls with the SPA fallback
@@ -117,7 +130,7 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: (assetInfo) => {
             const ext = assetInfo.name?.split('.').pop();
-            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            if (/png|jpe?g|webp|avif|svg|gif|tiff|bmp|ico/i.test(ext)) {
               return 'assets/images/[name]-[hash][extname]';
             }
             if (/woff2?|eot|ttf|otf/i.test(ext)) {

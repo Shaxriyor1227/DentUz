@@ -1027,12 +1027,18 @@ export default function PatientProfile() {
                     </div>
                   ) : (
                     <>
-                      <img
-                        src={item.img}
-                        alt={item.title}
-                        className={styles.xrayImgMock}
-                        onError={() => setFailedImages((prev) => ({ ...prev, [item.id]: true }))}
-                      />
+                      <picture>
+                        <source type="image/avif" srcSet={item.img.replace(/\.jpg$/, '.avif')} />
+                        <source type="image/webp" srcSet={item.img.replace(/\.jpg$/, '.webp')} />
+                        <img
+                          src={item.img}
+                          alt={item.title}
+                          loading="lazy"
+                          decoding="async"
+                          className={styles.xrayImgMock}
+                          onError={() => setFailedImages((prev) => ({ ...prev, [item.id]: true }))}
+                        />
+                      </picture>
                       <div className={styles.xrayZoomIcon}>
                         <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
                           zoom_in
@@ -1392,20 +1398,25 @@ export default function PatientProfile() {
                   </div>
                 </div>
               ) : (
-                <img
-                  src={selectedXray.img}
-                  alt={selectedXray.title}
-                  onError={() => setFailedImages((prev) => ({ ...prev, [selectedXray.id]: true }))}
-                  style={{
-                    maxHeight: '420px',
-                    maxWidth: '92%',
-                    borderRadius: '10px',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-                    transform: `scale(${xrayZoom})`,
-                    filter: `invert(${xrayInvert ? 1 : 0}) contrast(${xrayContrast}%) brightness(${xrayBrightness}%)`,
-                    transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease'
-                  }}
-                />
+                <picture style={{ display: 'contents' }}>
+                  <source type="image/avif" srcSet={selectedXray.img.replace(/\.jpg$/, '.avif')} />
+                  <source type="image/webp" srcSet={selectedXray.img.replace(/\.jpg$/, '.webp')} />
+                  <img
+                    src={selectedXray.img}
+                    alt={selectedXray.title}
+                    decoding="async"
+                    onError={() => setFailedImages((prev) => ({ ...prev, [selectedXray.id]: true }))}
+                    style={{
+                      maxHeight: '420px',
+                      maxWidth: '92%',
+                      borderRadius: '10px',
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
+                      transform: `scale(${xrayZoom})`,
+                      filter: `invert(${xrayInvert ? 1 : 0}) contrast(${xrayContrast}%) brightness(${xrayBrightness}%)`,
+                      transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease'
+                    }}
+                  />
+                </picture>
               )}
 
               {/* Dental Calibration Ruler Overlay */}

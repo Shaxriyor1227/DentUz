@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+
     <script>
       (function() {
         try {
           var saved = localStorage.getItem('dentuz_theme');
           var theme = (saved === 'dark' || saved === 'light') ? saved : 'light';
           document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.style.colorScheme = theme;
         } catch(e) {}
       })();
     </script>
@@ -20,54 +24,74 @@
     <meta name="keywords" content="stomatologiya tizimi, dental klinika boshqaruvi, odontogramma, bemor kartochkasi, O'zbekiston, DentUz, stomatolog dastur" />
     <meta name="author" content="DentUz Team" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#0F172A" />
-    <link rel="canonical" href="https://dentuz.uz/" />
+    <link rel="canonical" href="https://dent-uz.vercel.app/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://dentuz.uz/" />
+    <meta property="og:url" content="https://dent-uz.vercel.app/" />
     <meta property="og:title" content="DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi" />
     <meta property="og:description" content="O'zbekistondagi stomatologiya klinikal boshqaruv tizimi. Bemorlar kartochkasi, digital odontogramma, moliyaviy hisobotlar bir platformada." />
-    <meta property="og:image" content="https://dentuz.uz/og-image.png" />
-    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:image" content="https://dent-uz.vercel.app/og-image.webp" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="DentUz" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://dentuz.uz/" />
+    <meta name="twitter:url" content="https://dent-uz.vercel.app/" />
     <meta name="twitter:title" content="DentUz - Zamonaviy Stomatologiya Boshqaruv Tizimi" />
     <meta name="twitter:description" content="O'zbekistondagi stomatologiya klinikal boshqaruv tizimi. Bemorlar kartochkasi, digital odontogramma, moliyaviy hisobotlar bir platformada." />
-    <meta name="twitter:image" content="https://dentuz.uz/og-image.png" />
+    <meta name="twitter:image" content="https://dent-uz.vercel.app/og-image.webp" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
     <!-- 
-      Font Loading Strategy: Preload critical font CSS to avoid render-blocking.
-      Using font-display=swap to prevent invisible text during font load.
-      Preconnect for faster DNS + TCP resolution.
+      High-Performance Asynchronous Font Preloading (Zero Render Blocking for LCP/FCP)
+      Preconnect for faster DNS + TLS resolution.
     -->
-    <!-- Google Fonts: Inter & JetBrains Mono (text fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
     />
-    <!-- Material Symbols Outlined (icon font) - separate request for reliable loading -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+    />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+      />
+    </noscript>
 
-    <!-- Structured Data: Organization -->
+    <!-- Structured Data: SoftwareApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "DentUz",
-      "description": "O'zbekistondagi zamonaviy stomatologiya klinikasi boshqaruv tizimi",
+      "description": "Dental Clinic Management & Operating System SaaS in Uzbekistan",
       "applicationCategory": "HealthApplication",
       "operatingSystem": "Web",
       "offers": {
@@ -75,11 +99,11 @@
         "price": "280000",
         "priceCurrency": "UZS"
       },
-      "url": "https://dentuz.uz",
+      "url": "https://dent-uz.vercel.app",
       "publisher": {
         "@type": "Organization",
         "name": "DentUz",
-        "url": "https://dentuz.uz"
+        "url": "https://dent-uz.vercel.app"
       }
     }
     </script>

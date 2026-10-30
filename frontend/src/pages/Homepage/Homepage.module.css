@@ -1800,6 +1800,8 @@
 
 /* ── Section Portal Cards (Homepage gateway to dedicated pages) ── */
 .portalSection {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px var(--space-xl) 80px;
@@ -1954,6 +1956,8 @@
 
 /* ── 3. Orbit Ecosystem 2-Column Section ── */
 .orbitEcosystemSection {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 650px;
   max-width: 1240px;
   margin: 0 auto;
   padding: 80px var(--space-xl) 70px;
@@ -2099,6 +2103,8 @@
 
 /* ── 4. Stats Counter Section ── */
 .statsSection {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 250px;
   max-width: 1200px;
   margin: 20px auto 90px;
   padding: 0 var(--space-xl);
@@ -2174,6 +2180,8 @@
 
 /* ── 5. Bottom Conversion Banner ── */
 .ctaBannerSection {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 350px;
   max-width: 1140px;
   margin: 0 auto 100px;
   padding: 0 var(--space-xl);

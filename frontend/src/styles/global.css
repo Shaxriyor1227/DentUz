@@ -161,3 +161,15 @@ input, select, textarea {
     z-index: 9999999 !important;
   }
 }
+
+/* Core Web Vitals & Rendering Performance */
+.cv-auto,
+[data-cv-auto] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Responsive media & image shift prevention */
+picture, img {
+  max-width: 100%;
+}
